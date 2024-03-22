@@ -1,0 +1,542 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/as_animation_cache.c.o",
+      "src/as_animation_cache.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/as_animation_cache.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/as_animation_cache.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/ac_cat.c.o",
+      "src/ac_cat.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/ac_cat.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/ac_cat.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/sp_draw.c.o",
+      "src/sp_draw.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/sp_draw.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/sp_draw.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/m_arena.c.o",
+      "src/m_arena.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/m_arena.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/m_arena.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/u_memory.c.o",
+      "src/u_memory.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/u_memory.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/u_memory.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/sy_render.c.o",
+      "src/sy_render.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/sy_render.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/sy_render.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/as_texture_cache.c.o",
+      "src/as_texture_cache.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/as_texture_cache.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/as_texture_cache.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/e_aircraft.c.o",
+      "src/e_aircraft.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/e_aircraft.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/e_aircraft.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/u_color.c.o",
+      "src/u_color.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/u_color.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/u_color.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/m_fixed.c.o",
+      "src/m_fixed.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/m_fixed.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/m_fixed.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/main.c.o",
+      "src/main.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/main.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/main.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/c_action.c.o",
+      "src/c_action.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/c_action.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/c_action.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/game.c.o",
+      "src/game.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/game.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/game.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/sy_action.c.o",
+      "src/sy_action.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/sy_action.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/sy_action.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/u_log.c.o",
+      "src/u_log.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/u_log.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/u_log.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/e_barracks.c.o",
+      "src/e_barracks.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/e_barracks.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/e_barracks.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/cJSON/cJSON.c.o",
+      "src/cJSON/cJSON.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/cJSON/cJSON.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/cJSON/cJSON.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/ac_run_animation.c.o",
+      "src/ac_run_animation.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/ac_run_animation.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/ac_run_animation.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/e_background.c.o",
+      "src/e_background.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/e_background.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/e_background.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/ac_change_color.c.o",
+      "src/ac_change_color.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/ac_change_color.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/ac_change_color.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/hashmap/hashmap.c.o",
+      "src/hashmap/hashmap.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/hashmap/hashmap.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/hashmap/hashmap.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/e_repository.c.o",
+      "src/e_repository.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/e_repository.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/e_repository.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/ac_action.c.o",
+      "src/ac_action.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/ac_action.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/ac_action.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/as_sprite_frame_cache.c.o",
+      "src/as_sprite_frame_cache.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/as_sprite_frame_cache.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/as_sprite_frame_cache.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/as_texture_packer.c.o",
+      "src/as_texture_packer.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/as_texture_packer.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/as_texture_packer.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/sy_render_debug.c.o",
+      "src/sy_render_debug.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/sy_render_debug.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/sy_render_debug.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./src",
+      "-I./src/cJSON",
+      "-I./src/hashmap",
+      "-ggdb",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-c",
+      "-o",
+      "build/./src/input.c.o",
+      "src/input.c"
+    ],
+    "directory": "/home/marco/dev/c/prj/thegame",
+    "file": "/home/marco/dev/c/prj/thegame/src/input.c",
+    "output": "/home/marco/dev/c/prj/thegame/build/src/input.c.o"
+  }
+]
