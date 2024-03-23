@@ -59,7 +59,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->sprite.color = WHITE;
     component->sprite.flipX = false;
     component->sprite.flipY = false;
-    component->sprite.layer = SL_AIRCRAFTS;
+    component->sprite.layer = SL_PLAYERS;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
