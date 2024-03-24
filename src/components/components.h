@@ -63,10 +63,22 @@ typedef struct {
     CameraType camera;
 } ComponentCameraProps;
 
+typedef enum {
+    PD_UP,
+    PD_DOWN,
+    PD_LEFT,
+    PD_RIGHT,
+    PD_UP_LEFT,
+    PD_UP_RIGHT,
+    PD_DOWN_LEFT,
+    PD_DOWN_RIGHT,
+    PD_COUNT
+} PlayerDirection;
+
 typedef struct {
     f32 max_velocity;
-    struct Action *action_stand;
-    struct Action *action_run;
+    AssetsSpriteFrameId stand_frames[PD_COUNT];
+    struct Action *run_actions[PD_COUNT];
 } ComponentHuman;
 
 typedef struct {

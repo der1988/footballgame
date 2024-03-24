@@ -110,7 +110,7 @@ static AssetsAnimation *load_from_json(const char *filename, const usize initial
                 strncpy(frame_name_format, entity->string, sizeof(frame_name) - 1);
                 strcat(frame_name_format + strlen(frame_name_format), "_");
                 strcat(frame_name_format + strlen(frame_name_format), animation_prefix);
-                strcat(frame_name_format + strlen(frame_name_format), "%02d.png");
+                strcat(frame_name_format + strlen(frame_name_format), "%d");
                 snprintf(frame_name, sizeof(frame_name) - 1, frame_name_format, frame_as_number);
 
                 AssetsSpriteFrame *sprite_frame =

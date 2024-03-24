@@ -21,7 +21,9 @@ void systems_camera(GameState *game_state) {
             ComponentCameraProps *camera_props = &base_camera_props->camera_props;
             ComponentTarget *target = &base_target->target;
 
-            game_state->cameras[camera_props->camera].target = target->target_transform->position;
+            if (target->target_transform) {
+                game_state->camera.target = target->target_transform->position;
+            }
         }
     }
 }

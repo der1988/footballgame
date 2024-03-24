@@ -75,8 +75,12 @@ static char const *StateMachinePlayerStateString[] = {"none", "stand", "run", "c
 
 DeclareStateMachineEnterAndExit(player);
 
+typedef struct {
+    RunningActionIdx running_action_idx;
+} StateMachinePlayerStandData;
+
 typedef union {
-    StateMachineDefaultEmptyData stand;
+    StateMachinePlayerStandData stand;
     StateMachineDefaultEmptyData run;
 } StateMachinePlayerStateData;
 

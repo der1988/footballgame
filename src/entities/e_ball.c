@@ -20,7 +20,6 @@ ImplementStateMachineFunctions(Ball, ball);
 
 void ball_apply_steering(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void ball_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt);
-void ball_prepare_gfx(char *ball_type, GameState *game_state);
 
 struct Entity *entities_ball_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
@@ -49,9 +48,9 @@ struct Entity *entities_ball_create(GameState *game_state) {
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
-    char *spitfire_straight = "ball_rifle_smoke_01.png";
+    char *ball = "ball_0";
     AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, spitfire_straight);
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball);
     assert(sprite_frame != NULL);
     component->sprite.frame_id = sprite_frame->id;
     component->sprite.color = WHITE;
@@ -61,10 +60,6 @@ struct Entity *entities_ball_create(GameState *game_state) {
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
-
-    // Initialise human
-    component = entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id);
-    component->human.max_velocity = 100.0;
 
     state_machine_ball_on_enter(entity, game_state);
 
@@ -82,8 +77,6 @@ void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
         &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachineBall *state_machine = component->state_machine.ptr;
@@ -134,8 +127,6 @@ void state_machine_ball_on_enter(struct Entity *entity, GameState *game_state) {
         &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachineBall *state_machine = component->state_machine.ptr;
@@ -194,21 +185,3 @@ void state_machine_ball_on_exit(struct Entity *entity, GameState *game_state) {
         break;
     }
 }
-
-struct Action *build_action_from_animation(char *ball_type, char *animation_name,
-                                           GameState *game_state) {
-    MemoryArenaHandle *memory_handle_level = game_state->memory_by_lifetime[MAL_LEVEL];
-
-    // Scratch buffer
-    char *final_animation = memory_arena_push(game_state->memory_by_lifetime[MAL_FRAME], 30);
-
-    snprintf(final_animation, 30, "%s_%s", ball_type, animation_name);
-    AssetsAnimation *animation =
-        assets_animation_get_by_name(game_state->animation_cache, final_animation);
-    ActionPlayAnimation *animation_action =
-        actions_play_animation_create(animation, true, 1.0f, memory_handle_level);
-
-    return (struct Action *)animation_action;
-}
-
-void ball_prepare_gfx(char *ball_type, GameState *game_state) {}
