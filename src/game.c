@@ -39,8 +39,11 @@ GameState *game_init(GameConfig game_config) {
         assets_animation_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
 
     // Load caches
-    AssetsTexture *texture =
-        assets_texture_load(game_state->texture_cache, "res/spritesheets/footballgame.png");
+    AssetsTexture *texture = assets_texture_load(game_state->texture_cache, "res/pitch.png");
+    assert(texture);
+    game_state->pitch_texture_id = texture->id;
+    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/footballgame.png");
+    assert(texture);
     i32 loaded = assets_sprite_frames_load_from_json(game_state->sprite_frame_cache, texture->id,
                                                      "res/spritesheets/footballgame.json");
     assert(loaded != -1);
@@ -135,10 +138,12 @@ void game_draw(GameState *game_state) {
     assert(game_state->initialised);
 
     BeginTextureMode(game_state->render_texture);
-    ClearBackground((Color){.r = 131, .g = 147, .b = 178, .a = 255});
-    // ClearBackground(BLACK);
+    ClearBackground(BLACK);
 
     BeginMode2D(game_state->camera);
+    DrawTexture(
+        assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture,
+        0, 0, WHITE);
     systems_render(game_state);
     systems_render_debug(game_state);
     EndMode2D();

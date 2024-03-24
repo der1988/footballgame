@@ -5,12 +5,10 @@
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
-#include "game_constants.h"
 #include "input/input.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
-#include <math.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
@@ -18,10 +16,9 @@
 
 ImplementStateMachineFunctions(Player, player);
 
-void player_apply_steering(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
-                           DeltaTime dt);
-void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
-                           ComponentHuman *human, DeltaTime dt);
+void player_apply_force(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
+                        DeltaTime dt);
+void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt);
 void player_prepare_gfx(ComponentHuman *human, GameState *game_state);
 
 struct Entity *entities_player_create(GameState *game_state) {
@@ -79,9 +76,9 @@ struct Entity *entities_player_create(GameState *game_state) {
 }
 
 PlayerDirection calculate_player_direction(Vector2 direction) {
-    static Vector2 direction_vectors[] = {{.x = 0, .y = 1},   {.x = 0, .y = -1}, {.x = -1, .y = 0},
-                                          {.x = 1, .y = 0},   {.x = -1, .y = 1}, {.x = 1, .y = 1},
-                                          {.x = -1, .y = -1}, {.x = 1, .y = -1}};
+    static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},   {.x = -1, .y = 0},
+                                          {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
+                                          {.x = -1, .y = 1}, {.x = 1, .y = 1}};
     f32 max_value = 0;
     PlayerDirection selected_direction = PD_DOWN;
     for (u16 i = 0; i < 8; ++i) {
@@ -109,7 +106,9 @@ void entities_player_update(Entity *entity, GameState *game_state, Input *input)
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachinePlayer *state_machine = component->state_machine.ptr;
 
-    Vector2 steering = (Vector2){.x = input->left_stick.x, .y = input->left_stick.y};
+    Vector2 steering = Vector2Normalize(input->left_stick);
+    steering.y = -steering.y;
+    Vector2 force_to_apply = Vector2Zero();
 
     switch (state_machine->current_state) {
     case PS_NONE:
@@ -133,19 +132,28 @@ void entities_player_update(Entity *entity, GameState *game_state, Input *input)
                 assert(state_machine->state_data.run.running_action_idx >= 0);
                 state_machine->state_data.run.running_action_direction = pd;
             }
-
-            player_apply_steering(steering, physics, human, game_state->dt);
-            player_apply_velocity(transform, physics, human, game_state->dt);
         }
+        // Run force
+        force_to_apply = Vector2Scale(steering, 1500);
     } break;
     case PS_COUNT:
         break;
     }
+
+    if (Vector2Length(physics->velocity) > 5) {
+        // Drag force
+        Vector2 drag = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 1000);
+        force_to_apply = Vector2Add(force_to_apply, drag);
+    } else {
+        physics->velocity = Vector2Zero();
+    }
+
+    player_apply_force(force_to_apply, physics, human, game_state->dt);
+    player_apply_velocity(transform, physics, game_state->dt);
 }
 
-void player_apply_steering(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
-                           DeltaTime dt) {
-    Vector2 force_to_apply = Vector2Scale(steering, human->max_velocity);
+void player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, ComponentHuman *human,
+                        DeltaTime dt) {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
     // Calculate velocity
@@ -155,8 +163,7 @@ void player_apply_steering(Vector2 steering, ComponentPhysics *physics, Componen
                      Vector2Scale(Vector2One(), human->max_velocity));
 }
 
-void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
-                           ComponentHuman *human, DeltaTime dt) {
+void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt) {
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
 }
 
@@ -183,8 +190,13 @@ void state_machine_player_on_enter(struct Entity *entity, GameState *game_state)
     case PS_STAND: {
         sprite->frame_id = human->stand_frames[PD_DOWN];
     } break;
-    case PS_RUN:
-        break;
+    case PS_RUN: {
+        PlayerDirection pd = calculate_player_direction(physics->velocity);
+        state_machine->state_data.run.running_action_idx =
+            components_action_run(entity->id, human->run_actions[pd], game_state);
+        assert(state_machine->state_data.run.running_action_idx >= 0);
+        state_machine->state_data.run.running_action_direction = pd;
+    } break;
     case PS_COUNT:
         break;
     }

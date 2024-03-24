@@ -31,6 +31,7 @@ typedef struct GameState {
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
+    AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;
     Time time;
