@@ -64,7 +64,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise human
     ComponentHuman *human =
         &entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id)->human;
-    human->max_velocity = 100.0;
+    human->max_velocity = 250;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -76,6 +76,22 @@ struct Entity *entities_player_create(GameState *game_state) {
     GLOG_INFO_CTX(LS_ENTITIES, entity->name, "player created");
 
     return entity;
+}
+
+PlayerDirection calculate_player_direction(Vector2 direction) {
+    static Vector2 direction_vectors[] = {{.x = 0, .y = 1},   {.x = 0, .y = -1}, {.x = -1, .y = 0},
+                                          {.x = 1, .y = 0},   {.x = -1, .y = 1}, {.x = 1, .y = 1},
+                                          {.x = -1, .y = -1}, {.x = 1, .y = -1}};
+    f32 max_value = 0;
+    PlayerDirection selected_direction = PD_DOWN;
+    for (u16 i = 0; i < 8; ++i) {
+        f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
+        if (tmp_value > max_value) {
+            max_value = tmp_value;
+            selected_direction = i;
+        }
+    }
+    return selected_direction;
 }
 
 void entities_player_update(Entity *entity, GameState *game_state, Input *input) {
@@ -99,11 +115,28 @@ void entities_player_update(Entity *entity, GameState *game_state, Input *input)
     case PS_NONE:
         break;
     case PS_STAND:
+        if (Vector2Length(steering) > 0.05f) {
+            state_machine_player_change_state_to(state_machine, PS_RUN, game_state);
+        }
         break;
     case PS_RUN: {
-        player_apply_steering(steering, physics, human, game_state->dt);
+        if (Vector2Length(steering) < 0.05f) {
+            steering = Vector2Zero();
+            state_machine_player_change_state_to(state_machine, PS_STAND, game_state);
+        } else {
+            PlayerDirection pd = calculate_player_direction(steering);
+            if (state_machine->state_data.run.running_action_direction != pd) {
+                actions_action_stop(state_machine->state_data.run.running_action_idx, entity->id,
+                                    game_state);
+                state_machine->state_data.run.running_action_idx =
+                    components_action_run(entity->id, human->run_actions[pd], game_state);
+                assert(state_machine->state_data.run.running_action_idx >= 0);
+                state_machine->state_data.run.running_action_direction = pd;
+            }
 
-        player_apply_velocity(transform, physics, human, game_state->dt);
+            player_apply_steering(steering, physics, human, game_state->dt);
+            player_apply_velocity(transform, physics, human, game_state->dt);
+        }
     } break;
     case PS_COUNT:
         break;
@@ -112,29 +145,19 @@ void entities_player_update(Entity *entity, GameState *game_state, Input *input)
 
 void player_apply_steering(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
                            DeltaTime dt) {
-    Vector2 force_to_apply = Vector2Scale(steering, 200.0f);
+    Vector2 force_to_apply = Vector2Scale(steering, human->max_velocity);
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
-
-    DrawText(TextFormat("steering (%.2f, %.2f)", force_to_apply.x, force_to_apply.y), 1200.0f,
-             10.0f, 16, WHITE);
 
     // Calculate velocity
     physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
-    // physics->velocity.x =
-    //     Clamp(physics->velocity.x, -airborne->max_air_velocity, airborne->max_air_velocity);
-    // physics->velocity.y =
-    //     Clamp(physics->velocity.y, -airborne->max_climb_velocity, airborne->max_dive_velocity);
+    physics->velocity =
+        Vector2Clamp(physics->velocity, Vector2Scale(Vector2One(), -human->max_velocity),
+                     Vector2Scale(Vector2One(), human->max_velocity));
 }
 
 void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
                            ComponentHuman *human, DeltaTime dt) {
-    // Vector2 velocity = (Vector2){
-    //     .x = airborne->movingLeft ? -airborne->base_velocity_x : airborne->base_velocity_x, .y =
-    //     0};
-    // airborne->real_velocity = Vector2Add(velocity, physics->velocity);
-    //
-    // transform->position =
-    //     Vector2Add(transform->position, Vector2Scale(airborne->real_velocity, dt));
+    transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
 }
 
 void state_machine_player_on_enter(struct Entity *entity, GameState *game_state) {
@@ -177,6 +200,8 @@ void state_machine_player_on_exit(struct Entity *entity, GameState *game_state) 
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
     ComponentHuman *human =
         &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    ComponentAction *action =
+        &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
                    StateMachinePlayerStateString[state_machine->previous_state]);
@@ -187,7 +212,8 @@ void state_machine_player_on_exit(struct Entity *entity, GameState *game_state) 
     case PS_STAND:
         break;
     case PS_RUN: {
-        break;
+        actions_action_stop(state_machine->state_data.run.running_action_idx, entity->id,
+                            game_state);
     }
     case PS_COUNT:
         break;

@@ -77,11 +77,12 @@ DeclareStateMachineEnterAndExit(player);
 
 typedef struct {
     RunningActionIdx running_action_idx;
-} StateMachinePlayerStandData;
+    PlayerDirection running_action_direction;
+} StateMachinePlayerRunData;
 
 typedef union {
-    StateMachinePlayerStandData stand;
-    StateMachineDefaultEmptyData run;
+    StateMachineDefaultEmptyData stand;
+    StateMachinePlayerRunData run;
 } StateMachinePlayerStateData;
 
 DefineStateMachine(Player, PS_COUNT);

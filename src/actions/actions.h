@@ -3,6 +3,7 @@
 
 #include "../assets/assets.h"
 #include "../game.h"
+#include "types.h"
 
 typedef enum {
     AT_CHANGE_COLOR_FROM_TO,
@@ -92,6 +93,7 @@ typedef struct {
 } ActionToggleBoolean;
 
 void actions_action_run(ActionRunner *action_runner, EntityId id, GameState *game_state);
+void actions_action_stop(RunningActionIdx running_action_idx, EntityId id, GameState *game_state);
 
 ActionChangeColorFromTo *
 actions_change_color_from_to_create(f32 duration, b32 loop, Color from, Color to,
