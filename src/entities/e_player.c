@@ -61,7 +61,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise human
     ComponentHuman *human =
         &entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id)->human;
-    human->max_velocity = 250;
+    human->max_velocity = 125;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -107,7 +107,6 @@ void entities_player_update(Entity *entity, GameState *game_state, Input *input)
     StateMachinePlayer *state_machine = component->state_machine.ptr;
 
     Vector2 steering = Vector2Normalize(input->left_stick);
-    steering.y = -steering.y;
     Vector2 force_to_apply = Vector2Zero();
 
     switch (state_machine->current_state) {
@@ -158,9 +157,9 @@ void player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, Compo
 
     // Calculate velocity
     physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
-    physics->velocity =
-        Vector2Clamp(physics->velocity, Vector2Scale(Vector2One(), -human->max_velocity),
-                     Vector2Scale(Vector2One(), human->max_velocity));
+    if (Vector2Length(physics->velocity) > human->max_velocity) {
+        physics->velocity = Vector2Scale(Vector2Normalize(physics->velocity), human->max_velocity);
+    }
 }
 
 void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt) {

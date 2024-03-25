@@ -85,7 +85,7 @@ GameState *game_init(GameConfig game_config) {
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.screen_width,
                                                    (f32)game_state->config.screen_height);
-    game_state->camera.zoom = 1;
+    game_state->camera.zoom = 2;
     game_state->camera.rotation = 0;
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
@@ -137,13 +137,24 @@ void game_update(GameState *game_state, Input *input) {
 void game_draw(GameState *game_state) {
     assert(game_state->initialised);
 
+    Texture2D pitch_texture =
+        assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture;
+
     BeginTextureMode(game_state->render_texture);
     ClearBackground(BLACK);
 
     BeginMode2D(game_state->camera);
-    DrawTexture(
-        assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture,
-        0, 0, WHITE);
+
+    DrawTexture(pitch_texture, 0, 0, WHITE);
+    DrawTexturePro(
+        pitch_texture,
+        (Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = -pitch_texture.height},
+        (Rectangle){.x = 0,
+                    .y = pitch_texture.height,
+                    .width = pitch_texture.width,
+                    .height = pitch_texture.height},
+        Vector2Zero(), 0, WHITE);
+
     systems_render(game_state);
     systems_render_debug(game_state);
     EndMode2D();

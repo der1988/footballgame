@@ -73,8 +73,8 @@ Input input_handle(GameState *game_state) {
     } else {
         input.left_stick.x += (IsKeyDown(KEY_LEFT) ? -1 : 0);
         input.left_stick.x += (IsKeyDown(KEY_RIGHT) ? 1 : 0);
-        input.left_stick.y += (IsKeyDown(KEY_UP) ? 1 : 0);
-        input.left_stick.y += (IsKeyDown(KEY_DOWN) ? -1 : 0);
+        input.left_stick.y += (IsKeyDown(KEY_UP) ? -1 : 0);
+        input.left_stick.y += (IsKeyDown(KEY_DOWN) ? 1 : 0);
         input.buttons[IBT_BUTTON_DOWN].up = IsKeyUp(KEY_Z);
         input.buttons[IBT_BUTTON_DOWN].down = IsKeyDown(KEY_Z);
         input.buttons[IBT_BUTTON_DOWN].pressed = IsKeyPressed(KEY_Z);
