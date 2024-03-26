@@ -13,8 +13,8 @@ int main() {
     // Initialization
     //--------------------------------------------------------------------------------------
 
-    const float screen_width = 1280;
-    const float screen_height = 960;
+    const float screen_width = 1920;
+    const float screen_height = 1080;
 
     InitWindow(screen_width, screen_height, "The Game");
 

@@ -82,6 +82,32 @@ typedef struct {
 } ComponentHuman;
 
 typedef struct {
+    f32 ball_height;
+    Vector3 ball_3d_pos;
+    f32 ball_size;
+    Vector3 gravity_force;
+    Vector3 ball_vel;
+    Vector3 ball_accel;
+    // Coefficient of restitution
+    f32 ball_cr;
+    f32 ball_drag_in_air;
+    f32 ball_drag_on_pitch;
+    f32 ball_run_force;
+    f32 ball_control_force;
+    f32 ball_shot_force;
+    f32 ball_shot_height;
+    b32 ball_shot;
+    f32 ball_shot_time;
+    f32 ball_after_touch_delay_time;
+    f32 ball_after_touch_max_time;
+    f32 ball_after_touch_force;
+    Vector3 ball_after_touch_direction;
+    f32 ball_after_touch_height;
+    Vector2 ball_after_touch_side;
+    AssetsSpriteFrameId roll_frames[PD_COUNT];
+} ComponentBall;
+
+typedef struct {
     ComponentType type;
     b32 enabled;
     EntityId entity_id;
@@ -90,6 +116,7 @@ typedef struct {
 typedef struct {
     ComponentHeader header;
     union {
+        ComponentCameraProps camera_props;
         ComponentTransform transform;
         ComponentPhysics physics;
         ComponentSprite sprite;
@@ -97,7 +124,7 @@ typedef struct {
         ComponentAction action;
         ComponentTarget target;
         ComponentHuman human;
-        ComponentCameraProps camera_props;
+        ComponentBall ball;
     };
 } Component;
 

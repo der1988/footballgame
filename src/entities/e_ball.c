@@ -61,6 +61,31 @@ struct Entity *entities_ball_create(GameState *game_state) {
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
+    float ball_height = 0.0f;
+    Vector3 ball_3d_pos = Vector3Add(Vector3Zero(), (Vector3){.y = ball_height});
+    Vector2 ball_2d_pos = {.x = 0, .y = 0};
+    Vector2 ball_2d_shadow_pos = {.x = 0, .y = 0};
+    float ball_size = 5.0f;
+    Vector3 gravity_force = {.y = -9.81f};
+    Vector3 ball_vel = Vector3Zero();
+    Vector3 ball_accel = Vector3Zero();
+    // Coefficient of restitution
+    float ball_cr = 0.4f;
+    float ball_drag_in_air = 0.6f;
+    float ball_drag_on_pitch = 1.5f;
+    float ball_run_force = 175.0f;
+    float ball_control_force = 20.0f;
+    float ball_shot_force = 850.0f;
+    float ball_shot_height = 0.3f;
+    bool ball_shot = false;
+    float ball_shot_time = 0;
+    float ball_after_touch_delay_time = 0.1f;
+    float ball_after_touch_max_time = 0.5f;
+    float ball_after_touch_force = 15.0f;
+    Vector3 ball_after_touch_direction = {0};
+    float ball_at_height = 0;
+    Vector2 ball_at_side = {0};
+
     state_machine_ball_on_enter(entity, game_state);
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->name, "ball created");
@@ -185,3 +210,38 @@ void state_machine_ball_on_exit(struct Entity *entity, GameState *game_state) {
         break;
     }
 }
+
+// void player_prepare_gfx(ComponentHuman *human, GameState *game_state) {
+//     // Stand frames
+//     human->stand_frames[PD_DOWN] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
+//     human->stand_frames[PD_UP] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_0")->id;
+//     human->stand_frames[PD_LEFT] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_left_0")->id;
+//     human->stand_frames[PD_RIGHT] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_right_0")->id;
+//     human->stand_frames[PD_DOWN_LEFT] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+//         "player_front_left_0")->id;
+//     human->stand_frames[PD_DOWN_RIGHT] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+//         "player_front_right_0")->id;
+//     human->stand_frames[PD_UP_LEFT] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+//         "player_back_left_0")->id;
+//     human->stand_frames[PD_UP_RIGHT] =
+//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+//         "player_back_right_0")->id;
+//
+//     // Running actions
+//     human->run_actions[PD_DOWN] = build_action_from_animation("run_front", game_state);
+//     human->run_actions[PD_UP] = build_action_from_animation("run_back", game_state);
+//     human->run_actions[PD_LEFT] = build_action_from_animation("run_left", game_state);
+//     human->run_actions[PD_RIGHT] = build_action_from_animation("run_right", game_state);
+//     human->run_actions[PD_DOWN_LEFT] = build_action_from_animation("run_front_left", game_state);
+//     human->run_actions[PD_DOWN_RIGHT] = build_action_from_animation("run_front_right",
+//     game_state); human->run_actions[PD_UP_LEFT] = build_action_from_animation("run_back_left",
+//     game_state); human->run_actions[PD_UP_RIGHT] = build_action_from_animation("run_back_right",
+//     game_state);
+// }

@@ -61,7 +61,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise human
     ComponentHuman *human =
         &entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id)->human;
-    human->max_velocity = 125;
+    human->max_velocity = 150;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
