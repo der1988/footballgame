@@ -41,11 +41,11 @@ struct Entity *entities_ball_create(GameState *game_state) {
     component->transform.rotation = 0;
     component->transform.scale = Vector2One();
 
-    // Initialise physics
-    component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 0.2f;
-    component->physics.velocity = (Vector2){0};
-    component->physics.accel = (Vector2){0};
+    // Initialise 3d physics
+    component = entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
+    component->physics_3d.mass = 0.2f;
+    component->physics_3d.velocity = (Vector3){0};
+    component->physics_3d.accel = (Vector3){0};
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
@@ -64,6 +64,7 @@ struct Entity *entities_ball_create(GameState *game_state) {
 
     // Initialise ball
     component = entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
+    component->ball.height = 0.0f;
 
     ball_prepare_gfx(&component->ball, game_state);
 
@@ -77,12 +78,14 @@ struct Entity *entities_ball_create(GameState *game_state) {
 void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
     ComponentTransform *transform =
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, entity->id)->transform;
-    ComponentPhysics *physics =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
+    ComponentPhysics3d *physics_3d =
+        &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, entity->id)->physics_3d;
     ComponentAction *action =
         &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
+    ComponentBall *ball =
+        &entities_component_get(game_state->entity_repository, CT_BALL, entity->id)->ball;
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachineBall *state_machine = component->state_machine.ptr;
@@ -93,6 +96,92 @@ void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
     case BS_NONE:
         break;
     case BS_IN_PLAY: {
+
+        Vector3 ball_position_3d = (Vector3) {.x = transform->position.x, .y = ball->height, .z = transform->position.y + ball->height};
+        if (ball_position_3d.y > 0) {
+            // Gravity
+            physics_3d->velocity = Vector3Add(physics_3d->velocity, Vector3Scale(game_state->constants.gravity_force, 1));
+            // Drag in the air
+            physics_3d->velocity.x += physics_3d->velocity.x * -game_state->constants.ball_drag_in_air * game_state->dt;
+            physics_3d->velocity.z += physics_3d->velocity.z * -game_state->constants.ball_drag_in_air * game_state->dt;
+        } else {
+            // Drag on the pitch
+            physics_3d->velocity.x += physics_3d->velocity.x * -game_state->constants.ball_drag_on_pitch * game_state->dt;
+            physics_3d->velocity.z += physics_3d->velocity.z * -game_state->constants.ball_drag_on_pitch * game_state->dt;
+            // if (is_colliding_with_player) {
+            //     if (IsKeyDown(KEY_Z)) {
+            //         // Shot
+            //         ball_vel = Vector3Add(
+            //             ball_vel,
+            //             Vector3Scale(Vector3Add(Vector3Normalize(player_on_the_ball_force),
+            //                                     (Vector3){.x = 0, .y = ball_shot_height, .z = 0}),
+            //                          ball_shot_force));
+            //         ball_shot = true;
+            //         ball_shot_time = GetTime();
+            //     } else {
+            //         if (IsKeyDown(KEY_X)) {
+            //             // Precision control
+            //             ball_vel = Vector3Add(
+            //                 player_on_the_ball_force,
+            //                 Vector3Scale(
+            //                     Vector3Normalize(Vector3Subtract(
+            //                         (Vector3){.x = player_pos.x, .z = player_pos.y}, ball_3d_pos)),
+            //                     ball_control_force));
+            //         } else {
+            //             // Run control
+            //             ball_vel =
+            //                 Vector3Add(player_on_the_ball_force,
+            //                            Vector3Scale(Vector3Normalize(player_on_the_ball_force),
+            //                                         ball_run_force));
+            //         }
+            //     }
+            // }
+        }
+        // if (ball_shot && (GetTime() - ball_shot_time) > ball_after_touch_delay_time &&
+        //     (GetTime() - ball_shot_time) < ball_after_touch_max_time) {
+        //     // After touch
+        //     Vector2 ball_2d_vel = {.x = ball_vel.x, .y = ball_vel.z};
+        //     Vector2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
+        //     ball_at_height = Clamp(Vector2ProjectScalar(ball_2d_vel, player_movement), -1.0f, 0.5f);
+        //     ball_at_side = Vector2Project(ball_2d_vel_perp, player_movement);
+        //     ball_after_touch_direction =
+        //         (Vector3){.x = ball_at_side.x, .y = -ball_at_height, .z = ball_at_side.y};
+        //     ball_vel = Vector3Add(ball_vel,
+        //                           Vector3Scale(ball_after_touch_direction, ball_after_touch_force));
+        // }
+        //
+        // if (is_colliding_with_post && ball_height < 60.0f && !post_already_collided) {
+        //     ball_vel = Vector3Reflect(ball_vel,
+        //                               Vector3Normalize((Vector3){.x = GetRandomValue(-100, 100),
+        //                                                          .z = GetRandomValue(-100, 100)}));
+        //     if (Vector3Length(ball_vel) < 10.0f) {
+        //         ball_vel = Vector3Scale(Vector3Normalize((Vector3){.x = GetRandomValue(-100, 100),
+        //                                                            .z = GetRandomValue(-100, 100)}),
+        //                                 100.0f);
+        //     }
+        // } else {
+        //     post_already_collided = false;
+        // }
+
+        // Apply velocity to ball
+        ball_position_3d = Vector3Add(ball_position_3d, Vector3Scale(physics_3d->velocity, game_state->dt));
+
+        // Make the ball bounce
+        if (ball_position_3d.y < 0) {
+            ball_position_3d.y = 0;
+            physics_3d->velocity.y *= -game_state->constants.ball_cr;
+            if (fabsf(physics_3d->velocity.y) < 10.0f) {
+                physics_3d->velocity.y = 0;
+            }
+        }
+
+        // Project position to 2D
+        ball->height = ball_position_3d.y;
+        transform->position = (Vector2){.x = ball_position_3d.x, .y = ball_position_3d.z - ball->height};
+        // // Ball shadow
+        // ball_2d_shadow_pos =
+        //     Vector2Add(ball_2d_pos, (Vector2){.x = shadow_x_displacement + ball_height * 0.1f,
+        //                                       .y = ball_size + ball_height * 0.1f});
     } break;
     case BS_OUT_OF_PLAY: {
     } break;
@@ -101,24 +190,9 @@ void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
     }
 }
 
-void ball_apply_steering(Vector2 steering, ComponentPhysics *physics, DeltaTime dt) {
-    Vector2 force_to_apply = (Vector2){.x = steering.x * 200.0f, .y = 0};
-    physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
-
-    // Calculate velocity
-    physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
-    // physics->velocity.x = Clamp(physics->velocity.x, -human->max_velocity, human->max_velocity);
-    // physics->velocity.y = Clamp(physics->velocity.y, -human->max_velocity, human->max_velocity);
-}
-
-void ball_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt) {
-
-    transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
-}
-
 void state_machine_ball_on_enter(struct Entity *entity, GameState *game_state) {
-    ComponentPhysics *physics =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
+    ComponentPhysics3d *physics_3d =
+        &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, entity->id)->physics_3d;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
     Component *component =
@@ -155,8 +229,8 @@ void state_machine_ball_on_exit(struct Entity *entity, GameState *game_state) {
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachineBall *state_machine = component->state_machine.ptr;
-    ComponentPhysics *physics =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
+    ComponentPhysics3d *physics_3d =
+        &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, entity->id)->physics_3d;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
 

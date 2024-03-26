@@ -76,7 +76,7 @@ GameState *game_init(GameConfig game_config) {
     Entity *ball_entity = entities_ball_create(game_state);
     Component *ball_transform =
         entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
-    ball_transform->transform.position = (Vector2){game_state->config.screen_width / 4.0f, game_state->config.screen_height / 2.0f};
+    ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
 
     Entity *camera = entities_camera_create(game_state);
     ComponentCameraProps *camera_props =

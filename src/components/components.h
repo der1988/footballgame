@@ -15,6 +15,7 @@ struct Entity;
 typedef enum {
     CT_TRANSFORM,
     CT_PHYSICS,
+    CT_PHYSICS_3D,
     CT_SPRITE,
     CT_STATE_MACHINE,
     CT_ACTION,
@@ -38,6 +39,12 @@ typedef struct {
     Vector2 accel;
     Vector2 velocity;
 } ComponentPhysics;
+
+typedef struct {
+    f32 mass;
+    Vector3 accel;
+    Vector3 velocity;
+} ComponentPhysics3d;
 
 typedef struct {
     Color color;
@@ -83,9 +90,7 @@ typedef struct {
 } ComponentHuman;
 
 typedef struct {
-    Vector3 position;
-    Vector3 velocity;
-    Vector3 accel;
+    f32 height;
     AssetsSpriteFrameId roll_frames[PD_COUNT];
 } ComponentBall;
 
@@ -101,6 +106,7 @@ typedef struct {
         ComponentCameraProps camera_props;
         ComponentTransform transform;
         ComponentPhysics physics;
+        ComponentPhysics3d physics_3d;
         ComponentSprite sprite;
         ComponentStateMachine state_machine;
         ComponentAction action;
