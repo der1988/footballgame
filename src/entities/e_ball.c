@@ -20,6 +20,7 @@ ImplementStateMachineFunctions(Ball, ball);
 
 void ball_apply_steering(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void ball_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt);
+void ball_prepare_gfx(ComponentBall *ball, GameState *game_state);
 
 struct Entity *entities_ball_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
@@ -61,30 +62,10 @@ struct Entity *entities_ball_create(GameState *game_state) {
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
-    float ball_height = 0.0f;
-    Vector3 ball_3d_pos = Vector3Add(Vector3Zero(), (Vector3){.y = ball_height});
-    Vector2 ball_2d_pos = {.x = 0, .y = 0};
-    Vector2 ball_2d_shadow_pos = {.x = 0, .y = 0};
-    float ball_size = 5.0f;
-    Vector3 gravity_force = {.y = -9.81f};
-    Vector3 ball_vel = Vector3Zero();
-    Vector3 ball_accel = Vector3Zero();
-    // Coefficient of restitution
-    float ball_cr = 0.4f;
-    float ball_drag_in_air = 0.6f;
-    float ball_drag_on_pitch = 1.5f;
-    float ball_run_force = 175.0f;
-    float ball_control_force = 20.0f;
-    float ball_shot_force = 850.0f;
-    float ball_shot_height = 0.3f;
-    bool ball_shot = false;
-    float ball_shot_time = 0;
-    float ball_after_touch_delay_time = 0.1f;
-    float ball_after_touch_max_time = 0.5f;
-    float ball_after_touch_force = 15.0f;
-    Vector3 ball_after_touch_direction = {0};
-    float ball_at_height = 0;
-    Vector2 ball_at_side = {0};
+    // Initialise ball
+    component = entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
+
+    ball_prepare_gfx(&component->ball, game_state);
 
     state_machine_ball_on_enter(entity, game_state);
 
@@ -112,20 +93,8 @@ void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
     case BS_NONE:
         break;
     case BS_IN_PLAY: {
-        // if (steering.x != 0.0f) {
-        //     state_machine_ball_change_state_to(state_machine, SS_RUN, game_state);
-        // }
-        // physics->velocity.x *= 0.9f;
-        // sprite->flipX = physics->velocity.x > 0.0f;
-        // ball_apply_velocity(transform, physics, game_state->dt);
     } break;
     case BS_OUT_OF_PLAY: {
-        // if (steering.x == 0.0f) {
-        //     state_machine_ball_change_state_to(state_machine, SS_STAND, game_state);
-        // }
-        // sprite->flipX = steering.x > 0.0f;
-        // ball_apply_steering(steering, physics, human, game_state->dt);
-        // ball_apply_velocity(transform, physics, game_state->dt);
     } break;
     case BS_COUNT:
         break;
@@ -198,8 +167,7 @@ void state_machine_ball_on_exit(struct Entity *entity, GameState *game_state) {
     case BS_NONE:
         break;
     case BS_IN_PLAY: {
-        // components_action_stop(entity->id, state_machine->state_data.stand.running_action_idx,
-        //                        game_state);
+
     } break;
     case BS_OUT_OF_PLAY: {
         // components_action_stop(entity->id, state_machine->state_data.run.running_action_idx,
@@ -211,37 +179,14 @@ void state_machine_ball_on_exit(struct Entity *entity, GameState *game_state) {
     }
 }
 
-// void player_prepare_gfx(ComponentHuman *human, GameState *game_state) {
-//     // Stand frames
-//     human->stand_frames[PD_DOWN] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
-//     human->stand_frames[PD_UP] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_0")->id;
-//     human->stand_frames[PD_LEFT] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_left_0")->id;
-//     human->stand_frames[PD_RIGHT] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_right_0")->id;
-//     human->stand_frames[PD_DOWN_LEFT] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-//         "player_front_left_0")->id;
-//     human->stand_frames[PD_DOWN_RIGHT] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-//         "player_front_right_0")->id;
-//     human->stand_frames[PD_UP_LEFT] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-//         "player_back_left_0")->id;
-//     human->stand_frames[PD_UP_RIGHT] =
-//         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-//         "player_back_right_0")->id;
-//
-//     // Running actions
-//     human->run_actions[PD_DOWN] = build_action_from_animation("run_front", game_state);
-//     human->run_actions[PD_UP] = build_action_from_animation("run_back", game_state);
-//     human->run_actions[PD_LEFT] = build_action_from_animation("run_left", game_state);
-//     human->run_actions[PD_RIGHT] = build_action_from_animation("run_right", game_state);
-//     human->run_actions[PD_DOWN_LEFT] = build_action_from_animation("run_front_left", game_state);
-//     human->run_actions[PD_DOWN_RIGHT] = build_action_from_animation("run_front_right",
-//     game_state); human->run_actions[PD_UP_LEFT] = build_action_from_animation("run_back_left",
-//     game_state); human->run_actions[PD_UP_RIGHT] = build_action_from_animation("run_back_right",
-//     game_state);
-// }
+void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
+    // Roll frames
+    ball->roll_frames[0] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_0")->id;
+    ball->roll_frames[1] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_1")->id;
+    ball->roll_frames[2] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_2")->id;
+    ball->roll_frames[3] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_3")->id;
+}

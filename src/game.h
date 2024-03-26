@@ -23,9 +23,26 @@ typedef struct GameConfig {
     u32 players_count;
 } GameConfig;
 
+typedef struct GameConstants {
+    float ball_size;
+    Vector3 gravity_force;
+    // Coefficient of restitution
+    float ball_cr;
+    float ball_drag_in_air;
+    float ball_drag_on_pitch;
+    float ball_run_force;
+    float ball_control_force;
+    float ball_shot_force;
+    float ball_shot_height;
+    float ball_after_touch_delay_time;
+    float ball_after_touch_max_time;
+    float ball_after_touch_force;
+} GameConstants;
+
 typedef struct GameState {
     b32 initialised;
     GameConfig config;
+    GameConstants constants;
     MemoryArenaHandle *memory_by_lifetime[MAL_COUNT];
     struct EntityRepository *entity_repository;
     struct AssetsTextureCache *texture_cache;

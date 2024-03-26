@@ -21,6 +21,7 @@ typedef enum {
     CT_TARGET,
     CT_CAMERA_PROPS,
     CT_HUMAN,
+    CT_BALL,
     CT_COUNT,
     CT_NONE
 } ComponentType;
@@ -82,28 +83,9 @@ typedef struct {
 } ComponentHuman;
 
 typedef struct {
-    f32 ball_height;
-    Vector3 ball_3d_pos;
-    f32 ball_size;
-    Vector3 gravity_force;
-    Vector3 ball_vel;
-    Vector3 ball_accel;
-    // Coefficient of restitution
-    f32 ball_cr;
-    f32 ball_drag_in_air;
-    f32 ball_drag_on_pitch;
-    f32 ball_run_force;
-    f32 ball_control_force;
-    f32 ball_shot_force;
-    f32 ball_shot_height;
-    b32 ball_shot;
-    f32 ball_shot_time;
-    f32 ball_after_touch_delay_time;
-    f32 ball_after_touch_max_time;
-    f32 ball_after_touch_force;
-    Vector3 ball_after_touch_direction;
-    f32 ball_after_touch_height;
-    Vector2 ball_after_touch_side;
+    Vector3 position;
+    Vector3 velocity;
+    Vector3 accel;
     AssetsSpriteFrameId roll_frames[PD_COUNT];
 } ComponentBall;
 

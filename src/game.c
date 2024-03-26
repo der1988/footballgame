@@ -9,7 +9,6 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdlib.h>
 
 GameState *game_init(GameConfig game_config) {
     MemoryArenaHandle *memory_arena_lifetime_game =
@@ -18,6 +17,22 @@ GameState *game_init(GameConfig game_config) {
     GameState *game_state = memory_arena_push(memory_arena_lifetime_game, sizeof(GameState));
     game_state->config = game_config;
     game_state->config.players_count = 1;
+
+    game_state->constants = (GameConstants){
+        // Coefficient of restitution
+        .ball_cr = 0.4f,
+        .ball_size = 5.0f,
+        .gravity_force = {.y = -9.81f},
+        .ball_drag_in_air = 0.6f,
+        .ball_drag_on_pitch = 1.5f,
+        .ball_run_force = 175.0f,
+        .ball_control_force = 20.0f,
+        .ball_shot_force = 850.0f,
+        .ball_shot_height = 0.3f,
+        .ball_after_touch_delay_time = 0.1f,
+        .ball_after_touch_max_time = 0.5f,
+        .ball_after_touch_force = 15.0f
+    };
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
@@ -57,23 +72,11 @@ GameState *game_init(GameConfig game_config) {
     ComponentTransform *player_transform =
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
              ->transform;
-    //
-    // Entity *soldier = entities_soldier_create(game_state);
-    // Component *soldier_transform =
-    //     entities_component_get(game_state->entity_repository, CT_TRANSFORM, soldier->id);
-    // soldier_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 0};
-    //
-    // Entity *barracks = entities_barracks_create(game_state);
-    // Component *barracks_transform =
-    //     entities_component_get(game_state->entity_repository, CT_TRANSFORM, barracks->id);
-    //
-    // barracks_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f,
-    // 0}; aircraft_transform_1->transform.position =
-    //     (Vector2){game_state->config.screen_width / 2.0f - 100.0f, 0};
-    // aircraft_transform_2->transform.position =
-    //     (Vector2){game_state->config.screen_width / 2.0f + 100.0f, 0};
-    //
-    // Entity *terrain = entities_terrain_create(game_state);
+
+    Entity *ball_entity = entities_ball_create(game_state);
+    Component *ball_transform =
+        entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
+    ball_transform->transform.position = (Vector2){game_state->config.screen_width / 4.0f, game_state->config.screen_height / 2.0f};
 
     Entity *camera = entities_camera_create(game_state);
     ComponentCameraProps *camera_props =
