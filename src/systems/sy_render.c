@@ -59,6 +59,9 @@ void systems_render(GameState *game_state) {
             AssetsTexture *texture =
                 assets_texture_get_by_id(game_state->texture_cache, sprite_frame->texture_id);
 
+            // TODO(marco): not great but I haven't found a better way to do it yet
+            position.y -= transform->virtual_height;
+
             *current_idx = (SpriteToDraw){.sprite_frame = sprite_frame,
                                           .layer = sprite->layer,
                                           .order_in_layer = sprite->order_in_layer,

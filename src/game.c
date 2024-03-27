@@ -20,7 +20,7 @@ GameState *game_init(GameConfig game_config) {
 
     game_state->constants = (GameConstants){
         // Coefficient of restitution
-        .ball_cr = 0.4f,
+        .ball_cr = 0.5f,
         .ball_size = 5.0f,
         .gravity_force = {.y = -9.81f},
         .ball_drag_in_air = 0.6f,

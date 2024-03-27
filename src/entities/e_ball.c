@@ -39,6 +39,7 @@ struct Entity *entities_ball_create(GameState *game_state) {
     component = entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
+    component->transform.virtual_height = 300;
     component->transform.scale = Vector2One();
 
     // Initialise 3d physics
@@ -64,7 +65,6 @@ struct Entity *entities_ball_create(GameState *game_state) {
 
     // Initialise ball
     component = entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
-    component->ball.height = 0.0f;
 
     ball_prepare_gfx(&component->ball, game_state);
 
@@ -97,7 +97,7 @@ void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
         break;
     case BS_IN_PLAY: {
 
-        Vector3 ball_position_3d = (Vector3) {.x = transform->position.x, .y = ball->height, .z = transform->position.y + ball->height};
+        Vector3 ball_position_3d = (Vector3) {.x = transform->position.x, .y = transform->virtual_height, .z = transform->position.y};
         if (ball_position_3d.y > 0) {
             // Gravity
             physics_3d->velocity = Vector3Add(physics_3d->velocity, Vector3Scale(game_state->constants.gravity_force, 1));
@@ -176,8 +176,8 @@ void entities_ball_update(Entity *entity, GameState *game_state, Input *input) {
         }
 
         // Project position to 2D
-        ball->height = ball_position_3d.y;
-        transform->position = (Vector2){.x = ball_position_3d.x, .y = ball_position_3d.z - ball->height};
+        transform->position = (Vector2){.x = ball_position_3d.x, .y = ball_position_3d.z}; 
+        transform->virtual_height = ball_position_3d.y;
         // // Ball shadow
         // ball_2d_shadow_pos =
         //     Vector2Add(ball_2d_pos, (Vector2){.x = shadow_x_displacement + ball_height * 0.1f,

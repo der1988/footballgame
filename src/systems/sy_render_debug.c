@@ -19,6 +19,9 @@ void systems_render_debug(GameState *game_state) {
             Vector2 scale = transform->scale;
             components_transform_calculate_absolute(transform, &position, &rotation, &scale);
 
+            // TODO(marco): not great but I haven't found a better way to do it yet
+            position.y -= transform->virtual_height;
+
             sprites_draw_debug_frame(
                 assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
                 position, rotation, scale);

@@ -30,8 +30,9 @@ typedef enum {
 typedef struct ComponentTransform {
     struct ComponentTransform *parent;
     Vector2 position;
-    float rotation;
+    f32 rotation;
     Vector2 scale;
+    f32 virtual_height;
 } ComponentTransform;
 
 typedef struct {
@@ -90,7 +91,6 @@ typedef struct {
 } ComponentHuman;
 
 typedef struct {
-    f32 height;
     AssetsSpriteFrameId roll_frames[PD_COUNT];
 } ComponentBall;
 
