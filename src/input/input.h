@@ -3,8 +3,6 @@
 
 #include "../types.h"
 #include <raylib.h>
-#include <stddef.h>
-#include <stdint.h>
 
 // GameState forward declaration
 struct GameState;

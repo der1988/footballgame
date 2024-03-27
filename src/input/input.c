@@ -1,6 +1,5 @@
 #include "input.h"
 #include "../game.h"
-#include <assert.h>
 #include <raylib.h>
 
 Input input_handle(GameState *game_state) {
