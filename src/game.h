@@ -39,10 +39,15 @@ typedef struct GameConstants {
     float ball_after_touch_force;
 } GameConstants;
 
+typedef struct GameVariables {
+    EntityId ball_entity_id;
+} GameVariables;
+
 typedef struct GameState {
     b32 initialised;
     GameConfig config;
     GameConstants constants;
+    GameVariables vars;
     MemoryArenaHandle *memory_by_lifetime[MAL_COUNT];
     struct EntityRepository *entity_repository;
     struct AssetsTextureCache *texture_cache;

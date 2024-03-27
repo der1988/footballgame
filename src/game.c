@@ -74,6 +74,7 @@ GameState *game_init(GameConfig game_config) {
              ->transform;
 
     Entity *ball_entity = entities_ball_create(game_state);
+    game_state->vars.ball_entity_id = ball_entity->id;
     Component *ball_transform =
         entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
     ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
@@ -124,9 +125,17 @@ void game_update(GameState *game_state, Input *input) {
     // This memory arena should be reset every frame
     memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
 
-    EntityForEach(game_state->entity_repository, entity, idx) {
-        if (entity->alive && EntityTypeCheckMask(entity->type, EntityTypeAllBitMask)) {
-            entities_entity_update(entity, game_state, input);
+    // Update players
+    EntityForEach(game_state->entity_repository, player_entity, idx) {
+        if (player_entity->alive && EntityTypeCheckMask(player_entity->type, EntityTypeToBitMask(ET_PLAYER))) {
+            entities_entity_update(player_entity, game_state, input);
+        }
+    }
+
+    // Update balls (you may wonder why plural here... me too.)
+    EntityForEach(game_state->entity_repository, ball_entity, idx) {
+        if (ball_entity->alive && EntityTypeCheckMask(ball_entity->type, EntityTypeToBitMask(ET_BALL))) {
+            entities_entity_update(ball_entity, game_state, input);
         }
     }
 
