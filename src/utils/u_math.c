@@ -17,12 +17,18 @@ f32 utils_math_constrain_angle_180(f32 angle) {
     return angle - 180;
 }
 
-float Vector2ProjectScalar(Vector2 project_to, Vector2 project_from) {
+v2 Vector2RotateAroundPivot(v2 vector, v2 pivot, f32 angle) {
+    v2 new_vector = Vector2Subtract(pivot, vector);
+    new_vector = Vector2Rotate(new_vector, DEG2RAD * (angle + 180));
+    return Vector2Add(new_vector, pivot);
+}
+
+f32 Vector2ProjectScalar(v2 project_to, v2 project_from) {
     return (project_to.x * project_from.x + project_to.y * project_from.y) /
            Vector2Length(project_to);
 }
 
-Vector2 Vector2Project(Vector2 project_to, Vector2 project_from) {
+v2 Vector2Project(v2 project_to, v2 project_from) {
     return Vector2Scale(Vector2Normalize(project_to),
                         Vector2ProjectScalar(project_to, project_from));
 }

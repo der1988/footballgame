@@ -17,6 +17,7 @@ typedef enum {
     CT_PHYSICS,
     CT_PHYSICS_3D,
     CT_SPRITE,
+    CT_COLLIDER,
     CT_STATE_MACHINE,
     CT_ACTION,
     CT_TARGET,
@@ -68,6 +69,31 @@ typedef struct {
     ComponentTransform *target_transform;
 } ComponentTarget;
 
+typedef enum {
+    CS_CIRCLE,
+    CS_RECTANGLE
+} ColliderShape;
+
+typedef struct {
+    f32 radius;
+    v2 offset;
+} ColliderCircle;
+
+typedef struct {
+    v2 size;
+    v2 offset;
+} ColliderRectangle;
+
+typedef union {
+    ColliderCircle circle;
+    ColliderRectangle rectangle;
+} ColliderProperties;
+
+typedef struct {
+    ColliderShape shape;
+    ColliderProperties props;
+} ComponentCollider;
+
 typedef struct {
     CameraType camera;
 } ComponentCameraProps;
@@ -86,6 +112,7 @@ typedef enum {
 
 typedef struct {
     f32 max_velocity;
+    b32 is_controlling_the_ball;
     AssetsSpriteFrameId stand_frames[PD_COUNT];
     struct Action *run_actions[PD_COUNT];
 } ComponentHuman;
@@ -108,6 +135,7 @@ typedef struct {
         ComponentPhysics physics;
         ComponentPhysics3d physics_3d;
         ComponentSprite sprite;
+        ComponentCollider collider;
         ComponentStateMachine state_machine;
         ComponentAction action;
         ComponentTarget target;

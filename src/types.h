@@ -1,6 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <raylib.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -22,6 +23,10 @@ typedef uintptr_t uptr;
 typedef char byte;
 typedef ptrdiff_t size;
 typedef size_t usize;
+
+// Raylib
+typedef Vector2 v2;
+typedef Vector3 v3;
 
 // Game
 typedef u32 EntityId;

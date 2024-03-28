@@ -18,21 +18,19 @@ GameState *game_init(GameConfig game_config) {
     game_state->config = game_config;
     game_state->config.players_count = 1;
 
-    game_state->constants = (GameConstants){
-        // Coefficient of restitution
-        .ball_cr = 0.5f,
-        .ball_size = 5.0f,
-        .gravity_force = {.y = -9.81f},
-        .ball_drag_in_air = 0.6f,
-        .ball_drag_on_pitch = 1.5f,
-        .ball_run_force = 175.0f,
-        .ball_control_force = 20.0f,
-        .ball_shot_force = 850.0f,
-        .ball_shot_height = 0.3f,
-        .ball_after_touch_delay_time = 0.1f,
-        .ball_after_touch_max_time = 0.5f,
-        .ball_after_touch_force = 15.0f
-    };
+    game_state->constants = (GameConstants){// Coefficient of restitution
+                                            .ball_cr = 0.5f,
+                                            .ball_size = 5.0f,
+                                            .gravity_force = {.y = -9.81f},
+                                            .ball_drag_in_air = 0.6f,
+                                            .ball_drag_on_pitch = 1.5f,
+                                            .ball_run_force = 175.0f,
+                                            .ball_control_force = 20.0f,
+                                            .ball_shot_force = 850.0f,
+                                            .ball_shot_height = 0.3f,
+                                            .ball_after_touch_delay_time = 0.1f,
+                                            .ball_after_touch_max_time = 0.5f,
+                                            .ball_after_touch_force = 15.0f};
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
@@ -125,23 +123,8 @@ void game_update(GameState *game_state, Input *input) {
     // This memory arena should be reset every frame
     memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
 
-    // Update players
-    EntityForEach(game_state->entity_repository, player_entity, idx) {
-        if (player_entity->alive && EntityTypeCheckMask(player_entity->type, EntityTypeToBitMask(ET_PLAYER))) {
-            entities_entity_update(player_entity, game_state, input);
-        }
-    }
-
-    // Update balls (you may wonder why plural here... me too.)
-    EntityForEach(game_state->entity_repository, ball_entity, idx) {
-        if (ball_entity->alive && EntityTypeCheckMask(ball_entity->type, EntityTypeToBitMask(ET_BALL))) {
-            entities_entity_update(ball_entity, game_state, input);
-        }
-    }
-
-#ifndef RUNNING_TEST
-#endif
-
+    systems_player(game_state, input);
+    systems_ball(game_state);
     systems_action(game_state);
     systems_camera(game_state);
 }

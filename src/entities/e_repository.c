@@ -8,14 +8,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-// START - Entities functions table
-static void (*entity_update_fn[ET_COUNT])(struct Entity *, GameState *, Input *) = {
-    [ET_CAMERA] = entities_camera_update,
-    [ET_BALL] = entities_ball_update,
-    [ET_PLAYER] = entities_player_update,
-};
-// END - Entities functions table
-
 static EntityId find_empty_slot(EntityRepository *entity_repo) {
     // TODO(marco): is a linear search enough here?
     EntityId id = 0;
@@ -96,10 +88,6 @@ Entity *entities_entity_get(EntityRepository *handle, EntityId id) {
     return handle->entities[id].alive ? &handle->entities[id] : NULL;
 }
 
-void entities_entity_update(struct Entity *entity, GameState *game_state, Input *input) {
-    entity_update_fn[entity->type](entity, game_state, input);
-}
-
 Component *entities_component_create(EntityRepository *entity_repo, ComponentType type,
                                      EntityId id) {
     assert(entity_repo->initialised);
@@ -120,6 +108,7 @@ Component *entities_component_get(EntityRepository *entity_repo, ComponentType t
     }
 
     Component *component = entity_repo->components + ((type * MAX_ENTITIES) + id);
+    assert(component);
 
     return component;
 }

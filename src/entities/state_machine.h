@@ -9,10 +9,17 @@
         StateMachine##ENTITY_TYPE##StateData state_data;                                           \
     } StateMachine##ENTITY_TYPE;
 
+#define DefineStateMachineFunctions(ENTITY_TYPE, NAME)                                             \
+    void entities_##NAME##_state_machine_change_state_to(StateMachine##ENTITY_TYPE *state_machine, \
+                                                         StateMachine##ENTITY_TYPE##State state,   \
+                                                         GameState *game_state);                   \
+    void entities_##NAME##_state_machine_on_enter(struct Entity *entity, GameState *game_state);   \
+    void entities_##NAME##_state_machine_on_exit(struct Entity *entity, GameState *game_state);
+
 #define ImplementStateMachineFunctions(ENTITY_TYPE, NAME)                                          \
-    static void state_machine_##NAME##_change_state_to(StateMachine##ENTITY_TYPE *state_machine,   \
-                                                       StateMachine##ENTITY_TYPE##State state,     \
-                                                       GameState *game_state) {                    \
+    void entities_##NAME##_state_machine_change_state_to(StateMachine##ENTITY_TYPE *state_machine, \
+                                                         StateMachine##ENTITY_TYPE##State state,   \
+                                                         GameState *game_state) {                  \
         Entity *entity =                                                                           \
             entities_entity_get(game_state->entity_repository, state_machine->owner_entity);       \
         if (state_machine->current_state == state) {                                               \
@@ -22,8 +29,8 @@
         }                                                                                          \
         state_machine->previous_state = state_machine->current_state;                              \
         state_machine->current_state = state;                                                      \
-        state_machine_##NAME##_on_exit(entity, game_state);                                        \
-        state_machine_##NAME##_on_enter(entity, game_state);                                       \
+        entities_##NAME##_state_machine_on_exit(entity, game_state);                               \
+        entities_##NAME##_state_machine_on_enter(entity, game_state);                              \
         GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "current state is now: %s",                      \
                        StateMachine##ENTITY_TYPE##StateString[state]);                             \
     }

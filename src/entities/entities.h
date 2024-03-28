@@ -62,6 +62,7 @@ typedef union {
 } StateMachineBallStateData;
 
 DefineStateMachine(Ball, BS_COUNT);
+DefineStateMachineFunctions(Ball, ball);
 
 // END - Ball
 
@@ -86,7 +87,13 @@ typedef union {
 } StateMachinePlayerStateData;
 
 DefineStateMachine(Player, PS_COUNT);
+DefineStateMachineFunctions(Player, player);
 
+PlayerDirection entities_player_calculate_direction(Vector2 direction);
+void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
+                                 DeltaTime dt);
+void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
+                                    DeltaTime dt);
 // END - Player
 
 typedef enum { ET_CAMERA, ET_BALL, ET_PLAYER, ET_COUNT } EntityType;

@@ -36,12 +36,6 @@ void sprites_draw(AssetsSpriteFrame *sprite_frame, Vector2 position, f32 rotatio
     DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
 }
 
-static Vector2 rotate_vector_around_point(Vector2 vector, Vector2 pivot, f32 angle) {
-    Vector2 new_vector = Vector2Subtract(pivot, vector);
-    new_vector = Vector2Rotate(new_vector, DEG2RAD * (angle + 180));
-    return Vector2Add(new_vector, pivot);
-}
-
 void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, Vector2 position, f32 rotation,
                               Vector2 scale) {
     Vector2 pivot = sprite_frame->pivot;
@@ -59,12 +53,12 @@ void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, Vector2 position,
         bottom_left, Vector2Scale(Vector2Right(), sprite_frame->source_size.x * scale.x));
 
     // Draw debug frame
-    DrawLineV(rotate_vector_around_point(top_left, position, rotation),
-              rotate_vector_around_point(top_right, position, rotation), GREEN);
-    DrawLineV(rotate_vector_around_point(top_left, position, rotation),
-              rotate_vector_around_point(bottom_left, position, rotation), GREEN);
-    DrawLineV(rotate_vector_around_point(bottom_left, position, rotation),
-              rotate_vector_around_point(bottom_right, position, rotation), GREEN);
-    DrawLineV(rotate_vector_around_point(top_right, position, rotation),
-              rotate_vector_around_point(bottom_right, position, rotation), GREEN);
+    DrawLineV(Vector2RotateAroundPivot(top_left, position, rotation),
+              Vector2RotateAroundPivot(top_right, position, rotation), GREEN);
+    DrawLineV(Vector2RotateAroundPivot(top_left, position, rotation),
+              Vector2RotateAroundPivot(bottom_left, position, rotation), GREEN);
+    DrawLineV(Vector2RotateAroundPivot(bottom_left, position, rotation),
+              Vector2RotateAroundPivot(bottom_right, position, rotation), GREEN);
+    DrawLineV(Vector2RotateAroundPivot(top_right, position, rotation),
+              Vector2RotateAroundPivot(bottom_right, position, rotation), GREEN);
 }

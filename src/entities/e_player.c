@@ -16,10 +16,7 @@
 
 ImplementStateMachineFunctions(Player, player);
 
-void player_apply_force(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
-                        DeltaTime dt);
-void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt);
-void player_prepare_gfx(ComponentHuman *human, GameState *game_state);
+static void prepare_gfx(ComponentHuman *human, GameState *game_state);
 
 struct Entity *entities_player_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
@@ -46,6 +43,11 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
 
+    // Initialise collider
+    component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
+    component->collider.shape = CS_CIRCLE;
+    component->collider.props.circle.radius = 10;
+
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
     char *player_front_0 = "player_front_0";
@@ -66,16 +68,16 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
-    player_prepare_gfx(human, game_state);
+    prepare_gfx(human, game_state);
 
-    state_machine_player_on_enter(entity, game_state);
+    entities_player_state_machine_on_enter(entity, game_state);
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->name, "player created");
 
     return entity;
 }
 
-PlayerDirection calculate_player_direction(Vector2 direction) {
+PlayerDirection entities_player_calculate_direction(Vector2 direction) {
     static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},   {.x = -1, .y = 0},
                                           {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
                                           {.x = -1, .y = 1}, {.x = 1, .y = 1}};
@@ -91,68 +93,8 @@ PlayerDirection calculate_player_direction(Vector2 direction) {
     return selected_direction;
 }
 
-void entities_player_update(Entity *entity, GameState *game_state, Input *input) {
-    ComponentTransform *transform =
-        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, entity->id)->transform;
-    ComponentPhysics *physics =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
-    ComponentAction *action =
-        &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
-    ComponentSprite *sprite =
-        &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    Component *component =
-        entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    StateMachinePlayer *state_machine = component->state_machine.ptr;
-
-    Vector2 steering = Vector2Normalize(input->left_stick);
-    Vector2 force_to_apply = Vector2Zero();
-
-    switch (state_machine->current_state) {
-    case PS_NONE:
-        break;
-    case PS_STAND:
-        if (Vector2Length(steering) > 0.05f) {
-            state_machine_player_change_state_to(state_machine, PS_RUN, game_state);
-        }
-        break;
-    case PS_RUN: {
-        if (Vector2Length(steering) < 0.05f) {
-            steering = Vector2Zero();
-            state_machine_player_change_state_to(state_machine, PS_STAND, game_state);
-        } else {
-            PlayerDirection pd = calculate_player_direction(steering);
-            if (state_machine->state_data.run.running_action_direction != pd) {
-                actions_action_stop(state_machine->state_data.run.running_action_idx, entity->id,
-                                    game_state);
-                state_machine->state_data.run.running_action_idx =
-                    components_action_run(entity->id, human->run_actions[pd], game_state);
-                assert(state_machine->state_data.run.running_action_idx >= 0);
-                state_machine->state_data.run.running_action_direction = pd;
-            }
-        }
-        // Run force
-        force_to_apply = Vector2Scale(steering, 1500);
-    } break;
-    case PS_COUNT:
-        break;
-    }
-
-    if (Vector2Length(physics->velocity) > 5) {
-        // Drag force
-        Vector2 drag = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 1000);
-        force_to_apply = Vector2Add(force_to_apply, drag);
-    } else {
-        physics->velocity = Vector2Zero();
-    }
-
-    player_apply_force(force_to_apply, physics, human, game_state->dt);
-    player_apply_velocity(transform, physics, game_state->dt);
-}
-
-void player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, ComponentHuman *human,
-                        DeltaTime dt) {
+void entities_player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics,
+                                 ComponentHuman *human, DeltaTime dt) {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
     // Calculate velocity
@@ -162,11 +104,12 @@ void player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, Compo
     }
 }
 
-void player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt) {
+void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
+                                    DeltaTime dt) {
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
 }
 
-void state_machine_player_on_enter(struct Entity *entity, GameState *game_state) {
+void entities_player_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
     ComponentPhysics *physics =
         &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
     ComponentSprite *sprite =
@@ -190,7 +133,7 @@ void state_machine_player_on_enter(struct Entity *entity, GameState *game_state)
         sprite->frame_id = human->stand_frames[PD_DOWN];
     } break;
     case PS_RUN: {
-        PlayerDirection pd = calculate_player_direction(physics->velocity);
+        PlayerDirection pd = entities_player_calculate_direction(physics->velocity);
         state_machine->state_data.run.running_action_idx =
             components_action_run(entity->id, human->run_actions[pd], game_state);
         assert(state_machine->state_data.run.running_action_idx >= 0);
@@ -201,7 +144,7 @@ void state_machine_player_on_enter(struct Entity *entity, GameState *game_state)
     }
 }
 
-void state_machine_player_on_exit(struct Entity *entity, GameState *game_state) {
+void entities_player_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachinePlayer *state_machine = component->state_machine.ptr;
@@ -225,13 +168,14 @@ void state_machine_player_on_exit(struct Entity *entity, GameState *game_state) 
     case PS_RUN: {
         actions_action_stop(state_machine->state_data.run.running_action_idx, entity->id,
                             game_state);
+        break;
     }
     case PS_COUNT:
         break;
     }
 }
 
-struct Action *build_action_from_animation(char *animation_name, GameState *game_state) {
+static struct Action *build_action_from_animation(char *animation_name, GameState *game_state) {
     MemoryArenaHandle *memory_handle_level = game_state->memory_by_lifetime[MAL_LEVEL];
 
     // Scratch buffer
@@ -246,7 +190,7 @@ struct Action *build_action_from_animation(char *animation_name, GameState *game
     return (struct Action *)animation_action;
 }
 
-void player_prepare_gfx(ComponentHuman *human, GameState *game_state) {
+static void prepare_gfx(ComponentHuman *human, GameState *game_state) {
     // Stand frames
     human->stand_frames[PD_DOWN] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
