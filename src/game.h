@@ -24,19 +24,20 @@ typedef struct GameConfig {
 } GameConfig;
 
 typedef struct GameConstants {
-    float ball_size;
-    Vector3 gravity_force;
+    f32 input_stick_dead_zone;
+    f32 ball_size;
+    v3 gravity_force;
     // Coefficient of restitution
-    float ball_cr;
-    float ball_drag_in_air;
-    float ball_drag_on_pitch;
-    float ball_run_force;
-    float ball_control_force;
-    float ball_shot_force;
-    float ball_shot_height;
-    float ball_after_touch_delay_time;
-    float ball_after_touch_max_time;
-    float ball_after_touch_force;
+    f32 ball_cr;
+    f32 ball_drag_in_air;
+    f32 ball_drag_on_pitch;
+    f32 ball_run_force;
+    f32 ball_control_force;
+    f32 ball_shot_force;
+    f32 ball_shot_height;
+    f32 ball_after_touch_delay_time;
+    f32 ball_after_touch_max_time;
+    f32 ball_after_touch_force;
 } GameConstants;
 
 typedef struct GameVariables {

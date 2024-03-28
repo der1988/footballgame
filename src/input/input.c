@@ -1,6 +1,9 @@
 #include "input.h"
 #include "../game.h"
+#include <math.h>
 #include <raylib.h>
+
+#define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 
 Input input_handle(GameState *game_state) {
     i32 gamepad = 0;
@@ -8,11 +11,15 @@ Input input_handle(GameState *game_state) {
     Input input = {0};
 
     if (IsGamepadAvailable(gamepad)) {
-        input.left_stick.x = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_X);
-        input.left_stick.y = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_Y);
+        input.left_stick.x = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_X),
+                                           game_state->constants.input_stick_dead_zone);
+        input.left_stick.y = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_Y),
+                                           game_state->constants.input_stick_dead_zone);
 
-        input.right_stick.x = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_RIGHT_X);
-        input.right_stick.y = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_RIGHT_Y);
+        input.right_stick.x = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_RIGHT_X),
+                                            game_state->constants.input_stick_dead_zone);
+        input.right_stick.y = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_RIGHT_Y),
+                                            game_state->constants.input_stick_dead_zone);
 
         input.left_trigger = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_TRIGGER);
         input.right_trigger = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_RIGHT_TRIGGER);

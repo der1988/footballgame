@@ -27,7 +27,7 @@ void systems_player(GameState *game_state, Input *input) {
 
             StateMachinePlayer *state_machine = base_state_machine->state_machine.ptr;
 
-            Vector2 steering = Vector2Normalize(input->left_stick);
+            Vector2 steering = Vector2ClampValue(input->left_stick, -1, 1);
             Vector2 force_to_apply = Vector2Zero();
 
             switch (state_machine->current_state) {
@@ -57,8 +57,10 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                 }
 
+                base_human->human.max_velocity = 100 + 150 * Vector2Length(steering);
+
                 // Run force
-                force_to_apply = Vector2Scale(steering, 1500);
+                force_to_apply = Vector2Scale(Vector2Normalize(steering), 1500);
             } break;
             case PS_COUNT:
                 break;

@@ -18,7 +18,8 @@ GameState *game_init(GameConfig game_config) {
     game_state->config = game_config;
     game_state->config.players_count = 1;
 
-    game_state->constants = (GameConstants){// Coefficient of restitution
+    game_state->constants = (GameConstants){.input_stick_dead_zone = 0.05f,
+                                            // Coefficient of restitution
                                             .ball_cr = 0.5f,
                                             .ball_size = 5.0f,
                                             .gravity_force = {.y = -9.81f},
