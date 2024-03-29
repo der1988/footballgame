@@ -85,6 +85,10 @@ Input input_handle(GameState *game_state) {
         input.buttons[IBT_BUTTON_DOWN].down = IsKeyDown(KEY_Z);
         input.buttons[IBT_BUTTON_DOWN].pressed = IsKeyPressed(KEY_Z);
         input.buttons[IBT_BUTTON_DOWN].released = IsKeyReleased(KEY_Z);
+        input.buttons[IBT_BUTTON_LEFT].up = IsKeyUp(KEY_X);
+        input.buttons[IBT_BUTTON_LEFT].down = IsKeyDown(KEY_X);
+        input.buttons[IBT_BUTTON_LEFT].pressed = IsKeyPressed(KEY_X);
+        input.buttons[IBT_BUTTON_LEFT].released = IsKeyReleased(KEY_X);
     }
 
     return input;

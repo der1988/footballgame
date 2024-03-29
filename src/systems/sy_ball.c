@@ -4,7 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_ball(GameState *game_state) {
+void systems_ball(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
     EntityId ball_id = game_state->vars.ball_entity_id;
@@ -15,6 +15,8 @@ void systems_ball(GameState *game_state) {
         ComponentPhysics3d *physics_3d =
             &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, ball_id)
                  ->physics_3d;
+        ComponentCollider *collider =
+            &entities_component_get(game_state->entity_repository, CT_COLLIDER, ball_id)->collider;
         ComponentSprite *sprite =
             &entities_component_get(game_state->entity_repository, CT_SPRITE, ball_id)->sprite;
         ComponentBall *ball =
@@ -49,47 +51,65 @@ void systems_ball(GameState *game_state) {
                                           -game_state->constants.ball_drag_on_pitch *
                                           game_state->dt;
 
-                // Determine which player is controlling the ball
                 EntityForEach(game_state->entity_repository, player_entity, idx) {
                     if (player_entity->alive &&
                         EntityTypeCheckMask(player_entity->type, EntityTypeToBitMask(ET_PLAYER))) {
+                        ComponentTransform *player_transform =
+                            &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
+                                                    idx)
+                                 ->transform;
+                        ComponentPhysics *player_physics =
+                            &entities_component_get(game_state->entity_repository, CT_PHYSICS, idx)
+                                 ->physics;
+                        ComponentHuman *player_human =
+                            &entities_component_get(game_state->entity_repository, CT_HUMAN, idx)
+                                 ->human;
+                        ComponentCollider *player_collider =
+                            &entities_component_get(game_state->entity_repository, CT_COLLIDER, idx)
+                                 ->collider;
+
+                        b32 is_colliding_with_ball =
+                            CheckCollisionCircles(
+                                player_transform->position, player_collider->props.circle.radius,
+                                transform->position, collider->props.circle.radius) &&
+                            transform->virtual_height < 40.0f;
+
+                        if (is_colliding_with_ball) {
+                            Vector3 player_on_the_ball_force = (Vector3){
+                                .x = player_physics->velocity.x, .z = player_physics->velocity.y};
+                            if (input->buttons[IBT_BUTTON_DOWN].released) {
+                                // Shot
+                                physics_3d->velocity = Vector3Add(
+                                    physics_3d->velocity,
+                                    Vector3Scale(
+                                        Vector3Add(
+                                            Vector3Normalize(player_on_the_ball_force),
+                                            (Vector3){.x = 0,
+                                                      .y = game_state->constants.ball_shot_height,
+                                                      .z = 0}),
+                                        game_state->constants.ball_shot_force));
+                            } else {
+                                if (input->buttons[IBT_BUTTON_LEFT].down) {
+                                    // Precision control
+                                    physics_3d->velocity = Vector3Add(
+                                        player_on_the_ball_force,
+                                        Vector3Scale(
+                                            Vector3Normalize(Vector3Subtract(
+                                                (Vector3){.x = player_transform->position.x,
+                                                          .z = player_transform->position.y},
+                                                ball_position_3d)),
+                                            game_state->constants.ball_control_force));
+                                } else {
+                                    // Run control
+                                    physics_3d->velocity = Vector3Add(
+                                        player_on_the_ball_force,
+                                        Vector3Scale(Vector3Normalize(player_on_the_ball_force),
+                                                     game_state->constants.ball_run_force));
+                                }
+                            }
+                        }
                     }
                 }
-
-                // b32 is_colliding_with_ball = CheckCollisionCircles(transform->position,
-                // collider->props.circle.radius, ball_transform.position,
-                // ball_collider.props.circle.radius) && ball_transform.virtual_height < 40.0f;
-                //
-                // if (is_colliding_with_ball) {
-                //         if (input->buttons[IBT_BUTTON_DOWN].released) {
-                //             // Shot
-                //             ball_physics_3d.velocity = Vector3Add(
-                //                 ball_physics_3d.velocity,
-                //                 Vector3Scale(Vector3Add(Vector3Normalize(player_on_the_ball_force),
-                //                                         (Vector3){.x = 0, .y = ball_shot_height,
-                //                                         .z = 0}),
-                //                              ball_shot_force));
-                //             ball_shot = true;
-                //             ball_shot_time = GetTime();
-                //         } else {
-                //             if (IsKeyDown(KEY_X)) {
-                //                 // Precision control
-                //                 ball_vel = Vector3Add(
-                //                     player_on_the_ball_force,
-                //                     Vector3Scale(
-                //                         Vector3Normalize(Vector3Subtract(
-                //                             (Vector3){.x = player_pos.x, .z = player_pos.y},
-                //                             ball_3d_pos)),
-                //                         ball_control_force));
-                //             } else {
-                //                 // Run control
-                //                 ball_vel =
-                //                     Vector3Add(player_on_the_ball_force,
-                //                                Vector3Scale(Vector3Normalize(player_on_the_ball_force),
-                //                                             ball_run_force));
-                //             }
-                //         }
-                // }
             }
 
             // Apply velocity to ball

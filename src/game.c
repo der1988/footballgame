@@ -25,7 +25,7 @@ GameState *game_init(GameConfig game_config) {
                                             .gravity_force = {.y = -9.81f},
                                             .ball_drag_in_air = 0.6f,
                                             .ball_drag_on_pitch = 1.5f,
-                                            .ball_run_force = 175.0f,
+                                            .ball_run_force = 50.0f,
                                             .ball_control_force = 20.0f,
                                             .ball_shot_force = 850.0f,
                                             .ball_shot_height = 0.3f,
@@ -125,7 +125,7 @@ void game_update(GameState *game_state, Input *input) {
     memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
 
     systems_player(game_state, input);
-    systems_ball(game_state);
+    systems_ball(game_state, input);
     systems_action(game_state);
     systems_camera(game_state);
 }

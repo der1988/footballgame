@@ -2,3 +2,4 @@ v drop wings of heroes related stuff
 - fix tests
 - import prototype stuff
 - put together a collision system
+- find a way to draw shadows
