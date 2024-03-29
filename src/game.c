@@ -88,7 +88,7 @@ GameState *game_init(GameConfig game_config) {
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.screen_width,
                                                    (f32)game_state->config.screen_height);
-    game_state->camera.zoom = 2;
+    game_state->camera.zoom = 1;
     game_state->camera.rotation = 0;
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
@@ -141,14 +141,32 @@ void game_draw(GameState *game_state) {
 
     BeginMode2D(game_state->camera);
 
-    DrawTexture(pitch_texture, 0, 0, WHITE);
+    f32 stretched_width = pitch_texture.width * 2.25f;
+    f32 stretched_height = pitch_texture.height * 2.25f;
+    DrawTexturePro(
+        pitch_texture,
+        (Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
+        (Rectangle){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
+        Vector2Zero(), 0, WHITE);
     DrawTexturePro(
         pitch_texture,
         (Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = -pitch_texture.height},
-        (Rectangle){.x = 0,
-                    .y = pitch_texture.height,
-                    .width = pitch_texture.width,
-                    .height = pitch_texture.height},
+        (Rectangle){
+            .x = 0, .y = stretched_height, .width = stretched_width, .height = stretched_height},
+        Vector2Zero(), 0, WHITE);
+    DrawTexturePro(
+        pitch_texture,
+        (Rectangle){.x = 0, .y = 0, .width = -pitch_texture.width, .height = pitch_texture.height},
+        (Rectangle){
+            .x = stretched_width, .y = 0, .width = stretched_width, .height = stretched_height},
+        Vector2Zero(), 0, WHITE);
+    DrawTexturePro(
+        pitch_texture,
+        (Rectangle){.x = 0, .y = 0, .width = -pitch_texture.width, .height = -pitch_texture.height},
+        (Rectangle){.x = stretched_width,
+                    .y = stretched_height,
+                    .width = stretched_width,
+                    .height = stretched_height},
         Vector2Zero(), 0, WHITE);
 
     systems_render(game_state);

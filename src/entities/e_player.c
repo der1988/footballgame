@@ -35,7 +35,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     component = entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
-    component->transform.scale = Vector2One();
+    component->transform.scale = (v2){.x = 1.5f, .y = 1.5f};
 
     // Initialise physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);

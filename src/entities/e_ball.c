@@ -40,7 +40,7 @@ struct Entity *entities_ball_create(GameState *game_state) {
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
     component->transform.virtual_height = 300;
-    component->transform.scale = Vector2One();
+    component->transform.scale = (v2){.x = 1.5f, .y = 1.5f};
 
     // Initialise 3d physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
