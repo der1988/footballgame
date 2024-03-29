@@ -3,9 +3,9 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void sprites_draw(AssetsSpriteFrame *sprite_frame, Vector2 position, f32 rotation, Vector2 scale,
-                  Color color, b32 flipX, b32 flipY, AssetsTexture *assets_texture) {
-    Vector2 pivot = sprite_frame->pivot;
+void sprites_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale, Color color,
+                  b32 flipX, b32 flipY, v2 pivot_override, AssetsTexture *assets_texture) {
+    Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw texture
     Rectangle src = sprite_frame->frame;
@@ -36,9 +36,9 @@ void sprites_draw(AssetsSpriteFrame *sprite_frame, Vector2 position, f32 rotatio
     DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
 }
 
-void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, Vector2 position, f32 rotation,
-                              Vector2 scale) {
-    Vector2 pivot = sprite_frame->pivot;
+void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
+                              v2 pivot_override) {
+    Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw pivot
     DrawCircleV(position, 1, RED);

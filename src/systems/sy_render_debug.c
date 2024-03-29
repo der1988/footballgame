@@ -24,7 +24,7 @@ void systems_render_debug(GameState *game_state) {
 
             sprites_draw_debug_frame(
                 assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
-                position, rotation, scale);
+                position, rotation, scale, sprite->pivot_override);
         }
     }
 }

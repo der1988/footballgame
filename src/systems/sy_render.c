@@ -14,10 +14,16 @@ typedef struct {
     i16 order_in_layer;
     Color color;
     Vector2 position;
+    f32 height;
     f32 rotation;
     Vector2 scale;
     b32 flipX;
     b32 flipY;
+    v2 pivot_override;
+    b32 draw_shadow;
+    v2 shadow_offset;
+    v2 shadow_scale;
+    Color shadow_color;
 } SpriteToDraw;
 
 static i32 cmp_sprite_order(const void *s1, const void *s2) {
@@ -45,6 +51,7 @@ void systems_render(GameState *game_state) {
     ComponentForEach(entity_repository, base_component, idx) {
         Component *base_sprite = base_component + CT_SPRITE * entity_repository->max_slots;
         Component *base_transform = base_component + CT_TRANSFORM * entity_repository->max_slots;
+        Component *base_shadow = base_component + CT_SHADOW * entity_repository->max_slots;
         if (entity_repository->entities[idx].alive && base_sprite->header.enabled &&
             base_transform->header.enabled) {
             ComponentSprite *sprite = &base_sprite->sprite;
@@ -59,19 +66,34 @@ void systems_render(GameState *game_state) {
             AssetsTexture *texture =
                 assets_texture_get_by_id(game_state->texture_cache, sprite_frame->texture_id);
 
-            // TODO(marco): not great but I haven't found a better way to do it yet
-            position.y -= transform->virtual_height;
+            // Shadow
+            b32 draw_shadow = false;
+            Color shadow_color = BLACK;
+            v2 shadow_offset = Vector2Zero();
+            v2 shadow_scale = Vector2One();
+            if (base_shadow->header.enabled) {
+                draw_shadow = true;
+                shadow_color = base_shadow->shadow.color;
+                shadow_scale = base_shadow->shadow.scale;
+                shadow_offset = base_shadow->shadow.offset;
+            }
 
             *current_idx = (SpriteToDraw){.sprite_frame = sprite_frame,
                                           .layer = sprite->layer,
                                           .order_in_layer = sprite->order_in_layer,
                                           .position = position,
+                                          .height = -transform->virtual_height,
                                           .rotation = rotation,
                                           .scale = scale,
                                           .color = sprite->color,
                                           .flipX = sprite->flipX,
                                           .flipY = sprite->flipY,
-                                          .texture = texture};
+                                          .pivot_override = sprite->pivot_override,
+                                          .texture = texture,
+                                          .draw_shadow = draw_shadow,
+                                          .shadow_color = shadow_color,
+                                          .shadow_offset = shadow_offset,
+                                          .shadow_scale = shadow_scale};
             current_idx++;
         }
     }
@@ -79,10 +101,28 @@ void systems_render(GameState *game_state) {
 
     qsort(ordered_sprites_to_draw, total_sprites, sizeof(SpriteToDraw), cmp_sprite_order);
 
+    // Draw shadows
     for (usize i = 0; i < total_sprites; ++i) {
         SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
-        sprites_draw(sprite_to_draw->sprite_frame, sprite_to_draw->position,
+        if (sprite_to_draw->draw_shadow) {
+            v2 shadow_final_offset = Vector2Add(
+                sprite_to_draw->shadow_offset,
+                (v2){.x = -sprite_to_draw->height * 0.1f, .y = -sprite_to_draw->height * 0.1f});
+            sprites_draw(sprite_to_draw->sprite_frame,
+                         Vector2Add(sprite_to_draw->position, shadow_final_offset),
+                         sprite_to_draw->rotation - 45, sprite_to_draw->shadow_scale,
+                         sprite_to_draw->shadow_color, sprite_to_draw->flipX, true,
+                         sprite_to_draw->pivot_override, sprite_to_draw->texture);
+        }
+    }
+
+    // Draw sprites
+    for (usize i = 0; i < total_sprites; ++i) {
+        SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
+        sprites_draw(sprite_to_draw->sprite_frame,
+                     Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
                      sprite_to_draw->rotation, sprite_to_draw->scale, sprite_to_draw->color,
-                     sprite_to_draw->flipX, sprite_to_draw->flipY, sprite_to_draw->texture);
+                     sprite_to_draw->flipX, sprite_to_draw->flipY, sprite_to_draw->pivot_override,
+                     sprite_to_draw->texture);
     }
 }

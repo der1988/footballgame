@@ -42,6 +42,7 @@ typedef struct GameConstants {
 
 typedef struct GameVariables {
     EntityId ball_entity_id;
+    EntityId p1_entity_id;
 } GameVariables;
 
 typedef struct GameState {

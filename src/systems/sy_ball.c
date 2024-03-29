@@ -1,6 +1,7 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
+#include "../utils/utils.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -25,6 +26,15 @@ void systems_ball(GameState *game_state, Input *input) {
             entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, ball_id);
         StateMachineBall *state_machine = component->state_machine.ptr;
 
+        if (IsKeyDown(KEY_Q)) {
+            ComponentTransform *p1_transform =
+                &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
+                                        game_state->vars.p1_entity_id)
+                     ->transform;
+            transform->position = p1_transform->position;
+            return;
+        }
+
         switch (state_machine->current_state) {
         case BS_NONE:
             break;
@@ -43,6 +53,8 @@ void systems_ball(GameState *game_state, Input *input) {
                 physics_3d->velocity.z += physics_3d->velocity.z *
                                           -game_state->constants.ball_drag_in_air * game_state->dt;
             } else {
+                ball->subject_to_after_touch = false;
+
                 // Drag on the pitch
                 physics_3d->velocity.x += physics_3d->velocity.x *
                                           -game_state->constants.ball_drag_on_pitch *
@@ -88,6 +100,8 @@ void systems_ball(GameState *game_state, Input *input) {
                                                       .y = game_state->constants.ball_shot_height,
                                                       .z = 0}),
                                         game_state->constants.ball_shot_force));
+                                ball->subject_to_after_touch = true;
+                                ball->shot_time = GetTime();
                             } else {
                                 if (input->buttons[IBT_BUTTON_LEFT].down) {
                                     // Precision control
@@ -110,6 +124,26 @@ void systems_ball(GameState *game_state, Input *input) {
                         }
                     }
                 }
+            }
+
+            // After touch
+            if (ball->subject_to_after_touch &&
+                (game_state->time - ball->shot_time) >
+                    game_state->constants.ball_after_touch_delay_time &&
+                (game_state->time - ball->shot_time) <
+                    game_state->constants.ball_after_touch_max_time) {
+                v2 after_touch_input = Vector2Normalize(input->left_stick);
+                Vector2 ball_2d_vel = {.x = physics_3d->velocity.x, .y = physics_3d->velocity.z};
+                Vector2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
+                f32 after_touch_height =
+                    Clamp(Vector2ProjectScalar(ball_2d_vel, after_touch_input), -1.0f, 0.4f);
+                v2 after_touch_side = Vector2Project(ball_2d_vel_perp, after_touch_input);
+                v3 after_touch_direction = (Vector3){
+                    .x = after_touch_side.x, .y = -after_touch_height, .z = after_touch_side.y};
+                physics_3d->velocity =
+                    Vector3Add(physics_3d->velocity,
+                               Vector3Scale(after_touch_direction,
+                                            game_state->constants.ball_after_touch_force));
             }
 
             // Apply velocity to ball

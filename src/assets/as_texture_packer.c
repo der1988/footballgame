@@ -70,8 +70,8 @@ AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename, co
         i32 source_size_h = JSON_GET_INT(source_size, "h");
 
         // Pivot is optional
-        f64 pivot_x = 0.5;
-        f64 pivot_y = 0.5;
+        f64 pivot_x = 0;
+        f64 pivot_y = 0;
         cJSON *pivot = cJSON_GetObjectItemCaseSensitive(sprite_frame, "pivot");
         if (pivot) {
             pivot_x = JSON_GET_DOUBLE(pivot, "x");

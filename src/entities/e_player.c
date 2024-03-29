@@ -46,7 +46,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
     component->collider.shape = CS_CIRCLE;
-    component->collider.props.circle.radius = 10;
+    component->collider.props.circle.radius = 15;
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
@@ -58,7 +58,15 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->sprite.color = WHITE;
     component->sprite.flipX = false;
     component->sprite.flipY = false;
+    component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.7};
     component->sprite.layer = SL_PLAYERS;
+
+    // Initialise shadow
+    component = entities_component_create(game_state->entity_repository, CT_SHADOW, entity->id);
+    component->shadow.color = BLACK;
+    component->shadow.color.a = 100;
+    component->shadow.offset = (v2){.x = 25, .y = 29};
+    component->shadow.scale = (v2){.x = 0.5, .y = 1};
 
     // Initialise human
     ComponentHuman *human =

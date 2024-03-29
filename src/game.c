@@ -92,7 +92,7 @@ GameState *game_init(GameConfig game_config) {
     game_state->camera.rotation = 0;
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
-    camera_target->target_transform = player_transform;
+    camera_target->target_transform = &ball_transform->transform;
 #endif
 
     game_state->initialised = true;
@@ -137,7 +137,7 @@ void game_draw(GameState *game_state) {
         assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture;
 
     BeginTextureMode(game_state->render_texture);
-    ClearBackground(BLACK);
+    ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
 
     BeginMode2D(game_state->camera);
 

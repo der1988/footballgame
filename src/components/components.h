@@ -17,6 +17,7 @@ typedef enum {
     CT_PHYSICS,
     CT_PHYSICS_3D,
     CT_SPRITE,
+    CT_SHADOW,
     CT_COLLIDER,
     CT_STATE_MACHINE,
     CT_ACTION,
@@ -54,8 +55,15 @@ typedef struct {
     b32 flipY;
     SpriteLayer layer;
     i16 order_in_layer;
+    v2 pivot_override;
     AssetsSpriteFrameId frame_id;
 } ComponentSprite;
+
+typedef struct {
+    Color color;
+    v2 offset;
+    v2 scale;
+} ComponentShadow;
 
 typedef struct {
     void *ptr;
@@ -69,10 +77,7 @@ typedef struct {
     ComponentTransform *target_transform;
 } ComponentTarget;
 
-typedef enum {
-    CS_CIRCLE,
-    CS_RECTANGLE
-} ColliderShape;
+typedef enum { CS_CIRCLE, CS_RECTANGLE } ColliderShape;
 
 typedef struct {
     f32 radius;
@@ -118,6 +123,8 @@ typedef struct {
 } ComponentHuman;
 
 typedef struct {
+    b32 subject_to_after_touch;
+    f64 shot_time;
     AssetsSpriteFrameId roll_frames[PD_COUNT];
 } ComponentBall;
 
@@ -135,6 +142,7 @@ typedef struct {
         ComponentPhysics physics;
         ComponentPhysics3d physics_3d;
         ComponentSprite sprite;
+        ComponentShadow shadow;
         ComponentCollider collider;
         ComponentStateMachine state_machine;
         ComponentAction action;
