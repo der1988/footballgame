@@ -16,12 +16,8 @@ jobs:
           echo "Tools installed"
       - name: Build Raylib from sources
         run: |
-          git clone https://github.com/raysan5/raylib.git raylib
-          cd raylib/src/
-          make PLATFORM=PLATFORM_DESKTOP
-          make install
-          echo "Raylib built and installed"
+          wget https://github.com/raysan5/raylib/releases/download/5.0/raylib-5.0_win64_mingw-w64.zip
+          echo "Raylib installed"
       - name: Build game
         run: |
-          make
           echo "Game built"
