@@ -13,7 +13,7 @@ jobs:
       - name: Install required tools
         run: |
           apt update
-          apt -y install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+          apt -y install clang libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
           echo "Tools installed"
       - name: Build Raylib from sources
         run: |
