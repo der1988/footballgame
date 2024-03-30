@@ -1,0 +1,33 @@
+name: Build Linux Release
+run-name: Build Linux Release
+on: [push]
+
+jobs:
+  Build-Linux:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building release for Linux operating system"
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "The ${{ gitea.repository }} repository has been cloned to the runner."
+      - name: Install required tools
+        run: |
+          apt install libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+          echo "Tools installed"
+      - name: Build Raylib from sources
+        run: |
+          git clone https://github.com/raysan5/raylib.git raylib
+          cd raylib/src/
+          make PLATFORM=PLATFORM_DESKTOP
+          echo "Raylib built"
+      - name: Build Raylib from sources
+        run: |
+          git clone https://github.com/raysan5/raylib.git raylib
+          cd raylib/src/
+          make PLATFORM=PLATFORM_DESKTOP
+          make install
+          echo "Raylib built"
+      - name: Build game
+        run: |
+          make
+          echo "Game built"
