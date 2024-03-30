@@ -1,0 +1,27 @@
+name: Build Windows Release
+run-name: Build Windows Release
+on: [push]
+
+jobs:
+  Build-Linux:
+    runs-on: windows-latest
+    steps:
+      - run: echo "Building release for Windows operating system"
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "The ${{ gitea.repository }} repository has been cloned to the runner."
+      - name: Install required tools
+        run: |
+          wget https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip
+          echo "Tools installed"
+      - name: Build Raylib from sources
+        run: |
+          git clone https://github.com/raysan5/raylib.git raylib
+          cd raylib/src/
+          make PLATFORM=PLATFORM_DESKTOP
+          make install
+          echo "Raylib built and installed"
+      - name: Build game
+        run: |
+          make
+          echo "Game built"
