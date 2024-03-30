@@ -1,5 +1,5 @@
 v drop wings of heroes related stuff
+v import prototype stuff
+v find a way to draw shadows
+v put together a collision system
 - fix tests
-- import prototype stuff
-- put together a collision system
-- find a way to draw shadows
