@@ -3,3 +3,4 @@ v import prototype stuff
 v find a way to draw shadows
 v put together a collision system
 - fix tests
+- configure ci/cd
