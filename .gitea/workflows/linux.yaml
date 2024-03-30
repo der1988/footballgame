@@ -20,14 +20,8 @@ jobs:
           git clone https://github.com/raysan5/raylib.git raylib
           cd raylib/src/
           make PLATFORM=PLATFORM_DESKTOP
-          echo "Raylib built"
-      - name: Build Raylib from sources
-        run: |
-          git clone https://github.com/raysan5/raylib.git raylib
-          cd raylib/src/
-          make PLATFORM=PLATFORM_DESKTOP
           make install
-          echo "Raylib built"
+          echo "Raylib built and installed"
       - name: Build game
         run: |
           make
