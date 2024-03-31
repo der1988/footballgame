@@ -4,3 +4,4 @@ v find a way to draw shadows
 v put together a collision system
 v configure ci/cd
 - fix tests
+- get some rest
