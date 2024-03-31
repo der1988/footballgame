@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   Build-Linux:
-    runs-on: windows-latest
+    runs-on: windows
     steps:
       - run: echo "Building release for Windows operating system"
       - name: Check out repository code
