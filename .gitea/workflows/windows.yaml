@@ -3,21 +3,17 @@ run-name: Build Windows Release
 on: [push]
 
 jobs:
-  Build-Linux:
+  Build-Windows:
     runs-on: windows
     steps:
-      - run: echo "Building release for Windows operating system"
+      - run: |
+        echo "Building release for Windows operating system"
+        cd c:/dev/projects
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: echo "The ${{ gitea.repository }} repository has been cloned to the runner."
-      - name: Install required tools
-        run: |
-          wget https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip
-          echo "Tools installed"
-      - name: Build Raylib from sources
-        run: |
-          wget https://github.com/raysan5/raylib/releases/download/5.0/raylib-5.0_win64_mingw-w64.zip
-          echo "Raylib installed"
       - name: Build game
         run: |
+          cd footballgame
+          make -f Makefile.w64
           echo "Game built"
