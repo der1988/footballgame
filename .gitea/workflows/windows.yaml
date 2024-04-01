@@ -1,16 +1,27 @@
 name: Build Windows Release
 run-name: Build Windows Release
-on: [push]
+on:
+  push:
+    tags:
+      v.*
 
 jobs:
   Build-Windows:
     runs-on: windows
     steps:
       - run: echo "Building release for Windows operating system"
-      - name: Check out repository code
         uses: actions/checkout@v3
-      - run: echo "The ${{ gitea.repository }} repository has been cloned to the runner."
+      - run: echo "The repository has been cloned to the runner."
       - name: Build game
         run: |
           make -f Makefile.w64
           echo "Game built"
+      - name: Create release
+        run: |
+          mkdir release
+          cp build/thegame.exe release
+          cp -R res release
+          zip -r release.zip release
+          $id = (curl -vv -X POST http://obelix.local:33000/api/v1/repos/MoonyBaboon/footballgame/releases -d "{\"tag_name\":\"${{gitea.ref_name}}\"}" -H 'accept: application/json' -H 'Authorization: token ${{secrets.API_TOKEN}}' -H 'Content-Type: application/json')
+          curl -vv -X 'POST' 'http://obelix.local:33000/api/v1/repos/MoonyBaboon/footballgame/releases/$id/assets?name=release.zip' -H 'Authorization: token ${{secrets.API_TOKEN}}' -H 'Content-Type: multipart/form-data' -F 'attachment=@release.zip;type=application/zip'
+          echo "Release created"
