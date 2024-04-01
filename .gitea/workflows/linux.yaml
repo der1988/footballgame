@@ -1,6 +1,9 @@
 name: Build Linux Release
 run-name: Build Linux Release
-on: [push]
+on:
+  push:
+    tags:
+      v*
 
 jobs:
   Build-Linux:
