@@ -22,6 +22,6 @@ jobs:
           cp build/thegame.exe release
           cp -R res release
           zip -r release.zip release
-          $id = (curl -vv -X POST http://obelix.local:33000/api/v1/repos/MoonyBaboon/footballgame/releases -d "{\"tag_name\":\"${{gitea.ref_name}}\"}" -H 'accept: application/json' -H 'Authorization: token ${{secrets.API_TOKEN}}' -H 'Content-Type: application/json')
+          $id = (curl -vv -X POST http://obelix.local:33000/api/v1/repos/MoonyBaboon/footballgame/releases -d "{\"tag_name\":\"${{gitea.ref_name}}\"}" -H 'accept: application/json' -H 'Authorization: token ${{secrets.API_TOKEN}}' -H 'Content-Type: application/json' | jq '.id')
           curl -vv -X 'POST' 'http://obelix.local:33000/api/v1/repos/MoonyBaboon/footballgame/releases/$id/assets?name=release.zip' -H 'Authorization: token ${{secrets.API_TOKEN}}' -H 'Content-Type: multipart/form-data' -F 'attachment=@release.zip;type=application/zip'
           echo "Release created"
