@@ -21,7 +21,8 @@ jobs:
           mkdir release
           cp build/thegame.exe release
           cp -R res release
-          zip -r release.zip release
+          cd release
+          zip -r release.zip *
           $id = curl.exe --% -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases" -d "{""tag_name"":""${{gitea.ref_name}}""}" -H "accept: application/json" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: application/json" | jq '.id'
           curl.exe -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases/$id/assets?name=footballgame_win.zip" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: multipart/form-data" -F "attachment=@release.zip;type=application/zip"
           echo "Release created"
