@@ -38,6 +38,7 @@ typedef struct GameConstants {
     f32 ball_after_touch_delay_time;
     f32 ball_after_touch_max_time;
     f32 ball_after_touch_force;
+    f32 player_max_velocity;
 } GameConstants;
 
 typedef struct GameVariables {

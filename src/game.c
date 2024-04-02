@@ -25,13 +25,14 @@ GameState *game_init(GameConfig game_config) {
                                             .gravity_force = {.y = -9.81f},
                                             .ball_drag_in_air = 0.6f,
                                             .ball_drag_on_pitch = 1.5f,
-                                            .ball_run_force = 50.0f,
+                                            .ball_run_force = 175.0f,
                                             .ball_control_force = 20.0f,
-                                            .ball_shot_force = 850.0f,
+                                            .ball_shot_force = 1000.0f,
                                             .ball_shot_height = 0.3f,
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
-                                            .ball_after_touch_force = 15.0f};
+                                            .ball_after_touch_force = 15.0f,
+                                            .player_max_velocity = 250.0f};
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
