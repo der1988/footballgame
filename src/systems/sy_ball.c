@@ -40,9 +40,7 @@ void systems_ball(GameState *game_state, Input *input) {
             break;
         case BS_IN_PLAY: {
 
-            Vector3 ball_position_3d = (Vector3){.x = transform->position.x,
-                                                 .y = transform->virtual_height,
-                                                 .z = transform->position.y};
+            Vector3 ball_position_3d = V2_TO_V3(transform->position, transform->virtual_height);
             if (ball_position_3d.y > 0) {
                 // Gravity
                 physics_3d->velocity = Vector3Add(
@@ -87,15 +85,15 @@ void systems_ball(GameState *game_state, Input *input) {
                             transform->virtual_height < 40.0f;
 
                         if (is_colliding_with_ball) {
-                            Vector3 player_on_the_ball_force = (Vector3){
-                                .x = player_physics->velocity.x, .z = player_physics->velocity.y};
-                            if (input->buttons[IBT_BUTTON_DOWN].released) {
+                            Vector3 player_on_the_ball_force =
+                                V2_TO_V3(player_physics->velocity, 0);
+                            if (input->buttons[IBT_BUTTON_DOWN].down) {
                                 // Shot
                                 physics_3d->velocity = Vector3Add(
                                     physics_3d->velocity,
                                     Vector3Scale(
                                         Vector3Add(
-                                            Vector3Normalize(player_on_the_ball_force),
+                                            Vector3Normalize(V2_TO_V3(input->left_stick, 0)),
                                             (Vector3){.x = 0,
                                                       .y = game_state->constants.ball_shot_height,
                                                       .z = 0}),
@@ -107,18 +105,17 @@ void systems_ball(GameState *game_state, Input *input) {
                                     // Precision control
                                     physics_3d->velocity = Vector3Add(
                                         player_on_the_ball_force,
-                                        Vector3Scale(
-                                            Vector3Normalize(Vector3Subtract(
-                                                (Vector3){.x = player_transform->position.x,
-                                                          .z = player_transform->position.y},
-                                                ball_position_3d)),
-                                            game_state->constants.ball_control_force));
+                                        Vector3Scale(Vector3Normalize(Vector3Subtract(
+                                                         V2_TO_V3(player_transform->position, 0),
+                                                         ball_position_3d)),
+                                                     game_state->constants.ball_control_force));
                                 } else {
                                     // Run control
                                     physics_3d->velocity = Vector3Add(
                                         player_on_the_ball_force,
-                                        Vector3Scale(Vector3Normalize(player_on_the_ball_force),
-                                                     game_state->constants.ball_run_force));
+                                        Vector3Scale(
+                                            Vector3Normalize(V2_TO_V3(input->left_stick, 0)),
+                                            game_state->constants.ball_run_force));
                                 }
                             }
                         }
@@ -133,7 +130,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 (game_state->time - ball->shot_time) <
                     game_state->constants.ball_after_touch_max_time) {
                 v2 after_touch_input = Vector2Normalize(input->left_stick);
-                Vector2 ball_2d_vel = {.x = physics_3d->velocity.x, .y = physics_3d->velocity.z};
+                Vector2 ball_2d_vel = V3_TO_V2(physics_3d->velocity);
                 Vector2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
                 f32 after_touch_height =
                     Clamp(Vector2ProjectScalar(ball_2d_vel, after_touch_input), -1.0f, 0.4f);
@@ -160,13 +157,8 @@ void systems_ball(GameState *game_state, Input *input) {
             }
 
             // Project position to 2D
-            transform->position = (Vector2){.x = ball_position_3d.x, .y = ball_position_3d.z};
+            transform->position = V3_TO_V2(ball_position_3d);
             transform->virtual_height = ball_position_3d.y;
-            // // Ball shadow
-            // ball_2d_shadow_pos =
-            //     Vector2Add(ball_2d_pos, (Vector2){.x = shadow_x_displacement + ball_height *
-            //     0.1f,
-            //                                       .y = ball_size + ball_height * 0.1f});
         } break;
         case BS_OUT_OF_PLAY: {
         } break;

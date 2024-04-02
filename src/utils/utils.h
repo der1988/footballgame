@@ -7,6 +7,10 @@
 #include <stdarg.h>
 
 #define ARRAY_LEN(A) sizeof(A) / sizeof(A[0])
+#define V2_TO_V3(vector2, height)                                                                  \
+    (v3) { .x = vector2.x, .y = height, .z = vector2.y }
+#define V3_TO_V2(vector3)                                                                          \
+    (v2) { .x = vector3.x, .y = vector3.z }
 #define STRINGIFY(v) #v
 #define JSON_GET_INT(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
