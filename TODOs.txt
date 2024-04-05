@@ -5,3 +5,8 @@ v put together a collision system
 v configure ci/cd
 - fix tests
 - get some rest
+- parameters on screen
+- player should face last direction when standing
+- run animation speed should be proportional to velocity
+- ball position should depend on direction when running
+- put together a pathetic excuse for a goal

@@ -108,7 +108,6 @@ Component *entities_component_get(EntityRepository *entity_repo, ComponentType t
     }
 
     Component *component = entity_repo->components + ((type * MAX_ENTITIES) + id);
-    assert(component);
 
     return component;
 }

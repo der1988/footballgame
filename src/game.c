@@ -86,6 +86,7 @@ GameState *game_init(GameConfig game_config) {
     ComponentTarget *camera_target =
         &entities_component_get(game_state->entity_repository, CT_TARGET, camera->id)->target;
     camera_props->camera = CAM_MAIN;
+    camera_target->entity_id = ball_entity->id;
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.screen_width,
                                                    (f32)game_state->config.screen_height);
@@ -93,7 +94,6 @@ GameState *game_init(GameConfig game_config) {
     game_state->camera.rotation = 0;
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
-    camera_target->target_transform = &ball_transform->transform;
 #endif
 
     game_state->initialised = true;

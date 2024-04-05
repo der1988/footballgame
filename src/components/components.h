@@ -41,12 +41,16 @@ typedef struct {
     f32 mass;
     Vector2 accel;
     Vector2 velocity;
+    f32 max_velocity;
+    f32 max_force;
 } ComponentPhysics;
 
 typedef struct {
     f32 mass;
     Vector3 accel;
     Vector3 velocity;
+    f32 max_velocity;
+    f32 max_force;
 } ComponentPhysics3d;
 
 typedef struct {
@@ -74,7 +78,7 @@ typedef struct {
 } ComponentAction;
 
 typedef struct {
-    ComponentTransform *target_transform;
+    EntityId entity_id;
 } ComponentTarget;
 
 typedef enum { CS_CIRCLE, CS_RECTANGLE } ColliderShape;
@@ -101,6 +105,7 @@ typedef struct {
 
 typedef struct {
     CameraType camera;
+    f32 slowing_distance;
 } ComponentCameraProps;
 
 typedef enum {
