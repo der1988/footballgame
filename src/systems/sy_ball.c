@@ -102,6 +102,13 @@ void systems_ball(GameState *game_state, Input *input) {
                                 ball->shot_time = GetTime();
                             } else {
                                 if (input->buttons[IBT_BUTTON_LEFT].down) {
+                                    // Run control
+                                    physics_3d->velocity = Vector3Add(
+                                        player_on_the_ball_force,
+                                        Vector3Scale(
+                                            Vector3Normalize(V2_TO_V3(input->left_stick, 0)),
+                                            game_state->constants.ball_run_force));
+                                } else {
                                     // Precision control
                                     physics_3d->velocity = Vector3Add(
                                         player_on_the_ball_force,
@@ -109,13 +116,6 @@ void systems_ball(GameState *game_state, Input *input) {
                                                          V2_TO_V3(player_transform->position, 0),
                                                          ball_position_3d)),
                                                      game_state->constants.ball_control_force));
-                                } else {
-                                    // Run control
-                                    physics_3d->velocity = Vector3Add(
-                                        player_on_the_ball_force,
-                                        Vector3Scale(
-                                            Vector3Normalize(V2_TO_V3(input->left_stick, 0)),
-                                            game_state->constants.ball_run_force));
                                 }
                             }
                         }
