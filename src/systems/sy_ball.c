@@ -87,7 +87,7 @@ void systems_ball(GameState *game_state, Input *input) {
                         if (is_colliding_with_ball) {
                             Vector3 player_on_the_ball_force =
                                 V2_TO_V3(player_physics->velocity, 0);
-                            if (input->buttons[IBT_BUTTON_DOWN].down) {
+                            if (input->buttons[IBT_BUTTON_LEFT].down) {
                                 // Shot
                                 physics_3d->velocity = Vector3Add(
                                     physics_3d->velocity,
@@ -101,13 +101,14 @@ void systems_ball(GameState *game_state, Input *input) {
                                 ball->subject_to_after_touch = true;
                                 ball->shot_time = GetTime();
                             } else {
-                                if (input->buttons[IBT_BUTTON_LEFT].down) {
+                                f32 sprint = (input->right_trigger + 1) / 2.0f;
+                                if (sprint > 0.01f) {
                                     // Run control
                                     physics_3d->velocity = Vector3Add(
                                         player_on_the_ball_force,
                                         Vector3Scale(
                                             Vector3Normalize(V2_TO_V3(input->left_stick, 0)),
-                                            game_state->constants.ball_run_force));
+                                            game_state->constants.ball_run_force * sprint));
                                 } else {
                                     // Precision control
                                     physics_3d->velocity = Vector3Add(

@@ -34,8 +34,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_after_touch_force = 15.0f,
                                             .player_movement_force = 1500.0f,
                                             .player_movement_drag = 1000.0f,
-                                            .player_base_velocity = 100.0f,
-                                            .player_control_max_velocity = 200.0f,
+                                            .player_control_max_velocity = 150.0f,
                                             .player_run_max_velocity = 250.0f};
 
     // Partition game memory

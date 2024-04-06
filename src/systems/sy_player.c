@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 void systems_player(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
@@ -41,24 +42,31 @@ void systems_player(GameState *game_state, Input *input) {
             case PS_NONE:
                 break;
             case PS_RUN: {
-                b32 is_running = input->buttons[IBT_BUTTON_LEFT].down;
-                physics->max_velocity =
-                    (is_running ? game_state->constants.player_run_max_velocity
-                                : game_state->constants.player_control_max_velocity) *
-                    Vector2Length(steering);
+                f32 sprint = (input->right_trigger + 1) / 2.0f;
+                physics->max_velocity = game_state->constants.player_control_max_velocity +
+                                        (game_state->constants.player_run_max_velocity -
+                                         game_state->constants.player_control_max_velocity) *
+                                            sprint;
 
-                if (Vector2Length(steering) < 0.05f) {
-                    steering = Vector2Zero();
-                    sprite->frame_id = human->stand_frames[human->last_direction];
+                // Run force
+                force_to_apply = Vector2Scale(Vector2Normalize(steering),
+                                              game_state->constants.player_movement_force);
+
+                if (Vector2Length(physics->velocity) > 5) {
+                    // Drag force
+                    Vector2 drag = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+                                                game_state->constants.player_movement_drag);
+                    force_to_apply = Vector2Add(force_to_apply, drag);
                 } else {
+                    physics->velocity = Vector2Zero();
+                }
 
-                    // Calculate frame to display
-                    PlayerDirection pd = entities_player_calculate_direction(steering);
+                // Calculate frame to display
+                if (Vector2Length(physics->velocity) > 0.01f) {
+                    PlayerDirection pd = entities_player_calculate_direction(physics->velocity);
                     AssetsAnimation *animation = assets_animation_get_by_id(
                         game_state->animation_cache, base_human->human.run_animations[pd]);
-                    f32 max_player_velocity = game_state->constants.player_base_velocity +
-                                              (game_state->constants.player_run_max_velocity -
-                                               game_state->constants.player_base_velocity);
+                    f32 max_player_velocity = game_state->constants.player_run_max_velocity;
                     if ((game_state->time - human->last_frame_update_time) >
                         (animation->delay *
                          (2 - Vector2Length(physics->velocity) / max_player_velocity))) {
@@ -69,28 +77,17 @@ void systems_player(GameState *game_state, Input *input) {
                         human->last_running_frame_idx = new_frame_id;
                     }
                     human->last_direction = pd;
+                } else {
+                    sprite->frame_id = human->stand_frames[human->last_direction];
                 }
 
-                // Run force
-                force_to_apply = Vector2Scale(Vector2Normalize(steering),
-                                              game_state->constants.player_movement_force);
+                entities_player_apply_force(force_to_apply, physics, game_state->dt);
+                entities_player_apply_velocity(&base_transform->transform, physics, game_state->dt);
                 break;
             }
             case PS_COUNT:
                 break;
             }
-
-            if (Vector2Length(physics->velocity) > 5) {
-                // Drag force
-                Vector2 drag = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
-                                            game_state->constants.player_movement_drag);
-                force_to_apply = Vector2Add(force_to_apply, drag);
-            } else {
-                physics->velocity = Vector2Zero();
-            }
-
-            entities_player_apply_force(force_to_apply, physics, game_state->dt);
-            entities_player_apply_velocity(&base_transform->transform, physics, game_state->dt);
         }
     }
 }
