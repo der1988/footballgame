@@ -109,22 +109,22 @@ typedef struct {
 } ComponentCameraProps;
 
 typedef enum {
-    PD_UP,
-    PD_DOWN,
-    PD_LEFT,
-    PD_RIGHT,
-    PD_UP_LEFT,
-    PD_UP_RIGHT,
-    PD_DOWN_LEFT,
-    PD_DOWN_RIGHT,
-    PD_COUNT
-} PlayerDirection;
+    D_UP,
+    D_DOWN,
+    D_LEFT,
+    D_RIGHT,
+    D_UP_LEFT,
+    D_UP_RIGHT,
+    D_DOWN_LEFT,
+    D_DOWN_RIGHT,
+    D_COUNT
+} Direction;
 
 typedef struct {
     b32 is_controlling_the_ball;
-    AssetsSpriteFrameId stand_frames[PD_COUNT];
-    AssetsAnimationId run_animations[PD_COUNT];
-    PlayerDirection last_direction;
+    AssetsSpriteFrameId stand_frames[D_COUNT];
+    AssetsAnimationId run_animations[D_COUNT];
+    Direction last_direction;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
 } ComponentHuman;
@@ -132,7 +132,7 @@ typedef struct {
 typedef struct {
     b32 subject_to_after_touch;
     f64 shot_time;
-    AssetsSpriteFrameId roll_frames[PD_COUNT];
+    AssetsSpriteFrameId roll_frames[D_COUNT];
 } ComponentBall;
 
 typedef struct {

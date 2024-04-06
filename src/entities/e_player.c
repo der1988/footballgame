@@ -85,12 +85,12 @@ struct Entity *entities_player_create(GameState *game_state) {
     return entity;
 }
 
-PlayerDirection entities_player_calculate_direction(Vector2 direction) {
+Direction entities_player_calculate_direction(Vector2 direction) {
     static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},   {.x = -1, .y = 0},
                                           {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
                                           {.x = -1, .y = 1}, {.x = 1, .y = 1}};
     f32 max_value = 0;
-    PlayerDirection selected_direction = PD_DOWN;
+    Direction selected_direction = D_DOWN;
     for (u16 i = 0; i < 8; ++i) {
         f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
         if (tmp_value > max_value) {
@@ -138,8 +138,6 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
     case PS_NONE:
         break;
     case PS_RUN: {
-        PlayerDirection pd = entities_player_calculate_direction(physics->velocity);
-        state_machine->state_data.run.running_action_direction = pd;
     } break;
     case PS_COUNT:
         break;
@@ -187,30 +185,30 @@ static AssetsAnimationId animation_id_from_name(char *animation_name, GameState 
 
 static void prepare_gfx(ComponentHuman *human, GameState *game_state) {
     // Stand frames
-    human->stand_frames[PD_DOWN] =
+    human->stand_frames[D_DOWN] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
-    human->stand_frames[PD_UP] =
+    human->stand_frames[D_UP] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_0")->id;
-    human->stand_frames[PD_LEFT] =
+    human->stand_frames[D_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_left_0")->id;
-    human->stand_frames[PD_RIGHT] =
+    human->stand_frames[D_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_right_0")->id;
-    human->stand_frames[PD_DOWN_LEFT] =
+    human->stand_frames[D_DOWN_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_left_0")->id;
-    human->stand_frames[PD_DOWN_RIGHT] =
+    human->stand_frames[D_DOWN_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_right_0")->id;
-    human->stand_frames[PD_UP_LEFT] =
+    human->stand_frames[D_UP_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_left_0")->id;
-    human->stand_frames[PD_UP_RIGHT] =
+    human->stand_frames[D_UP_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
 
     // Running animations
-    human->run_animations[PD_DOWN] = animation_id_from_name("run_front", game_state);
-    human->run_animations[PD_UP] = animation_id_from_name("run_back", game_state);
-    human->run_animations[PD_LEFT] = animation_id_from_name("run_left", game_state);
-    human->run_animations[PD_RIGHT] = animation_id_from_name("run_right", game_state);
-    human->run_animations[PD_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
-    human->run_animations[PD_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
-    human->run_animations[PD_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
-    human->run_animations[PD_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
+    human->run_animations[D_DOWN] = animation_id_from_name("run_front", game_state);
+    human->run_animations[D_UP] = animation_id_from_name("run_back", game_state);
+    human->run_animations[D_LEFT] = animation_id_from_name("run_left", game_state);
+    human->run_animations[D_RIGHT] = animation_id_from_name("run_right", game_state);
+    human->run_animations[D_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
+    human->run_animations[D_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
+    human->run_animations[D_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
+    human->run_animations[D_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
 }

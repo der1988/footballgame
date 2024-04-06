@@ -77,7 +77,7 @@ static char const *StateMachinePlayerStateString[] = {"none", "run", "count"};
 DeclareStateMachineEnterAndExit(player);
 
 typedef struct {
-    PlayerDirection running_action_direction;
+    Direction running_action_direction;
 } StateMachinePlayerRunData;
 
 typedef union {
@@ -88,7 +88,7 @@ typedef union {
 DefineStateMachine(Player, PS_COUNT);
 DefineStateMachineFunctions(Player, player);
 
-PlayerDirection entities_player_calculate_direction(Vector2 direction);
+Direction entities_player_calculate_direction(Vector2 direction);
 void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
                                     DeltaTime dt);
