@@ -145,32 +145,12 @@ void game_draw(GameState *game_state) {
 
     BeginMode2D(game_state->camera);
 
-    f32 stretched_width = pitch_texture.width * 2.25f;
-    f32 stretched_height = pitch_texture.height * 2.25f;
+    f32 stretched_width = pitch_texture.width * 1.0f;
+    f32 stretched_height = pitch_texture.height * 1.0f;
     DrawTexturePro(
         pitch_texture,
         (Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
         (Rectangle){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
-        Vector2Zero(), 0, WHITE);
-    DrawTexturePro(
-        pitch_texture,
-        (Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = -pitch_texture.height},
-        (Rectangle){
-            .x = 0, .y = stretched_height, .width = stretched_width, .height = stretched_height},
-        Vector2Zero(), 0, WHITE);
-    DrawTexturePro(
-        pitch_texture,
-        (Rectangle){.x = 0, .y = 0, .width = -pitch_texture.width, .height = pitch_texture.height},
-        (Rectangle){
-            .x = stretched_width, .y = 0, .width = stretched_width, .height = stretched_height},
-        Vector2Zero(), 0, WHITE);
-    DrawTexturePro(
-        pitch_texture,
-        (Rectangle){.x = 0, .y = 0, .width = -pitch_texture.width, .height = -pitch_texture.height},
-        (Rectangle){.x = stretched_width,
-                    .y = stretched_height,
-                    .width = stretched_width,
-                    .height = stretched_height},
         Vector2Zero(), 0, WHITE);
 
     systems_render(game_state);

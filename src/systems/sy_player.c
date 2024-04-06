@@ -105,7 +105,7 @@ void systems_player(GameState *game_state, Input *input) {
                                 game_state->constants.ball_shot_force));
                         ball->subject_to_after_touch = true;
                         ball->shot_time = game_state->time;
-                    } else if (Vector2Length(physics->velocity) > 0.05f) {
+                    } else if (Vector2Length(steering) > 0.01f) {
                         f32 sprint = (input->right_trigger + 1) / 2.0f;
                         if (sprint > 0.1f) {
                             // Run control
