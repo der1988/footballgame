@@ -43,10 +43,9 @@ void systems_player(GameState *game_state, Input *input) {
             case PS_RUN: {
                 b32 is_running = input->buttons[IBT_BUTTON_LEFT].down;
                 physics->max_velocity =
-                    game_state->constants.player_base_velocity +
                     (is_running ? game_state->constants.player_run_max_velocity
                                 : game_state->constants.player_control_max_velocity) *
-                        Vector2Length(steering);
+                    Vector2Length(steering);
 
                 if (Vector2Length(steering) < 0.05f) {
                     steering = Vector2Zero();
@@ -58,7 +57,8 @@ void systems_player(GameState *game_state, Input *input) {
                     AssetsAnimation *animation = assets_animation_get_by_id(
                         game_state->animation_cache, base_human->human.run_animations[pd]);
                     f32 max_player_velocity = game_state->constants.player_base_velocity +
-                                              game_state->constants.player_run_max_velocity;
+                                              (game_state->constants.player_run_max_velocity -
+                                               game_state->constants.player_base_velocity);
                     if ((game_state->time - human->last_frame_update_time) >
                         (animation->delay *
                          (2 - Vector2Length(physics->velocity) / max_player_velocity))) {
@@ -72,7 +72,8 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 // Run force
-                force_to_apply = Vector2Scale(Vector2Normalize(steering), 1500);
+                force_to_apply = Vector2Scale(Vector2Normalize(steering),
+                                              game_state->constants.player_movement_force);
                 break;
             }
             case PS_COUNT:
@@ -81,8 +82,8 @@ void systems_player(GameState *game_state, Input *input) {
 
             if (Vector2Length(physics->velocity) > 5) {
                 // Drag force
-                Vector2 drag =
-                    Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 1000);
+                Vector2 drag = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+                                            game_state->constants.player_movement_drag);
                 force_to_apply = Vector2Add(force_to_apply, drag);
             } else {
                 physics->velocity = Vector2Zero();
