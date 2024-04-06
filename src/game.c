@@ -24,7 +24,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_size = 5.0f,
                                             .gravity_force = {.y = -9.81f},
                                             .ball_drag_in_air = 0.6f,
-                                            .ball_drag_on_pitch = 1.5f,
+                                            .ball_drag_on_pitch = 1.3f,
                                             .ball_run_force = 175.0f,
                                             .ball_control_force = 20.0f,
                                             .ball_shot_force = 1250.0f,
