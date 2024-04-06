@@ -107,12 +107,12 @@ void systems_player(GameState *game_state, Input *input) {
                         ball->shot_time = game_state->time;
                     } else if (Vector2Length(physics->velocity) > 0.05f) {
                         f32 sprint = (input->right_trigger + 1) / 2.0f;
-                        if (sprint > 0.01f) {
+                        if (sprint > 0.1f) {
                             // Run control
                             ball_physics_3d->velocity = Vector3Add(
                                 player_on_the_ball_force,
                                 Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(steering, 0)),
-                                                        (v3){.y = 0.8f}),
+                                                        (v3){.y = 0.5f}),
                                              game_state->constants.ball_run_force *
                                                  (0.4f + 0.6f * sprint)));
                         } else {
