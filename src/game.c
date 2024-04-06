@@ -32,7 +32,9 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
                                             .ball_after_touch_force = 15.0f,
-                                            .player_max_velocity = 250.0f};
+                                            .player_base_velocity = 100.0f,
+                                            .player_control_max_velocity = 100.0f,
+                                            .player_run_max_velocity = 150.0f};
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;

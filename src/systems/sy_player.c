@@ -1,6 +1,8 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
+#include "assets.h"
+#include "input.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -13,17 +15,22 @@ void systems_player(GameState *game_state, Input *input) {
             entities_component_get(game_state->entity_repository, CT_TRANSFORM, idx);
         Component *base_physics =
             entities_component_get(game_state->entity_repository, CT_PHYSICS, idx);
+        Component *base_sprite =
+            entities_component_get(game_state->entity_repository, CT_SPRITE, idx);
         Component *base_human =
             entities_component_get(game_state->entity_repository, CT_HUMAN, idx);
         Component *base_collider =
-            entities_component_get(game_state->entity_repository, CT_HUMAN, idx);
+            entities_component_get(game_state->entity_repository, CT_COLLIDER, idx);
         Component *base_state_machine =
             entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, idx);
         if (entity_repository->entities[idx].alive && base_transform->header.enabled &&
             base_physics->header.enabled && base_human->header.enabled &&
-            base_collider->header.enabled && base_state_machine->header.enabled) {
+            base_collider->header.enabled && base_state_machine->header.enabled &&
+            base_sprite->header.enabled) {
 
             ComponentPhysics *physics = &base_physics->physics;
+            ComponentSprite *sprite = &base_sprite->sprite;
+            ComponentHuman *human = &base_human->human;
 
             StateMachinePlayer *state_machine = base_state_machine->state_machine.ptr;
 
@@ -33,35 +40,41 @@ void systems_player(GameState *game_state, Input *input) {
             switch (state_machine->current_state) {
             case PS_NONE:
                 break;
-            case PS_STAND:
-                if (Vector2Length(steering) > 0.05f) {
-                    entities_player_state_machine_change_state_to(state_machine, PS_RUN,
-                                                                  game_state);
-                }
-                break;
             case PS_RUN: {
+                b32 is_running = input->buttons[IBT_BUTTON_LEFT].down;
+                physics->max_velocity =
+                    game_state->constants.player_base_velocity +
+                    (is_running ? game_state->constants.player_run_max_velocity
+                                : game_state->constants.player_control_max_velocity) *
+                        Vector2Length(steering);
+
                 if (Vector2Length(steering) < 0.05f) {
                     steering = Vector2Zero();
-                    entities_player_state_machine_change_state_to(state_machine, PS_STAND,
-                                                                  game_state);
+                    sprite->frame_id = human->stand_frames[human->last_direction];
                 } else {
-                    // Calculate animation to play
-                    PlayerDirection pd = entities_player_calculate_direction(steering);
-                    if (state_machine->state_data.run.running_action_direction != pd) {
-                        actions_action_stop(state_machine->state_data.run.running_action_idx, idx,
-                                            game_state);
-                        state_machine->state_data.run.running_action_idx = components_action_run(
-                            idx, base_human->human.run_actions[pd], game_state);
-                        assert(state_machine->state_data.run.running_action_idx >= 0);
-                        state_machine->state_data.run.running_action_direction = pd;
-                    }
-                }
 
-                base_human->human.max_velocity = 100 + 150 * Vector2Length(steering);
+                    // Calculate frame to display
+                    PlayerDirection pd = entities_player_calculate_direction(steering);
+                    AssetsAnimation *animation = assets_animation_get_by_id(
+                        game_state->animation_cache, base_human->human.run_animations[pd]);
+                    f32 max_player_velocity = game_state->constants.player_base_velocity +
+                                              game_state->constants.player_run_max_velocity;
+                    if ((game_state->time - human->last_frame_update_time) >
+                        (animation->delay *
+                         (2 - Vector2Length(physics->velocity) / max_player_velocity))) {
+                        human->last_frame_update_time = game_state->time;
+                        u16 new_frame_id =
+                            (human->last_running_frame_idx + 1) % animation->frames_count;
+                        sprite->frame_id = animation->frames[new_frame_id];
+                        human->last_running_frame_idx = new_frame_id;
+                    }
+                    human->last_direction = pd;
+                }
 
                 // Run force
                 force_to_apply = Vector2Scale(Vector2Normalize(steering), 1500);
-            } break;
+                break;
+            }
             case PS_COUNT:
                 break;
             }
@@ -75,8 +88,7 @@ void systems_player(GameState *game_state, Input *input) {
                 physics->velocity = Vector2Zero();
             }
 
-            entities_player_apply_force(force_to_apply, physics, &base_human->human,
-                                        game_state->dt);
+            entities_player_apply_force(force_to_apply, physics, game_state->dt);
             entities_player_apply_velocity(&base_transform->transform, physics, game_state->dt);
         }
     }

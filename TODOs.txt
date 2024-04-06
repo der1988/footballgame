@@ -3,10 +3,11 @@ v import prototype stuff
 v find a way to draw shadows
 v put together a collision system
 v configure ci/cd
+v player should face last direction when standing
+v run animation speed should be proportional to velocity
 - fix tests
 - get some rest
 - parameters on screen
-- player should face last direction when standing
-- run animation speed should be proportional to velocity
 - ball position should depend on direction when running
 - put together a pathetic excuse for a goal
+- move player ball control in player system

@@ -26,7 +26,7 @@ struct Entity *entities_player_create(GameState *game_state) {
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
     state_machine->owner_entity = entity->id;
     state_machine->previous_state = PS_NONE;
-    state_machine->current_state = PS_STAND;
+    state_machine->current_state = PS_RUN;
     Component *component =
         entities_component_create(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     component->state_machine.ptr = state_machine;
@@ -42,6 +42,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->physics.mass = 1;
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
+    component->physics.max_velocity = game_state->constants.player_control_max_velocity;
 
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
@@ -71,7 +72,6 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise human
     ComponentHuman *human =
         &entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id)->human;
-    human->max_velocity = game_state->constants.player_max_velocity;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -101,14 +101,14 @@ PlayerDirection entities_player_calculate_direction(Vector2 direction) {
     return selected_direction;
 }
 
-void entities_player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics,
-                                 ComponentHuman *human, DeltaTime dt) {
+void entities_player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, DeltaTime dt) {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
     // Calculate velocity
     physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
-    if (Vector2Length(physics->velocity) > human->max_velocity) {
-        physics->velocity = Vector2Scale(Vector2Normalize(physics->velocity), human->max_velocity);
+    if (Vector2Length(physics->velocity) > physics->max_velocity) {
+        physics->velocity =
+            Vector2Scale(Vector2Normalize(physics->velocity), physics->max_velocity);
     }
 }
 
@@ -137,14 +137,8 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
     switch (state_machine->current_state) {
     case PS_NONE:
         break;
-    case PS_STAND: {
-        sprite->frame_id = human->stand_frames[PD_DOWN];
-    } break;
     case PS_RUN: {
         PlayerDirection pd = entities_player_calculate_direction(physics->velocity);
-        state_machine->state_data.run.running_action_idx =
-            components_action_run(entity->id, human->run_actions[pd], game_state);
-        assert(state_machine->state_data.run.running_action_idx >= 0);
         state_machine->state_data.run.running_action_direction = pd;
     } break;
     case PS_COUNT:
@@ -171,11 +165,7 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     switch (state_machine->previous_state) {
     case PS_NONE:
         break;
-    case PS_STAND:
-        break;
     case PS_RUN: {
-        actions_action_stop(state_machine->state_data.run.running_action_idx, entity->id,
-                            game_state);
         break;
     }
     case PS_COUNT:
@@ -183,19 +173,16 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
 }
 
-static struct Action *build_action_from_animation(char *animation_name, GameState *game_state) {
-    MemoryArenaHandle *memory_handle_level = game_state->memory_by_lifetime[MAL_LEVEL];
-
+static AssetsAnimationId animation_id_from_name(char *animation_name, GameState *game_state) {
     // Scratch buffer
     char *final_animation = memory_arena_push(game_state->memory_by_lifetime[MAL_FRAME], 30);
 
     snprintf(final_animation, 30, "player_%s", animation_name);
     AssetsAnimation *animation =
         assets_animation_get_by_name(game_state->animation_cache, final_animation);
-    ActionPlayAnimation *animation_action =
-        actions_play_animation_create(animation, true, 1.0f, memory_handle_level);
+    assert(animation);
 
-    return (struct Action *)animation_action;
+    return animation->id;
 }
 
 static void prepare_gfx(ComponentHuman *human, GameState *game_state) {
@@ -217,13 +204,13 @@ static void prepare_gfx(ComponentHuman *human, GameState *game_state) {
     human->stand_frames[PD_UP_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
 
-    // Running actions
-    human->run_actions[PD_DOWN] = build_action_from_animation("run_front", game_state);
-    human->run_actions[PD_UP] = build_action_from_animation("run_back", game_state);
-    human->run_actions[PD_LEFT] = build_action_from_animation("run_left", game_state);
-    human->run_actions[PD_RIGHT] = build_action_from_animation("run_right", game_state);
-    human->run_actions[PD_DOWN_LEFT] = build_action_from_animation("run_front_left", game_state);
-    human->run_actions[PD_DOWN_RIGHT] = build_action_from_animation("run_front_right", game_state);
-    human->run_actions[PD_UP_LEFT] = build_action_from_animation("run_back_left", game_state);
-    human->run_actions[PD_UP_RIGHT] = build_action_from_animation("run_back_right", game_state);
+    // Running animations
+    human->run_animations[PD_DOWN] = animation_id_from_name("run_front", game_state);
+    human->run_animations[PD_UP] = animation_id_from_name("run_back", game_state);
+    human->run_animations[PD_LEFT] = animation_id_from_name("run_left", game_state);
+    human->run_animations[PD_RIGHT] = animation_id_from_name("run_right", game_state);
+    human->run_animations[PD_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
+    human->run_animations[PD_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
+    human->run_animations[PD_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
+    human->run_animations[PD_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
 }

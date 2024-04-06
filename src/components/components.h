@@ -121,10 +121,12 @@ typedef enum {
 } PlayerDirection;
 
 typedef struct {
-    f32 max_velocity;
     b32 is_controlling_the_ball;
     AssetsSpriteFrameId stand_frames[PD_COUNT];
-    struct Action *run_actions[PD_COUNT];
+    AssetsAnimationId run_animations[PD_COUNT];
+    PlayerDirection last_direction;
+    f32 last_frame_update_time;
+    u16 last_running_frame_idx;
 } ComponentHuman;
 
 typedef struct {

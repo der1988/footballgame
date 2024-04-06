@@ -70,14 +70,13 @@ DefineStateMachineFunctions(Ball, ball);
 
 DeclareEntityCreateAndUpdate(player);
 
-typedef enum { PS_NONE, PS_STAND, PS_RUN, PS_COUNT } StateMachinePlayerState;
+typedef enum { PS_NONE, PS_RUN, PS_COUNT } StateMachinePlayerState;
 
-static char const *StateMachinePlayerStateString[] = {"none", "stand", "run", "count"};
+static char const *StateMachinePlayerStateString[] = {"none", "run", "count"};
 
 DeclareStateMachineEnterAndExit(player);
 
 typedef struct {
-    RunningActionIdx running_action_idx;
     PlayerDirection running_action_direction;
 } StateMachinePlayerRunData;
 
@@ -90,8 +89,7 @@ DefineStateMachine(Player, PS_COUNT);
 DefineStateMachineFunctions(Player, player);
 
 PlayerDirection entities_player_calculate_direction(Vector2 direction);
-void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, ComponentHuman *human,
-                                 DeltaTime dt);
+void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
                                     DeltaTime dt);
 // END - Player
