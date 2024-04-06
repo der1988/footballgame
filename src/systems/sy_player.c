@@ -61,6 +61,9 @@ void systems_player(GameState *game_state, Input *input) {
                     physics->velocity = Vector2Zero();
                 }
 
+                entities_player_apply_force(force_to_apply, physics, game_state->dt);
+                entities_player_apply_velocity(&base_transform->transform, physics, game_state->dt);
+
                 // Calculate frame to display
                 if (Vector2Length(physics->velocity) > 0.01f) {
                     PlayerDirection pd = entities_player_calculate_direction(physics->velocity);
@@ -81,8 +84,6 @@ void systems_player(GameState *game_state, Input *input) {
                     sprite->frame_id = human->stand_frames[human->last_direction];
                 }
 
-                entities_player_apply_force(force_to_apply, physics, game_state->dt);
-                entities_player_apply_velocity(&base_transform->transform, physics, game_state->dt);
                 break;
             }
             case PS_COUNT:
