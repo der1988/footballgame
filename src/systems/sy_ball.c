@@ -51,8 +51,6 @@ void systems_ball(GameState *game_state, Input *input) {
                 physics_3d->velocity.z += physics_3d->velocity.z *
                                           -game_state->constants.ball_drag_in_air * game_state->dt;
             } else {
-                ball->subject_to_after_touch = false;
-
                 // Drag on the pitch
                 physics_3d->velocity.x += physics_3d->velocity.x *
                                           -game_state->constants.ball_drag_on_pitch *
@@ -78,6 +76,11 @@ void systems_ball(GameState *game_state, Input *input) {
             // Project position to 2D
             transform->position = V3_TO_V2(ball_position_3d);
             transform->virtual_height = ball_position_3d.y;
+
+            // This has to be done after all forces have been applied
+            if (transform->virtual_height == 0) {
+                ball->subject_to_after_touch = false;
+            }
         } break;
         case BS_OUT_OF_PLAY: {
         } break;
