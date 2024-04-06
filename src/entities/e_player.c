@@ -39,7 +39,7 @@ struct Entity *entities_player_create(GameState *game_state) {
 
     // Initialise physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 1;
+    component->physics.mass = 2;
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
     component->physics.max_velocity = game_state->constants.player_control_max_velocity;
