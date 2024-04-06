@@ -8,6 +8,8 @@
 struct GameState;
 
 enum InputButtonType {
+    IBT_BUTTON_START,
+    IBT_BUTTON_SELECT,
     IBT_BUTTON_DOWN,
     IBT_BUTTON_RIGHT,
     IBT_BUTTON_LEFT,

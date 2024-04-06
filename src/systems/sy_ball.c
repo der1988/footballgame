@@ -2,6 +2,7 @@
 #include "../entities/entities.h"
 #include "../game.h"
 #include "../utils/utils.h"
+#include "input.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -26,12 +27,15 @@ void systems_ball(GameState *game_state, Input *input) {
             entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, ball_id);
         StateMachineBall *state_machine = component->state_machine.ptr;
 
-        if (IsKeyDown(KEY_Q)) {
+        if (input->buttons[IBT_BUTTON_START].pressed) {
             ComponentTransform *p1_transform =
                 &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
                                         game_state->vars.p1_entity_id)
                      ->transform;
             transform->position = p1_transform->position;
+            transform->virtual_height = 0;
+            physics_3d->accel = Vector3Zero();
+            physics_3d->velocity = Vector3Zero();
             return;
         }
 

@@ -24,6 +24,24 @@ Input input_handle(GameState *game_state) {
         input.left_trigger = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_TRIGGER);
         input.right_trigger = GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_RIGHT_TRIGGER);
 
+        input.buttons[IBT_BUTTON_START].up =
+            IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_MIDDLE_RIGHT);
+        input.buttons[IBT_BUTTON_START].down =
+            IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_MIDDLE_RIGHT);
+        input.buttons[IBT_BUTTON_START].pressed =
+            IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_MIDDLE_RIGHT);
+        input.buttons[IBT_BUTTON_START].released =
+            IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_MIDDLE_RIGHT);
+
+        input.buttons[IBT_BUTTON_SELECT].up =
+            IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_MIDDLE_LEFT);
+        input.buttons[IBT_BUTTON_SELECT].down =
+            IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_MIDDLE_LEFT);
+        input.buttons[IBT_BUTTON_SELECT].pressed =
+            IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_MIDDLE_LEFT);
+        input.buttons[IBT_BUTTON_SELECT].released =
+            IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_MIDDLE_LEFT);
+
         input.buttons[IBT_BUTTON_DOWN].up =
             IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
         input.buttons[IBT_BUTTON_DOWN].down =
@@ -81,14 +99,14 @@ Input input_handle(GameState *game_state) {
         input.left_stick.x += (IsKeyDown(KEY_RIGHT) ? 1 : 0);
         input.left_stick.y += (IsKeyDown(KEY_UP) ? -1 : 0);
         input.left_stick.y += (IsKeyDown(KEY_DOWN) ? 1 : 0);
-        input.buttons[IBT_BUTTON_DOWN].up = IsKeyUp(KEY_Z);
-        input.buttons[IBT_BUTTON_DOWN].down = IsKeyDown(KEY_Z);
-        input.buttons[IBT_BUTTON_DOWN].pressed = IsKeyPressed(KEY_Z);
-        input.buttons[IBT_BUTTON_DOWN].released = IsKeyReleased(KEY_Z);
-        input.buttons[IBT_BUTTON_LEFT].up = IsKeyUp(KEY_X);
-        input.buttons[IBT_BUTTON_LEFT].down = IsKeyDown(KEY_X);
-        input.buttons[IBT_BUTTON_LEFT].pressed = IsKeyPressed(KEY_X);
-        input.buttons[IBT_BUTTON_LEFT].released = IsKeyReleased(KEY_X);
+        input.buttons[IBT_BUTTON_START].up = IsKeyUp(KEY_F1);
+        input.buttons[IBT_BUTTON_START].down = IsKeyDown(KEY_F1);
+        input.buttons[IBT_BUTTON_START].pressed = IsKeyPressed(KEY_F1);
+        input.buttons[IBT_BUTTON_START].released = IsKeyReleased(KEY_F1);
+        input.buttons[IBT_BUTTON_LEFT].up = IsKeyUp(KEY_Z);
+        input.buttons[IBT_BUTTON_LEFT].down = IsKeyDown(KEY_Z);
+        input.buttons[IBT_BUTTON_LEFT].pressed = IsKeyPressed(KEY_Z);
+        input.buttons[IBT_BUTTON_LEFT].released = IsKeyReleased(KEY_Z);
     }
 
     return input;
