@@ -44,22 +44,37 @@ void systems_player(GameState *game_state, Input *input) {
                 break;
             case PS_RUN: {
                 f32 sprint = (input->right_trigger + 1) / 2.0f;
-                physics->max_velocity = game_state->constants.player_control_max_velocity +
-                                        (game_state->constants.player_run_max_velocity -
-                                         game_state->constants.player_control_max_velocity) *
-                                            sprint;
+
+                physics->max_velocity = game_state->constants.player_run_max_velocity;
 
                 // Run force
                 force_to_apply = Vector2Scale(Vector2Normalize(steering),
                                               game_state->constants.player_movement_force);
 
-                if (Vector2Length(physics->velocity) > 5) {
-                    // Drag force
-                    Vector2 drag = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
-                                                game_state->constants.player_movement_drag);
-                    force_to_apply = Vector2Add(force_to_apply, drag);
-                } else {
-                    physics->velocity = Vector2Zero();
+                f32 current_velocity = Vector2Length(physics->velocity);
+
+                // Apply drag if no steering applied
+                f32 steering_magnitude = Vector2Length(steering);
+                if (steering_magnitude < 0.1f) {
+                    if (current_velocity < 5) {
+                        physics->velocity = Vector2Zero();
+                    } else {
+                        Vector2 drag =
+                            Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+                                         game_state->constants.player_movement_drag);
+                        force_to_apply = Vector2Add(force_to_apply, drag);
+                    }
+                }
+
+                // Bring speed back smoothly if decreasing sprint
+                if (current_velocity > game_state->constants.player_control_max_velocity +
+                                           (game_state->constants.player_run_max_velocity -
+                                            game_state->constants.player_control_max_velocity) *
+                                               sprint) {
+                    Vector2 parachute =
+                        Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+                                     game_state->constants.player_movement_parachute);
+                    force_to_apply = Vector2Add(force_to_apply, parachute);
                 }
 
                 entities_player_apply_force(force_to_apply, physics, game_state->dt);
@@ -88,15 +103,19 @@ void systems_player(GameState *game_state, Input *input) {
                                           ball_collider->props.circle.radius) &&
                     ball_transform->virtual_height < 40.0f;
 
+                // TODO: this logic needs to be moved to ball system
+                // Here we should just call some ball entity functions to book a shoot or assert
+                // control over the ball or something
                 if (is_colliding_with_ball && (game_state->time - human->last_shot) > 0.1f) {
                     Vector3 ball_position_3d =
                         V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-                    Vector3 player_on_the_ball_force = V2_TO_V3(physics->velocity, 0);
+                    Vector3 player_on_the_ball_velocity = V2_TO_V3(physics->velocity, 0);
                     if (input->buttons[IBT_BUTTON_LEFT].down && Vector2Length(steering) > 0.1f) {
                         // Shot
+                        // We use acceleration
                         human->last_shot = game_state->time;
-                        ball_physics_3d->velocity = Vector3Add(
-                            ball_physics_3d->velocity,
+                        ball_physics_3d->accel = Vector3Add(
+                            ball_physics_3d->accel,
                             Vector3Scale(
                                 Vector3Add(Vector3Normalize(V2_TO_V3(steering, 0)),
                                            (Vector3){.x = 0,
@@ -106,28 +125,38 @@ void systems_player(GameState *game_state, Input *input) {
                         ball->subject_to_after_touch = true;
                         ball->shot_time = game_state->time;
                     } else if (Vector2Length(steering) > 0.01f) {
+                        // For ball control we use velocity directly because it's easier and produce
+                        // better results
                         f32 sprint = (input->right_trigger + 1) / 2.0f;
                         if (sprint > 0.1f) {
                             // Run control
                             ball_physics_3d->velocity = Vector3Add(
-                                player_on_the_ball_force,
+                                player_on_the_ball_velocity,
                                 Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(steering, 0)),
                                                         (v3){.y = 0.5f}),
                                              game_state->constants.ball_run_force *
-                                                 (0.4f + 0.6f * sprint)));
+                                                 (0.2f + 0.8f * sprint)));
                         } else {
                             // Precision control
-                            ball_physics_3d->velocity =
-                                Vector3Add(player_on_the_ball_force,
-                                           Vector3Scale(Vector3Normalize(Vector3Subtract(
-                                                            V2_TO_V3(transform->position, 0),
-                                                            ball_position_3d)),
-                                                        game_state->constants.ball_control_force));
+                            ball_physics_3d->velocity = Vector3Add(
+                                player_on_the_ball_velocity,
+                                Vector3Scale(
+                                    Vector3Normalize(Vector3Subtract(
+                                        V2_TO_V3(
+                                            Vector2Add(
+                                                transform->position,
+                                                Vector2Scale(Vector2Normalize(physics->velocity),
+                                                             collider->props.circle.radius * 1.0f)),
+                                            0),
+                                        ball_position_3d)),
+                                    game_state->constants.ball_control_force));
                         }
                     }
                 }
 
                 // After touch
+                // TODO: this has to be refactored to use acceleration, if we decide to keep
+                // it...
                 if (ball->subject_to_after_touch &&
                     (game_state->time - ball->shot_time) >
                         game_state->constants.ball_after_touch_delay_time &&
