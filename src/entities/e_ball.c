@@ -65,7 +65,7 @@ struct Entity *entities_ball_create(GameState *game_state) {
     component = entities_component_create(game_state->entity_repository, CT_SHADOW, entity->id);
     component->shadow.color = BLACK;
     component->shadow.color.a = 100;
-    component->shadow.offset = (v2){.x = 3, .y = 3};
+    component->shadow.offset = (v2){.x = 0.05, .y = 0.1};
     component->shadow.scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider

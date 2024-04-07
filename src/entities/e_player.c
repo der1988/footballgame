@@ -39,7 +39,7 @@ struct Entity *entities_player_create(GameState *game_state) {
 
     // Initialise physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 2;
+    component->physics.mass = 3;
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
     component->physics.max_velocity = game_state->constants.player_control_max_velocity;
@@ -59,14 +59,14 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->sprite.color = WHITE;
     component->sprite.flipX = false;
     component->sprite.flipY = false;
-    component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.7};
+    component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.8};
     component->sprite.layer = SL_PLAYERS;
 
     // Initialise shadow
     component = entities_component_create(game_state->entity_repository, CT_SHADOW, entity->id);
     component->shadow.color = BLACK;
     component->shadow.color.a = 100;
-    component->shadow.offset = (v2){.x = 25, .y = 29};
+    component->shadow.offset = (v2){.x = 0.7, .y = 0.7};
     component->shadow.scale = (v2){.x = 0.5, .y = 1};
 
     // Initialise human

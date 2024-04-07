@@ -106,11 +106,13 @@ void systems_render(GameState *game_state) {
         SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
         if (sprite_to_draw->draw_shadow) {
             v2 shadow_final_offset = Vector2Add(
-                sprite_to_draw->shadow_offset,
+                Vector2Multiply(sprite_to_draw->shadow_offset,
+                                sprite_to_draw->sprite_frame->source_size),
                 (v2){.x = -sprite_to_draw->height * 0.1f, .y = -sprite_to_draw->height * 0.1f});
             sprites_draw(sprite_to_draw->sprite_frame,
                          Vector2Add(sprite_to_draw->position, shadow_final_offset),
-                         sprite_to_draw->rotation - 45, sprite_to_draw->shadow_scale,
+                         sprite_to_draw->rotation - 45,
+                         Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
                          sprite_to_draw->shadow_color, sprite_to_draw->flipX, true,
                          sprite_to_draw->pivot_override, sprite_to_draw->texture);
         }
