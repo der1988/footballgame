@@ -1,11 +1,9 @@
-#include "../actions/actions.h"
 #include "../assets/assets.h"
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
-#include "input/input.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
@@ -39,7 +37,7 @@ struct Entity *entities_player_create(GameState *game_state) {
 
     // Initialise physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 3;
+    component->physics.mass = 75.0f;
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
     component->physics.max_velocity = game_state->constants.player_control_max_velocity;

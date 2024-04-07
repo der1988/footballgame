@@ -1,16 +1,12 @@
-#include "../actions/actions.h"
 #include "../assets/assets.h"
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
-#include "game_constants.h"
-#include "input/input.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
-#include <math.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
@@ -44,7 +40,7 @@ struct Entity *entities_ball_create(GameState *game_state) {
 
     // Initialise 3d physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
-    component->physics_3d.mass = 0.2f;
+    component->physics_3d.mass = 0.43f;
     component->physics_3d.velocity = (Vector3){0};
     component->physics_3d.accel = (Vector3){0};
 
@@ -108,16 +104,8 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
     case BS_NONE:
         break;
     case BS_IN_PLAY: {
-        // RunningActionIdx running_action_idx =
-        //     components_action_run(entity->id, human->action_stand, game_state);
-        // assert(running_action_idx >= 0);
-        // state_machine->state_data.stand.running_action_idx = running_action_idx;
     } break;
     case BS_OUT_OF_PLAY: {
-        // RunningActionIdx running_action_idx =
-        //     components_action_run(entity->id, human->action_run, game_state);
-        // assert(running_action_idx >= 0);
-        // state_machine->state_data.run.running_action_idx = running_action_idx;
     } break;
     case BS_COUNT:
         break;
@@ -144,8 +132,6 @@ void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_
 
     } break;
     case BS_OUT_OF_PLAY: {
-        // components_action_stop(entity->id, state_machine->state_data.run.running_action_idx,
-        //                        game_state);
         break;
     }
     case BS_COUNT:
