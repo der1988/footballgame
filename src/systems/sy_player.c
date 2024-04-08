@@ -48,6 +48,7 @@ void systems_player(GameState *game_state, Input *input) {
             case PCT_HUMAN: {
                 player_controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
                 player_controls.shot = input->buttons[IBT_BUTTON_LEFT].down;
+                player_controls.pass = input->buttons[IBT_BUTTON_DOWN].down;
                 player_controls.sprint = (input->right_trigger + 1) / 2.0f;
                 break;
             }

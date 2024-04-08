@@ -18,3 +18,4 @@ v control ball with force instead of velocity where possible
 - put some stats on the screen
 - implement ball rotation animation
 - implement a physics step
+- move ball control logic back into ball system: players can ask for control but the ultimate outcome is achieved by taking all control requests in consideration
