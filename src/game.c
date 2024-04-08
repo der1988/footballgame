@@ -83,9 +83,13 @@ GameState *game_init(GameConfig game_config) {
     game_state->config.players_count = 1;
 
     Entity *player_entity = entities_player_create(game_state);
+    ComponentPlayer *player =
+        &entities_component_get(game_state->entity_repository, CT_PLAYER, player_entity->id)
+             ->player;
     ComponentTransform *player_transform =
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
              ->transform;
+    player->controller_type = PCT_HUMAN;
     player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
 
     Entity *player_entity_2 = entities_player_create(game_state);

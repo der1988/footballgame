@@ -120,7 +120,10 @@ typedef enum {
     D_COUNT
 } Direction;
 
+typedef enum { PCT_HUMAN, PCT_AI } PlayerControllerType;
+
 typedef struct {
+    PlayerControllerType controller_type;
     b32 is_controlling_the_ball;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
