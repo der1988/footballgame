@@ -23,7 +23,7 @@ typedef enum {
     CT_ACTION,
     CT_TARGET,
     CT_CAMERA_PROPS,
-    CT_HUMAN,
+    CT_PLAYER,
     CT_BALL,
     CT_COUNT,
     CT_NONE
@@ -128,7 +128,7 @@ typedef struct {
     f32 last_shot;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
-} ComponentHuman;
+} ComponentPlayer;
 
 typedef struct {
     b32 subject_to_after_touch;
@@ -155,7 +155,7 @@ typedef struct {
         ComponentStateMachine state_machine;
         ComponentAction action;
         ComponentTarget target;
-        ComponentHuman human;
+        ComponentPlayer player;
         ComponentBall ball;
     };
 } Component;

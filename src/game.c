@@ -86,6 +86,14 @@ GameState *game_init(GameConfig game_config) {
     ComponentTransform *player_transform =
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
              ->transform;
+    player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
+
+    Entity *player_entity_2 = entities_player_create(game_state);
+    ComponentTransform *player_transform_2 =
+        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity_2->id)
+             ->transform;
+    player_transform_2->position =
+        (Vector2){game_state->config.screen_width / 2.0f - 100.0f, 20.0f};
 
     Entity *ball_entity = entities_ball_create(game_state);
     game_state->vars.ball_entity_id = ball_entity->id;

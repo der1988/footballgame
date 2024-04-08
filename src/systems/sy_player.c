@@ -17,14 +17,14 @@ void systems_player(GameState *game_state, Input *input) {
             entities_component_get(game_state->entity_repository, CT_PHYSICS, idx);
         Component *base_sprite =
             entities_component_get(game_state->entity_repository, CT_SPRITE, idx);
-        Component *base_human =
-            entities_component_get(game_state->entity_repository, CT_HUMAN, idx);
+        Component *base_player =
+            entities_component_get(game_state->entity_repository, CT_PLAYER, idx);
         Component *base_collider =
             entities_component_get(game_state->entity_repository, CT_COLLIDER, idx);
         Component *base_state_machine =
             entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, idx);
         if (entity_repository->entities[idx].alive && base_transform->header.enabled &&
-            base_physics->header.enabled && base_human->header.enabled &&
+            base_physics->header.enabled && base_player->header.enabled &&
             base_collider->header.enabled && base_state_machine->header.enabled &&
             base_sprite->header.enabled) {
 
@@ -32,7 +32,7 @@ void systems_player(GameState *game_state, Input *input) {
             ComponentPhysics *physics = &base_physics->physics;
             ComponentCollider *collider = &base_collider->collider;
             ComponentSprite *sprite = &base_sprite->sprite;
-            ComponentHuman *human = &base_human->human;
+            ComponentPlayer *player = &base_player->player;
 
             StateMachinePlayer *state_machine = base_state_machine->state_machine.ptr;
 
@@ -106,14 +106,14 @@ void systems_player(GameState *game_state, Input *input) {
                 // TODO: this logic needs to be moved to ball system
                 // Here we should just call some ball entity functions to book a shoot or assert
                 // control over the ball or something
-                if (is_colliding_with_ball && (game_state->time - human->last_shot) > 0.1f) {
+                if (is_colliding_with_ball && (game_state->time - player->last_shot) > 0.1f) {
                     Vector3 ball_position_3d =
                         V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
                     Vector3 player_on_the_ball_velocity = V2_TO_V3(physics->velocity, 0);
                     if (input->buttons[IBT_BUTTON_LEFT].down && Vector2Length(steering) > 0.1f) {
                         // Shot
                         // We use acceleration
-                        human->last_shot = game_state->time;
+                        player->last_shot = game_state->time;
                         ball_physics_3d->accel = Vector3Add(
                             ball_physics_3d->accel,
                             Vector3Scale(
@@ -146,7 +146,7 @@ void systems_player(GameState *game_state, Input *input) {
                                             Vector2Add(
                                                 transform->position,
                                                 Vector2Scale(Vector2Normalize(physics->velocity),
-                                                             collider->props.circle.radius * 1.0f)),
+                                                             collider->props.circle.radius * 0.9f)),
                                             0),
                                         ball_position_3d)),
                                     game_state->constants.ball_control_force));
@@ -180,20 +180,20 @@ void systems_player(GameState *game_state, Input *input) {
                 if (Vector2Length(physics->velocity) > 0.01f) {
                     Direction pd = entities_player_calculate_direction(physics->velocity);
                     AssetsAnimation *animation = assets_animation_get_by_id(
-                        game_state->animation_cache, base_human->human.run_animations[pd]);
+                        game_state->animation_cache, base_player->player.run_animations[pd]);
                     f32 max_player_velocity = game_state->constants.player_run_max_velocity;
-                    if ((game_state->time - human->last_frame_update_time) >
+                    if ((game_state->time - player->last_frame_update_time) >
                         (animation->delay *
                          (2 - Vector2Length(physics->velocity) / max_player_velocity))) {
-                        human->last_frame_update_time = game_state->time;
+                        player->last_frame_update_time = game_state->time;
                         u16 new_frame_id =
-                            (human->last_running_frame_idx + 1) % animation->frames_count;
+                            (player->last_running_frame_idx + 1) % animation->frames_count;
                         sprite->frame_id = animation->frames[new_frame_id];
-                        human->last_running_frame_idx = new_frame_id;
+                        player->last_running_frame_idx = new_frame_id;
                     }
-                    human->last_direction = pd;
+                    player->last_direction = pd;
                 } else {
-                    sprite->frame_id = human->stand_frames[human->last_direction];
+                    sprite->frame_id = player->stand_frames[player->last_direction];
                 }
 
                 break;

@@ -14,7 +14,7 @@
 
 ImplementStateMachineFunctions(Player, player);
 
-static void prepare_gfx(ComponentHuman *human, GameState *game_state);
+static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
 
 struct Entity *entities_player_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
@@ -67,14 +67,14 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->shadow.offset = (v2){.x = 0.7, .y = 0.7};
     component->shadow.scale = (v2){.x = 0.5, .y = 1};
 
-    // Initialise human
-    ComponentHuman *human =
-        &entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    // Initialise player
+    ComponentPlayer *player =
+        &entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id)->player;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
-    prepare_gfx(human, game_state);
+    prepare_gfx(player, game_state);
 
     entities_player_state_machine_on_enter(entity, game_state);
 
@@ -120,8 +120,8 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
         &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    ComponentPlayer *player =
+        &entities_component_get(game_state->entity_repository, CT_PLAYER, entity->id)->player;
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachinePlayer *state_machine = component->state_machine.ptr;
@@ -150,8 +150,8 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
         &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    ComponentPlayer *player =
+        &entities_component_get(game_state->entity_repository, CT_PLAYER, entity->id)->player;
     ComponentAction *action =
         &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
 
@@ -181,32 +181,32 @@ static AssetsAnimationId animation_id_from_name(char *animation_name, GameState 
     return animation->id;
 }
 
-static void prepare_gfx(ComponentHuman *human, GameState *game_state) {
+static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
     // Stand frames
-    human->stand_frames[D_DOWN] =
+    player->stand_frames[D_DOWN] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
-    human->stand_frames[D_UP] =
+    player->stand_frames[D_UP] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_0")->id;
-    human->stand_frames[D_LEFT] =
+    player->stand_frames[D_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_left_0")->id;
-    human->stand_frames[D_RIGHT] =
+    player->stand_frames[D_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_right_0")->id;
-    human->stand_frames[D_DOWN_LEFT] =
+    player->stand_frames[D_DOWN_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_left_0")->id;
-    human->stand_frames[D_DOWN_RIGHT] =
+    player->stand_frames[D_DOWN_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_right_0")->id;
-    human->stand_frames[D_UP_LEFT] =
+    player->stand_frames[D_UP_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_left_0")->id;
-    human->stand_frames[D_UP_RIGHT] =
+    player->stand_frames[D_UP_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
 
     // Running animations
-    human->run_animations[D_DOWN] = animation_id_from_name("run_front", game_state);
-    human->run_animations[D_UP] = animation_id_from_name("run_back", game_state);
-    human->run_animations[D_LEFT] = animation_id_from_name("run_left", game_state);
-    human->run_animations[D_RIGHT] = animation_id_from_name("run_right", game_state);
-    human->run_animations[D_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
-    human->run_animations[D_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
-    human->run_animations[D_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
-    human->run_animations[D_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
+    player->run_animations[D_DOWN] = animation_id_from_name("run_front", game_state);
+    player->run_animations[D_UP] = animation_id_from_name("run_back", game_state);
+    player->run_animations[D_LEFT] = animation_id_from_name("run_left", game_state);
+    player->run_animations[D_RIGHT] = animation_id_from_name("run_right", game_state);
+    player->run_animations[D_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
+    player->run_animations[D_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
+    player->run_animations[D_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
+    player->run_animations[D_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
 }
