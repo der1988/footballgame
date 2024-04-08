@@ -58,7 +58,9 @@ void systems_ball(GameState *game_state, Input *input) {
              * Formula needs meters so we need to convert from pixels to meters and back
              */
             f32 drag_force =
-                0.5f * 0.45f * 1.21 * 0.038 *
+                0.5f * game_state->constants.ball_drag_coefficient *
+                game_state->constants.air_density *
+                game_state->constants.ball_cross_sectional_area *
                 powf(Vector3Length(physics_3d->velocity) / game_state->constants.pixels_per_meter,
                      2) *
                 game_state->constants.pixels_per_meter;
@@ -74,10 +76,10 @@ void systems_ball(GameState *game_state, Input *input) {
             } else {
                 // If it's on the pitch we apply a hacky drag
                 physics_3d->velocity.x += physics_3d->velocity.x *
-                                          -game_state->constants.ball_drag_on_pitch *
+                                          -game_state->constants.ball_friction_on_pitch *
                                           game_state->dt;
                 physics_3d->velocity.z += physics_3d->velocity.z *
-                                          -game_state->constants.ball_drag_on_pitch *
+                                          -game_state->constants.ball_friction_on_pitch *
                                           game_state->dt;
             }
 

@@ -28,9 +28,12 @@ typedef struct GameConstants {
     f32 ball_size;
     v3 gravity_force;
     f32 pixels_per_meter;
+    f32 air_density;
     // Coefficient of restitution
     f32 ball_cr;
-    f32 ball_drag_on_pitch;
+    f32 ball_drag_coefficient;
+    f32 ball_cross_sectional_area;
+    f32 ball_friction_on_pitch;
     f32 ball_run_force;
     f32 ball_control_force;
     f32 ball_shot_force;
@@ -43,6 +46,7 @@ typedef struct GameConstants {
     f32 player_movement_parachute;
     f32 player_control_max_velocity;
     f32 player_run_max_velocity;
+    f32 player_control_radius;
 } GameConstants;
 
 typedef struct GameVariables {
