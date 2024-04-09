@@ -93,6 +93,7 @@ typedef enum {
     LS_MEMORY,
     LS_UTILS,
     LS_TESTS,
+    LS_TWEAKUI,
     LS_OTHER,
     LS_COUNT,
 } ULogSystem;

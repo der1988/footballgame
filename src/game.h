@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "assets/assets.h"
+#include "raygui/raygui.h"
 #include "types.h"
 #include <raylib.h>
 
@@ -10,6 +11,7 @@ struct EntityRepository;
 struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
+struct TweakUI;
 struct Input;
 
 typedef enum { MAL_GAME, MAL_LEVEL, MAL_FRAME, MAL_COUNT } MemoryArenaLifetime;
@@ -50,6 +52,7 @@ typedef struct GameConstants {
 } GameConstants;
 
 typedef struct GameVariables {
+    b32 is_tweakui_shown;
     EntityId ball_entity_id;
     EntityId p1_entity_id;
 } GameVariables;
@@ -64,6 +67,7 @@ typedef struct GameState {
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
+    struct TweakUI *tweakui;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;
