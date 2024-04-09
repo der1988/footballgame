@@ -4,7 +4,9 @@
 #include "entities/entities.h"
 #include "input/input.h"
 #include "memory/memory.h"
+#include "raygui/raygui.h"
 #include "systems/systems.h"
+#include "tweakui/tweakui.h"
 #include "types.h"
 #include <assert.h>
 #include <raylib.h>
@@ -79,6 +81,8 @@ GameState *game_init(GameConfig game_config) {
     assets_animations_load_from_json(game_state->animation_cache, game_state->sprite_frame_cache,
                                      "res/animations/animations.json");
 
+    game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_GAME]);
+
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
 
@@ -132,6 +136,8 @@ void game_destroy(GameState *game_state) {
 
     UnloadRenderTexture(game_state->render_texture);
 
+    tweakui_destroy(game_state->tweakui);
+
     assets_animation_cache_destroy(game_state->animation_cache);
     assets_sprite_frame_cache_destroy(game_state->sprite_frame_cache);
     assets_texture_cache_destroy(game_state->texture_cache);
@@ -150,6 +156,10 @@ void game_update(GameState *game_state, Input *input) {
 
     // This memory arena should be reset every frame
     memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
+
+    if (IsKeyReleased(KEY_P)) {
+        game_state->vars.is_tweakui_shown = !game_state->vars.is_tweakui_shown;
+    }
 
     systems_player(game_state, input);
     systems_ball(game_state, input);
@@ -190,6 +200,10 @@ void game_draw(GameState *game_state) {
                                  .width = game_state->render_texture.texture.width,
                                  .height = -game_state->render_texture.texture.height};
     DrawTextureRec(game_state->render_texture.texture, rect, Vector2Zero(), WHITE);
+
+    if (game_state->vars.is_tweakui_shown) {
+        tweakui_draw(game_state->tweakui, game_state);
+    }
 
     EndDrawing();
 }
