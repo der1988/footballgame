@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 800;
+    handle->window_size.y = 400;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -31,15 +31,15 @@ void tweakui_destroy(TweakUI *handle) {
 void tweakui_draw(TweakUI *handle, GameState *game_state) {
     assert(handle->initialised);
 
-    Rectangle window_bounds = {
-        .x = game_state->config.screen_width / 2.0f - handle->window_size.x / 2.0f,
-        .y = game_state->config.screen_height / 2.0f - handle->window_size.y / 2.0f,
-        .width = handle->window_size.x,
-        .height = handle->window_size.y};
-    GuiPanel(window_bounds, "test");
+    Rectangle window_bounds = {.x = game_state->config.screen_width / 2.0f -
+                                    handle->window_size.x / 2.0f,
+                               .y = 10,
+                               .width = handle->window_size.x,
+                               .height = handle->window_size.y};
+    GuiPanel(window_bounds, "Tweak UI");
 
     Rectangle slider_bounds = {
-        .x = window_bounds.x + 200, .y = window_bounds.y + 50, .width = 300, .height = 10};
+        .x = window_bounds.x + 200, .y = window_bounds.y + 50, .width = 500, .height = 10};
 
     GuiSlider(slider_bounds, "Gravity force",
               TextFormat("%.2f", game_state->constants.gravity_force.y),
@@ -101,15 +101,11 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player control max velocity",
               TextFormat("%.2f", game_state->constants.player_control_max_velocity),
-              &game_state->constants.player_control_max_velocity, 0, 150.0f);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Player run max velocity",
-              TextFormat("%.2f", game_state->constants.player_control_max_velocity),
               &game_state->constants.player_control_max_velocity, 0, 500.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Player control radius",
-              TextFormat("%.2f", game_state->constants.player_control_radius),
-              &game_state->constants.player_control_radius, 0, 100.0f);
+    GuiSlider(slider_bounds, "Player run max velocity",
+              TextFormat("%.2f", game_state->constants.player_run_max_velocity),
+              &game_state->constants.player_run_max_velocity, 0, 500.0f);
 }
 
 // game_state->constants = (GameConstants){.input_stick_dead_zone = 0.05f,
