@@ -24,7 +24,7 @@ jobs:
           cd release
           zip -r release.zip *
           $id = curl.exe --% -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases/tags/${{gitea.ref_name}}" -H "accept: application/json" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: application/json" | jq '.id'
-          if ( -not ( $id ) ) {
+          if ( $id -eq "null" ) ) {
             $id = curl.exe --% -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases" -d "{""tag_name"":""${{gitea.ref_name}}""}" -H "accept: application/json" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: application/json" | jq '.id'
             echo "Release created"
           } else {
