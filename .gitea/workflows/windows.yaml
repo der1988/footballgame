@@ -26,9 +26,9 @@ jobs:
           $id = curl.exe --% -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases/tags/${{gitea.ref_name}}" -H "accept: application/json" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: application/json" | jq '.id'
           if ( -not ( $id ) ) {
             $id = curl.exe --% -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases" -d "{""tag_name"":""${{gitea.ref_name}}""}" -H "accept: application/json" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: application/json" | jq '.id'
-            echo "Release created: ""$id"""
+            echo "Release created"
           } else {
-            echo "Release found: ""id"""
+            echo "Release found"
           }
           curl.exe -vv "https://git.mtormento.com/api/v1/repos/MoonyBaboon/footballgame/releases/$id/assets?name=footballgame_win.zip" -H "Authorization: token ${{secrets.API_TOKEN}}" -H "Content-Type: multipart/form-data" -F "attachment=@release.zip;type=application/zip"
-          echo "Archive uploaded to release"
+          echo "Archive uploaded"

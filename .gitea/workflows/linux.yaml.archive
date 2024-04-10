@@ -7,7 +7,6 @@ on:
 
 jobs:
   Build-Linux:
-    if: false
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building release for Linux operating system"
