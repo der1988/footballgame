@@ -34,6 +34,12 @@ static i32 cmp_sprite_order(const void *s1, const void *s2) {
     // First layer, then order in layer
     if ((diff = sprite_1->layer - sprite_2->layer) == 0) {
         diff = sprite_1->order_in_layer - sprite_2->order_in_layer;
+        if (diff == 0) {
+            // Order by y position: on the pitch a sprite positioned lower is in front of a
+            // sprite positioned higher.
+            // Multiply by 100 to preserve precision
+            diff = sprite_1->position.y * 100 - sprite_2->position.y * 100;
+        }
     }
     return diff;
 }

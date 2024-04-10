@@ -3,7 +3,11 @@
 
 #include "../assets/assets.h"
 
-typedef enum SpriteLayer { SL_BACKGROUND = -100, SL_DEFAULT = 0, SL_PLAYERS = 10 } SpriteLayer;
+typedef enum SpriteLayer {
+    SL_BACKGROUND = -100,
+    SL_DEFAULT = 0,
+    SL_PLAYERS_AND_BALL = 10
+} SpriteLayer;
 
 void sprites_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale, Color color,
                   b32 flipX, b32 flipY, v2 pivot_override, AssetsTexture *assets_texture);

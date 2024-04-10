@@ -59,7 +59,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->sprite.flipX = false;
     component->sprite.flipY = false;
     component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.8};
-    component->sprite.layer = SL_PLAYERS;
+    component->sprite.layer = SL_PLAYERS_AND_BALL;
 
     // Initialise shadow
     component = entities_component_create(game_state->entity_repository, CT_SHADOW, entity->id);
