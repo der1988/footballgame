@@ -109,6 +109,10 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Player run max velocity",
               TextFormat("%.2f", game_state->constants.player_run_max_velocity),
               &game_state->constants.player_run_max_velocity, 0, 500.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Player control radius",
+              TextFormat("%.2f", game_state->constants.player_control_radius),
+              &game_state->constants.player_control_radius, 0, 100.0f);
 }
 
 // game_state->constants = (GameConstants){.input_stick_dead_zone = 0.05f,

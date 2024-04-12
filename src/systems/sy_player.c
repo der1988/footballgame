@@ -44,6 +44,8 @@ void systems_player(GameState *game_state, Input *input) {
 
             StateMachinePlayer *state_machine = base_state_machine->state_machine.ptr;
 
+            collider->props.circle.radius = game_state->constants.player_control_radius;
+
             PlayerControls player_controls = {0};
             switch (player->controller_type) {
             case PCT_HUMAN: {
