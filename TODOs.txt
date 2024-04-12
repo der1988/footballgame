@@ -16,9 +16,9 @@ v draw ordering should be affected by position on the pitch
 v fix awkward after touch
 x use r1 instead of r2 for sprint, make normal run analogic and use that value for sprint
 v add button to disable debug render
+v implement ball rotation animation
 - fix tests
 - put together a pathetic excuse for a goal
 - put some stats on the screen
-- implement ball rotation animation
 - implement a physics step
 - move ball control logic back into ball system: players can ask for control but the ultimate outcome is achieved by taking all control requests in consideration
