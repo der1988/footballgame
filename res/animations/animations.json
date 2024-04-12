@@ -40,5 +40,47 @@
       "frames": "0,1,2,3",
       "prefix": "run_back_right_"
     }
+  },
+  "ball": {
+    "down": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "down_"
+    },
+    "up": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "up_"
+    },
+    "left": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "left_"
+    },
+    "right": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "right_"
+    },
+    "down_left": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "left_updown_"
+    },
+    "down_right": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "right_updown_"
+    },
+    "up_left": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "right_updown_"
+    },
+    "up_right": {
+      "delay": 0.05,
+      "frames": "0,1,2,3",
+      "prefix": "left_updown_"
+    }
   }
 }

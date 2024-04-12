@@ -21,7 +21,8 @@ Entity *entities_camera_create(GameState *game_state) {
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
     component->physics.max_velocity = 2000.0f;
-    component->physics.max_force = 100.0f;
+    // In case camera stutters or weird things happen this is the parameter to tweak
+    component->physics.max_force = 50.0f;
 
     // Initialise props
     component =

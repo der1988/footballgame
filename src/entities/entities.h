@@ -40,6 +40,14 @@ typedef struct {
 
 struct Entity;
 
+// START - Common
+
+AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
+                                                         GameState *game_state);
+Direction entities_common_calculate_direction(Vector2 direction);
+
+// END
+
 // START - Camera
 
 DeclareEntityCreateAndUpdate(camera);
@@ -88,7 +96,6 @@ typedef union {
 DefineStateMachine(Player, PS_COUNT);
 DefineStateMachineFunctions(Player, player);
 
-Direction entities_player_calculate_direction(Vector2 direction);
 void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
                                     DeltaTime dt);
