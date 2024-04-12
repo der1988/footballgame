@@ -69,7 +69,7 @@ struct Entity *entities_ball_create(GameState *game_state) {
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
     component->collider.shape = CS_CIRCLE;
-    component->collider.props.circle.radius = 5;
+    component->collider.props.circle.radius = 9;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
