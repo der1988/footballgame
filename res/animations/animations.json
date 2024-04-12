@@ -75,12 +75,12 @@
     "up_left": {
       "delay": 0.05,
       "frames": "0,1,2,3",
-      "prefix": "left_updown_"
+      "prefix": "right_updown_"
     },
     "up_right": {
       "delay": 0.05,
       "frames": "0,1,2,3",
-      "prefix": "right_updown_"
+      "prefix": "left_updown_"
     }
   }
 }
