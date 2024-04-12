@@ -49,7 +49,7 @@ GameState *game_init(GameConfig game_config) {
                                             .player_movement_drag = 12500.0f,
                                             .player_movement_parachute = 22500.0f,
                                             .player_control_max_velocity = 150.0f,
-                                            .player_run_max_velocity = 250.0f,
+                                            .player_run_max_velocity = 300.0f,
                                             .player_control_radius = 17.5f};
 
     // Partition game memory
