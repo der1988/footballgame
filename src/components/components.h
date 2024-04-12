@@ -136,7 +136,10 @@ typedef struct {
 typedef struct {
     b32 subject_to_after_touch;
     f64 shot_time;
-    AssetsSpriteFrameId roll_frames[D_COUNT];
+    AssetsSpriteFrameId roll_animations[D_COUNT];
+    Direction last_direction;
+    f32 last_frame_update_time;
+    u16 last_running_frame_idx;
 } ComponentBall;
 
 typedef struct {

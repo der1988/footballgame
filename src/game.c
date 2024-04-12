@@ -30,13 +30,12 @@ GameState *game_init(GameConfig game_config) {
                                             .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,
-                                            .ball_size = 5.0f,
                                             .pixels_per_meter = PIXELS_PER_METER,
                                             .air_density = 1.21f,
                                             .ball_cross_sectional_area = 0.038f,
                                             .ball_drag_coefficient = 0.25f,
                                             .gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-                                            .ball_friction_on_pitch = 1.3f,
+                                            .ball_friction_on_pitch = 1.2f,
                                             .ball_run_force = 100.0f,
                                             .ball_control_force = 40.0f,
                                             .ball_shot_force = 50000.0f,
@@ -44,11 +43,11 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
                                             .ball_after_touch_force = 15.0f,
+                                            .ball_max_velocity = 1000.0f,
                                             .player_movement_force = 22000.0f,
                                             .player_movement_drag = 12500.0f,
-                                            .player_movement_parachute = 22500.0f,
                                             .player_control_max_velocity = 150.0f,
-                                            .player_run_max_velocity = 250.0f,
+                                            .player_run_max_velocity = 300.0f,
                                             .player_control_radius = 17.5f};
 
     // Partition game memory
