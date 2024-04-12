@@ -7,11 +7,18 @@ v player should face last direction when standing
 v run animation speed should be proportional to velocity
 v move player ball control in player system
 v shadow size should take scaling into account
+v smoothly transition from run to control speeds
+v get some rest
+v ball position should depend on direction when running
+v control ball with force instead of velocity where possible
+v parameters on screen
+v draw ordering should be affected by position on the pitch
+v fix awkward after touch
+x use r1 instead of r2 for sprint, make normal run analogic and use that value for sprint
+v add button to disable debug render
+v implement ball rotation animation
 - fix tests
-- get some rest
-- parameters on screen
-- ball position should depend on direction when running
 - put together a pathetic excuse for a goal
-- draw ordering should be affected by position on the pitch
-- control ball with force instead of velocity where possible
 - put some stats on the screen
+- implement a physics step
+- move ball control logic back into ball system: players can ask for control but the ultimate outcome is achieved by taking all control requests in consideration

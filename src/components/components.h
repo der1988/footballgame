@@ -23,7 +23,7 @@ typedef enum {
     CT_ACTION,
     CT_TARGET,
     CT_CAMERA_PROPS,
-    CT_HUMAN,
+    CT_PLAYER,
     CT_BALL,
     CT_COUNT,
     CT_NONE
@@ -120,7 +120,10 @@ typedef enum {
     D_COUNT
 } Direction;
 
+typedef enum { PCT_HUMAN, PCT_AI } PlayerControllerType;
+
 typedef struct {
+    PlayerControllerType controller_type;
     b32 is_controlling_the_ball;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
@@ -128,12 +131,15 @@ typedef struct {
     f32 last_shot;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
-} ComponentHuman;
+} ComponentPlayer;
 
 typedef struct {
     b32 subject_to_after_touch;
     f64 shot_time;
-    AssetsSpriteFrameId roll_frames[D_COUNT];
+    AssetsSpriteFrameId roll_animations[D_COUNT];
+    Direction last_direction;
+    f32 last_frame_update_time;
+    u16 last_running_frame_idx;
 } ComponentBall;
 
 typedef struct {
@@ -155,7 +161,7 @@ typedef struct {
         ComponentStateMachine state_machine;
         ComponentAction action;
         ComponentTarget target;
-        ComponentHuman human;
+        ComponentPlayer player;
         ComponentBall ball;
     };
 } Component;

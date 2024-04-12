@@ -4,7 +4,6 @@
 #include "../memory/memory.h"
 #include "types.h"
 #include <raylib.h>
-#include <string.h>
 
 // Texture Cache
 typedef u32 AssetsTextureId;

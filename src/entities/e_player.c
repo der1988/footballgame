@@ -1,11 +1,9 @@
-#include "../actions/actions.h"
 #include "../assets/assets.h"
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
-#include "input/input.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
@@ -13,10 +11,11 @@
 #include <raymath.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 ImplementStateMachineFunctions(Player, player);
 
-static void prepare_gfx(ComponentHuman *human, GameState *game_state);
+static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
 
 struct Entity *entities_player_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
@@ -39,7 +38,7 @@ struct Entity *entities_player_create(GameState *game_state) {
 
     // Initialise physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 3;
+    component->physics.mass = 75.0f;
     component->physics.velocity = (Vector2){0};
     component->physics.accel = (Vector2){0};
     component->physics.max_velocity = game_state->constants.player_control_max_velocity;
@@ -47,7 +46,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
     component->collider.shape = CS_CIRCLE;
-    component->collider.props.circle.radius = 15;
+    component->collider.props.circle.radius = game_state->constants.player_control_radius;
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
@@ -60,7 +59,7 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->sprite.flipX = false;
     component->sprite.flipY = false;
     component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.8};
-    component->sprite.layer = SL_PLAYERS;
+    component->sprite.layer = SL_PLAYERS_AND_BALL;
 
     // Initialise shadow
     component = entities_component_create(game_state->entity_repository, CT_SHADOW, entity->id);
@@ -69,36 +68,21 @@ struct Entity *entities_player_create(GameState *game_state) {
     component->shadow.offset = (v2){.x = 0.7, .y = 0.7};
     component->shadow.scale = (v2){.x = 0.5, .y = 1};
 
-    // Initialise human
-    ComponentHuman *human =
-        &entities_component_create(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    // Initialise player
+    ComponentPlayer *player =
+        &entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id)->player;
+    player->controller_type = PCT_AI;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
-    prepare_gfx(human, game_state);
+    prepare_gfx(player, game_state);
 
     entities_player_state_machine_on_enter(entity, game_state);
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->name, "player created");
 
     return entity;
-}
-
-Direction entities_player_calculate_direction(Vector2 direction) {
-    static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},   {.x = -1, .y = 0},
-                                          {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
-                                          {.x = -1, .y = 1}, {.x = 1, .y = 1}};
-    f32 max_value = 0;
-    Direction selected_direction = D_DOWN;
-    for (u16 i = 0; i < 8; ++i) {
-        f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
-        if (tmp_value > max_value) {
-            max_value = tmp_value;
-            selected_direction = i;
-        }
-    }
-    return selected_direction;
 }
 
 void entities_player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, DeltaTime dt) {
@@ -122,8 +106,8 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
         &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    ComponentPlayer *player =
+        &entities_component_get(game_state->entity_repository, CT_PLAYER, entity->id)->player;
     Component *component =
         entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
     StateMachinePlayer *state_machine = component->state_machine.ptr;
@@ -152,8 +136,8 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
         &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
     ComponentSprite *sprite =
         &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    ComponentHuman *human =
-        &entities_component_get(game_state->entity_repository, CT_HUMAN, entity->id)->human;
+    ComponentPlayer *player =
+        &entities_component_get(game_state->entity_repository, CT_PLAYER, entity->id)->player;
     ComponentAction *action =
         &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
 
@@ -171,44 +155,40 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
 }
 
-static AssetsAnimationId animation_id_from_name(char *animation_name, GameState *game_state) {
-    // Scratch buffer
-    char *final_animation = memory_arena_push(game_state->memory_by_lifetime[MAL_FRAME], 30);
-
-    snprintf(final_animation, 30, "player_%s", animation_name);
-    AssetsAnimation *animation =
-        assets_animation_get_by_name(game_state->animation_cache, final_animation);
-    assert(animation);
-
-    return animation->id;
-}
-
-static void prepare_gfx(ComponentHuman *human, GameState *game_state) {
+static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
     // Stand frames
-    human->stand_frames[D_DOWN] =
+    player->stand_frames[D_DOWN] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
-    human->stand_frames[D_UP] =
+    player->stand_frames[D_UP] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_0")->id;
-    human->stand_frames[D_LEFT] =
+    player->stand_frames[D_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_left_0")->id;
-    human->stand_frames[D_RIGHT] =
+    player->stand_frames[D_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_right_0")->id;
-    human->stand_frames[D_DOWN_LEFT] =
+    player->stand_frames[D_DOWN_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_left_0")->id;
-    human->stand_frames[D_DOWN_RIGHT] =
+    player->stand_frames[D_DOWN_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_right_0")->id;
-    human->stand_frames[D_UP_LEFT] =
+    player->stand_frames[D_UP_LEFT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_left_0")->id;
-    human->stand_frames[D_UP_RIGHT] =
+    player->stand_frames[D_UP_RIGHT] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
 
     // Running animations
-    human->run_animations[D_DOWN] = animation_id_from_name("run_front", game_state);
-    human->run_animations[D_UP] = animation_id_from_name("run_back", game_state);
-    human->run_animations[D_LEFT] = animation_id_from_name("run_left", game_state);
-    human->run_animations[D_RIGHT] = animation_id_from_name("run_right", game_state);
-    human->run_animations[D_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
-    human->run_animations[D_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
-    human->run_animations[D_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
-    human->run_animations[D_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
+    player->run_animations[D_DOWN] =
+        entities_common_animation_id_from_name("player", "run_front", game_state);
+    player->run_animations[D_UP] =
+        entities_common_animation_id_from_name("player", "run_back", game_state);
+    player->run_animations[D_LEFT] =
+        entities_common_animation_id_from_name("player", "run_left", game_state);
+    player->run_animations[D_RIGHT] =
+        entities_common_animation_id_from_name("player", "run_right", game_state);
+    player->run_animations[D_DOWN_LEFT] =
+        entities_common_animation_id_from_name("player", "run_front_left", game_state);
+    player->run_animations[D_DOWN_RIGHT] =
+        entities_common_animation_id_from_name("player", "run_front_right", game_state);
+    player->run_animations[D_UP_LEFT] =
+        entities_common_animation_id_from_name("player", "run_back_left", game_state);
+    player->run_animations[D_UP_RIGHT] =
+        entities_common_animation_id_from_name("player", "run_back_right", game_state);
 }

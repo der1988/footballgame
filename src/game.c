@@ -4,11 +4,15 @@
 #include "entities/entities.h"
 #include "input/input.h"
 #include "memory/memory.h"
+#include "raygui/raygui.h"
 #include "systems/systems.h"
+#include "tweakui/tweakui.h"
 #include "types.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
+
+#define PIXELS_PER_METER (3240.0f / 105.0f)
 
 GameState *game_init(GameConfig game_config) {
     MemoryArenaHandle *memory_arena_lifetime_game =
@@ -18,24 +22,33 @@ GameState *game_init(GameConfig game_config) {
     game_state->config = game_config;
     game_state->config.players_count = 1;
 
-    game_state->constants = (GameConstants){.input_stick_dead_zone = 0.05f,
+    // pitch in reality is 105m long
+    // pitch in game is 3240 pixels long
+    // 1m is ~30.86 pixels in game
+    // gravity is -9.81m/s^2 in reality, so -302.73pixels/s^2 in game
+    game_state->constants = (GameConstants){.render_debug = true,
+                                            .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,
-                                            .ball_size = 5.0f,
-                                            .gravity_force = {.y = -9.81f},
-                                            .ball_drag_in_air = 0.6f,
-                                            .ball_drag_on_pitch = 1.3f,
-                                            .ball_run_force = 175.0f,
-                                            .ball_control_force = 20.0f,
-                                            .ball_shot_force = 1250.0f,
-                                            .ball_shot_height = 0.3f,
+                                            .pixels_per_meter = PIXELS_PER_METER,
+                                            .air_density = 1.21f,
+                                            .ball_cross_sectional_area = 0.038f,
+                                            .ball_drag_coefficient = 0.25f,
+                                            .gravity_force = {.y = -9.81f * PIXELS_PER_METER},
+                                            .ball_friction_on_pitch = 1.2f,
+                                            .ball_run_force = 100.0f,
+                                            .ball_control_force = 40.0f,
+                                            .ball_shot_force = 50000.0f,
+                                            .ball_shot_height = 0.5f,
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
                                             .ball_after_touch_force = 15.0f,
-                                            .player_movement_force = 1500.0f,
-                                            .player_movement_drag = 1000.0f,
+                                            .ball_max_velocity = 1000.0f,
+                                            .player_movement_force = 22000.0f,
+                                            .player_movement_drag = 12500.0f,
                                             .player_control_max_velocity = 150.0f,
-                                            .player_run_max_velocity = 250.0f};
+                                            .player_run_max_velocity = 300.0f,
+                                            .player_control_radius = 17.5f};
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
@@ -68,13 +81,27 @@ GameState *game_init(GameConfig game_config) {
     assets_animations_load_from_json(game_state->animation_cache, game_state->sprite_frame_cache,
                                      "res/animations/animations.json");
 
+    game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_GAME]);
+
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
 
     Entity *player_entity = entities_player_create(game_state);
+    ComponentPlayer *player =
+        &entities_component_get(game_state->entity_repository, CT_PLAYER, player_entity->id)
+             ->player;
     ComponentTransform *player_transform =
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
              ->transform;
+    player->controller_type = PCT_HUMAN;
+    player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
+
+    Entity *player_entity_2 = entities_player_create(game_state);
+    ComponentTransform *player_transform_2 =
+        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity_2->id)
+             ->transform;
+    player_transform_2->position =
+        (Vector2){game_state->config.screen_width / 2.0f - 100.0f, 20.0f};
 
     Entity *ball_entity = entities_ball_create(game_state);
     game_state->vars.ball_entity_id = ball_entity->id;
@@ -109,6 +136,8 @@ void game_destroy(GameState *game_state) {
 
     UnloadRenderTexture(game_state->render_texture);
 
+    tweakui_destroy(game_state->tweakui);
+
     assets_animation_cache_destroy(game_state->animation_cache);
     assets_sprite_frame_cache_destroy(game_state->sprite_frame_cache);
     assets_texture_cache_destroy(game_state->texture_cache);
@@ -127,6 +156,10 @@ void game_update(GameState *game_state, Input *input) {
 
     // This memory arena should be reset every frame
     memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
+
+    if (IsKeyReleased(KEY_P)) {
+        game_state->vars.is_tweakui_shown = !game_state->vars.is_tweakui_shown;
+    }
 
     systems_player(game_state, input);
     systems_ball(game_state, input);
@@ -155,6 +188,7 @@ void game_draw(GameState *game_state) {
 
     systems_render(game_state);
     systems_render_debug(game_state);
+
     EndMode2D();
 
     EndTextureMode();
@@ -167,6 +201,10 @@ void game_draw(GameState *game_state) {
                                  .width = game_state->render_texture.texture.width,
                                  .height = -game_state->render_texture.texture.height};
     DrawTextureRec(game_state->render_texture.texture, rect, Vector2Zero(), WHITE);
+
+    if (game_state->vars.is_tweakui_shown) {
+        tweakui_draw(game_state->tweakui, game_state);
+    }
 
     EndDrawing();
 }

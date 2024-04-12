@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "assets/assets.h"
+#include "raygui/raygui.h"
 #include "types.h"
 #include <raylib.h>
 
@@ -10,6 +11,7 @@ struct EntityRepository;
 struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
+struct TweakUI;
 struct Input;
 
 typedef enum { MAL_GAME, MAL_LEVEL, MAL_FRAME, MAL_COUNT } MemoryArenaLifetime;
@@ -24,13 +26,16 @@ typedef struct GameConfig {
 } GameConfig;
 
 typedef struct GameConstants {
+    b32 render_debug;
     f32 input_stick_dead_zone;
-    f32 ball_size;
     v3 gravity_force;
+    f32 pixels_per_meter;
+    f32 air_density;
     // Coefficient of restitution
     f32 ball_cr;
-    f32 ball_drag_in_air;
-    f32 ball_drag_on_pitch;
+    f32 ball_drag_coefficient;
+    f32 ball_cross_sectional_area;
+    f32 ball_friction_on_pitch;
     f32 ball_run_force;
     f32 ball_control_force;
     f32 ball_shot_force;
@@ -38,13 +43,16 @@ typedef struct GameConstants {
     f32 ball_after_touch_delay_time;
     f32 ball_after_touch_max_time;
     f32 ball_after_touch_force;
+    f32 ball_max_velocity;
     f32 player_movement_force;
     f32 player_movement_drag;
     f32 player_control_max_velocity;
     f32 player_run_max_velocity;
+    f32 player_control_radius;
 } GameConstants;
 
 typedef struct GameVariables {
+    b32 is_tweakui_shown;
     EntityId ball_entity_id;
     EntityId p1_entity_id;
 } GameVariables;
@@ -59,6 +67,7 @@ typedef struct GameState {
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
+    struct TweakUI *tweakui;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;
