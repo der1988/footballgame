@@ -28,7 +28,6 @@ typedef struct GameConfig {
 typedef struct GameConstants {
     b32 render_debug;
     f32 input_stick_dead_zone;
-    f32 ball_size;
     v3 gravity_force;
     f32 pixels_per_meter;
     f32 air_density;
@@ -47,7 +46,6 @@ typedef struct GameConstants {
     f32 ball_max_velocity;
     f32 player_movement_force;
     f32 player_movement_drag;
-    f32 player_movement_parachute;
     f32 player_control_max_velocity;
     f32 player_run_max_velocity;
     f32 player_control_radius;

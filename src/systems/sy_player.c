@@ -77,7 +77,7 @@ void systems_player(GameState *game_state, Input *input) {
                 // Apply drag if no steering applied
                 f32 steering_magnitude = Vector2Length(player_controls.steering);
                 if (steering_magnitude < 0.1f) {
-                    if (current_velocity < 5) {
+                    if (current_velocity < 3) {
                         physics->velocity = Vector2Zero();
                     } else {
                         Vector2 drag =
@@ -94,7 +94,7 @@ void systems_player(GameState *game_state, Input *input) {
                                                player_controls.sprint) {
                     Vector2 parachute =
                         Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
-                                     game_state->constants.player_movement_parachute);
+                                     game_state->constants.player_movement_force * 1.2f);
                     force_to_apply = Vector2Add(force_to_apply, parachute);
                 }
 
@@ -198,7 +198,7 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 // Calculate frame to display
-                if (Vector2Length(physics->velocity) > 0.01f) {
+                if (Vector2Length(physics->velocity) > 3) {
                     Direction pd = entities_common_calculate_direction(physics->velocity);
                     AssetsAnimation *animation = assets_animation_get_by_id(
                         game_state->animation_cache, base_player->player.run_animations[pd]);

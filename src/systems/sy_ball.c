@@ -116,13 +116,15 @@ void systems_ball(GameState *game_state, Input *input) {
 
             // Calculate frame to display
             Vector2 ball_velocity = V3_TO_V2(physics_3d->velocity);
-            if (on_the_ground && Vector2Length(ball_velocity) > 0.01f) {
+            if (Vector2Length(ball_velocity) > 3) {
                 Direction pd = entities_common_calculate_direction(ball_velocity);
                 AssetsAnimation *animation = assets_animation_get_by_id(game_state->animation_cache,
                                                                         ball->roll_animations[pd]);
-                f32 ball_max_velocity = game_state->constants.ball_max_velocity / 5.0f;
-                if ((game_state->time - ball->last_frame_update_time) >
-                    (animation->delay * (2 - Vector2Length(ball_velocity) / ball_max_velocity))) {
+                f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;
+                f32 delay =
+                    (animation->delay *
+                     (5 - 4 * Clamp(Vector2Length(ball_velocity) / ball_max_velocity, 0, 1)));
+                if ((game_state->time - ball->last_frame_update_time) > delay) {
                     ball->last_frame_update_time = game_state->time;
                     u16 new_frame_id = (ball->last_running_frame_idx + 1) % animation->frames_count;
                     sprite->frame_id = animation->frames[new_frame_id];

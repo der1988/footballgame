@@ -30,7 +30,6 @@ GameState *game_init(GameConfig game_config) {
                                             .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,
-                                            .ball_size = 5.0f,
                                             .pixels_per_meter = PIXELS_PER_METER,
                                             .air_density = 1.21f,
                                             .ball_cross_sectional_area = 0.038f,
@@ -47,7 +46,6 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_max_velocity = 1000.0f,
                                             .player_movement_force = 22000.0f,
                                             .player_movement_drag = 12500.0f,
-                                            .player_movement_parachute = 22500.0f,
                                             .player_control_max_velocity = 150.0f,
                                             .player_run_max_velocity = 300.0f,
                                             .player_control_radius = 17.5f};
