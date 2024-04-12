@@ -70,7 +70,9 @@ void systems_ball(GameState *game_state, Input *input) {
                                         drag_force / physics_3d->mass));
 
             // If ball is in the air apply gravity
+            b32 on_the_ground = true;
             if (ball_position_3d.y > 0) {
+                on_the_ground = false;
                 physics_3d->accel =
                     Vector3Add(physics_3d->accel, game_state->constants.gravity_force);
             } else {
@@ -111,6 +113,23 @@ void systems_ball(GameState *game_state, Input *input) {
 
             // Acceleration does not accumulate
             physics_3d->accel = Vector3Zero();
+
+            // Calculate frame to display
+            Vector2 ball_velocity = V3_TO_V2(physics_3d->velocity);
+            if (on_the_ground && Vector2Length(ball_velocity) > 0.01f) {
+                Direction pd = entities_common_calculate_direction(ball_velocity);
+                AssetsAnimation *animation = assets_animation_get_by_id(game_state->animation_cache,
+                                                                        ball->roll_animations[pd]);
+                f32 ball_max_velocity = game_state->constants.ball_max_velocity / 5.0f;
+                if ((game_state->time - ball->last_frame_update_time) >
+                    (animation->delay * (2 - Vector2Length(ball_velocity) / ball_max_velocity))) {
+                    ball->last_frame_update_time = game_state->time;
+                    u16 new_frame_id = (ball->last_running_frame_idx + 1) % animation->frames_count;
+                    sprite->frame_id = animation->frames[new_frame_id];
+                    ball->last_running_frame_idx = new_frame_id;
+                }
+                ball->last_direction = pd;
+            }
         } break;
         case BS_OUT_OF_PLAY: {
         } break;

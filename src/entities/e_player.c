@@ -85,22 +85,6 @@ struct Entity *entities_player_create(GameState *game_state) {
     return entity;
 }
 
-Direction entities_player_calculate_direction(Vector2 direction) {
-    static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},   {.x = -1, .y = 0},
-                                          {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
-                                          {.x = -1, .y = 1}, {.x = 1, .y = 1}};
-    f32 max_value = 0;
-    Direction selected_direction = D_DOWN;
-    for (u16 i = 0; i < 8; ++i) {
-        f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
-        if (tmp_value > max_value) {
-            max_value = tmp_value;
-            selected_direction = i;
-        }
-    }
-    return selected_direction;
-}
-
 void entities_player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, DeltaTime dt) {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
@@ -171,18 +155,6 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
 }
 
-static AssetsAnimationId animation_id_from_name(char *animation_name, GameState *game_state) {
-    // Scratch buffer
-    char *final_animation = memory_arena_push(game_state->memory_by_lifetime[MAL_FRAME], 30);
-
-    snprintf(final_animation, 30, "player_%s", animation_name);
-    AssetsAnimation *animation =
-        assets_animation_get_by_name(game_state->animation_cache, final_animation);
-    assert(animation);
-
-    return animation->id;
-}
-
 static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
     // Stand frames
     player->stand_frames[D_DOWN] =
@@ -203,12 +175,20 @@ static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
 
     // Running animations
-    player->run_animations[D_DOWN] = animation_id_from_name("run_front", game_state);
-    player->run_animations[D_UP] = animation_id_from_name("run_back", game_state);
-    player->run_animations[D_LEFT] = animation_id_from_name("run_left", game_state);
-    player->run_animations[D_RIGHT] = animation_id_from_name("run_right", game_state);
-    player->run_animations[D_DOWN_LEFT] = animation_id_from_name("run_front_left", game_state);
-    player->run_animations[D_DOWN_RIGHT] = animation_id_from_name("run_front_right", game_state);
-    player->run_animations[D_UP_LEFT] = animation_id_from_name("run_back_left", game_state);
-    player->run_animations[D_UP_RIGHT] = animation_id_from_name("run_back_right", game_state);
+    player->run_animations[D_DOWN] =
+        entities_common_animation_id_from_name("player", "run_front", game_state);
+    player->run_animations[D_UP] =
+        entities_common_animation_id_from_name("player", "run_back", game_state);
+    player->run_animations[D_LEFT] =
+        entities_common_animation_id_from_name("player", "run_left", game_state);
+    player->run_animations[D_RIGHT] =
+        entities_common_animation_id_from_name("player", "run_right", game_state);
+    player->run_animations[D_DOWN_LEFT] =
+        entities_common_animation_id_from_name("player", "run_front_left", game_state);
+    player->run_animations[D_DOWN_RIGHT] =
+        entities_common_animation_id_from_name("player", "run_front_right", game_state);
+    player->run_animations[D_UP_LEFT] =
+        entities_common_animation_id_from_name("player", "run_back_left", game_state);
+    player->run_animations[D_UP_RIGHT] =
+        entities_common_animation_id_from_name("player", "run_back_right", game_state);
 }

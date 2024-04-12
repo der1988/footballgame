@@ -37,17 +37,18 @@ struct Entity *entities_ball_create(GameState *game_state) {
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
     component->transform.virtual_height = 300;
-    component->transform.scale = (v2){.x = 1.5f, .y = 1.5f};
+    component->transform.scale = (v2){.x = 1.0f, .y = 1.0f};
 
     // Initialise 3d physics
     component = entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
     component->physics_3d.mass = 0.43f;
     component->physics_3d.velocity = (Vector3){0};
     component->physics_3d.accel = (Vector3){0};
+    component->physics_3d.max_velocity = game_state->constants.ball_max_velocity;
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
-    char *ball = "ball_0";
+    char *ball = "ball_left_0";
     AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball);
     assert(sprite_frame != NULL);
@@ -142,12 +143,19 @@ void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_
 
 void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
     // Roll frames
-    ball->roll_frames[0] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_0")->id;
-    ball->roll_frames[1] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_1")->id;
-    ball->roll_frames[2] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_2")->id;
-    ball->roll_frames[3] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "ball_3")->id;
+    ball->roll_animations[D_UP] = entities_common_animation_id_from_name("ball", "up", game_state);
+    ball->roll_animations[D_DOWN] =
+        entities_common_animation_id_from_name("ball", "down", game_state);
+    ball->roll_animations[D_LEFT] =
+        entities_common_animation_id_from_name("ball", "left", game_state);
+    ball->roll_animations[D_RIGHT] =
+        entities_common_animation_id_from_name("ball", "right", game_state);
+    ball->roll_animations[D_UP_LEFT] =
+        entities_common_animation_id_from_name("ball", "up_left", game_state);
+    ball->roll_animations[D_UP_RIGHT] =
+        entities_common_animation_id_from_name("ball", "up_right", game_state);
+    ball->roll_animations[D_DOWN_LEFT] =
+        entities_common_animation_id_from_name("ball", "down_left", game_state);
+    ball->roll_animations[D_DOWN_RIGHT] =
+        entities_common_animation_id_from_name("ball", "down_right", game_state);
 }

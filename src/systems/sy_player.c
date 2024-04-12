@@ -197,7 +197,7 @@ void systems_player(GameState *game_state, Input *input) {
 
                 // Calculate frame to display
                 if (Vector2Length(physics->velocity) > 0.01f) {
-                    Direction pd = entities_player_calculate_direction(physics->velocity);
+                    Direction pd = entities_common_calculate_direction(physics->velocity);
                     AssetsAnimation *animation = assets_animation_get_by_id(
                         game_state->animation_cache, base_player->player.run_animations[pd]);
                     f32 max_player_velocity = game_state->constants.player_run_max_velocity;
