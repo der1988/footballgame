@@ -26,7 +26,8 @@ GameState *game_init(GameConfig game_config) {
     // pitch in game is 3240 pixels long
     // 1m is ~30.86 pixels in game
     // gravity is -9.81m/s^2 in reality, so -302.73pixels/s^2 in game
-    game_state->constants = (GameConstants){.input_stick_dead_zone = 0.05f,
+    game_state->constants = (GameConstants){.render_debug = true,
+                                            .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,
                                             .ball_size = 5.0f,
@@ -188,6 +189,7 @@ void game_draw(GameState *game_state) {
 
     systems_render(game_state);
     systems_render_debug(game_state);
+
     EndMode2D();
 
     EndTextureMode();
