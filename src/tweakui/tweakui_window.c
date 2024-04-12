@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 400;
+    handle->window_size.y = 450;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -41,6 +41,9 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     Rectangle slider_bounds = {
         .x = window_bounds.x + 200, .y = window_bounds.y + 50, .width = 500, .height = 10};
 
+    GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 100, .height = 15},
+              "Render Debug", (bool *)&game_state->constants.render_debug);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Gravity force",
               TextFormat("%.2f", game_state->constants.gravity_force.y),
               &game_state->constants.gravity_force.y, -800.0f, 0.0f);

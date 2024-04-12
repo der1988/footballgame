@@ -6,6 +6,7 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 typedef struct {
     v2 steering;
@@ -53,7 +54,7 @@ void systems_player(GameState *game_state, Input *input) {
                 break;
             }
             case PCT_AI: {
-                player_controls.steering = (v2){.y = 1};
+                player_controls.steering = (v2){.y = 0};
                 break;
             }
             }
@@ -180,13 +181,13 @@ void systems_player(GameState *game_state, Input *input) {
                         game_state->constants.ball_after_touch_delay_time &&
                     (game_state->time - ball->shot_time) <
                         game_state->constants.ball_after_touch_max_time) {
-                    v2 after_touch_input = Vector2Normalize(player_controls.steering);
-                    Vector2 ball_2d_vel = V3_TO_V2(ball_physics_3d->velocity);
-                    Vector2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
+                    v2 after_touch_input = player_controls.steering;
+                    v2 ball_2d_vel = V3_TO_V2(ball_physics_3d->velocity);
+                    v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
                     f32 after_touch_height =
                         Clamp(Vector2ProjectScalar(ball_2d_vel, after_touch_input), -1.0f, 0.4f);
                     v2 after_touch_side = Vector2Project(ball_2d_vel_perp, after_touch_input);
-                    v3 after_touch_direction = (Vector3){
+                    v3 after_touch_direction = (v3){
                         .x = after_touch_side.x, .y = -after_touch_height, .z = after_touch_side.y};
                     ball_physics_3d->velocity =
                         Vector3Add(ball_physics_3d->velocity,

@@ -26,6 +26,7 @@ typedef struct GameConfig {
 } GameConfig;
 
 typedef struct GameConstants {
+    b32 render_debug;
     f32 input_stick_dead_zone;
     f32 ball_size;
     v3 gravity_force;
