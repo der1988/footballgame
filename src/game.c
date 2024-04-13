@@ -35,7 +35,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_cross_sectional_area = 0.038f,
                                             .ball_drag_coefficient = 0.25f,
                                             .gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-                                            .ball_friction_on_pitch = 1.2f,
+                                            .ball_friction_on_pitch = 1.0f,
                                             .ball_run_force = 100.0f,
                                             .ball_control_force = 40.0f,
                                             .ball_shot_force = 50000.0f,
