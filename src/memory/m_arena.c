@@ -41,7 +41,7 @@ void memory_arena_reset(MemoryArenaHandle *handle) {
 void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize size,
                                              MemoryArenaPushSettings settings) {
     if (handle) {
-        size = utils_align(size, settings.alignment);
+        size = utils_memory_align(size, settings.alignment);
         u64 remaining = handle->total_size - (handle->current - handle->base);
         if (size <= remaining) {
             void *buffer = handle->current;
@@ -69,7 +69,7 @@ void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize si
 // Allocate some memory inside the arena
 void *memory_arena_push(MemoryArenaHandle *handle, usize size) {
     MemoryArenaPushSettings settings =
-        (MemoryArenaPushSettings){.alignment = 4, .clear_memory = true};
+        (MemoryArenaPushSettings){.alignment = DEFAULT_MEMORY_ALIGNMENT, .clear_memory = true};
     return memory_arena_push_with_custom_settings(handle, size, settings);
 }
 

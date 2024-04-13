@@ -3,6 +3,8 @@
 
 #include "../types.h"
 
+#define DEFAULT_MEMORY_ALIGNMENT 16
+
 typedef struct {
     u16 alignment;
     b32 clear_memory;
