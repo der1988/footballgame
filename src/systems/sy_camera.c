@@ -46,7 +46,7 @@ void systems_camera(GameState *game_state) {
                     steering_arrive(transform->position, physics->velocity, physics->max_velocity,
                                     target_transform->transform.position, props->slowing_distance);
             }
-            steering = Vector2Scale(steering, physics->max_force);
+            steering = Vector2Scale(steering, physics->max_velocity * physics->max_force);
 
             apply_force(steering, physics, game_state->dt);
             apply_velocity(transform, physics, game_state->dt);
