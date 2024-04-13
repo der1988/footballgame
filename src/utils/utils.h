@@ -101,7 +101,7 @@ typedef enum {
 void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const char *ctx,
                const char *format, ...);
 
-usize utils_align(usize to_align, u16 alignment);
+usize utils_memory_align(usize to_align, u16 alignment);
 
 Color utils_color_lerp(Color from, Color to, f32 t);
 
