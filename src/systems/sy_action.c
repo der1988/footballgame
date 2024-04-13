@@ -5,11 +5,11 @@
 void systems_action(GameState *game_state) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
-    ComponentForEach(entity_repository, base_component, idx) {
-        Component *base_action = base_component + CT_ACTION * entity_repository->max_slots;
-        Entity *entity = &entity_repository->entities[idx];
-        if (entity->alive && base_action->header.enabled) {
-            ComponentAction *component = &base_action->action;
+    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 1,
+                                                        CT_ACTION)) {
+            ComponentAction *component =
+                ComponentCastToInternalUnchecked(entity_repository, CT_ACTION, entity_id);
             for (usize j = 0; j < MaxConcurrentActions; ++j) {
                 ActionRunner *action_runner = &component->running_actions[j];
                 if (action_runner && action_runner->action) {
@@ -19,7 +19,7 @@ void systems_action(GameState *game_state) {
                         // to interested parties to check for action completion.
                         component->running_actions[j].action = NULL;
                     } else {
-                        actions_action_run(action_runner, entity->id, game_state);
+                        actions_action_run(action_runner, entity_id, game_state);
                     }
                 }
             }

@@ -9,15 +9,15 @@ void systems_render_debug(GameState *game_state) {
     if (game_state->constants.render_debug) {
         EntityRepository *entity_repository = game_state->entity_repository;
 
-        ComponentForEach(entity_repository, base_component, idx) {
-            Component *base_sprite = base_component + CT_SPRITE * entity_repository->max_slots;
-            Component *base_transform =
-                base_component + CT_TRANSFORM * entity_repository->max_slots;
-            Component *base_collider = base_component + CT_COLLIDER * entity_repository->max_slots;
-            if (entity_repository->entities[idx].alive && base_sprite->header.enabled &&
-                base_transform->header.enabled) {
-                ComponentSprite *sprite = &base_sprite->sprite;
-                ComponentTransform *transform = &base_transform->transform;
+        for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+            if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
+                                                            CT_TRANSFORM, CT_SPRITE)) {
+                ComponentSprite *sprite =
+                    ComponentCastToInternalUnchecked(entity_repository, CT_SPRITE, entity_id);
+                ComponentTransform *transform =
+                    ComponentCastToInternalUnchecked(entity_repository, CT_TRANSFORM, entity_id);
+                Component *wrapper_collider =
+                    entities_component_get(entity_repository, CT_COLLIDER, entity_id);
 
                 Vector2 position = transform->position;
                 f32 rotation = transform->rotation;
@@ -31,8 +31,8 @@ void systems_render_debug(GameState *game_state) {
                     assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
                     position, rotation, scale, sprite->pivot_override);
 
-                if (base_collider->header.enabled) {
-                    ComponentCollider *collider = &base_collider->collider;
+                if (wrapper_collider->header.enabled) {
+                    ComponentCollider *collider = &wrapper_collider->collider;
                     if (collider->shape == CS_CIRCLE) {
                         v2 pos = Vector2Add(transform->position, sprite->pivot_override);
                         pos = Vector2Add(pos, collider->props.circle.offset);

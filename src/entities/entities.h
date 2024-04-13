@@ -5,6 +5,7 @@
 #include "../entities/state_machine.h"
 #include "../input/input.h"
 #include "../memory/memory.h"
+#include "../utils/utils.h"
 #include "entities/state_machine.h"
 #include "game.h"
 #include "types.h"
@@ -15,13 +16,13 @@
 #define EntityTypeAllBitMask 0xFFFFFFFFFFFFFFFF
 #define EntityTypeCheckMask(type, mask) (EntityTypeToBitMask(type) & mask)
 
-#define EntityForEach(handle, item, idx)                                                           \
-    Entity *item = handle->entities;                                                               \
-    for (usize idx = 0; idx < handle->max_slots; ++idx, item++)
+#define EntityForEach(entity_repo, item, entity_id)                                                \
+    Entity *item = entity_repo->entities;                                                          \
+    for (usize entity_id = 0; entity_id < entity_repo->max_slots; ++entity_id, item++)
 
-#define ComponentForEach(handle, item, idx)                                                        \
-    Component *item = handle->components;                                                          \
-    for (usize idx = 0; idx < handle->max_slots; ++idx, item++)
+#define ComponentCastToInternalUnchecked(entity_repo, type, entity_id)                             \
+    (void *)((char *)(entity_repo->components + (type * entity_repo->max_slots) + entity_id) +     \
+             utils_memory_align(sizeof(ComponentHeader), DEFAULT_MEMORY_ALIGNMENT));
 
 #define DeclareEntityCreateAndUpdate(ENTITY_NAME)                                                  \
     struct Entity *entities_##ENTITY_NAME##_create(GameState *game_state);                         \
@@ -138,5 +139,8 @@ void entities_entity_update(struct Entity *, GameState *game_state, Input *input
 
 Component *entities_component_create(EntityRepository *handle, ComponentType type, EntityId id);
 Component *entities_component_get(EntityRepository *handle, ComponentType type, EntityId id);
+void *entities_component_get_internal(EntityRepository *handle, ComponentType type, EntityId id);
+b32 entities_entity_is_alive_and_has_components(EntityRepository *handle, EntityId id, u32 count,
+                                                ...);
 
 #endif

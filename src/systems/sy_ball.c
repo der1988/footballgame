@@ -5,7 +5,6 @@
 #include "input.h"
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 void systems_ball(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
@@ -13,20 +12,18 @@ void systems_ball(GameState *game_state, Input *input) {
     EntityId ball_id = game_state->vars.ball_entity_id;
     if (entity_repository->entities[ball_id].alive) {
         ComponentTransform *transform =
-            &entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_id)
-                 ->transform;
+            entities_component_get_internal(game_state->entity_repository, CT_TRANSFORM, ball_id);
         ComponentPhysics3d *physics_3d =
-            &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, ball_id)
-                 ->physics_3d;
+            entities_component_get_internal(game_state->entity_repository, CT_PHYSICS_3D, ball_id);
         ComponentCollider *collider =
-            &entities_component_get(game_state->entity_repository, CT_COLLIDER, ball_id)->collider;
+            entities_component_get_internal(game_state->entity_repository, CT_COLLIDER, ball_id);
         ComponentSprite *sprite =
-            &entities_component_get(game_state->entity_repository, CT_SPRITE, ball_id)->sprite;
+            entities_component_get_internal(game_state->entity_repository, CT_SPRITE, ball_id);
         ComponentBall *ball =
-            &entities_component_get(game_state->entity_repository, CT_BALL, ball_id)->ball;
-        Component *component =
-            entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, ball_id);
-        StateMachineBall *state_machine = component->state_machine.ptr;
+            entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_id);
+        ComponentStateMachine *component_state_machine = entities_component_get_internal(
+            game_state->entity_repository, CT_STATE_MACHINE, ball_id);
+        StateMachineBall *state_machine = component_state_machine->ptr;
 
         if (input->buttons[IBT_BUTTON_START].pressed) {
             ComponentTransform *p1_transform =
