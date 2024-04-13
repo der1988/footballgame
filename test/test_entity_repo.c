@@ -45,7 +45,7 @@ void tearDown(void) {
 
 void test_entity() {
     struct EntityRepository *entity_repo = g_game_state->entity_repository;
-    struct Entity *entity = entities_aircraft_create(g_game_state);
+    struct Entity *entity = entities_player_create(g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 

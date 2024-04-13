@@ -36,7 +36,7 @@ AssetsTexture *assets_texture_load(AssetsTextureCache *handle, const char *filen
         assets_texture = &handle->cache[handle->count];
         assets_texture->id = handle->count;
         assets_texture->texture = texture;
-        strncpy(assets_texture->name, filename, 30);
+        strncpy(assets_texture->name, filename, 50);
         handle->count++;
         GLOGF_INFO_CTX(LS_ASSETS, filename, "texture loaded with id %d and texture id %d",
                        assets_texture->id, assets_texture->texture.id);

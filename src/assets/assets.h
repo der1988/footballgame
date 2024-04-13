@@ -10,7 +10,7 @@ typedef u32 AssetsTextureId;
 
 typedef struct AssetsTexture {
     AssetsTextureId id;
-    char name[30];
+    char name[50];
     Texture texture;
 } AssetsTexture;
 
@@ -31,7 +31,7 @@ typedef u32 AssetsSpriteFrameId;
 
 typedef struct AssetsSpriteFrame {
     AssetsSpriteFrameId id;
-    char name[30];
+    char name[50];
     Rectangle frame;
     b32 rotated;
     b32 trimmed;
@@ -67,7 +67,7 @@ typedef u32 AssetsAnimationId;
 
 typedef struct AssetsAnimation {
     AssetsAnimationId id;
-    char name[30];
+    char name[50];
     f32 delay;
     AssetsSpriteFrameId *frames;
     u16 frames_count;

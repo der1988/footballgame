@@ -122,7 +122,8 @@ static AssetsAnimation *load_from_json(const char *filename, const usize initial
                 }
                 sprite_frames_buffer[frames_count] = sprite_frame->id;
 
-                GLOGF_TRACE_CTX(LS_ASSETS, filename, "animation frame: %s", frame_name);
+                GLOGF_TRACE_CTX(LS_ASSETS, filename, "animation frame %s with id %d", frame_name,
+                                sprite_frame->id);
 
                 frames_count++;
                 assert(frames_count < MAX_FRAMES_PER_ANIMATION);
@@ -134,7 +135,8 @@ static AssetsAnimation *load_from_json(const char *filename, const usize initial
             memcpy(assets_animation->frames, sprite_frames_buffer,
                    size_to_allocate_for_frames_list);
 
-            GLOGF_TRACE_CTX(LS_ASSETS, filename, "loaded animation: %s", assets_animation->name);
+            GLOGF_TRACE_CTX(LS_ASSETS, filename, "loaded animation %s with %d frames",
+                            assets_animation->name, assets_animation->frames_count);
         }
     }
     cJSON_Delete(root);
