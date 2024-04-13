@@ -73,16 +73,10 @@ void systems_render(GameState *game_state) {
                 assets_texture_get_by_id(game_state->texture_cache, sprite_frame->texture_id);
 
             // Shadow
-            b32 draw_shadow = false;
-            Color shadow_color = BLACK;
-            v2 shadow_offset = Vector2Zero();
-            v2 shadow_scale = Vector2One();
-            if (base_shadow->header.enabled) {
-                draw_shadow = true;
-                shadow_color = base_shadow->shadow.color;
-                shadow_scale = base_shadow->shadow.scale;
-                shadow_offset = base_shadow->shadow.offset;
-            }
+            b32 draw_shadow = sprite->draw_shadow;
+            Color shadow_color = sprite->shadow_color;
+            v2 shadow_scale = sprite->shadow_scale;
+            v2 shadow_offset = sprite->shadow_offset;
 
             *current_idx = (SpriteToDraw){.sprite_frame = sprite_frame,
                                           .layer = sprite->layer,
