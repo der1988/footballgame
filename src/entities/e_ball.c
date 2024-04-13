@@ -58,13 +58,13 @@ struct Entity *entities_ball_create(GameState *game_state) {
     component->sprite.flipY = false;
     component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.5};
     component->sprite.layer = SL_PLAYERS_AND_BALL;
+    component->sprite.draw_shadow = true;
+    component->sprite.shadow_color = BLACK;
+    component->sprite.shadow_color.a = 100;
+    component->sprite.shadow_offset = (v2){.x = 0.05, .y = 0.1};
+    component->sprite.shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise shadow
-    component = entities_component_create(game_state->entity_repository, CT_SHADOW, entity->id);
-    component->shadow.color = BLACK;
-    component->shadow.color.a = 100;
-    component->shadow.offset = (v2){.x = 0.05, .y = 0.1};
-    component->shadow.scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);

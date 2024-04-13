@@ -2,9 +2,7 @@
 #define UTILS_H
 
 #include "../types.h"
-#include "components/components.h"
 #include <raylib.h>
-#include <stdarg.h>
 
 #define ARRAY_LEN(A) sizeof(A) / sizeof(A[0])
 #define V2_TO_V3(vector2, height)                                                                  \
@@ -101,7 +99,7 @@ typedef enum {
 void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const char *ctx,
                const char *format, ...);
 
-usize utils_align(usize to_align, u16 alignment);
+usize utils_memory_align(usize to_align, u16 alignment);
 
 Color utils_color_lerp(Color from, Color to, f32 t);
 

@@ -9,7 +9,7 @@
 
 // Create a fixed sized linear allocator
 MemoryFixedHandle *memory_fixed_create(char *name, usize size, usize allocations, u16 alignment) {
-    size = utils_align(size, alignment);
+    size = utils_memory_align(size, alignment);
     usize real_size = size + sizeof(b32);
     usize total_size = real_size * allocations;
     void *buffer;

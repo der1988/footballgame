@@ -1,11 +1,11 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
-#include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
 #include "memory.h"
 #include "types.h"
 #include <assert.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 static EntityId find_empty_slot(EntityRepository *entity_repo) {
@@ -107,7 +107,42 @@ Component *entities_component_get(EntityRepository *entity_repo, ComponentType t
         return NULL;
     }
 
-    Component *component = entity_repo->components + ((type * MAX_ENTITIES) + id);
+    Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
 
     return component;
+}
+
+void *entities_component_get_internal(EntityRepository *entity_repo, ComponentType type,
+                                      EntityId id) {
+    assert(entity_repo->initialised);
+
+    if (!entity_repo->entities[id].alive) {
+        return NULL;
+    }
+
+    Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
+    assert(component->header.enabled);
+
+    return (char *)component +
+           utils_memory_align(sizeof(ComponentHeader), DEFAULT_MEMORY_ALIGNMENT);
+}
+
+b32 entities_entity_is_alive_and_has_components(EntityRepository *entity_repo, EntityId id,
+                                                u32 count, ...) {
+    if (!entity_repo->entities[id].alive) {
+        return false;
+    }
+
+    va_list ap;
+    va_start(ap, count);
+    for (usize i = 0; i < count; ++i) {
+        ComponentType type = va_arg(ap, ComponentType);
+        Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
+        if (!component->header.enabled) {
+            return false;
+        }
+    };
+    va_end(ap);
+
+    return true;
 }

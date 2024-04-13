@@ -8,7 +8,6 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 typedef struct {
     v2 steering;
@@ -31,50 +30,37 @@ typedef struct {
 void systems_player(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
-    ComponentTransform *ball_transform =
-        &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
-                                game_state->vars.ball_entity_id)
-             ->transform;
-    ComponentPhysics3d *ball_physics_3d =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D,
-                                game_state->vars.ball_entity_id)
-             ->physics_3d;
-    ComponentCollider *ball_collider =
-        &entities_component_get(game_state->entity_repository, CT_COLLIDER,
-                                game_state->vars.ball_entity_id)
-             ->collider;
-    ComponentBall *ball = &entities_component_get(game_state->entity_repository, CT_BALL,
-                                                  game_state->vars.ball_entity_id)
-                               ->ball;
+    ComponentTransform *ball_transform = entities_component_get_internal(
+        game_state->entity_repository, CT_TRANSFORM, game_state->vars.ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+        game_state->entity_repository, CT_PHYSICS_3D, game_state->vars.ball_entity_id);
+    ComponentCollider *ball_collider = entities_component_get_internal(
+        game_state->entity_repository, CT_COLLIDER, game_state->vars.ball_entity_id);
+    ComponentBall *ball = entities_component_get_internal(game_state->entity_repository, CT_BALL,
+                                                          game_state->vars.ball_entity_id);
 
     PlayerOnTheBall player_on_the_ball = {0};
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
 
-    ComponentForEach(entity_repository, base_component, idx) {
-        Component *base_transform =
-            entities_component_get(game_state->entity_repository, CT_TRANSFORM, idx);
-        Component *base_physics =
-            entities_component_get(game_state->entity_repository, CT_PHYSICS, idx);
-        Component *base_sprite =
-            entities_component_get(game_state->entity_repository, CT_SPRITE, idx);
-        Component *base_player =
-            entities_component_get(game_state->entity_repository, CT_PLAYER, idx);
-        Component *base_collider =
-            entities_component_get(game_state->entity_repository, CT_COLLIDER, idx);
-        Component *base_state_machine =
-            entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, idx);
-        if (entity_repository->entities[idx].alive && base_transform->header.enabled &&
-            base_physics->header.enabled && base_player->header.enabled &&
-            base_collider->header.enabled && base_state_machine->header.enabled &&
-            base_sprite->header.enabled) {
+    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 6,
+                                                        CT_TRANSFORM, CT_PHYSICS, CT_SPRITE,
+                                                        CT_PLAYER, CT_COLLIDER, CT_STATE_MACHINE)) {
 
-            ComponentTransform *transform = &base_transform->transform;
-            ComponentPhysics *physics = &base_physics->physics;
-            ComponentCollider *collider = &base_collider->collider;
-            ComponentSprite *sprite = &base_sprite->sprite;
-            ComponentPlayer *player = &base_player->player;
+            ComponentTransform *transform = ComponentCastToInternalUnchecked(
+                game_state->entity_repository, CT_TRANSFORM, entity_id);
+            ComponentPhysics *physics = ComponentCastToInternalUnchecked(
+                game_state->entity_repository, CT_PHYSICS, entity_id);
+            ComponentSprite *sprite = ComponentCastToInternalUnchecked(
+                game_state->entity_repository, CT_SPRITE, entity_id);
+            ComponentPlayer *player = ComponentCastToInternalUnchecked(
+                game_state->entity_repository, CT_PLAYER, entity_id);
+            ComponentCollider *collider = ComponentCastToInternalUnchecked(
+                game_state->entity_repository, CT_COLLIDER, entity_id);
+            ComponentStateMachine *component_state_machine = ComponentCastToInternalUnchecked(
+                game_state->entity_repository, CT_STATE_MACHINE, entity_id);
 
-            StateMachinePlayer *state_machine = base_state_machine->state_machine.ptr;
+            StateMachinePlayer *state_machine = component_state_machine->ptr;
 
             collider->props.circle.radius = game_state->constants.player_control_radius;
 
@@ -135,7 +121,7 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 entities_player_apply_force(force_to_apply, physics, game_state->dt);
-                entities_player_apply_velocity(&base_transform->transform, physics, game_state->dt);
+                entities_player_apply_velocity(transform, physics, game_state->dt);
 
                 // Velocity has been applied to player after this point
 
@@ -152,7 +138,7 @@ void systems_player(GameState *game_state, Input *input) {
                     f32 distance_from_the_ball =
                         Vector2DistanceSqr(transform->position, ball_transform->position);
                     if (distance_from_the_ball < player_on_the_ball.distance_from_the_ball) {
-                        player_on_the_ball.id = idx;
+                        player_on_the_ball.id = entity_id;
                         player_on_the_ball.exists = true;
                         player_on_the_ball.player = player;
                         player_on_the_ball.distance_from_the_ball = distance_from_the_ball;
@@ -189,7 +175,7 @@ void systems_player(GameState *game_state, Input *input) {
                 if (Vector2Length(physics->velocity) > 3) {
                     Direction pd = entities_common_calculate_direction(physics->velocity);
                     AssetsAnimation *animation = assets_animation_get_by_id(
-                        game_state->animation_cache, base_player->player.run_animations[pd]);
+                        game_state->animation_cache, player->run_animations[pd]);
                     f32 max_player_velocity = game_state->constants.player_run_max_velocity;
                     if ((game_state->time - player->last_frame_update_time) >
                         (animation->delay *

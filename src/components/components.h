@@ -17,7 +17,6 @@ typedef enum {
     CT_PHYSICS,
     CT_PHYSICS_3D,
     CT_SPRITE,
-    CT_SHADOW,
     CT_COLLIDER,
     CT_STATE_MACHINE,
     CT_ACTION,
@@ -61,13 +60,11 @@ typedef struct {
     i16 order_in_layer;
     v2 pivot_override;
     AssetsSpriteFrameId frame_id;
+    b32 draw_shadow;
+    Color shadow_color;
+    v2 shadow_offset;
+    v2 shadow_scale;
 } ComponentSprite;
-
-typedef struct {
-    Color color;
-    v2 offset;
-    v2 scale;
-} ComponentShadow;
 
 typedef struct {
     void *ptr;
@@ -156,7 +153,6 @@ typedef struct {
         ComponentPhysics physics;
         ComponentPhysics3d physics_3d;
         ComponentSprite sprite;
-        ComponentShadow shadow;
         ComponentCollider collider;
         ComponentStateMachine state_machine;
         ComponentAction action;
