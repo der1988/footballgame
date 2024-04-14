@@ -123,8 +123,7 @@ void *entities_component_get_internal(EntityRepository *entity_repo, ComponentTy
     Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
     assert(component->header.enabled);
 
-    return (char *)component +
-           utils_memory_align(sizeof(ComponentHeader), DEFAULT_MEMORY_ALIGNMENT);
+    return &component->transform;
 }
 
 b32 entities_entity_is_alive_and_has_components(EntityRepository *entity_repo, EntityId id,
