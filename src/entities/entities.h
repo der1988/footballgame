@@ -102,8 +102,14 @@ void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhys
                                     DeltaTime dt);
 // END - Player
 
-typedef enum { ET_CAMERA, ET_BALL, ET_PLAYER, ET_COUNT } EntityType;
-static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player"};
+// START - Goal
+
+DeclareEntityCreateAndUpdate(goal);
+
+// END - Goal
+
+typedef enum { ET_CAMERA, ET_BALL, ET_PLAYER, ET_GOAL, ET_COUNT } EntityType;
+static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "goal"};
 
 typedef struct Entity {
     b32 alive;

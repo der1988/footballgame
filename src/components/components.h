@@ -24,6 +24,7 @@ typedef enum {
     CT_CAMERA_PROPS,
     CT_PLAYER,
     CT_BALL,
+    CT_GOAL,
     CT_COUNT,
     CT_NONE
 } ComponentType;
@@ -140,6 +141,9 @@ typedef struct {
 } ComponentBall;
 
 typedef struct {
+} ComponentGoal;
+
+typedef struct {
     ComponentType type;
     b32 enabled;
     EntityId entity_id;
@@ -159,6 +163,7 @@ typedef struct {
         ComponentTarget target;
         ComponentPlayer player;
         ComponentBall ball;
+        ComponentGoal goal;
     };
 } Component;
 
