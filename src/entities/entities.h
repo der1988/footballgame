@@ -5,7 +5,6 @@
 #include "../entities/state_machine.h"
 #include "../input/input.h"
 #include "../memory/memory.h"
-#include "../utils/utils.h"
 #include "entities/state_machine.h"
 #include "game.h"
 #include "types.h"
@@ -21,8 +20,7 @@
     for (usize entity_id = 0; entity_id < entity_repo->max_slots; ++entity_id, item++)
 
 #define ComponentCastToInternalUnchecked(entity_repo, type, entity_id)                             \
-    (void *)((char *)(entity_repo->components + (type * entity_repo->max_slots) + entity_id) +     \
-             utils_memory_align(sizeof(ComponentHeader), DEFAULT_MEMORY_ALIGNMENT));
+    (void *)&(entity_repo->components + (type * entity_repo->max_slots) + entity_id)->transform;
 
 #define DeclareEntityCreate(ENTITY_NAME)                                                           \
     struct Entity *entities_##ENTITY_NAME##_create(GameState *game_state);
