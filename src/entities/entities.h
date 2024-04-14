@@ -24,10 +24,8 @@
     (void *)((char *)(entity_repo->components + (type * entity_repo->max_slots) + entity_id) +     \
              utils_memory_align(sizeof(ComponentHeader), DEFAULT_MEMORY_ALIGNMENT));
 
-#define DeclareEntityCreateAndUpdate(ENTITY_NAME)                                                  \
-    struct Entity *entities_##ENTITY_NAME##_create(GameState *game_state);                         \
-    void entities_##ENTITY_NAME##_update(struct Entity *entity, GameState *game_state,             \
-                                         Input *input);
+#define DeclareEntityCreate(ENTITY_NAME)                                                           \
+    struct Entity *entities_##ENTITY_NAME##_create(GameState *game_state);
 
 #define DeclareStateMachineEnterAndExit(ENTITY_NAME)                                               \
     void state_machine_##ENTITY_NAME##_on_enter(struct Entity *ENTITY_NAME,                        \
@@ -51,13 +49,13 @@ Direction entities_common_calculate_direction(Vector2 direction);
 
 // START - Camera
 
-DeclareEntityCreateAndUpdate(camera);
+DeclareEntityCreate(camera);
 
 // END - Camera
 
 // START - Ball
 
-DeclareEntityCreateAndUpdate(ball);
+DeclareEntityCreate(ball);
 
 typedef enum { BS_NONE, BS_IN_PLAY, BS_OUT_OF_PLAY, BS_COUNT } StateMachineBallState;
 
@@ -77,7 +75,7 @@ DefineStateMachineFunctions(Ball, ball);
 
 // START - Player
 
-DeclareEntityCreateAndUpdate(player);
+DeclareEntityCreate(player);
 
 typedef enum { PS_NONE, PS_RUN, PS_COUNT } StateMachinePlayerState;
 
@@ -104,7 +102,7 @@ void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhys
 
 // START - Goal
 
-DeclareEntityCreateAndUpdate(goal);
+DeclareEntityCreate(goal);
 
 // END - Goal
 
