@@ -5,8 +5,10 @@
 
 typedef enum SpriteLayer {
     SL_BACKGROUND = -100,
+    SL_UPPER_GOAL = -10,
     SL_DEFAULT = 0,
-    SL_PLAYERS_AND_BALL = 10
+    SL_PLAYERS_AND_BALL = 10,
+    SL_LOWER_GOAL = 20
 } SpriteLayer;
 
 void sprites_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale, Color color,

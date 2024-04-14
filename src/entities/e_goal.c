@@ -21,21 +21,21 @@ struct Entity *entities_goal_create(GameState *game_state) {
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
     component->transform.virtual_height = 0;
-    component->transform.scale = (v2){.x = 1.0f, .y = 1.0f};
+    component->transform.scale = (v2){.x = 1, .y = 1};
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
-    char *ball = "ball_left_0";
+    char *posts = "posts";
     AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball);
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts);
     assert(sprite_frame != NULL);
     component->sprite.frame_id = sprite_frame->id;
     component->sprite.color = WHITE;
     component->sprite.flipX = false;
     component->sprite.flipY = false;
-    component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.5};
-    component->sprite.layer = SL_PLAYERS_AND_BALL;
-    component->sprite.draw_shadow = true;
+    component->sprite.pivot_override = (v2){.x = 0.5, .y = 1};
+    component->sprite.layer = SL_UPPER_GOAL;
+    component->sprite.draw_shadow = false;
     component->sprite.shadow_color = BLACK;
     component->sprite.shadow_color.a = 100;
     component->sprite.shadow_offset = (v2){.x = 0.05, .y = 0.1};
@@ -43,8 +43,11 @@ struct Entity *entities_goal_create(GameState *game_state) {
 
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    component->collider.shape = CS_CIRCLE;
-    component->collider.props.circle.radius = 9;
+    component->collider.shape = CS_RECTANGLE;
+    component->collider.props.rectangle.size = (v2){.x = 246, .y = 84};
+    component->collider.props.rectangle.offset =
+        (v2){.x = -component->collider.props.rectangle.size.x / 2.0f,
+             .y = -component->collider.props.rectangle.size.y};
 
     // Initialise goal
     component = entities_component_create(game_state->entity_repository, CT_GOAL, entity->id);

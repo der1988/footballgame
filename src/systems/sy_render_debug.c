@@ -34,9 +34,12 @@ void systems_render_debug(GameState *game_state) {
                 if (wrapper_collider->header.enabled) {
                     ComponentCollider *collider = &wrapper_collider->collider;
                     if (collider->shape == CS_CIRCLE) {
-                        v2 pos = Vector2Add(transform->position, sprite->pivot_override);
-                        pos = Vector2Add(pos, collider->props.circle.offset);
+                        v2 pos = Vector2Add(transform->position, collider->props.circle.offset);
                         DrawCircleLinesV(pos, collider->props.circle.radius, RED);
+                    } else if (collider->shape == CS_RECTANGLE) {
+                        v2 pos = Vector2Add(transform->position, collider->props.rectangle.offset);
+                        DrawRectangleLines(pos.x, pos.y, collider->props.rectangle.size.x,
+                                           collider->props.rectangle.size.y, RED);
                     }
                 }
             }

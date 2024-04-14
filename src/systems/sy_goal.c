@@ -29,6 +29,18 @@ void systems_goal(GameState *game_state) {
                 ComponentCastToInternalUnchecked(game_state->entity_repository, CT_GOAL, entity_id);
             ComponentCollider *collider = ComponentCastToInternalUnchecked(
                 game_state->entity_repository, CT_COLLIDER, entity_id);
+
+            Rectangle goal_rectangle = {
+                .x = transform->position.x + collider->props.rectangle.offset.x,
+                .y = transform->position.y + collider->props.rectangle.offset.y,
+                .width = collider->props.rectangle.size.x,
+                .height = collider->props.rectangle.size.y};
+
+            if (CheckCollisionCircleRec(ball_transform->position,
+                                        ball_collider->props.circle.radius, goal_rectangle)) {
+                // Goal!
+                ball_physics_3d->velocity = Vector3Negate(ball_physics_3d->velocity);
+            }
         }
     }
 }

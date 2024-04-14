@@ -39,7 +39,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_run_force = 100.0f,
                                             .ball_control_force = 40.0f,
                                             .ball_shot_force = 50000.0f,
-                                            .ball_shot_height = 0.5f,
+                                            .ball_shot_height = 0.2f,
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
                                             .ball_after_touch_force = 15.0f,
@@ -69,15 +69,26 @@ GameState *game_init(GameConfig game_config) {
     game_state->animation_cache =
         assets_animation_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
 
-    // Load caches
+    // Load pitch
     AssetsTexture *texture = assets_texture_load(game_state->texture_cache, "res/pitch.png");
     assert(texture);
     game_state->pitch_texture_id = texture->id;
+
+    // Load main spritesheet
     texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/footballgame.png");
     assert(texture);
     i32 loaded = assets_sprite_frames_load_from_json(game_state->sprite_frame_cache, texture->id,
                                                      "res/spritesheets/footballgame.json");
     assert(loaded != -1);
+
+    // Load Temp spritesheet
+    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/temp.png");
+    assert(texture);
+    loaded = assets_sprite_frames_load_from_json(game_state->sprite_frame_cache, texture->id,
+                                                 "res/spritesheets/temp.json");
+    assert(loaded != -1);
+
+    // Load Animations
     assets_animations_load_from_json(game_state->animation_cache, game_state->sprite_frame_cache,
                                      "res/animations/animations.json");
 
@@ -108,6 +119,15 @@ GameState *game_init(GameConfig game_config) {
     Component *ball_transform =
         entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
     ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
+
+    Rectangle pitch_rectangle = {.x = 100, .y = 232, .width = 1920, .height = 1080 * 3};
+
+    Entity *goal_entity = entities_goal_create(game_state);
+    Component *goal_transform =
+        entities_component_get(game_state->entity_repository, CT_TRANSFORM, goal_entity->id);
+    // goal_transform->transform.position = (Vector2){1060, 232};
+    goal_transform->transform.position =
+        (Vector2){pitch_rectangle.x + pitch_rectangle.width / 2.0f, pitch_rectangle.y};
 
     Entity *camera = entities_camera_create(game_state);
     ComponentCameraProps *camera_props =
@@ -163,6 +183,7 @@ void game_update(GameState *game_state, Input *input) {
 
     systems_player(game_state, input);
     systems_ball(game_state, input);
+    systems_goal(game_state);
     systems_action(game_state);
     systems_camera(game_state);
 }
