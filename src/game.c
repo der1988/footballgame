@@ -96,6 +96,8 @@ GameState *game_init(GameConfig game_config) {
 
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
+    game_state->vars.pitch_rectangle =
+        (Rectangle){.x = 100, .y = 232, .width = 1920, .height = 1080 * 3};
 
     Entity *player_entity = entities_player_create(game_state);
     ComponentPlayer *player =
@@ -120,14 +122,13 @@ GameState *game_init(GameConfig game_config) {
         entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
     ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
 
-    Rectangle pitch_rectangle = {.x = 100, .y = 232, .width = 1920, .height = 1080 * 3};
-
     Entity *goal_entity = entities_goal_create(game_state);
     Component *goal_transform =
         entities_component_get(game_state->entity_repository, CT_TRANSFORM, goal_entity->id);
     // goal_transform->transform.position = (Vector2){1060, 232};
-    goal_transform->transform.position =
-        (Vector2){pitch_rectangle.x + pitch_rectangle.width / 2.0f, pitch_rectangle.y};
+    goal_transform->transform.position = (Vector2){
+        game_state->vars.pitch_rectangle.x + game_state->vars.pitch_rectangle.width / 2.0f,
+        game_state->vars.pitch_rectangle.y};
 
     Entity *camera = entities_camera_create(game_state);
     ComponentCameraProps *camera_props =

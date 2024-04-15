@@ -76,9 +76,11 @@ void systems_player(GameState *game_state, Input *input) {
                 break;
             }
             case PCT_AI: {
-                player_controls->steering =
-                    steering_pursuit(transform->position, physics->velocity, physics->max_velocity,
-                                     ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
+                // player_controls->steering =
+                //     steering_pursuit(transform->position, physics->velocity,
+                //     physics->max_velocity,
+                //                      ball_transform->position,
+                //                      V3_TO_V2(ball_physics_3d->velocity));
                 break;
             }
             }

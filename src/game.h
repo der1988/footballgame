@@ -55,6 +55,7 @@ typedef struct GameVariables {
     b32 is_tweakui_shown;
     EntityId ball_entity_id;
     EntityId p1_entity_id;
+    Rectangle pitch_rectangle;
 } GameVariables;
 
 typedef struct GameState {
