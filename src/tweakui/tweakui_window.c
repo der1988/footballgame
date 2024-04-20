@@ -54,6 +54,10 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Ball CR", TextFormat("%.2f", game_state->constants.ball_cr),
               &game_state->constants.ball_cr, 0, 1.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball CR against post",
+              TextFormat("%.2f", game_state->constants.ball_cr_against_post),
+              &game_state->constants.ball_cr_against_post, 0, 1.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball drag coefficient",
               TextFormat("%.2f", game_state->constants.ball_drag_coefficient),
               &game_state->constants.ball_drag_coefficient, 0, 1.0f);

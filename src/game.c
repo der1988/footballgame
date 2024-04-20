@@ -30,6 +30,7 @@ GameState *game_init(GameConfig game_config) {
                                             .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,
+                                            .ball_cr_against_post = 0.7f,
                                             .pixels_per_meter = PIXELS_PER_METER,
                                             .air_density = 1.21f,
                                             .ball_cross_sectional_area = 0.038f,
@@ -107,7 +108,7 @@ GameState *game_init(GameConfig game_config) {
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
              ->transform;
     player->controller_type = PCT_HUMAN;
-    player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
+    player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 420.0f};
 
     Entity *player_entity_2 = entities_player_create(game_state);
     ComponentTransform *player_transform_2 =
@@ -120,7 +121,7 @@ GameState *game_init(GameConfig game_config) {
     game_state->vars.ball_entity_id = ball_entity->id;
     Component *ball_transform =
         entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
-    ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 20.0f};
+    ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 420.0f};
 
     Entity *goal_entity = entities_goal_create(game_state);
     Component *goal_transform =
@@ -145,6 +146,7 @@ GameState *game_init(GameConfig game_config) {
     game_state->camera.rotation = 0;
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
+    game_state->vars.ball_is_playable = true;
 #endif
 
     game_state->initialised = true;

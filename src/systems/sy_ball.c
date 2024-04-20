@@ -34,6 +34,8 @@ void systems_ball(GameState *game_state, Input *input) {
             transform->virtual_height = 0;
             physics_3d->accel = Vector3Zero();
             physics_3d->velocity = Vector3Zero();
+            game_state->vars.ball_is_playable = true;
+            game_state->vars.someone_scored = false;
             return;
         }
 

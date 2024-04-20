@@ -10,6 +10,8 @@
 #define V3_TO_V2(vector3)                                                                          \
     (v2) { .x = vector3.x, .y = vector3.z }
 #define STRINGIFY(v) #v
+#define HAS_TIME_PASSED(current_time, saved_time, threshold)                                       \
+    ((current_time - saved_time) > threshold)
 #define JSON_GET_INT(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;

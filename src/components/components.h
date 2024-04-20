@@ -141,6 +141,10 @@ typedef struct {
 } ComponentBall;
 
 typedef struct {
+    Time hit_left_post_time;
+    Time hit_right_post_time;
+    Time hit_crossbar_time;
+    b32 scored;
 } ComponentGoal;
 
 typedef struct {

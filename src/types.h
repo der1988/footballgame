@@ -30,7 +30,7 @@ typedef Vector3 v3;
 
 // Game
 typedef u32 EntityId;
-typedef f32 Time;
+typedef f64 Time;
 typedef f32 DeltaTime;
 typedef i16 RunningActionIdx;
 

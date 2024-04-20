@@ -33,6 +33,7 @@ typedef struct GameConstants {
     f32 air_density;
     // Coefficient of restitution
     f32 ball_cr;
+    f32 ball_cr_against_post;
     f32 ball_drag_coefficient;
     f32 ball_cross_sectional_area;
     f32 ball_friction_on_pitch;
@@ -56,6 +57,8 @@ typedef struct GameVariables {
     EntityId ball_entity_id;
     EntityId p1_entity_id;
     Rectangle pitch_rectangle;
+    b32 ball_is_playable;
+    b32 someone_scored;
 } GameVariables;
 
 typedef struct GameState {
