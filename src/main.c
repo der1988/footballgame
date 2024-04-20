@@ -32,8 +32,14 @@ int main() {
     // Main game loop;
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-        game_state->time = GetTime();
-        game_state->dt = GetFrameTime();
+        if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
+            // Slow motion
+            game_state->dt = GetFrameTime() * 0.1f;
+            game_state->time += game_state->dt;
+        } else {
+            game_state->time = GetTime();
+            game_state->dt = GetFrameTime();
+        }
 
         // Handle Input
         Input input = input_handle(game_state);
