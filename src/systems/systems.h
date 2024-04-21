@@ -1,3 +1,6 @@
+#ifndef SYSTEMS_H
+#define SYSTEMS_H
+
 #include "../game.h"
 
 void systems_ball(GameState *game_state, struct Input *input);
@@ -7,3 +10,5 @@ void systems_action(GameState *game_state);
 void systems_camera(GameState *game_state);
 void systems_render(GameState *game_state);
 void systems_render_debug(GameState *game_state);
+
+#endif // !SYSTEMS_H
