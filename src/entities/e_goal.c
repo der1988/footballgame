@@ -44,7 +44,7 @@ struct Entity *entities_goal_create(GameState *game_state) {
     // Initialise collider
     component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
     component->collider.shape = CS_RECTANGLE;
-    component->collider.props.rectangle.size = (v2){.x = 246, .y = 84};
+    component->collider.props.rectangle.size = (v2){.x = 234, .y = 79};
     component->collider.props.rectangle.offset =
         (v2){.x = -component->collider.props.rectangle.size.x / 2.0f,
              .y = -component->collider.props.rectangle.size.y};
