@@ -3,6 +3,7 @@
 #include "../game.h"
 #include "../utils/utils.h"
 #include "input.h"
+#include "sprites.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -38,6 +39,11 @@ void systems_ball(GameState *game_state, Input *input) {
             game_state->vars.someone_scored = false;
             return;
         }
+
+        // Sprite draw ordering when ball is in upper goal
+        sprite->layer = transform->position.y < game_state->vars.pitch_rectangle.y
+                            ? SL_UPPER_GOAL
+                            : SL_PLAYERS_AND_BALL;
 
         switch (state_machine->current_state) {
         case BS_NONE:

@@ -23,6 +23,13 @@ struct Entity *entities_goal_create(GameState *game_state) {
     component->transform.virtual_height = 0;
     component->transform.scale = (v2){.x = 1, .y = 1};
 
+    // Create goal net
+    Entity *goal_net_entity = entities_goal_net_create(game_state);
+    Component *goal_net_component =
+        entities_component_get(game_state->entity_repository, CT_TRANSFORM, goal_net_entity->id);
+    goal_net_component->transform.parent = &component->transform;
+    goal_net_component->transform.position = Vector2Zero();
+
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
     char *posts = "posts_0";

@@ -53,7 +53,7 @@ void systems_goal(GameState *game_state) {
                                    .y = 0,
                                    .z = game_state->vars.pitch_rectangle.y};
 
-            f32 post_width = 10.0f;
+            f32 post_width = 4.0f;
 
             if (game_state->vars.someone_scored) {
                 if (ball_transform->position.y < goal_rectangle.y ||

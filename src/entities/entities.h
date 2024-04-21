@@ -104,8 +104,14 @@ DeclareEntityCreate(goal);
 
 // END - Goal
 
-typedef enum { ET_CAMERA, ET_BALL, ET_PLAYER, ET_GOAL, ET_COUNT } EntityType;
-static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "goal"};
+// START - Goal net
+
+DeclareEntityCreate(goal_net);
+
+// END - Goal net
+
+typedef enum { ET_CAMERA, ET_BALL, ET_PLAYER, ET_GOAL, ET_GOAL_NET, ET_COUNT } EntityType;
+static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "goal", "goal_net"};
 
 typedef struct Entity {
     b32 alive;
