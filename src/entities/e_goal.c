@@ -25,7 +25,7 @@ struct Entity *entities_goal_create(GameState *game_state) {
 
     // Initialise sprite
     component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
-    char *posts = "posts";
+    char *posts = "posts_0";
     AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts);
     assert(sprite_frame != NULL);

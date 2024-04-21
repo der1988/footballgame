@@ -82,11 +82,11 @@ GameState *game_init(GameConfig game_config) {
                                                      "res/spritesheets/footballgame.json");
     assert(loaded != -1);
 
-    // Load Temp spritesheet
-    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/temp.png");
+    // Load other spritesheet
+    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/other.png");
     assert(texture);
     loaded = assets_sprite_frames_load_from_json(game_state->sprite_frame_cache, texture->id,
-                                                 "res/spritesheets/temp.json");
+                                                 "res/spritesheets/other.json");
     assert(loaded != -1);
 
     // Load Animations
