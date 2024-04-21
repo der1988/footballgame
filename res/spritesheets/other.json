@@ -9,65 +9,11 @@
     "duration": 100
    },
    {
-    "filename": "net_1",
-    "frame": { "x": 233, "y": 0, "w": 1, "h": 1 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 233, "h": 117 },
-    "duration": 100
-   },
-   {
-    "filename": "net_2",
-    "frame": { "x": 234, "y": 0, "w": 1, "h": 1 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 233, "h": 117 },
-    "duration": 100
-   },
-   {
-    "filename": "net_3",
-    "frame": { "x": 235, "y": 0, "w": 1, "h": 1 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 233, "h": 117 },
-    "duration": 100
-   },
-   {
     "filename": "posts_0",
     "frame": { "x": 0, "y": 87, "w": 233, "h": 85 },
     "rotated": false,
     "trimmed": true,
     "spriteSourceSize": { "x": 0, "y": 22, "w": 233, "h": 85 },
-    "sourceSize": { "w": 233, "h": 117 },
-    "duration": 100
-   },
-   {
-    "filename": "posts_1",
-    "frame": { "x": 233, "y": 87, "w": 1, "h": 1 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 233, "h": 117 },
-    "duration": 100
-   },
-   {
-    "filename": "posts_2",
-    "frame": { "x": 234, "y": 87, "w": 1, "h": 1 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 233, "h": 117 },
-    "duration": 100
-   },
-   {
-    "filename": "posts_3",
-    "frame": { "x": 235, "y": 87, "w": 1, "h": 1 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
     "sourceSize": { "w": 233, "h": 117 },
     "duration": 100
    }
@@ -77,7 +23,7 @@
   "version": "1.3.5-x64",
   "image": "other.png",
   "format": "RGBA8888",
-  "size": { "w": 236, "h": 172 },
+  "size": { "w": 233, "h": 172 },
   "scale": "1",
   "frameTags": [
   ],
