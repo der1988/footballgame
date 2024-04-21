@@ -1,20 +1,20 @@
 { "frames": [
    {
     "filename": "net_0",
-    "frame": { "x": 0, "y": 0, "w": 233, "h": 87 },
+    "frame": { "x": 0, "y": 0, "w": 234, "h": 87 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 13, "w": 233, "h": 87 },
-    "sourceSize": { "w": 233, "h": 117 },
+    "spriteSourceSize": { "x": 1, "y": 14, "w": 234, "h": 87 },
+    "sourceSize": { "w": 248, "h": 117 },
     "duration": 100
    },
    {
     "filename": "posts_0",
-    "frame": { "x": 0, "y": 87, "w": 233, "h": 85 },
+    "frame": { "x": 0, "y": 87, "w": 234, "h": 79 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 22, "w": 233, "h": 85 },
-    "sourceSize": { "w": 233, "h": 117 },
+    "spriteSourceSize": { "x": 1, "y": 22, "w": 234, "h": 79 },
+    "sourceSize": { "w": 248, "h": 117 },
     "duration": 100
    }
  ],
@@ -23,7 +23,7 @@
   "version": "1.3.5-x64",
   "image": "other.png",
   "format": "RGBA8888",
-  "size": { "w": 233, "h": 172 },
+  "size": { "w": 234, "h": 166 },
   "scale": "1",
   "frameTags": [
   ],
