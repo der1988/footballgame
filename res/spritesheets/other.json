@@ -3,9 +3,9 @@
     "filename": "net_0",
     "frame": { "x": 0, "y": 0, "w": 234, "h": 87 },
     "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 1, "y": 14, "w": 234, "h": 87 },
-    "sourceSize": { "w": 248, "h": 117 },
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 234, "h": 87 },
+    "sourceSize": { "w": 234, "h": 87 },
     "duration": 100
    },
    {
@@ -13,8 +13,8 @@
     "frame": { "x": 0, "y": 87, "w": 234, "h": 79 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 1, "y": 22, "w": 234, "h": 79 },
-    "sourceSize": { "w": 248, "h": 117 },
+    "spriteSourceSize": { "x": 0, "y": 8, "w": 234, "h": 79 },
+    "sourceSize": { "w": 234, "h": 87 },
     "duration": 100
    }
  ],
