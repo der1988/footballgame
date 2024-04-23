@@ -94,9 +94,15 @@ typedef enum {
     LS_UTILS,
     LS_TESTS,
     LS_TWEAKUI,
+    LS_LAYERS,
     LS_OTHER,
     LS_COUNT,
 } ULogSystem;
+
+static char *utils_log_systems_desc[11] = {
+    "GAME",  "INPUT", "SOUND",   "ASSETS", "ENTITIES", "MEMORY",
+    "UTILS", "TESTS", "TWEAKUI", "LAYERS", "OTHER",
+};
 
 void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const char *ctx,
                const char *format, ...);

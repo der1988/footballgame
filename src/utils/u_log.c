@@ -13,17 +13,13 @@ void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const cha
     };
 
     if (type <= LOG_LEVEL) {
-        static char *log_systems[9] = {
-            "GAME", "INPUT", "SOUND", "ASSETS", "ENTITIES", "MEMORY", "UTILS", "TESTS", "OTHER",
-        };
-
         double run_time = GetTime();
         if (ctx != NULL) {
             printf("%f %s: %s: [%s] %s:%d -> ", run_time, log_type_prefixes[(usize)type],
-                   log_systems[(usize)system], ctx, file, line);
+                   utils_log_systems_desc[(usize)system], ctx, file, line);
         } else {
             printf("%f %s: %s: %s:%d -> ", run_time, log_type_prefixes[(usize)type],
-                   log_systems[(usize)system], file, line);
+                   utils_log_systems_desc[(usize)system], file, line);
         }
 
         va_list arg_list;

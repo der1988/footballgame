@@ -12,6 +12,7 @@ struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
 struct TweakUI;
+struct LayersDebug;
 struct Input;
 
 typedef enum { MAL_GAME, MAL_LEVEL, MAL_FRAME, MAL_COUNT } MemoryArenaLifetime;
@@ -72,6 +73,7 @@ typedef struct GameState {
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
     struct TweakUI *tweakui;
+    struct LayersDebug *layer_debug;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;

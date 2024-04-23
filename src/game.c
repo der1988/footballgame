@@ -3,6 +3,7 @@
 #include "components/components.h"
 #include "entities/entities.h"
 #include "input/input.h"
+#include "layers/layers.h"
 #include "memory/memory.h"
 #include "raygui/raygui.h"
 #include "systems/systems.h"
@@ -95,6 +96,9 @@ GameState *game_init(GameConfig game_config) {
 
     game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_GAME]);
 
+    // Layers
+    game_state->layer_debug = layers_debug_create(game_state);
+
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
     game_state->vars.pitch_rectangle =
@@ -158,6 +162,8 @@ void game_destroy(GameState *game_state) {
     assert(game_state->initialised);
 
     UnloadRenderTexture(game_state->render_texture);
+
+    layers_debug_destroy(game_state->layer_debug);
 
     tweakui_destroy(game_state->tweakui);
 
@@ -225,6 +231,8 @@ void game_draw(GameState *game_state) {
                                  .width = game_state->render_texture.texture.width,
                                  .height = -game_state->render_texture.texture.height};
     DrawTextureRec(game_state->render_texture.texture, rect, Vector2Zero(), WHITE);
+
+    layers_debug_draw(game_state->layer_debug);
 
     if (game_state->vars.is_tweakui_shown) {
         tweakui_draw(game_state->tweakui, game_state);

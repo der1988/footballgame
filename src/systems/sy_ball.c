@@ -3,6 +3,7 @@
 #include "../game.h"
 #include "../utils/utils.h"
 #include "input.h"
+#include "layers/layers.h"
 #include "sprites.h"
 #include <raylib.h>
 #include <raymath.h>
@@ -44,6 +45,14 @@ void systems_ball(GameState *game_state, Input *input) {
         sprite->layer = transform->position.y < game_state->vars.pitch_rectangle.y
                             ? SL_UPPER_GOAL
                             : SL_PLAYERS_AND_BALL;
+
+        layers_debug_queue_draw_text(game_state->layer_debug,
+                                     TextFormat("Ball height: %.2f", transform->virtual_height), 50,
+                                     10, 20, WHITE);
+
+        layers_debug_queue_draw_text(
+            game_state->layer_debug,
+            TextFormat("Ball vel: %.2f", Vector3Length(physics_3d->velocity)), 50, 30, 20, WHITE);
 
         switch (state_machine->current_state) {
         case BS_NONE:
