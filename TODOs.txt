@@ -20,7 +20,7 @@ v implement ball rotation animation
 v fix tests
 v implement goal
 v put some stats on the screen
-- put together a pathetic excuse for a goal
+v put together a pathetic excuse for a goal
 - implement a physics step
 - move ball control logic back into ball system: players can ask for control but the ultimate outcome is achieved by taking all control requests in consideration
 - implement teams
