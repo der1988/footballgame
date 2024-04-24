@@ -12,6 +12,9 @@ LayersDebug *layers_debug_create(GameState *game_state) {
     handle->initialised = true;
 
     handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_FRAME];
+    handle->color = WHITE;
+    handle->font_size = 20;
+    handle->space_between_rows = 20;
 
     GLOG_INFO(LS_LAYERS, "layer debug initialised");
 
@@ -24,16 +27,11 @@ void layers_debug_destroy(LayersDebug *handle) {
     GLOG_INFO(LS_LAYERS, "layer debug destroyed");
 }
 
-void layers_debug_queue_draw_text(LayersDebug *handle, const char *text, f32 pos_x, f32 pos_y,
-                                  u8 font_size, Color color) {
+void layers_debug_queue_draw_text(LayersDebug *handle, const char *text) {
     if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS) {
         DrawTextRequest *dtr =
             memory_arena_push(handle->frame_memory_arena, sizeof(DrawTextRequest));
-        dtr->pos_x = pos_x;
-        dtr->pos_y = pos_y;
         strncpy(dtr->text, text, ARRAY_LEN(dtr->text));
-        dtr->color = color;
-        dtr->font_size = font_size;
         handle->draw_text_requests[handle->queued_requests++] = dtr;
     } else {
         GLOG_WARN(LS_LAYERS, "max queued draw requests reached");
@@ -44,7 +42,8 @@ void layers_debug_draw(LayersDebug *handle) {
     DrawTextRequest *dtr;
     for (usize i = 0; i < handle->queued_requests; ++i) {
         dtr = handle->draw_text_requests[i];
-        DrawText(dtr->text, dtr->pos_x, dtr->pos_y, dtr->font_size, dtr->color);
+        DrawText(dtr->text, 50, 10 + i * handle->space_between_rows, handle->font_size,
+                 handle->color);
     }
     handle->queued_requests = 0;
 }

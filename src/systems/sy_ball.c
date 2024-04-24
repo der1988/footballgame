@@ -47,12 +47,11 @@ void systems_ball(GameState *game_state, Input *input) {
                             : SL_PLAYERS_AND_BALL;
 
         layers_debug_queue_draw_text(game_state->layer_debug,
-                                     TextFormat("Ball height: %.2f", transform->virtual_height), 50,
-                                     10, 20, WHITE);
+                                     TextFormat("Ball height: %.2f", transform->virtual_height));
 
         layers_debug_queue_draw_text(
             game_state->layer_debug,
-            TextFormat("Ball vel: %.2f", Vector3Length(physics_3d->velocity)), 50, 30, 20, WHITE);
+            TextFormat("Ball vel: %.2f", Vector3Length(physics_3d->velocity)));
 
         switch (state_machine->current_state) {
         case BS_NONE:

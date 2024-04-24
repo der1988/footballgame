@@ -4,6 +4,7 @@
 #include "../steering/steering.h"
 #include "assets.h"
 #include "input.h"
+#include "layers/layers.h"
 #include "memory.h"
 #include "utils.h"
 #include <raylib.h>
@@ -73,6 +74,7 @@ void systems_player(GameState *game_state, Input *input) {
                 player_controls->shot = input->buttons[IBT_BUTTON_LEFT].down;
                 player_controls->pass = input->buttons[IBT_BUTTON_DOWN].down;
                 player_controls->sprint = (input->right_trigger + 1) / 2.0f;
+
                 break;
             }
             case PCT_AI: {
@@ -126,6 +128,12 @@ void systems_player(GameState *game_state, Input *input) {
                 entities_player_apply_velocity(transform, physics, game_state->dt);
 
                 // Velocity has been applied to player after this point
+
+                layers_debug_queue_draw_text(game_state->layer_debug,
+                                             TextFormat("Player %02d pos: [%0.2f, %0.2f] vel: %.2f",
+                                                        entity_id, transform->position.x,
+                                                        transform->position.y,
+                                                        Vector2Length(physics->velocity)));
 
                 b32 is_colliding_with_ball =
                     CheckCollisionCircles(transform->position, collider->props.circle.radius,
