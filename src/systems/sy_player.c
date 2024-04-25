@@ -1,7 +1,6 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
-#include "../steering/steering.h"
 #include "assets.h"
 #include "input.h"
 #include "layers/layers.h"
@@ -141,9 +140,6 @@ void systems_player(GameState *game_state, Input *input) {
                                           ball_collider->props.circle.radius) &&
                     ball_transform->virtual_height < 40.0f;
 
-                // TODO: this logic needs to be moved to ball system
-                // Here we should just call some ball entity functions to book a shoot or assert
-                // control over the ball or something
                 if (is_colliding_with_ball && (game_state->time - player->last_shot) > 0.1f) {
                     f32 distance_from_the_ball =
                         Vector2DistanceSqr(transform->position, ball_transform->position);
@@ -214,48 +210,31 @@ void systems_player(GameState *game_state, Input *input) {
         v2 normalized_velocity = Vector2Normalize(player_on_the_ball.velocity);
         f32 steering_magnitude = Vector2Length(player_on_the_ball.controls->steering);
 
-        Vector3 ball_position_3d =
-            V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-        Vector3 player_on_the_ball_velocity = V2_TO_V3(player_on_the_ball.velocity, 0);
         if (player_on_the_ball.controls->shot && steering_magnitude > 0.1f) {
             // Shot
-            // We use acceleration
             player_on_the_ball.player->last_shot = game_state->time;
-            ball_physics_3d->accel = Vector3Add(
-                ball_physics_3d->accel,
-                Vector3Scale(
-                    Vector3Add(
-                        Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0)),
-                        (Vector3){.x = 0, .y = game_state->constants.ball_shot_height, .z = 0}),
-                    game_state->constants.ball_shot_force));
-            ball->subject_to_after_touch = true;
-            ball->shot_time = game_state->time;
+            v3 shot_direction =
+                Vector3Add(Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0)),
+                           (Vector3){.x = 0, .y = game_state->constants.ball_shot_height, .z = 0});
+            entities_ball_shoot(game_state->vars.ball_entity_id, shot_direction, 1.0f, game_state);
         } else if (steering_magnitude > 0.01f) {
             // For ball control we use velocity directly because it's easier and produce
             // better results
             if (player_on_the_ball.controls->sprint > 0.1f) {
                 // Run control
-                ball_physics_3d->velocity = Vector3Add(
-                    player_on_the_ball_velocity,
-                    Vector3Scale(Vector3Add(Vector3Normalize(
-                                                V2_TO_V3(player_on_the_ball.controls->steering, 0)),
-                                            (v3){.y = 0.5f}),
-                                 game_state->constants.ball_run_force *
-                                     (0.2f + 0.8f * player_on_the_ball.controls->sprint)));
+                entities_ball_control_running(game_state->vars.ball_entity_id,
+                                              player_on_the_ball.controls->steering,
+                                              player_on_the_ball.velocity, 0.0f,
+                                              player_on_the_ball.controls->sprint, game_state);
             } else {
                 // Precision control
-                ball_physics_3d->velocity = Vector3Add(
-                    player_on_the_ball_velocity,
-                    Vector3Scale(
-                        Vector3Normalize(Vector3Subtract(
-                            V2_TO_V3(Vector2Add(player_on_the_ball.position,
-                                                Vector2Scale(normalized_velocity,
-                                                             player_on_the_ball.collider->props
-                                                                     .circle.radius *
-                                                                 0.9f)),
-                                     0),
-                            ball_position_3d)),
-                        game_state->constants.ball_control_force));
+                v2 position_to_seek = Vector2Add(
+                    player_on_the_ball.position,
+                    Vector2Scale(normalized_velocity,
+                                 player_on_the_ball.collider->props.circle.radius * 0.9f));
+                entities_ball_control_precision(game_state->vars.ball_entity_id,
+                                                player_on_the_ball.velocity, position_to_seek, 1.0f,
+                                                game_state);
             }
         }
     }

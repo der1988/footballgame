@@ -69,6 +69,18 @@ typedef union {
 DefineStateMachine(Ball, BS_COUNT);
 DefineStateMachineFunctions(Ball, ball);
 
+void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
+                                     v2 position_to_seek, f32 control_quality,
+                                     GameState *game_state);
+void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
+                                   v2 player_velocity, f32 control_quality, f32 sprint,
+                                   GameState *game_state);
+void entities_ball_shoot(EntityId ball_entity_id, v3 direction, f32 power, GameState *game_state);
+void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
+                              GameState *game_state);
+void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
+                             GameState *game_state);
+
 // END - Ball
 
 // START - Player

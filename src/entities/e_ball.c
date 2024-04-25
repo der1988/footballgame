@@ -15,8 +15,6 @@
 
 ImplementStateMachineFunctions(Ball, ball);
 
-void ball_apply_steering(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
-void ball_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt);
 void ball_prepare_gfx(ComponentBall *ball, GameState *game_state);
 
 struct Entity *entities_ball_create(GameState *game_state) {
@@ -157,3 +155,46 @@ void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
     ball->roll_animations[D_DOWN_RIGHT] =
         entities_common_animation_id_from_name("ball", "down_right", game_state);
 }
+
+void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
+                                     v2 position_to_seek, f32 control_quality,
+                                     GameState *game_state) {
+    ComponentTransform *ball_transform = entities_component_get_internal(
+        game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+
+    ball_physics_3d->velocity = Vector3Add(
+        V2_TO_V3(player_velocity, 0),
+        Vector3Scale(Vector3Normalize(Vector3Subtract(
+                         V2_TO_V3(position_to_seek, 0),
+                         V2_TO_V3(ball_transform->position, ball_transform->virtual_height))),
+                     game_state->constants.ball_control_force * control_quality));
+}
+
+void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
+                                   v2 player_velocity, f32 control_quality, f32 sprint,
+                                   GameState *game_state) {
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    v3 velocity_to_add = Vector3Scale(
+        Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.5f}),
+        game_state->constants.ball_run_force * (1 - control_quality) * (0.2f + 0.8f * sprint));
+    ball_physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
+}
+
+void entities_ball_shoot(EntityId ball_entity_id, v3 direction, f32 power, GameState *game_state) {
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentBall *ball =
+        entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_entity_id);
+    ball_physics_3d->accel =
+        Vector3Add(ball_physics_3d->accel,
+                   Vector3Scale(direction, power * game_state->constants.ball_shot_force));
+    ball->subject_to_after_touch = true;
+    ball->shot_time = game_state->time;
+}
+void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
+                              GameState *game_state) {}
+void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
+                             GameState *game_state) {}
