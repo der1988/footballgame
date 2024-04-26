@@ -54,6 +54,7 @@ void systems_controls(GameState *game_state, Input *input) {
         }
         if (charging) {
             p1_charge->ready = false;
+            p1_charge->normalised_direction = game_state->vars.p1.controls.normalised_direction;
             p1_charge->started = game_state->time;
             p1_charge->power = 0.0f;
             p1_charge->ended = 0;

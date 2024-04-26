@@ -61,6 +61,7 @@ typedef enum ActionChargeType { ACT_SHOOT, ACT_PASS, ACT_LONG_PASS } ActionCharg
 
 typedef struct ActionCharge {
     ActionChargeType type;
+    v2 normalised_direction;
     Time started;
     Time ended;
     f32 power;

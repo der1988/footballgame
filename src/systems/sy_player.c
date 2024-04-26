@@ -89,6 +89,9 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                     game_state->vars.p1.controls.charge.ready =
                         game_state->vars.p1.controls.charge.charging = false;
+                } else if (game_state->vars.p1.controls.charge.charging) {
+                    player_controls->steering =
+                        game_state->vars.p1.controls.charge.normalised_direction;
                 }
             } else {
                 // player_controls->steering =
