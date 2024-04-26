@@ -24,7 +24,7 @@ v put together a pathetic excuse for a goal
 v move ball control logic into ball entity
 v implement new shoot logic (with charging bar)
 v block direction when charging kick
+v block direction when running (ala ISS pro)
 - implement a physics step
 - implement teams
 - implement passing
-- block direction when running (ala ISS pro)
