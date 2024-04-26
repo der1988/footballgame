@@ -27,7 +27,7 @@ void systems_ball(GameState *game_state, Input *input) {
             game_state->entity_repository, CT_STATE_MACHINE, ball_id);
         StateMachineBall *state_machine = component_state_machine->ptr;
 
-        if (input->buttons[IBT_BUTTON_START].pressed) {
+        if (input->buttons[IBT_BUTTON_START].released) {
             ComponentTransform *p1_transform =
                 &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
                                         game_state->vars.p1_entity_id)
