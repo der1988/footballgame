@@ -27,3 +27,4 @@ v implement new shoot logic (with charging bar)
 - implement teams
 - implement passing
 - block direction when running (ala ISS pro)
+- block direction when charging kick
