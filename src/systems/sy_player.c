@@ -67,23 +67,18 @@ void systems_player(GameState *game_state, Input *input) {
             PlayerControls *player_controls = memory_arena_push(
                 game_state->memory_by_lifetime[MAL_FRAME], sizeof(PlayerControls));
 
-            switch (player->controller_type) {
-            case PCT_HUMAN: {
+            if (game_state->vars.p1_entity_id == entity_id) {
                 player_controls->steering = Vector2ClampValue(input->left_stick, -1, 1);
                 player_controls->shot = input->buttons[IBT_BUTTON_LEFT].down;
                 player_controls->pass = input->buttons[IBT_BUTTON_DOWN].down;
                 player_controls->sprint = (input->right_trigger + 1) / 2.0f;
 
-                break;
-            }
-            case PCT_AI: {
+            } else {
                 // player_controls->steering =
                 //     steering_pursuit(transform->position, physics->velocity,
                 //     physics->max_velocity,
                 //                      ball_transform->position,
                 //                      V3_TO_V2(ball_physics_3d->velocity));
-                break;
-            }
             }
 
             physics->max_velocity = game_state->constants.player_run_max_velocity;

@@ -111,7 +111,6 @@ GameState *game_init(GameConfig game_config) {
     ComponentTransform *player_transform =
         &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
              ->transform;
-    player->controller_type = PCT_HUMAN;
     player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 420.0f};
 
     Entity *player_entity_2 = entities_player_create(game_state);
@@ -151,6 +150,7 @@ GameState *game_init(GameConfig game_config) {
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
     game_state->vars.ball_is_playable = true;
+    game_state->vars.p1_entity_id = player_entity->id;
 #endif
 
     game_state->initialised = true;

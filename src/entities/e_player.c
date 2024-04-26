@@ -69,7 +69,6 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise player
     ComponentPlayer *player =
         &entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id)->player;
-    player->controller_type = PCT_AI;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
