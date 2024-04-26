@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 500;
+    handle->window_size.y = 540;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -43,6 +43,9 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
 
     GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 100, .height = 15},
               "Render Debug", (bool *)&game_state->constants.render_debug);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 100, .height = 15},
+              "AI Enabled", (bool *)&game_state->constants.ai_enabled);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Gravity force",
               TextFormat("%.2f", game_state->constants.gravity_force.y),
@@ -125,4 +128,8 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Player control radius",
               TextFormat("%.2f", game_state->constants.player_control_radius),
               &game_state->constants.player_control_radius, 0, 100.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Kick charge reset time",
+              TextFormat("%.2f", game_state->constants.kick_charge_reset_time),
+              &game_state->constants.kick_charge_reset_time, 0, 2.0f);
 }

@@ -53,7 +53,8 @@ GameState *game_init(GameConfig game_config) {
                                             .player_movement_drag = 12500.0f,
                                             .player_control_max_velocity = 150.0f,
                                             .player_run_max_velocity = 300.0f,
-                                            .player_control_radius = 17.5f};
+                                            .player_control_radius = 17.5f,
+                                            .kick_charge_reset_time = 1.5f};
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;

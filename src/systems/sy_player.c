@@ -5,13 +5,14 @@
 #include "input.h"
 #include "layers/layers.h"
 #include "memory.h"
+#include "steering.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
 
 typedef struct {
     v2 steering;
-    f32 sprint;
+    b32 sprint;
     f32 shot;
     f32 pass;
     f32 long_pass;
@@ -87,34 +88,36 @@ void systems_player(GameState *game_state, Input *input) {
                         break;
                     }
                     }
-                    game_state->vars.p1.controls.charge.ready =
-                        game_state->vars.p1.controls.charge.charging = false;
-                } else if (game_state->vars.p1.controls.charge.charging) {
-                    player_controls->steering =
-                        game_state->vars.p1.controls.charge.normalised_direction;
                 }
             } else {
-                // player_controls->steering =
-                //     steering_pursuit(transform->position, physics->velocity,
-                //     physics->max_velocity,
-                //                      ball_transform->position,
-                //                      V3_TO_V2(ball_physics_3d->velocity));
+                if (game_state->constants.ai_enabled) {
+                    player_controls->steering = steering_pursuit(
+                        transform->position, physics->velocity, physics->max_velocity,
+                        ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
+                }
             }
 
+            v2 effective_steering = player_controls->steering;
+            if (player->sprint_locked) {
+                // If sprint locked we seek the ball
+                effective_steering = Vector2Normalize(
+                    Vector2Subtract(ball_transform->position, transform->position));
+            } else if (game_state->vars.p1.controls.charge.charging) {
+                effective_steering = game_state->vars.p1.controls.charge.normalised_direction;
+            }
             physics->max_velocity = game_state->constants.player_run_max_velocity;
             v2 force_to_apply = Vector2Zero();
             v2 normalized_velocity = Vector2Normalize(physics->velocity);
-            f32 steering_magnitude = Vector2Length(player_controls->steering);
+            f32 steering_magnitude = Vector2Length(effective_steering);
             f32 current_velocity = Vector2Length(physics->velocity);
 
             switch (state_machine->current_state) {
             case PS_NONE:
                 break;
             case PS_RUN: {
-
                 // Run force
-                force_to_apply = Vector2Scale(player_controls->steering,
-                                              game_state->constants.player_movement_force);
+                force_to_apply =
+                    Vector2Scale(effective_steering, game_state->constants.player_movement_force);
 
                 // Apply drag if no steering applied
                 if (steering_magnitude < 0.1f) {
@@ -131,7 +134,7 @@ void systems_player(GameState *game_state, Input *input) {
                 if (current_velocity > game_state->constants.player_control_max_velocity +
                                            (game_state->constants.player_run_max_velocity -
                                             game_state->constants.player_control_max_velocity) *
-                                               player_controls->sprint) {
+                                               (player_controls->sprint || player->sprint_locked)) {
                     Vector2 parachute =
                         Vector2Scale(Vector2Negate(normalized_velocity),
                                      game_state->constants.player_movement_force * 1.2f);
@@ -213,6 +216,13 @@ void systems_player(GameState *game_state, Input *input) {
                     sprite->frame_id = player->stand_frames[player->last_direction];
                 }
 
+                if (!player_controls->sprint ||
+                    entity_id != ball->last_player_on_the_ball_entity_id) {
+                    // If this player wasn't the last controlling the ball or sprint is disabled we
+                    // can reset sprint lock
+                    player->sprint_locked = false;
+                }
+
                 break;
             }
             case PS_COUNT:
@@ -223,8 +233,11 @@ void systems_player(GameState *game_state, Input *input) {
 
     if (player_on_the_ball.exists) {
 
+        b32 kicked_ball = false;
         v2 normalized_velocity = Vector2Normalize(player_on_the_ball.velocity);
         f32 steering_magnitude = Vector2Length(player_on_the_ball.controls->steering);
+        ball->last_player_on_the_ball_entity_id = player_on_the_ball.id;
+        player_on_the_ball.player->sprint_locked = false;
 
         if (player_on_the_ball.controls->shot > 0 && steering_magnitude > 0.1f) {
             // Shot
@@ -237,6 +250,7 @@ void systems_player(GameState *game_state, Input *input) {
                                      .z = 0});
             entities_ball_shoot(game_state->vars.ball_entity_id, shot_direction,
                                 player_on_the_ball.controls->shot, game_state);
+            kicked_ball = true;
         }
         if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
             // Pass
@@ -245,6 +259,7 @@ void systems_player(GameState *game_state, Input *input) {
                 Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
             entities_ball_short_pass(game_state->vars.ball_entity_id, pass_direction,
                                      player_on_the_ball.controls->pass, game_state);
+            kicked_ball = true;
         }
         if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
@@ -257,15 +272,16 @@ void systems_player(GameState *game_state, Input *input) {
                                      .z = 0});
             entities_ball_long_pass(game_state->vars.ball_entity_id, long_pass_direction,
                                     player_on_the_ball.controls->long_pass, game_state);
+            kicked_ball = true;
         } else if (steering_magnitude > 0.01f) {
             // For ball control we use velocity directly because it's easier and produce
             // better results
-            if (player_on_the_ball.controls->sprint > 0.1f) {
+            if (player_on_the_ball.controls->sprint) {
                 // Run control
+                player_on_the_ball.player->sprint_locked = true;
                 entities_ball_control_running(game_state->vars.ball_entity_id,
                                               player_on_the_ball.controls->steering,
-                                              player_on_the_ball.velocity, 0.0f,
-                                              player_on_the_ball.controls->sprint, game_state);
+                                              player_on_the_ball.velocity, 0.0f, game_state);
             } else {
                 // Precision control
                 v2 position_to_seek = Vector2Add(
@@ -276,6 +292,13 @@ void systems_player(GameState *game_state, Input *input) {
                                                 player_on_the_ball.velocity, position_to_seek, 1.0f,
                                                 game_state);
             }
+        }
+
+        // We can reset charge now: we already kicked the ball if needed
+        if (kicked_ball && player_on_the_ball.id == game_state->vars.p1.player_entity_id &&
+            game_state->vars.p1.controls.charge.ready) {
+            game_state->vars.p1.controls.charge.ready =
+                game_state->vars.p1.controls.charge.charging = false;
         }
     }
 }

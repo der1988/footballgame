@@ -173,13 +173,13 @@ void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity
 }
 
 void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
-                                   v2 player_velocity, f32 control_quality, f32 sprint,
-                                   GameState *game_state) {
+                                   v2 player_velocity, f32 control_quality, GameState *game_state) {
     ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
         game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    v3 velocity_to_add = Vector3Scale(
-        Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.5f}),
-        game_state->constants.ball_run_force * (1 - control_quality) * (0.2f + 0.8f * sprint));
+    v3 velocity_to_add =
+        Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.5f}),
+                     // TODO: some ball_run_force has to always be applied
+                     game_state->constants.ball_run_force * (1 - control_quality));
     ball_physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
 }
 
@@ -211,6 +211,6 @@ void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
         game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ball_physics_3d->accel = Vector3Add(
         ball_physics_3d->accel,
-        Vector3Scale(direction, game_state->constants.ball_long_pass_force * 0.5f +
-                                    power * 0.5f * game_state->constants.ball_long_pass_force));
+        Vector3Scale(direction, game_state->constants.ball_long_pass_force * 0.75f +
+                                    power * 0.25f * game_state->constants.ball_long_pass_force));
 }

@@ -123,12 +123,14 @@ typedef struct {
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
     Direction last_direction;
+    b32 sprint_locked;
     f32 last_shot;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
 } ComponentPlayer;
 
 typedef struct {
+    EntityId last_player_on_the_ball_entity_id;
     f64 shot_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     Direction last_direction;

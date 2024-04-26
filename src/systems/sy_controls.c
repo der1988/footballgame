@@ -7,11 +7,12 @@
 
 void systems_controls(GameState *game_state, Input *input) {
     game_state->vars.p1.controls.normalised_direction = Vector2ClampValue(input->left_stick, -1, 1);
-    game_state->vars.p1.controls.sprint = (input->right_trigger + 1) / 2.0f;
+    game_state->vars.p1.controls.sprint = input->buttons[IBT_BUTTON_TRIGGER_RIGHT].down;
     ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
     if (p1_charge->ready) {
         // Ready
-        if (HAS_TIME_PASSED(game_state->time, p1_charge->ended, 0.5f)) {
+        if (HAS_TIME_PASSED(game_state->time, p1_charge->ended,
+                            game_state->constants.kick_charge_reset_time)) {
             p1_charge->ready = p1_charge->charging = false;
         }
     } else if (p1_charge->charging) {

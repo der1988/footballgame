@@ -28,6 +28,7 @@ typedef struct GameConfig {
 
 typedef struct GameConstants {
     b32 render_debug;
+    b32 ai_enabled;
     f32 input_stick_dead_zone;
     v3 gravity_force;
     f32 pixels_per_meter;
@@ -55,6 +56,7 @@ typedef struct GameConstants {
     f32 player_control_max_velocity;
     f32 player_run_max_velocity;
     f32 player_control_radius;
+    f32 kick_charge_reset_time;
 } GameConstants;
 
 typedef enum ActionChargeType { ACT_SHOOT, ACT_PASS, ACT_LONG_PASS } ActionChargeType;
@@ -71,7 +73,7 @@ typedef struct ActionCharge {
 
 typedef struct Controls {
     v2 normalised_direction;
-    f32 sprint;
+    b32 sprint;
     ActionCharge charge;
 } Controls;
 
