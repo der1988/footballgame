@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 450;
+    handle->window_size.y = 500;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -81,6 +81,18 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Ball shot height",
               TextFormat("%.2f", game_state->constants.ball_shot_height),
               &game_state->constants.ball_shot_height, 0, 1.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball long pass force",
+              TextFormat("%.2f", game_state->constants.ball_long_pass_force),
+              &game_state->constants.ball_long_pass_force, 0, 200000.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball long pass height",
+              TextFormat("%.2f", game_state->constants.ball_long_pass_height),
+              &game_state->constants.ball_long_pass_height, 0, 1.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball short pass force",
+              TextFormat("%.2f", game_state->constants.ball_pass_force),
+              &game_state->constants.ball_pass_force, 0, 200000.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball after touch delay time",
               TextFormat("%.2f", game_state->constants.ball_after_touch_delay_time),

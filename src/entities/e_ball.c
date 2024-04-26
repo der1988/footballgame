@@ -188,13 +188,36 @@ void entities_ball_shoot(EntityId ball_entity_id, v3 direction, f32 power, GameS
         game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
         entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_entity_id);
-    ball_physics_3d->accel =
-        Vector3Add(ball_physics_3d->accel,
-                   Vector3Scale(direction, power * game_state->constants.ball_shot_force));
+    ball_physics_3d->accel = Vector3Add(
+        ball_physics_3d->accel,
+        Vector3Scale(direction, game_state->constants.ball_shot_force * 0.5f +
+                                    power * 0.5f * game_state->constants.ball_shot_force));
     ball->subject_to_after_touch = true;
     ball->shot_time = game_state->time;
 }
+
 void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
-                              GameState *game_state) {}
+                              GameState *game_state) {
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentBall *ball =
+        entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_entity_id);
+    ball_physics_3d->accel = Vector3Add(
+        ball_physics_3d->accel,
+        Vector3Scale(direction, game_state->constants.ball_pass_force * 0.5f +
+                                    power * 0.5f * game_state->constants.ball_pass_force));
+    ball->subject_to_after_touch = false;
+}
+
 void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
-                             GameState *game_state) {}
+                             GameState *game_state) {
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentBall *ball =
+        entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_entity_id);
+    ball_physics_3d->accel = Vector3Add(
+        ball_physics_3d->accel,
+        Vector3Scale(direction, game_state->constants.ball_long_pass_force * 0.5f +
+                                    power * 0.5f * game_state->constants.ball_long_pass_force));
+    ball->subject_to_after_touch = false;
+}

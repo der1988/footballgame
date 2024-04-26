@@ -40,8 +40,11 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_friction_on_pitch = 1.0f,
                                             .ball_run_force = 100.0f,
                                             .ball_control_force = 40.0f,
-                                            .ball_shot_force = 50000.0f,
-                                            .ball_shot_height = 0.2f,
+                                            .ball_shot_force = 100000.0f,
+                                            .ball_shot_height = 0.5f,
+                                            .ball_pass_force = 100000.0f,
+                                            .ball_long_pass_force = 50000.0f,
+                                            .ball_long_pass_height = 1.0f,
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
                                             .ball_after_touch_force = 15.0f,
@@ -150,7 +153,7 @@ GameState *game_init(GameConfig game_config) {
     game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
                                           (f32)game_state->config.screen_height / 2};
     game_state->vars.ball_is_playable = true;
-    game_state->vars.p1_entity_id = player_entity->id;
+    game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->id};
 #endif
 
     game_state->initialised = true;
@@ -190,6 +193,7 @@ void game_update(GameState *game_state, Input *input) {
         game_state->vars.is_tweakui_shown = !game_state->vars.is_tweakui_shown;
     }
 
+    systems_controls(game_state, input);
     systems_player(game_state, input);
     systems_ball(game_state, input);
     systems_goal(game_state);

@@ -3,6 +3,7 @@
 
 #include "../game.h"
 
+void systems_controls(GameState *game_state, struct Input *input);
 void systems_ball(GameState *game_state, struct Input *input);
 void systems_player(GameState *game_state, struct Input *input);
 void systems_goal(GameState *game_state);

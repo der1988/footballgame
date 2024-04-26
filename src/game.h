@@ -42,6 +42,10 @@ typedef struct GameConstants {
     f32 ball_control_force;
     f32 ball_shot_force;
     f32 ball_shot_height;
+    f32 ball_pass_force;
+    f32 ball_pass_height;
+    f32 ball_long_pass_force;
+    f32 ball_long_pass_height;
     f32 ball_after_touch_delay_time;
     f32 ball_after_touch_max_time;
     f32 ball_after_touch_force;
@@ -53,10 +57,32 @@ typedef struct GameConstants {
     f32 player_control_radius;
 } GameConstants;
 
+typedef enum ActionChargeType { ACT_SHOOT, ACT_PASS, ACT_LONG_PASS } ActionChargeType;
+
+typedef struct ActionCharge {
+    ActionChargeType type;
+    Time started;
+    Time ended;
+    f32 power;
+    b32 charging;
+    b32 ready;
+} ActionCharge;
+
+typedef struct Controls {
+    v2 normalised_direction;
+    f32 sprint;
+    ActionCharge charge;
+} Controls;
+
+typedef struct HumanPlayer {
+    Controls controls;
+    EntityId player_entity_id;
+} HumanPlayer;
+
 typedef struct GameVariables {
     b32 is_tweakui_shown;
     EntityId ball_entity_id;
-    EntityId p1_entity_id;
+    HumanPlayer p1;
     Rectangle pitch_rectangle;
     b32 ball_is_playable;
     b32 someone_scored;

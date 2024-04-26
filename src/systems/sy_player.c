@@ -11,9 +11,10 @@
 
 typedef struct {
     v2 steering;
-    b32 shot;
-    b32 pass;
     f32 sprint;
+    f32 shot;
+    f32 pass;
+    f32 long_pass;
 } PlayerControls;
 
 typedef struct {
@@ -67,12 +68,28 @@ void systems_player(GameState *game_state, Input *input) {
             PlayerControls *player_controls = memory_arena_push(
                 game_state->memory_by_lifetime[MAL_FRAME], sizeof(PlayerControls));
 
-            if (game_state->vars.p1_entity_id == entity_id) {
-                player_controls->steering = Vector2ClampValue(input->left_stick, -1, 1);
-                player_controls->shot = input->buttons[IBT_BUTTON_LEFT].down;
-                player_controls->pass = input->buttons[IBT_BUTTON_DOWN].down;
-                player_controls->sprint = (input->right_trigger + 1) / 2.0f;
+            if (game_state->vars.p1.player_entity_id == entity_id) {
+                player_controls->steering = game_state->vars.p1.controls.normalised_direction;
+                player_controls->sprint = game_state->vars.p1.controls.sprint;
 
+                if (game_state->vars.p1.controls.charge.ready) {
+                    switch (game_state->vars.p1.controls.charge.type) {
+                    case ACT_SHOOT: {
+                        player_controls->shot = game_state->vars.p1.controls.charge.power;
+                        break;
+                    }
+                    case ACT_PASS: {
+                        player_controls->pass = game_state->vars.p1.controls.charge.power;
+                        break;
+                    }
+                    case ACT_LONG_PASS: {
+                        player_controls->long_pass = game_state->vars.p1.controls.charge.power;
+                        break;
+                    }
+                    }
+                    game_state->vars.p1.controls.charge.ready =
+                        game_state->vars.p1.controls.charge.charging = false;
+                }
             } else {
                 // player_controls->steering =
                 //     steering_pursuit(transform->position, physics->velocity,
@@ -205,13 +222,37 @@ void systems_player(GameState *game_state, Input *input) {
         v2 normalized_velocity = Vector2Normalize(player_on_the_ball.velocity);
         f32 steering_magnitude = Vector2Length(player_on_the_ball.controls->steering);
 
-        if (player_on_the_ball.controls->shot && steering_magnitude > 0.1f) {
+        if (player_on_the_ball.controls->shot > 0 && steering_magnitude > 0.1f) {
             // Shot
             player_on_the_ball.player->last_shot = game_state->time;
             v3 shot_direction =
                 Vector3Add(Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0)),
-                           (Vector3){.x = 0, .y = game_state->constants.ball_shot_height, .z = 0});
-            entities_ball_shoot(game_state->vars.ball_entity_id, shot_direction, 1.0f, game_state);
+                           (Vector3){.x = 0,
+                                     .y = game_state->constants.ball_shot_height *
+                                          player_on_the_ball.controls->shot,
+                                     .z = 0});
+            entities_ball_shoot(game_state->vars.ball_entity_id, shot_direction,
+                                player_on_the_ball.controls->shot, game_state);
+        }
+        if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
+            // Pass
+            player_on_the_ball.player->last_shot = game_state->time;
+            v3 pass_direction =
+                Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
+            entities_ball_short_pass(game_state->vars.ball_entity_id, pass_direction,
+                                     player_on_the_ball.controls->pass, game_state);
+        }
+        if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
+            // Long pass
+            player_on_the_ball.player->last_shot = game_state->time;
+            v3 long_pass_direction =
+                Vector3Add(Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0)),
+                           (Vector3){.x = 0,
+                                     .y = game_state->constants.ball_long_pass_height *
+                                          player_on_the_ball.controls->long_pass,
+                                     .z = 0});
+            entities_ball_long_pass(game_state->vars.ball_entity_id, long_pass_direction,
+                                    player_on_the_ball.controls->long_pass, game_state);
         } else if (steering_magnitude > 0.01f) {
             // For ball control we use velocity directly because it's easier and produce
             // better results

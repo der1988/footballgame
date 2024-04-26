@@ -30,7 +30,7 @@ void systems_ball(GameState *game_state, Input *input) {
         if (input->buttons[IBT_BUTTON_START].released) {
             ComponentTransform *p1_transform =
                 &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
-                                        game_state->vars.p1_entity_id)
+                                        game_state->vars.p1.player_entity_id)
                      ->transform;
             transform->position = p1_transform->position;
             transform->virtual_height = 0;

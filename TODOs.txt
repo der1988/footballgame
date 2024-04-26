@@ -22,7 +22,8 @@ v implement goal
 v put some stats on the screen
 v put together a pathetic excuse for a goal
 v move ball control logic into ball entity
+v implement new shoot logic (with charging bar)
 - implement a physics step
 - implement teams
 - implement passing
-- implement new shoot logic (with charging bar)
+- block direction when running (ala ISS pro)
