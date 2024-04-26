@@ -119,11 +119,6 @@ void systems_ball(GameState *game_state, Input *input) {
             transform->position = V3_TO_V2(ball_position_3d);
             transform->virtual_height = ball_position_3d.y;
 
-            // This has to be done after all forces have been applied
-            if (transform->virtual_height == 0) {
-                ball->subject_to_after_touch = false;
-            }
-
             // Acceleration does not accumulate
             physics_3d->accel = Vector3Zero();
 

@@ -83,7 +83,6 @@ void systems_goal(GameState *game_state) {
                     collision.point.y <
                         (goal_rectangle.height + ball_collider->props.circle.radius)) {
 
-                    ball->subject_to_after_touch = false;
                     b32 collided_with_post = false;
                     if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
                         collision.point.x <

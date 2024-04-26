@@ -129,7 +129,6 @@ typedef struct {
 } ComponentPlayer;
 
 typedef struct {
-    b32 subject_to_after_touch;
     f64 shot_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     Direction last_direction;

@@ -167,27 +167,28 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                 }
 
-                // After touch
-                // TODO: this has to be refactored to use acceleration, if we decide to keep
-                // it...
-                if (ball->subject_to_after_touch &&
-                    (game_state->time - ball->shot_time) >
-                        game_state->constants.ball_after_touch_delay_time &&
-                    (game_state->time - ball->shot_time) <
-                        game_state->constants.ball_after_touch_max_time) {
-                    v2 after_touch_input = player_controls->steering;
-                    v2 ball_2d_vel = V3_TO_V2(ball_physics_3d->velocity);
-                    v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
-                    f32 after_touch_height =
-                        Clamp(Vector2ProjectScalar(ball_2d_vel, after_touch_input), -1.0f, 0.4f);
-                    v2 after_touch_side = Vector2Project(ball_2d_vel_perp, after_touch_input);
-                    v3 after_touch_direction = (v3){
-                        .x = after_touch_side.x, .y = -after_touch_height, .z = after_touch_side.y};
-                    ball_physics_3d->velocity =
-                        Vector3Add(ball_physics_3d->velocity,
-                                   Vector3Scale(after_touch_direction,
-                                                game_state->constants.ball_after_touch_force));
-                }
+                // // After touch
+                // // TODO: this has to be refactored to use acceleration, if we decide to keep
+                // // it...
+                // if (ball->subject_to_after_touch &&
+                //     (game_state->time - ball->shot_time) >
+                //         game_state->constants.ball_after_touch_delay_time &&
+                //     (game_state->time - ball->shot_time) <
+                //         game_state->constants.ball_after_touch_max_time) {
+                //     v2 after_touch_input = player_controls->steering;
+                //     v2 ball_2d_vel = V3_TO_V2(ball_physics_3d->velocity);
+                //     v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
+                //     f32 after_touch_height =
+                //         Clamp(Vector2ProjectScalar(ball_2d_vel, after_touch_input), -1.0f, 0.4f);
+                //     v2 after_touch_side = Vector2Project(ball_2d_vel_perp, after_touch_input);
+                //     v3 after_touch_direction = (v3){
+                //         .x = after_touch_side.x, .y = -after_touch_height, .z =
+                //         after_touch_side.y};
+                //     ball_physics_3d->velocity =
+                //         Vector3Add(ball_physics_3d->velocity,
+                //                    Vector3Scale(after_touch_direction,
+                //                                 game_state->constants.ball_after_touch_force));
+                // }
 
                 // Calculate frame to display
                 if (Vector2Length(physics->velocity) > 3) {
