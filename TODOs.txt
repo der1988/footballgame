@@ -28,3 +28,4 @@ v block direction when running (ala ISS pro)
 - implement a physics step
 - implement teams
 - implement passing
+- implement a goalie
