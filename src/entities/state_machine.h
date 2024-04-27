@@ -1,7 +1,7 @@
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
 
-#define DefineStateMachine(ENTITY_TYPE, N_STATES)                                                  \
+#define DefineStateMachine(ENTITY_TYPE)                                                            \
     typedef struct StateMachine##ENTITY_TYPE {                                                     \
         EntityId owner_entity;                                                                     \
         StateMachine##ENTITY_TYPE##State current_state;                                            \

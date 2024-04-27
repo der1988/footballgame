@@ -66,7 +66,7 @@ typedef union {
     StateMachineDefaultEmptyData out_of_play;
 } StateMachineBallStateData;
 
-DefineStateMachine(Ball, BS_COUNT);
+DefineStateMachine(Ball);
 DefineStateMachineFunctions(Ball, ball);
 
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
@@ -101,7 +101,7 @@ typedef union {
     StateMachinePlayerRunData run;
 } StateMachinePlayerStateData;
 
-DefineStateMachine(Player, PS_COUNT);
+DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
 void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);

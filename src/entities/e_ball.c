@@ -20,18 +20,9 @@ void ball_prepare_gfx(ComponentBall *ball, GameState *game_state);
 struct Entity *entities_ball_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
 
-    // Initialise state machine
-    StateMachineBall *state_machine =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineBall));
-    state_machine->owner_entity = entity->id;
-    state_machine->previous_state = BS_NONE;
-    state_machine->current_state = BS_IN_PLAY;
-    Component *component =
-        entities_component_create(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    component->state_machine.ptr = state_machine;
-
     // Initialise transform
-    component = entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    Component *component =
+        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
     component->transform.virtual_height = 300;
@@ -72,6 +63,12 @@ struct Entity *entities_ball_create(GameState *game_state) {
 
     // Initialise ball
     component = entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
+    StateMachineBall *state_machine =
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineBall));
+    state_machine->owner_entity = entity->id;
+    state_machine->previous_state = BS_NONE;
+    state_machine->current_state = BS_IN_PLAY;
+    component->ball.state_machine = state_machine;
 
     ball_prepare_gfx(&component->ball, game_state);
 
@@ -83,14 +80,9 @@ struct Entity *entities_ball_create(GameState *game_state) {
 }
 
 void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    ComponentPhysics3d *physics_3d =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, entity->id)
-             ->physics_3d;
-    ComponentSprite *sprite =
-        &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
-    Component *component =
-        entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    StateMachineBall *state_machine = component->state_machine.ptr;
+    ComponentBall *ball =
+        entities_component_get_internal(game_state->entity_repository, CT_BALL, entity->id);
+    StateMachineBall *state_machine = ball->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
                    StateMachineBallStateString[state_machine->current_state]);
@@ -111,14 +103,9 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
 }
 
 void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    Component *component =
-        entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    StateMachineBall *state_machine = component->state_machine.ptr;
-    ComponentPhysics3d *physics_3d =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS_3D, entity->id)
-             ->physics_3d;
-    ComponentSprite *sprite =
-        &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
+    ComponentBall *ball =
+        entities_component_get_internal(game_state->entity_repository, CT_BALL, entity->id);
+    StateMachineBall *state_machine = ball->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
                    StateMachineBallStateString[state_machine->previous_state]);

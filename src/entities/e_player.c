@@ -20,18 +20,9 @@ static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
 struct Entity *entities_player_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
-    // Initialise state machine
-    StateMachinePlayer *state_machine =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
-    state_machine->owner_entity = entity->id;
-    state_machine->previous_state = PS_NONE;
-    state_machine->current_state = PS_RUN;
-    Component *component =
-        entities_component_create(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    component->state_machine.ptr = state_machine;
-
     // Initialise transform
-    component = entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    Component *component =
+        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
     component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
     component->transform.scale = (v2){.x = 1.5f, .y = 1.5f};
@@ -69,6 +60,12 @@ struct Entity *entities_player_create(GameState *game_state) {
     // Initialise player
     ComponentPlayer *player =
         &entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id)->player;
+    StateMachinePlayer *state_machine =
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
+    state_machine->owner_entity = entity->id;
+    state_machine->previous_state = PS_NONE;
+    state_machine->current_state = PS_RUN;
+    player->state_machine = state_machine;
 
     // Initialise action
     component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -99,15 +96,9 @@ void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhys
 }
 
 void entities_player_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    ComponentPhysics *physics =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
-    ComponentSprite *sprite =
-        &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
     ComponentPlayer *player =
-        &entities_component_get(game_state->entity_repository, CT_PLAYER, entity->id)->player;
-    Component *component =
-        entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    StateMachinePlayer *state_machine = component->state_machine.ptr;
+        entities_component_get_internal(game_state->entity_repository, CT_PLAYER, entity->id);
+    StateMachinePlayer *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
                    StateMachinePlayerStateString[state_machine->current_state]);
@@ -126,17 +117,9 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
 }
 
 void entities_player_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    Component *component =
-        entities_component_get(game_state->entity_repository, CT_STATE_MACHINE, entity->id);
-    StateMachinePlayer *state_machine = component->state_machine.ptr;
-    ComponentPhysics *physics =
-        &entities_component_get(game_state->entity_repository, CT_PHYSICS, entity->id)->physics;
-    ComponentSprite *sprite =
-        &entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id)->sprite;
     ComponentPlayer *player =
-        &entities_component_get(game_state->entity_repository, CT_PLAYER, entity->id)->player;
-    ComponentAction *action =
-        &entities_component_get(game_state->entity_repository, CT_ACTION, entity->id)->action;
+        entities_component_get_internal(game_state->entity_repository, CT_PLAYER, entity->id);
+    StateMachinePlayer *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
                    StateMachinePlayerStateString[state_machine->previous_state]);

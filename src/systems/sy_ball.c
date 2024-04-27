@@ -23,9 +23,7 @@ void systems_ball(GameState *game_state, Input *input) {
             entities_component_get_internal(game_state->entity_repository, CT_SPRITE, ball_id);
         ComponentBall *ball =
             entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_id);
-        ComponentStateMachine *component_state_machine = entities_component_get_internal(
-            game_state->entity_repository, CT_STATE_MACHINE, ball_id);
-        StateMachineBall *state_machine = component_state_machine->ptr;
+        StateMachineBall *state_machine = ball->state_machine;
 
         if (input->buttons[IBT_BUTTON_START].released) {
             ComponentTransform *p1_transform =

@@ -45,9 +45,9 @@ void systems_player(GameState *game_state, Input *input) {
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
 
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 6,
+        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 5,
                                                         CT_TRANSFORM, CT_PHYSICS, CT_SPRITE,
-                                                        CT_PLAYER, CT_COLLIDER, CT_STATE_MACHINE)) {
+                                                        CT_PLAYER, CT_COLLIDER)) {
 
             ComponentTransform *transform = ComponentCastToInternalUnchecked(
                 game_state->entity_repository, CT_TRANSFORM, entity_id);
@@ -59,10 +59,8 @@ void systems_player(GameState *game_state, Input *input) {
                 game_state->entity_repository, CT_PLAYER, entity_id);
             ComponentCollider *collider = ComponentCastToInternalUnchecked(
                 game_state->entity_repository, CT_COLLIDER, entity_id);
-            ComponentStateMachine *component_state_machine = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_STATE_MACHINE, entity_id);
 
-            StateMachinePlayer *state_machine = component_state_machine->ptr;
+            StateMachinePlayer *state_machine = player->state_machine;
 
             collider->props.circle.radius = game_state->constants.player_control_radius;
 

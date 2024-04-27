@@ -10,7 +10,9 @@
 
 #define MaxConcurrentActions 5
 
-struct Entity;
+// Forward declarations
+struct StateMachineBall;
+struct StateMachinePlayer;
 
 typedef enum {
     CT_TRANSFORM,
@@ -18,7 +20,6 @@ typedef enum {
     CT_PHYSICS_3D,
     CT_SPRITE,
     CT_COLLIDER,
-    CT_STATE_MACHINE,
     CT_ACTION,
     CT_TARGET,
     CT_CAMERA_PROPS,
@@ -68,10 +69,6 @@ typedef struct {
 } ComponentSprite;
 
 typedef struct {
-    void *ptr;
-} ComponentStateMachine;
-
-typedef struct {
     ActionRunner running_actions[MaxConcurrentActions];
 } ComponentAction;
 
@@ -119,6 +116,7 @@ typedef enum {
 } Direction;
 
 typedef struct {
+    struct StateMachinePlayer *state_machine;
     b32 is_controlling_the_ball;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
@@ -130,6 +128,7 @@ typedef struct {
 } ComponentPlayer;
 
 typedef struct {
+    struct StateMachineBall *state_machine;
     EntityId last_player_on_the_ball_entity_id;
     f64 shot_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
@@ -160,7 +159,6 @@ typedef struct {
         ComponentPhysics3d physics_3d;
         ComponentSprite sprite;
         ComponentCollider collider;
-        ComponentStateMachine state_machine;
         ComponentAction action;
         ComponentTarget target;
         ComponentPlayer player;

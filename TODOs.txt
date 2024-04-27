@@ -25,6 +25,7 @@ v move ball control logic into ball entity
 v implement new shoot logic (with charging bar)
 v block direction when charging kick
 v block direction when running (ala ISS pro)
+v refactor away state machine component
 - implement a physics step
 - implement teams
 - implement passing
