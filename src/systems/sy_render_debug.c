@@ -13,9 +13,9 @@ void systems_render_debug(GameState *game_state) {
             if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
                                                             CT_TRANSFORM, CT_SPRITE)) {
                 ComponentSprite *sprite =
-                    ComponentCastToInternalUnchecked(entity_repository, CT_SPRITE, entity_id);
+                    ComponentCastToTypedUnchecked(entity_repository, CT_SPRITE, entity_id);
                 ComponentTransform *transform =
-                    ComponentCastToInternalUnchecked(entity_repository, CT_TRANSFORM, entity_id);
+                    ComponentCastToTypedUnchecked(entity_repository, CT_TRANSFORM, entity_id);
                 Component *wrapper_collider =
                     entities_component_get(entity_repository, CT_COLLIDER, entity_id);
 

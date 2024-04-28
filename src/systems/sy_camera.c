@@ -23,14 +23,14 @@ void systems_camera(GameState *game_state) {
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(
                 entity_repository, entity_id, 4, CT_TRANSFORM, CT_PHYSICS, CT_TARGET, CT_CAMERA)) {
-            ComponentTransform *transform = ComponentCastToInternalUnchecked(
+            ComponentTransform *transform = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentPhysics *physics = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_PHYSICS, entity_id);
-            ComponentTarget *target = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_TARGET, entity_id);
-            ComponentCamera *props = ComponentCastToInternalUnchecked(game_state->entity_repository,
-                                                                      CT_CAMERA, entity_id);
+            ComponentPhysics *physics =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
+            ComponentTarget *target =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_TARGET, entity_id);
+            ComponentCamera *props =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_CAMERA, entity_id);
 
             Component *target_transform = entities_component_get(game_state->entity_repository,
                                                                  CT_TRANSFORM, target->entity_id);

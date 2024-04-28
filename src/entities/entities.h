@@ -20,7 +20,7 @@
     Entity *item = entity_repo->entities;                                                          \
     for (usize entity_id = 0; entity_id < entity_repo->max_slots; ++entity_id, item++)
 
-#define ComponentCastToInternalUnchecked(entity_repo, type, entity_id)                             \
+#define ComponentCastToTypedUnchecked(entity_repo, type, entity_id)                                \
     (void *)&(entity_repo->components + (type * entity_repo->max_slots) + entity_id)->transform;
 
 #define DeclareStateMachineEnterAndExit(ENTITY_NAME)                                               \

@@ -58,9 +58,9 @@ void systems_render(GameState *game_state) {
         if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
                                                         CT_TRANSFORM, CT_SPRITE)) {
             ComponentTransform *transform =
-                ComponentCastToInternalUnchecked(entity_repository, CT_TRANSFORM, entity_id);
+                ComponentCastToTypedUnchecked(entity_repository, CT_TRANSFORM, entity_id);
             ComponentSprite *sprite =
-                ComponentCastToInternalUnchecked(entity_repository, CT_SPRITE, entity_id);
+                ComponentCastToTypedUnchecked(entity_repository, CT_SPRITE, entity_id);
             AssetsSpriteFrame *sprite_frame =
                 assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);
 

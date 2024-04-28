@@ -23,13 +23,13 @@ void systems_goal(GameState *game_state) {
         if (entities_entity_is_alive_and_has_components(
                 entity_repository, entity_id, 4, CT_TRANSFORM, CT_SPRITE, CT_GOAL, CT_COLLIDER)) {
 
-            ComponentTransform *transform = ComponentCastToInternalUnchecked(
+            ComponentTransform *transform = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentSprite *sprite = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_SPRITE, entity_id);
+            ComponentSprite *sprite =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_SPRITE, entity_id);
             ComponentGoal *goal =
-                ComponentCastToInternalUnchecked(game_state->entity_repository, CT_GOAL, entity_id);
-            ComponentCollider *collider = ComponentCastToInternalUnchecked(
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_GOAL, entity_id);
+            ComponentCollider *collider = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_COLLIDER, entity_id);
 
             Rectangle goal_rectangle = {

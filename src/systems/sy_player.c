@@ -49,15 +49,15 @@ void systems_player(GameState *game_state, Input *input) {
                                                         CT_TRANSFORM, CT_PHYSICS, CT_SPRITE,
                                                         CT_PLAYER, CT_COLLIDER)) {
 
-            ComponentTransform *transform = ComponentCastToInternalUnchecked(
+            ComponentTransform *transform = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentPhysics *physics = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_PHYSICS, entity_id);
-            ComponentSprite *sprite = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_SPRITE, entity_id);
-            ComponentPlayer *player = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_PLAYER, entity_id);
-            ComponentCollider *collider = ComponentCastToInternalUnchecked(
+            ComponentPhysics *physics =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
+            ComponentSprite *sprite =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_SPRITE, entity_id);
+            ComponentPlayer *player =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PLAYER, entity_id);
+            ComponentCollider *collider = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_COLLIDER, entity_id);
 
             StateMachinePlayer *state_machine = player->state_machine;

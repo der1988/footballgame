@@ -9,7 +9,7 @@ void systems_action(GameState *game_state) {
         if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 1,
                                                         CT_ACTION)) {
             ComponentAction *component =
-                ComponentCastToInternalUnchecked(entity_repository, CT_ACTION, entity_id);
+                ComponentCastToTypedUnchecked(entity_repository, CT_ACTION, entity_id);
             for (usize j = 0; j < MaxConcurrentActions; ++j) {
                 ActionRunner *action_runner = &component->running_actions[j];
                 if (action_runner && action_runner->action) {
