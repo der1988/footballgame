@@ -4,6 +4,7 @@
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
+#include "config.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
@@ -17,13 +18,13 @@ ImplementStateMachineFunctions(Player, player);
 
 static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
 
-struct Entity *entities_player_create(GameState *game_state) {
+struct Entity *entities_player_create(GameState *game_state, PlayerConfig config) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
     // Initialise transform
     Component *component =
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
-    component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
+    component->transform.position = config.position;
     component->transform.rotation = 0;
     component->transform.scale = (v2){.x = 1.5f, .y = 1.5f};
 

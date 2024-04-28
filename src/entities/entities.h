@@ -5,6 +5,7 @@
 #include "../entities/state_machine.h"
 #include "../input/input.h"
 #include "../memory/memory.h"
+#include "config.h"
 #include "entities/state_machine.h"
 #include "game.h"
 #include "types.h"
@@ -21,9 +22,6 @@
 
 #define ComponentCastToInternalUnchecked(entity_repo, type, entity_id)                             \
     (void *)&(entity_repo->components + (type * entity_repo->max_slots) + entity_id)->transform;
-
-#define DeclareEntityCreate(ENTITY_NAME)                                                           \
-    struct Entity *entities_##ENTITY_NAME##_create(GameState *game_state);
 
 #define DeclareStateMachineEnterAndExit(ENTITY_NAME)                                               \
     void state_machine_##ENTITY_NAME##_on_enter(struct Entity *ENTITY_NAME,                        \
@@ -47,13 +45,11 @@ Direction entities_common_calculate_direction(Vector2 direction);
 
 // START - Camera
 
-DeclareEntityCreate(camera);
+struct Entity *entities_camera_create(GameState *game_state);
 
 // END - Camera
 
 // START - Ball
-
-DeclareEntityCreate(ball);
 
 typedef enum { BS_NONE, BS_IN_PLAY, BS_OUT_OF_PLAY, BS_COUNT } StateMachineBallState;
 
@@ -69,6 +65,7 @@ typedef union {
 DefineStateMachine(Ball);
 DefineStateMachineFunctions(Ball, ball);
 
+struct Entity *entities_ball_create(GameState *game_state, BallConfig config);
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
                                      v2 position_to_seek, f32 control_quality,
                                      GameState *game_state);
@@ -83,8 +80,6 @@ void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
 // END - Ball
 
 // START - Player
-
-DeclareEntityCreate(player);
 
 typedef enum { PS_NONE, PS_RUN, PS_COUNT } StateMachinePlayerState;
 
@@ -104,6 +99,7 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
+struct Entity *entities_player_create(GameState *game_state, PlayerConfig config);
 void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
                                     DeltaTime dt);
@@ -111,13 +107,13 @@ void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhys
 
 // START - Goal
 
-DeclareEntityCreate(goal);
+struct Entity *entities_goal_create(GameState *game_state, GoalConfig config);
 
 // END - Goal
 
 // START - Goal net
 
-DeclareEntityCreate(goal_net);
+struct Entity *entities_goal_net_create(GameState *game_state);
 
 // END - Goal net
 

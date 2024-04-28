@@ -3,6 +3,7 @@
 #include "../entities/entities.h"
 #include "../game.h"
 #include "../utils/utils.h"
+#include "config.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
@@ -12,16 +13,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_create(GameState *game_state) {
+struct Entity *entities_goal_create(GameState *game_state, GoalConfig config) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
     // Initialise transform
     Component *component =
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
-    component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     component->transform.rotation = 0;
     component->transform.virtual_height = 0;
     component->transform.scale = (v2){.x = 1, .y = 1};
+    if (config.position == GP_TOP) {
+        component->transform.position = (Vector2){game_state->vars.pitch_rectangle.x +
+                                                      game_state->vars.pitch_rectangle.width / 2.0f,
+                                                  game_state->vars.pitch_rectangle.y};
+    } else {
+        // Not implemented
+        assert(false);
+    }
 
     // Create goal net
     Entity *goal_net_entity = entities_goal_net_create(game_state);

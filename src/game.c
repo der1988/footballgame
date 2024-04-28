@@ -1,6 +1,7 @@
 #include "game.h"
 #include "assets/assets.h"
 #include "components/components.h"
+#include "config.h"
 #include "entities/entities.h"
 #include "input/input.h"
 #include "layers/layers.h"
@@ -108,35 +109,18 @@ GameState *game_init(GameConfig game_config) {
     game_state->vars.pitch_rectangle =
         (Rectangle){.x = 100, .y = 232, .width = 1920, .height = 1080 * 3};
 
-    Entity *player_entity = entities_player_create(game_state);
-    ComponentPlayer *player =
-        &entities_component_get(game_state->entity_repository, CT_PLAYER, player_entity->id)
-             ->player;
-    ComponentTransform *player_transform =
-        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity->id)
-             ->transform;
-    player_transform->position = (Vector2){game_state->config.screen_width / 2.0f, 420.0f};
+    Entity *player_entity = entities_player_create(
+        game_state, (PlayerConfig){.position = {game_state->config.screen_width / 2.0f, 420.0f}});
 
-    Entity *player_entity_2 = entities_player_create(game_state);
-    ComponentTransform *player_transform_2 =
-        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, player_entity_2->id)
-             ->transform;
-    player_transform_2->position =
-        (Vector2){game_state->config.screen_width / 2.0f - 100.0f, 20.0f};
+    entities_player_create(
+        game_state,
+        (PlayerConfig){.position = {game_state->config.screen_width / 2.0f - 100.0f, 20.0f}});
 
-    Entity *ball_entity = entities_ball_create(game_state);
+    Entity *ball_entity = entities_ball_create(
+        game_state, (BallConfig){.position = {game_state->config.screen_width / 2.0f, 420.0f}});
     game_state->vars.ball_entity_id = ball_entity->id;
-    Component *ball_transform =
-        entities_component_get(game_state->entity_repository, CT_TRANSFORM, ball_entity->id);
-    ball_transform->transform.position = (Vector2){game_state->config.screen_width / 2.0f, 420.0f};
 
-    Entity *goal_entity = entities_goal_create(game_state);
-    Component *goal_transform =
-        entities_component_get(game_state->entity_repository, CT_TRANSFORM, goal_entity->id);
-    // goal_transform->transform.position = (Vector2){1060, 232};
-    goal_transform->transform.position = (Vector2){
-        game_state->vars.pitch_rectangle.x + game_state->vars.pitch_rectangle.width / 2.0f,
-        game_state->vars.pitch_rectangle.y};
+    entities_goal_create(game_state, (GoalConfig){.position = GP_TOP});
 
     Entity *camera_entity = entities_camera_create(game_state);
     ComponentCamera *camera =
