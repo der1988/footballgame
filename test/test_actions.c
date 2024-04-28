@@ -5,6 +5,7 @@
 #include "../src/types.h"
 #include "actions/actions.h"
 #include "components/components.h"
+#include "config.h"
 #include "entities/entities.h"
 #include "game.h"
 #include "systems/systems.h"
@@ -14,6 +15,7 @@
 #include <assert.h>
 #include <math.h>
 #include <raylib.h>
+#include <raymath.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,13 +50,14 @@ void tearDown(void) {
 }
 
 void test_action_change_color_from_to() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
-    Component *component_sprite =
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentSprite *component_sprite =
         entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
 
     ActionChangeColorFromTo *action = actions_change_color_from_to_create(
@@ -73,20 +76,21 @@ void test_action_change_color_from_to() {
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     Color expected_color = WHITE;
-    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->sprite.color.r);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->sprite.color.g);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->sprite.color.b);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->sprite.color.a);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->color.r);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->color.g);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->color.b);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->color.a);
 }
 
 void test_action_animation() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
-    Component *component_sprite =
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentSprite *component_sprite =
         entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
 
     AssetsAnimation *animation =
@@ -112,7 +116,7 @@ void test_action_animation() {
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     AssetsSpriteFrame *expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
-    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->sprite.frame_id);
+    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     // Test half play speed
     action = actions_play_animation_create(animation, false, 0.5f,
@@ -134,7 +138,7 @@ void test_action_animation() {
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
-    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->sprite.frame_id);
+    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     // Test double play speed
     action = actions_play_animation_create(animation, false, 2.0f,
@@ -156,17 +160,18 @@ void test_action_animation() {
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
-    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->sprite.frame_id);
+    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 }
 
 void test_action_sequence() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
-    Component *component_sprite =
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentSprite *component_sprite =
         entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
 
     MemoryArenaHandle *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
@@ -193,19 +198,20 @@ void test_action_sequence() {
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     Color expected_color = RED;
-    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->sprite.color.r);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->sprite.color.g);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->sprite.color.b);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->sprite.color.a);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->color.r);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->color.g);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->color.b);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->color.a);
 }
 
 void test_action_spawn() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
-    Component *component_sprite =
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentSprite *component_sprite =
         entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
 
     AssetsAnimation *animation =
@@ -239,22 +245,23 @@ void test_action_spawn() {
 
     AssetsSpriteFrame *expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
-    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->sprite.frame_id);
+    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     Color expected_color = WHITE;
-    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->sprite.color.r);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->sprite.color.g);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->sprite.color.b);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->sprite.color.a);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->color.r);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->color.g);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->color.b);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->color.a);
 }
 
 void test_multiple_parallel_actions() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
-    Component *component_sprite =
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentSprite *component_sprite =
         entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
 
     AssetsAnimation *animation =
@@ -289,24 +296,25 @@ void test_multiple_parallel_actions() {
     TEST_ASSERT(component_action->running_actions[animation_idx].completed);
     AssetsSpriteFrame *expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
-    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->sprite.frame_id);
+    TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     TEST_ASSERT(component_action->running_actions[change_color_idx].completed);
     Color expected_color = WHITE;
-    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->sprite.color.r);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->sprite.color.g);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->sprite.color.b);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->sprite.color.a);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->color.r);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->color.g);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->color.b);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->color.a);
 }
 
 void test_action_pause() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
-    Component *component_sprite =
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentSprite *component_sprite =
         entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
 
     ActionChangeColorFromTo *action = actions_change_color_from_to_create(
@@ -329,10 +337,10 @@ void test_action_pause() {
         g_game_state->time += g_game_state->dt;
     }
     TEST_ASSERT(!component_action->running_actions[running_idx].completed);
-    TEST_ASSERT_EQUAL_UINT8(102, component_sprite->sprite.color.r);
-    TEST_ASSERT_EQUAL_UINT8(102, component_sprite->sprite.color.g);
-    TEST_ASSERT_EQUAL_UINT8(102, component_sprite->sprite.color.b);
-    TEST_ASSERT_EQUAL_UINT8(255, component_sprite->sprite.color.a);
+    TEST_ASSERT_EQUAL_UINT8(102, component_sprite->color.r);
+    TEST_ASSERT_EQUAL_UINT8(102, component_sprite->color.g);
+    TEST_ASSERT_EQUAL_UINT8(102, component_sprite->color.b);
+    TEST_ASSERT_EQUAL_UINT8(255, component_sprite->color.a);
 
     component_action->running_actions[running_idx].paused = false;
     usize second_batch = iterations - first_batch;
@@ -343,19 +351,20 @@ void test_action_pause() {
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     Color expected_color = WHITE;
-    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->sprite.color.r);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->sprite.color.g);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->sprite.color.b);
-    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->sprite.color.a);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.r, component_sprite->color.r);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.g, component_sprite->color.g);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.b, component_sprite->color.b);
+    TEST_ASSERT_EQUAL_UINT8(expected_color.a, component_sprite->color.a);
 }
 
 void test_action_tween_float_from_to() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
 
     f32 value = 0.0f;
     ActionTweenFloatFromTo *action = actions_tween_float_from_to_create(
@@ -377,15 +386,15 @@ void test_action_tween_float_from_to() {
 }
 
 void test_action_rotate_to() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentTransform *transform =
-        &entities_component_create(g_game_state->entity_repository, CT_TRANSFORM, entity_id)
-             ->transform;
+        entities_component_create(g_game_state->entity_repository, CT_TRANSFORM, entity_id);
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
 
     transform->rotation = 720.0f;
     ActionRotateTo *action =
@@ -407,12 +416,13 @@ void test_action_rotate_to() {
 }
 
 void test_action_toggle_boolean() {
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 
     ComponentAction *component_action =
-        &entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id)->action;
+        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
 
     b32 value = false;
     ActionToggleBoolean *action = actions_toggle_boolean_create(

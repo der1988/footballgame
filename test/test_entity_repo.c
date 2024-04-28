@@ -12,6 +12,7 @@
 #include "utils/utils.h"
 #include <assert.h>
 #include <raylib.h>
+#include <raymath.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,7 +46,8 @@ void tearDown(void) {
 
 void test_entity() {
     struct EntityRepository *entity_repo = g_game_state->entity_repository;
-    struct Entity *entity = entities_player_create(g_game_state);
+    struct Entity *entity =
+        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->id;
 

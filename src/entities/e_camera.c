@@ -9,24 +9,26 @@ Entity *entities_camera_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
 
     // Initialise transform
-    Component *component =
+    ComponentTransform *transform =
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
-    component->transform.position = (Vector2){(f32)GetScreenWidth() / 2, -10};
-    component->transform.rotation = 0;
-    component->transform.scale = Vector2One();
+    transform->position = (Vector2){(f32)GetScreenWidth() / 2, -10};
+    transform->rotation = 0;
+    transform->scale = Vector2One();
 
     // Initialise physics
-    component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 1;
-    component->physics.velocity = (Vector2){0};
-    component->physics.accel = (Vector2){0};
-    component->physics.max_velocity = 2000.0f;
+    ComponentPhysics *physics =
+        entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
+    physics->mass = 1;
+    physics->velocity = (Vector2){0};
+    physics->accel = (Vector2){0};
+    physics->max_velocity = 2000.0f;
     // In case camera stutters or weird things happen this is the parameter to tweak
-    component->physics.max_force = 50.0f;
+    physics->max_force = 50.0f;
 
     // Initialise props
-    component = entities_component_create(game_state->entity_repository, CT_CAMERA, entity->id);
-    component->camera.slowing_distance = 300.0f;
+    ComponentCamera *camera =
+        entities_component_create(game_state->entity_repository, CT_CAMERA, entity->id);
+    camera->slowing_distance = 300.0f;
 
     // Initialise target
     entities_component_create(game_state->entity_repository, CT_TARGET, entity->id);

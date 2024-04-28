@@ -88,8 +88,7 @@ Entity *entities_entity_get(EntityRepository *handle, EntityId id) {
     return handle->entities[id].alive ? &handle->entities[id] : NULL;
 }
 
-Component *entities_component_create(EntityRepository *entity_repo, ComponentType type,
-                                     EntityId id) {
+void *entities_component_create(EntityRepository *entity_repo, ComponentType type, EntityId id) {
     assert(entity_repo->initialised);
 
     Component *component = entity_repo->components + ((type * MAX_ENTITIES) + id);
@@ -97,7 +96,8 @@ Component *entities_component_create(EntityRepository *entity_repo, ComponentTyp
     component->header.enabled = true;
     component->header.entity_id = id;
 
-    return component;
+    // We return a random union field, since they all start at the same address in memory
+    return &component->transform;
 }
 
 Component *entities_component_get(EntityRepository *entity_repo, ComponentType type, EntityId id) {

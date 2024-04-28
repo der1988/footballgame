@@ -22,45 +22,48 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
     // Initialise transform
-    Component *component =
+    ComponentTransform *transform =
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
-    component->transform.position = config.position;
-    component->transform.rotation = 0;
-    component->transform.scale = (v2){.x = 1.5f, .y = 1.5f};
+    transform->position = config.position;
+    transform->rotation = 0;
+    transform->scale = (v2){.x = 1.5f, .y = 1.5f};
 
     // Initialise physics
-    component = entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
-    component->physics.mass = 75.0f;
-    component->physics.velocity = (Vector2){0};
-    component->physics.accel = (Vector2){0};
-    component->physics.max_velocity = game_state->constants.player_control_max_velocity;
+    ComponentPhysics *physics =
+        entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
+    physics->mass = 75.0f;
+    physics->velocity = (Vector2){0};
+    physics->accel = (Vector2){0};
+    physics->max_velocity = game_state->constants.player_control_max_velocity;
 
     // Initialise collider
-    component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    component->collider.shape = CS_CIRCLE;
-    component->collider.props.circle.radius = game_state->constants.player_control_radius;
+    ComponentCollider *collider =
+        entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
+    collider->shape = CS_CIRCLE;
+    collider->props.circle.radius = game_state->constants.player_control_radius;
 
     // Initialise sprite
-    component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
-    char *player_front_0 = "player_front_0";
+    ComponentSprite *sprite =
+        entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
+    char *player_frame_name = "player_front_0";
     AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_front_0);
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_frame_name);
     assert(sprite_frame != NULL);
-    component->sprite.frame_id = sprite_frame->id;
-    component->sprite.color = WHITE;
-    component->sprite.flipX = false;
-    component->sprite.flipY = false;
-    component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.8};
-    component->sprite.layer = SL_PLAYERS_AND_BALL;
-    component->sprite.draw_shadow = true;
-    component->sprite.shadow_color = BLACK;
-    component->sprite.shadow_color.a = 100;
-    component->sprite.shadow_offset = (v2){.x = 0.7, .y = 0.7};
-    component->sprite.shadow_scale = (v2){.x = 0.5, .y = 1};
+    sprite->frame_id = sprite_frame->id;
+    sprite->color = WHITE;
+    sprite->flipX = false;
+    sprite->flipY = false;
+    sprite->pivot_override = (v2){.x = 0.5, .y = 0.8};
+    sprite->layer = SL_PLAYERS_AND_BALL;
+    sprite->draw_shadow = true;
+    sprite->shadow_color = BLACK;
+    sprite->shadow_color.a = 100;
+    sprite->shadow_offset = (v2){.x = 0.7, .y = 0.7};
+    sprite->shadow_scale = (v2){.x = 0.5, .y = 1};
 
     // Initialise player
     ComponentPlayer *player =
-        &entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id)->player;
+        entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id);
     StateMachinePlayer *state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
     state_machine->owner_entity = entity->id;
@@ -69,7 +72,7 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     player->state_machine = state_machine;
 
     // Initialise action
-    component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
+    entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
     prepare_gfx(player, game_state);
 

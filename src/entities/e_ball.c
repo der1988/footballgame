@@ -21,56 +21,60 @@ struct Entity *entities_ball_create(GameState *game_state, BallConfig config) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
 
     // Initialise transform
-    Component *component =
+    ComponentTransform *transform =
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
-    component->transform.position = config.position;
-    component->transform.rotation = 0;
-    component->transform.virtual_height = 300;
-    component->transform.scale = (v2){.x = 1.0f, .y = 1.0f};
+    transform->position = config.position;
+    transform->rotation = 0;
+    transform->virtual_height = 300;
+    transform->scale = (v2){.x = 1.0f, .y = 1.0f};
 
     // Initialise 3d physics
-    component = entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
-    component->physics_3d.mass = 0.43f;
-    component->physics_3d.velocity = (Vector3){0};
-    component->physics_3d.accel = (Vector3){0};
-    component->physics_3d.max_velocity = game_state->constants.ball_max_velocity;
+    ComponentPhysics3d *physics_3d =
+        entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
+    physics_3d->mass = 0.43f;
+    physics_3d->velocity = (Vector3){0};
+    physics_3d->accel = (Vector3){0};
+    physics_3d->max_velocity = game_state->constants.ball_max_velocity;
 
     // Initialise sprite
-    component = entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
-    char *ball = "ball_left_0";
+    ComponentSprite *sprite =
+        entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
+    char *ball_frame_name = "ball_left_0";
     AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball);
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball_frame_name);
     assert(sprite_frame != NULL);
-    component->sprite.frame_id = sprite_frame->id;
-    component->sprite.color = WHITE;
-    component->sprite.flipX = false;
-    component->sprite.flipY = false;
-    component->sprite.pivot_override = (v2){.x = 0.5, .y = 0.5};
-    component->sprite.layer = SL_PLAYERS_AND_BALL;
-    component->sprite.draw_shadow = true;
-    component->sprite.shadow_color = BLACK;
-    component->sprite.shadow_color.a = 100;
-    component->sprite.shadow_offset = (v2){.x = 0.05, .y = 0.1};
-    component->sprite.shadow_scale = (v2){.x = 1, .y = 1};
+    sprite->frame_id = sprite_frame->id;
+    sprite->color = WHITE;
+    sprite->flipX = false;
+    sprite->flipY = false;
+    sprite->pivot_override = (v2){.x = 0.5, .y = 0.5};
+    sprite->layer = SL_PLAYERS_AND_BALL;
+    sprite->draw_shadow = true;
+    sprite->shadow_color = BLACK;
+    sprite->shadow_color.a = 100;
+    sprite->shadow_offset = (v2){.x = 0.05, .y = 0.1};
+    sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
-    component = entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    component->collider.shape = CS_CIRCLE;
-    component->collider.props.circle.radius = 9;
+    ComponentCollider *collider =
+        entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
+    collider->shape = CS_CIRCLE;
+    collider->props.circle.radius = 9;
 
     // Initialise action
-    component = entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
+    entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
     // Initialise ball
-    component = entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
+    ComponentBall *ball =
+        entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
     StateMachineBall *state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineBall));
     state_machine->owner_entity = entity->id;
     state_machine->previous_state = BS_NONE;
     state_machine->current_state = BS_IN_PLAY;
-    component->ball.state_machine = state_machine;
+    ball->state_machine = state_machine;
 
-    ball_prepare_gfx(&component->ball, game_state);
+    ball_prepare_gfx(ball, game_state);
 
     entities_ball_state_machine_on_enter(entity, game_state);
 
