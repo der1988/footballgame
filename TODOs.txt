@@ -27,7 +27,7 @@ v block direction when charging kick
 v block direction when running (ala ISS pro)
 v refactor away state machine component
 v allow entity configuration on creation
+v component create should return a typed component
 - implement a physics step
 - implement teams
 - implement passing
-- component create should return a typed component
