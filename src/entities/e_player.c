@@ -98,7 +98,7 @@ void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhys
 
 void entities_player_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
     ComponentPlayer *player =
-        entities_component_get_internal(game_state->entity_repository, CT_PLAYER, entity->id);
+        entities_component_get_typed(game_state->entity_repository, CT_PLAYER, entity->id);
     StateMachinePlayer *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
@@ -119,7 +119,7 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
 
 void entities_player_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
     ComponentPlayer *player =
-        entities_component_get_internal(game_state->entity_repository, CT_PLAYER, entity->id);
+        entities_component_get_typed(game_state->entity_repository, CT_PLAYER, entity->id);
     StateMachinePlayer *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",

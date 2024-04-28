@@ -10,14 +10,14 @@
 void systems_goal(GameState *game_state) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
-    ComponentTransform *ball_transform = entities_component_get_internal(
+    ComponentTransform *ball_transform = entities_component_get_typed(
         game_state->entity_repository, CT_TRANSFORM, game_state->vars.ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
+    ComponentPhysics3d *ball_physics_3d = entities_component_get_typed(
         game_state->entity_repository, CT_PHYSICS_3D, game_state->vars.ball_entity_id);
-    ComponentCollider *ball_collider = entities_component_get_internal(
+    ComponentCollider *ball_collider = entities_component_get_typed(
         game_state->entity_repository, CT_COLLIDER, game_state->vars.ball_entity_id);
-    ComponentBall *ball = entities_component_get_internal(game_state->entity_repository, CT_BALL,
-                                                          game_state->vars.ball_entity_id);
+    ComponentBall *ball = entities_component_get_typed(game_state->entity_repository, CT_BALL,
+                                                       game_state->vars.ball_entity_id);
 
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(

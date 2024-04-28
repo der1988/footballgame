@@ -81,7 +81,7 @@ struct Entity *entities_ball_create(GameState *game_state, BallConfig config) {
 
 void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
     ComponentBall *ball =
-        entities_component_get_internal(game_state->entity_repository, CT_BALL, entity->id);
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, entity->id);
     StateMachineBall *state_machine = ball->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
@@ -104,7 +104,7 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
 
 void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
     ComponentBall *ball =
-        entities_component_get_internal(game_state->entity_repository, CT_BALL, entity->id);
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, entity->id);
     StateMachineBall *state_machine = ball->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
@@ -146,10 +146,10 @@ void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
                                      v2 position_to_seek, f32 control_quality,
                                      GameState *game_state) {
-    ComponentTransform *ball_transform = entities_component_get_internal(
-        game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
-        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentTransform *ball_transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
 
     ball_physics_3d->velocity = Vector3Add(
         V2_TO_V3(player_velocity, 0),
@@ -161,8 +161,8 @@ void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity
 
 void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
                                    v2 player_velocity, f32 control_quality, GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
-        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     v3 velocity_to_add =
         Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.5f}),
                      // TODO: some ball_run_force has to always be applied
@@ -171,10 +171,10 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
 }
 
 void entities_ball_shoot(EntityId ball_entity_id, v3 direction, f32 power, GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
-        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
-        entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_entity_id);
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     ball_physics_3d->accel = Vector3Add(
         ball_physics_3d->accel,
         Vector3Scale(direction, game_state->constants.ball_shot_force * 0.5f +
@@ -184,8 +184,8 @@ void entities_ball_shoot(EntityId ball_entity_id, v3 direction, f32 power, GameS
 
 void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
                               GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
-        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ball_physics_3d->accel = Vector3Add(
         ball_physics_3d->accel,
         Vector3Scale(direction, game_state->constants.ball_pass_force * 0.5f +
@@ -194,8 +194,8 @@ void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
 
 void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
                              GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_internal(
-        game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ball_physics_3d->accel = Vector3Add(
         ball_physics_3d->accel,
         Vector3Scale(direction, game_state->constants.ball_long_pass_force * 0.75f +

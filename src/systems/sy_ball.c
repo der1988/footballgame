@@ -14,15 +14,15 @@ void systems_ball(GameState *game_state, Input *input) {
     EntityId ball_id = game_state->vars.ball_entity_id;
     if (entity_repository->entities[ball_id].alive) {
         ComponentTransform *transform =
-            entities_component_get_internal(game_state->entity_repository, CT_TRANSFORM, ball_id);
+            entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_id);
         ComponentPhysics3d *physics_3d =
-            entities_component_get_internal(game_state->entity_repository, CT_PHYSICS_3D, ball_id);
+            entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_id);
         ComponentCollider *collider =
-            entities_component_get_internal(game_state->entity_repository, CT_COLLIDER, ball_id);
+            entities_component_get_typed(game_state->entity_repository, CT_COLLIDER, ball_id);
         ComponentSprite *sprite =
-            entities_component_get_internal(game_state->entity_repository, CT_SPRITE, ball_id);
+            entities_component_get_typed(game_state->entity_repository, CT_SPRITE, ball_id);
         ComponentBall *ball =
-            entities_component_get_internal(game_state->entity_repository, CT_BALL, ball_id);
+            entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_id);
         StateMachineBall *state_machine = ball->state_machine;
 
         if (input->buttons[IBT_BUTTON_START].released) {

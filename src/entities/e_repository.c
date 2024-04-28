@@ -112,8 +112,7 @@ Component *entities_component_get(EntityRepository *entity_repo, ComponentType t
     return component;
 }
 
-void *entities_component_get_internal(EntityRepository *entity_repo, ComponentType type,
-                                      EntityId id) {
+void *entities_component_get_typed(EntityRepository *entity_repo, ComponentType type, EntityId id) {
     assert(entity_repo->initialised);
 
     if (!entity_repo->entities[id].alive) {

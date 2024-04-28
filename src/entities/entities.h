@@ -154,7 +154,7 @@ void entities_entity_update(struct Entity *, GameState *game_state, Input *input
 
 Component *entities_component_create(EntityRepository *handle, ComponentType type, EntityId id);
 Component *entities_component_get(EntityRepository *handle, ComponentType type, EntityId id);
-void *entities_component_get_internal(EntityRepository *handle, ComponentType type, EntityId id);
+void *entities_component_get_typed(EntityRepository *handle, ComponentType type, EntityId id);
 b32 entities_entity_is_alive_and_has_components(EntityRepository *handle, EntityId id, u32 count,
                                                 ...);
 
