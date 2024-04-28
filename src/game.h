@@ -17,7 +17,7 @@ struct Input;
 
 typedef enum { MAL_GAME, MAL_LEVEL, MAL_FRAME, MAL_COUNT } MemoryArenaLifetime;
 
-typedef enum { CAM_MAIN, CAM_PLAYER_2, CAM_COUNT } CameraType;
+typedef enum { CAM_MAIN, CAM_COUNT } CameraType;
 
 typedef struct GameConfig {
     u32 screen_width;

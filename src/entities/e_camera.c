@@ -25,9 +25,8 @@ Entity *entities_camera_create(GameState *game_state) {
     component->physics.max_force = 50.0f;
 
     // Initialise props
-    component =
-        entities_component_create(game_state->entity_repository, CT_CAMERA_PROPS, entity->id);
-    component->camera_props.slowing_distance = 300.0f;
+    component = entities_component_create(game_state->entity_repository, CT_CAMERA, entity->id);
+    component->camera.slowing_distance = 300.0f;
 
     // Initialise target
     entities_component_create(game_state->entity_repository, CT_TARGET, entity->id);

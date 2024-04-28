@@ -22,7 +22,7 @@ typedef enum {
     CT_COLLIDER,
     CT_ACTION,
     CT_TARGET,
-    CT_CAMERA_PROPS,
+    CT_CAMERA,
     CT_PLAYER,
     CT_BALL,
     CT_GOAL,
@@ -101,7 +101,7 @@ typedef struct {
 typedef struct {
     CameraType camera;
     f32 slowing_distance;
-} ComponentCameraProps;
+} ComponentCamera;
 
 typedef enum {
     D_UP,
@@ -153,7 +153,7 @@ typedef struct {
 typedef struct {
     ComponentHeader header;
     union {
-        ComponentCameraProps camera_props;
+        ComponentCamera camera;
         ComponentTransform transform;
         ComponentPhysics physics;
         ComponentPhysics3d physics_3d;

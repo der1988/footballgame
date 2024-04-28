@@ -138,13 +138,14 @@ GameState *game_init(GameConfig game_config) {
         game_state->vars.pitch_rectangle.x + game_state->vars.pitch_rectangle.width / 2.0f,
         game_state->vars.pitch_rectangle.y};
 
-    Entity *camera = entities_camera_create(game_state);
-    ComponentCameraProps *camera_props =
-        &entities_component_get(game_state->entity_repository, CT_CAMERA_PROPS, camera->id)
-             ->camera_props;
+    Entity *camera_entity = entities_camera_create(game_state);
+    ComponentCamera *camera =
+        &entities_component_get(game_state->entity_repository, CT_CAMERA, camera_entity->id)
+             ->camera;
     ComponentTarget *camera_target =
-        &entities_component_get(game_state->entity_repository, CT_TARGET, camera->id)->target;
-    camera_props->camera = CAM_MAIN;
+        &entities_component_get(game_state->entity_repository, CT_TARGET, camera_entity->id)
+             ->target;
+    camera->camera = CAM_MAIN;
     camera_target->entity_id = ball_entity->id;
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.screen_width,
