@@ -27,6 +27,12 @@ void layers_debug_destroy(LayersDebug *handle) {
     GLOG_INFO(LS_LAYERS, "layer debug destroyed");
 }
 
+void layers_debug_reset(LayersDebug *handle) {
+    assert(handle->initialised);
+    handle->queued_requests = 0;
+    GLOG_TRACE(LS_LAYERS, "layer debug destroyed");
+}
+
 void layers_debug_queue_draw_text(LayersDebug *handle, const char *text) {
     if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS) {
         DrawTextRequest *dtr =
@@ -45,5 +51,4 @@ void layers_debug_draw(LayersDebug *handle) {
         DrawText(dtr->text, 50, 10 + i * handle->space_between_rows, handle->font_size,
                  handle->color);
     }
-    handle->queued_requests = 0;
 }

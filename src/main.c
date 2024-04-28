@@ -1,10 +1,6 @@
-#include "assets/assets.h"
-#include "entities/entities.h"
 #include "game.h"
 #include "input/input.h"
-#include "memory/memory.h"
 #include "types.h"
-#include "utils/utils.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
@@ -25,61 +21,48 @@ int main() {
 
     GameState *game_state = game_init(game_config);
 
-    // Custom timing variables
-    double previousTime = GetTime(); // Previous time measure
-    double currentTime = 0.0;        // Current time measure
-    double updateDrawTime = 0.0;     // Update + Draw time
-    double waitTime = 0.0;           // Wait time (if target fps required)
-    float deltaTime = 0.0f;          // Frame time (Update + Draw + Wait time)
+    double t = 0.0;
+    double dt = 1 / 480.0;
 
-    float timeCounter = 0.0f; // Accumulative time counter (seconds)
-    float position = 0.0f;    // Circle position
-    bool pause = false;       // Pause control flag
-
-    int targetFPS = 60; // Our initial target fps
+    double currentTime = GetTime();
 
     //--------------------------------------------------------------------------------------
 
     // Main game loop;
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-        PollInputEvents();
+        double newTime = GetTime();
+        double frameTime = newTime - currentTime;
+        currentTime = newTime;
 
-        if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
-            // Slow motion
-            game_state->dt = deltaTime * 0.1f;
-            game_state->time += game_state->dt;
-        } else {
-            game_state->time = GetTime();
-            game_state->dt = deltaTime;
-        }
+        PollInputEvents();
 
         // Handle Input
         Input input = input_handle(game_state);
 
-        // Update
-        game_update(game_state, &input);
+        while (frameTime > 0.0) {
+            float deltaTime = fminf(frameTime, dt);
+
+            if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
+                // Slow motion
+                game_state->dt = deltaTime * 0.1f;
+                game_state->time += game_state->dt;
+            } else {
+                game_state->time = t;
+                game_state->dt = deltaTime;
+            }
+
+            // Update
+            game_update(game_state, &input);
+
+            frameTime -= deltaTime;
+            t += deltaTime;
+        }
 
         // Draw
         game_draw(game_state);
 
-        SwapScreenBuffer(); // Flip the back buffer to screen (front buffer)
-
-        currentTime = GetTime();
-        updateDrawTime = currentTime - previousTime;
-
-        if (targetFPS > 0) // We want a fixed frame rate
-        {
-            waitTime = (1.0f / (float)targetFPS) - updateDrawTime;
-            if (waitTime > 0.0) {
-                WaitTime((float)waitTime);
-                currentTime = GetTime();
-                deltaTime = (float)(currentTime - previousTime);
-            }
-        } else
-            deltaTime = (float)updateDrawTime; // Framerate could be variable
-
-        previousTime = currentTime;
+        SwapScreenBuffer();
     }
 
     // De-Initialization

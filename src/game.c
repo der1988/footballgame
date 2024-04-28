@@ -172,8 +172,9 @@ void game_destroy(GameState *game_state) {
 void game_update(GameState *game_state, Input *input) {
     assert(game_state->initialised);
 
-    // This memory arena should be reset every frame
+    // These should be reset every update
     memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
+    layers_debug_reset(game_state->layer_debug);
 
     if (IsKeyReleased(KEY_P)) {
         game_state->vars.is_tweakui_shown = !game_state->vars.is_tweakui_shown;
