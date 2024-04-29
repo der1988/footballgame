@@ -21,42 +21,38 @@ int main() {
 
     GameState *game_state = game_init(game_config);
 
-    double t = 0.0;
-    double dt = 1 / 480.0;
+    const double dt = 1 / 100.0;
 
-    double currentTime = GetTime();
+    double current_time = GetTime();
+    double accumulator = 0.0;
 
     //--------------------------------------------------------------------------------------
 
     // Main game loop;
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-        double newTime = GetTime();
-        double frameTime = newTime - currentTime;
-        currentTime = newTime;
 
-        PollInputEvents();
+        double new_time = GetTime();
+        double frame_time = new_time - current_time;
+        current_time = new_time;
 
-        // Handle Input
-        Input input = input_handle(game_state);
+        accumulator += frame_time;
+        while (accumulator >= dt) {
 
-        while (frameTime > 0.0) {
-            float deltaTime = fminf(frameTime, dt);
+            PollInputEvents();
 
-            if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
-                // Slow motion
-                game_state->dt = deltaTime * 0.1f;
-                game_state->time += game_state->dt;
-            } else {
-                game_state->time = t;
-                game_state->dt = deltaTime;
-            }
+            // Handle Input
+            Input input = input_handle(game_state);
+
+            b32 slow_motion = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+
+            game_state->dt = dt * (slow_motion ? 0.1f : 1);
 
             // Update
             game_update(game_state, &input);
 
-            frameTime -= deltaTime;
-            t += deltaTime;
+            accumulator -= game_state->dt;
+            game_state->time += game_state->dt;
         }
 
         // Draw
