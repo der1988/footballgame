@@ -35,7 +35,7 @@ int main() {
         current_time = new_time;
 
         accumulator += frame_time;
-        while (accumulator >= dt) {
+        while (accumulator > 0) {
 
             PollInputEvents();
 
