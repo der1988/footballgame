@@ -43,7 +43,6 @@ int main() {
 
             game_state->dt = dt;
 
-            // Update
             game_update(game_state, &input);
 
             accumulator -= dt;
