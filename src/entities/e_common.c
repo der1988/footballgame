@@ -9,7 +9,7 @@
 AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
                                                          GameState *game_state) {
     // Scratch buffer
-    char *final_animation = memory_arena_push(game_state->memory_by_lifetime[MAL_FRAME], 30);
+    char *final_animation = memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], 30);
 
     snprintf(final_animation, 30, "%s_%s", entity_name, animation_name);
     AssetsAnimation *animation =

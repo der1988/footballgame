@@ -21,7 +21,7 @@ int main() {
 
     GameState *game_state = game_init(game_config);
 
-    const double dt = 1 / 100.0;
+    const double dt = 1 / 480.0;
 
     double current_time = GetTime();
     double accumulator = 0.0;
@@ -31,7 +31,6 @@ int main() {
     // Main game loop;
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-
         double new_time = GetTime();
         double frame_time = new_time - current_time;
         current_time = new_time;
