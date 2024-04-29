@@ -21,6 +21,7 @@ int main() {
 
     GameState *game_state = game_init(game_config);
 
+    // Fixed timestep
     const double dt = 1 / 480.0;
 
     double current_time = GetTime();
@@ -40,7 +41,6 @@ int main() {
 
             PollInputEvents();
 
-            // Handle Input
             Input input = input_handle(game_state);
 
             b32 slow_motion = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
@@ -50,7 +50,7 @@ int main() {
             // Update
             game_update(game_state, &input);
 
-            accumulator -= game_state->dt;
+            accumulator -= dt;
             game_state->time += game_state->dt;
         }
 
