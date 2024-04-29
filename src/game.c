@@ -61,7 +61,7 @@ GameState *game_init(GameConfig game_config) {
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
     game_state->memory_by_lifetime[MAL_LEVEL] =
         memory_arena_create("level", game_config.memory + Megabytes(1), Megabytes(1));
-    game_state->memory_by_lifetime[MAL_SCRATCH] =
+    game_state->memory_by_lifetime[MAL_FRAME] =
         memory_arena_create("frame", game_config.memory + Megabytes(2), Megabytes(1));
 
     // Initialise entities repository
@@ -164,7 +164,7 @@ void game_destroy(GameState *game_state) {
 
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_GAME]);
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_SCRATCH]);
+    memory_arena_destroy(game_state->memory_by_lifetime[MAL_FRAME]);
 
     game_state->initialised = false;
 }
@@ -172,9 +172,8 @@ void game_destroy(GameState *game_state) {
 void game_update(GameState *game_state, Input *input) {
     assert(game_state->initialised);
 
-    memory_arena_reset(game_state->memory_by_lifetime[MAL_SCRATCH]);
-
     // These should be reset every update
+    memory_arena_reset(game_state->memory_by_lifetime[MAL_FRAME]);
     layers_debug_reset(game_state->layer_debug);
 
     if (IsKeyReleased(KEY_P)) {
@@ -191,8 +190,6 @@ void game_update(GameState *game_state, Input *input) {
 
 void game_draw(GameState *game_state) {
     assert(game_state->initialised);
-
-    memory_arena_reset(game_state->memory_by_lifetime[MAL_SCRATCH]);
 
     Texture2D pitch_texture =
         assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture;
