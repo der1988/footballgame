@@ -29,9 +29,7 @@ int main() {
 
     //--------------------------------------------------------------------------------------
 
-    // Main game loop;
-    while (!WindowShouldClose()) // Detect window close button or ESC key
-    {
+    while (!WindowShouldClose()) {
         double new_time = GetTime();
         double frame_time = new_time - current_time;
         current_time = new_time;
@@ -54,7 +52,6 @@ int main() {
             game_state->time += game_state->dt;
         }
 
-        // Draw
         game_draw(game_state);
 
         SwapScreenBuffer();
