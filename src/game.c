@@ -178,8 +178,16 @@ void game_update(GameState *game_state, Input *input) {
     memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
     layers_debug_reset(game_state->layer_debug);
 
+    // Tweak UI toggle
     if (IsKeyReleased(KEY_P)) {
         game_state->vars.is_tweakui_shown = !game_state->vars.is_tweakui_shown;
+    }
+
+    // Slow motion
+    if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
+        game_state->time -= game_state->dt;
+        game_state->dt = game_state->dt * 0.1;
+        game_state->time += game_state->dt;
     }
 
     systems_controls(game_state, input);

@@ -41,15 +41,13 @@ int main() {
 
             Input input = input_handle(game_state);
 
-            b32 slow_motion = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
-
-            game_state->dt = dt * (slow_motion ? 0.1f : 1);
+            game_state->dt = dt;
 
             // Update
             game_update(game_state, &input);
 
             accumulator -= dt;
-            game_state->time += game_state->dt;
+            game_state->time += dt;
         }
 
         game_draw(game_state);
