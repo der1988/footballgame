@@ -11,7 +11,7 @@ LayersDebug *layers_debug_create(GameState *game_state) {
         memory_arena_push(game_state->memory_by_lifetime[MAL_GAME], sizeof(LayersDebug));
     handle->initialised = true;
 
-    handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_FRAME];
+    handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_SCRATCH];
     handle->color = WHITE;
     handle->font_size = 20;
     handle->space_between_rows = 20;

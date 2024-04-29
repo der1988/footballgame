@@ -49,7 +49,7 @@ void systems_render(GameState *game_state) {
 
     // Allocate some buffer in frame memory arena
     SpriteToDraw *ordered_sprites_to_draw =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_FRAME],
+        memory_arena_push(game_state->memory_by_lifetime[MAL_SCRATCH],
                           sizeof(SpriteToDraw) * entity_repository->max_slots);
 
     // Collect information about sprites to draw

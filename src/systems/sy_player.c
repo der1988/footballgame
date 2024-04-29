@@ -65,7 +65,7 @@ void systems_player(GameState *game_state, Input *input) {
             collider->props.circle.radius = game_state->constants.player_control_radius;
 
             PlayerControls *player_controls = memory_arena_push(
-                game_state->memory_by_lifetime[MAL_FRAME], sizeof(PlayerControls));
+                game_state->memory_by_lifetime[MAL_SCRATCH], sizeof(PlayerControls));
 
             if (game_state->vars.p1.player_entity_id == entity_id) {
                 player_controls->steering = game_state->vars.p1.controls.normalised_direction;
