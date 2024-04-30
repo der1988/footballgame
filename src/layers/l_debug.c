@@ -11,7 +11,7 @@ LayersDebug *layers_debug_create(GameState *game_state) {
         memory_arena_push(game_state->memory_by_lifetime[MAL_GAME], sizeof(LayersDebug));
     handle->initialised = true;
 
-    handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_FRAME];
+    handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_UPDATE];
     handle->color = WHITE;
     handle->font_size = 20;
     handle->space_between_rows = 20;
@@ -25,6 +25,12 @@ void layers_debug_destroy(LayersDebug *handle) {
     assert(handle->initialised);
     handle->initialised = false;
     GLOG_INFO(LS_LAYERS, "layer debug destroyed");
+}
+
+void layers_debug_reset(LayersDebug *handle) {
+    assert(handle->initialised);
+    handle->queued_requests = 0;
+    GLOG_TRACE(LS_LAYERS, "layer debug destroyed");
 }
 
 void layers_debug_queue_draw_text(LayersDebug *handle, const char *text) {
@@ -45,5 +51,4 @@ void layers_debug_draw(LayersDebug *handle) {
         DrawText(dtr->text, 50, 10 + i * handle->space_between_rows, handle->font_size,
                  handle->color);
     }
-    handle->queued_requests = 0;
 }

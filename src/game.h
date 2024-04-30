@@ -15,7 +15,7 @@ struct TweakUI;
 struct LayersDebug;
 struct Input;
 
-typedef enum { MAL_GAME, MAL_LEVEL, MAL_FRAME, MAL_COUNT } MemoryArenaLifetime;
+typedef enum { MAL_GAME, MAL_LEVEL, MAL_UPDATE, MAL_DRAW, MAL_COUNT } MemoryArenaLifetime;
 
 typedef enum { CAM_MAIN, CAM_COUNT } CameraType;
 
