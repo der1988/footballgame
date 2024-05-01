@@ -41,7 +41,7 @@ void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, v2 position, f32 
     Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw pivot
-    DrawCircleV(position, 2, RED);
+    DrawCircleV(position, 1, RED);
 
     Vector2 top_left = {.x = position.x - sprite_frame->source_size.x * scale.x * pivot.x,
                         .y = position.y - sprite_frame->source_size.y * scale.y * pivot.y};

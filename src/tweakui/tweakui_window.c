@@ -31,7 +31,7 @@ void tweakui_destroy(TweakUI *handle) {
 void tweakui_draw(TweakUI *handle, GameState *game_state) {
     assert(handle->initialised);
 
-    Rectangle window_bounds = {.x = game_state->config.screen_width / 2.0f -
+    Rectangle window_bounds = {.x = game_state->config.virtual_screen_width / 2.0f -
                                     handle->window_size.x / 2.0f,
                                .y = 10,
                                .width = handle->window_size.x,

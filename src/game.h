@@ -20,6 +20,8 @@ typedef enum { MAL_GAME, MAL_LEVEL, MAL_UPDATE, MAL_DRAW, MAL_COUNT } MemoryAren
 typedef enum { CAM_MAIN, CAM_COUNT } CameraType;
 
 typedef struct GameConfig {
+    u32 virtual_screen_width;
+    u32 virtual_screen_height;
     u32 screen_width;
     u32 screen_height;
     void *memory;
@@ -84,6 +86,7 @@ typedef struct HumanPlayer {
 
 typedef struct GameVariables {
     b32 is_tweakui_shown;
+    EntityId camera_entity_id;
     EntityId ball_entity_id;
     HumanPlayer p1;
     Rectangle pitch_rectangle;
@@ -106,6 +109,7 @@ typedef struct GameState {
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;
+    Camera2D virtual_camera;
     Time time;
     DeltaTime dt;
 } GameState;

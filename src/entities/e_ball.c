@@ -25,8 +25,8 @@ struct Entity *entities_ball_create(GameState *game_state, BallConfig config) {
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
     transform->position = config.position;
     transform->rotation = 0;
-    transform->virtual_height = 300;
-    transform->scale = (v2){.x = 1.0f, .y = 1.0f};
+    transform->virtual_height = 100;
+    transform->scale = (v2){.x = 0.625, .y = 0.625};
 
     // Initialise 3d physics
     ComponentPhysics3d *physics_3d =
@@ -59,7 +59,7 @@ struct Entity *entities_ball_create(GameState *game_state, BallConfig config) {
     ComponentCollider *collider =
         entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
     collider->shape = CS_CIRCLE;
-    collider->props.circle.radius = 9;
+    collider->props.circle.radius = 2.5f;
 
     // Initialise action
     entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -168,7 +168,7 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
     ComponentPhysics3d *ball_physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     v3 velocity_to_add =
-        Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.5f}),
+        Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.1f}),
                      // TODO: some ball_run_force has to always be applied
                      game_state->constants.ball_run_force * (1 - control_quality));
     ball_physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
