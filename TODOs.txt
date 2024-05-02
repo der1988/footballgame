@@ -29,6 +29,6 @@ v refactor away state machine component
 v allow entity configuration on creation
 v component create should return a typed component
 v implement a physics step
+v fix build system to support fixed timestep
 - implement teams
 - implement passing
-- fix build system to support fixed timestep

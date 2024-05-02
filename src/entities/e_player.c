@@ -26,7 +26,7 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
         entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
     transform->position = config.position;
     transform->rotation = 0;
-    transform->scale = (v2){.x = 1.5f, .y = 1.5f};
+    transform->scale = (v2){.x = 1, .y = 1};
 
     // Initialise physics
     ComponentPhysics *physics =
@@ -58,8 +58,8 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     sprite->draw_shadow = true;
     sprite->shadow_color = BLACK;
     sprite->shadow_color.a = 100;
-    sprite->shadow_offset = (v2){.x = 0.7, .y = 0.7};
-    sprite->shadow_scale = (v2){.x = 0.5, .y = 1};
+    sprite->shadow_offset = (v2){.x = 0.5, .y = 0.5};
+    sprite->shadow_scale = (v2){.x = 0.6, .y = 1};
 
     // Initialise player
     ComponentPlayer *player =

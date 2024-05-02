@@ -11,13 +11,18 @@ int main() {
 
     const float screen_width = 1920;
     const float screen_height = 1080;
+    const float virtual_screen_width = 640;
+    const float virtual_screen_height = 360;
 
     InitWindow(screen_width, screen_height, "The Game");
 
     void *memory = malloc(Megabytes(64));
 
-    GameConfig game_config = (GameConfig){
-        .screen_width = GetScreenWidth(), .screen_height = GetScreenHeight(), .memory = memory};
+    GameConfig game_config = (GameConfig){.screen_width = GetScreenWidth(),
+                                          .screen_height = GetScreenHeight(),
+                                          .virtual_screen_width = virtual_screen_width,
+                                          .virtual_screen_height = virtual_screen_height,
+                                          .memory = memory};
 
     GameState *game_state = game_init(game_config);
 

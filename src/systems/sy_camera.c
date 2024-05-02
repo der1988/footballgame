@@ -44,7 +44,6 @@ void systems_camera(GameState *game_state) {
 
             apply_force(steering, physics, game_state->dt);
             apply_velocity(transform, physics, game_state->dt);
-            game_state->camera.target = transform->position;
         }
     }
 }

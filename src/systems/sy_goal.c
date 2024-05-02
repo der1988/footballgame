@@ -53,12 +53,12 @@ void systems_goal(GameState *game_state) {
                                    .y = 0,
                                    .z = game_state->vars.pitch_rectangle.y};
 
-            f32 post_width = 4.0f;
+            f32 post_width = 2;
 
             if (game_state->vars.someone_scored) {
-                if (ball_transform->position.y < goal_rectangle.y + 15 ||
-                    ball_transform->position.x < goal_rectangle.x + 15 ||
-                    ball_transform->position.x > (goal_rectangle.x + goal_rectangle.width - 15)) {
+                if (ball_transform->position.y < goal_rectangle.y - 7 ||
+                    ball_transform->position.x < goal_rectangle.x ||
+                    ball_transform->position.x > (goal_rectangle.x + goal_rectangle.width)) {
                     ball_physics_3d->velocity.x = 0;
                     ball_physics_3d->velocity.z = 0;
                 }

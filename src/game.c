@@ -13,8 +13,9 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
-#define PIXELS_PER_METER (3240.0f / 105.0f)
+#define PIXELS_PER_METER (1080.0f / 108.0f)
 
 GameState *game_init(GameConfig game_config) {
     MemoryArenaHandle *memory_arena_lifetime_game =
@@ -25,9 +26,9 @@ GameState *game_init(GameConfig game_config) {
     game_state->config.players_count = 1;
 
     // pitch in reality is 105m long
-    // pitch in game is 3240 pixels long
-    // 1m is ~30.86 pixels in game
-    // gravity is -9.81m/s^2 in reality, so -302.73pixels/s^2 in game
+    // pitch in game is 1080 pixels long
+    // 1m is ~10 pixels in game
+    // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
     game_state->constants = (GameConstants){.render_debug = true,
                                             .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
@@ -38,23 +39,23 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_cross_sectional_area = 0.038f,
                                             .ball_drag_coefficient = 0.25f,
                                             .gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-                                            .ball_friction_on_pitch = 1.0f,
-                                            .ball_run_force = 100.0f,
-                                            .ball_control_force = 40.0f,
-                                            .ball_shot_force = 1600.0f,
-                                            .ball_shot_height = 0.5f,
-                                            .ball_pass_force = 1600.0f,
-                                            .ball_long_pass_force = 800.0f,
+                                            .ball_friction_on_pitch = 0.5f,
+                                            .ball_run_force = 33.3f,
+                                            .ball_control_force = 13.3f,
+                                            .ball_shot_force = 533.0f,
+                                            .ball_shot_height = 0.35f,
+                                            .ball_pass_force = 533.0f,
+                                            .ball_long_pass_force = 266.0f,
                                             .ball_long_pass_height = 1.0f,
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
                                             .ball_after_touch_force = 15.0f,
                                             .ball_max_velocity = 1000.0f,
-                                            .player_movement_force = 22000.0f,
-                                            .player_movement_drag = 12500.0f,
-                                            .player_control_max_velocity = 150.0f,
-                                            .player_run_max_velocity = 300.0f,
-                                            .player_control_radius = 17.5f,
+                                            .player_movement_force = 7333.0f,
+                                            .player_movement_drag = 4166.0f,
+                                            .player_control_max_velocity = 60.0f,
+                                            .player_run_max_velocity = 100.0f,
+                                            .player_control_radius = 6,
                                             .kick_charge_reset_time = 1.5f};
 
     // Partition game memory
@@ -109,17 +110,20 @@ GameState *game_init(GameConfig game_config) {
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
     game_state->vars.pitch_rectangle =
-        (Rectangle){.x = 100, .y = 232, .width = 1920, .height = 1080 * 3};
+        (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
 
     Entity *player_entity = entities_player_create(
-        game_state, (PlayerConfig){.position = {game_state->config.screen_width / 2.0f, 420.0f}});
+        game_state,
+        (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}});
 
     entities_player_create(
         game_state,
-        (PlayerConfig){.position = {game_state->config.screen_width / 2.0f - 100.0f, 20.0f}});
+        (PlayerConfig){
+            .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 20.0f}});
 
     Entity *ball_entity = entities_ball_create(
-        game_state, (BallConfig){.position = {game_state->config.screen_width / 2.0f, 420.0f}});
+        game_state,
+        (BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}});
     game_state->vars.ball_entity_id = ball_entity->id;
 
     entities_goal_create(game_state, (GoalConfig){.position = GP_TOP});
@@ -133,16 +137,24 @@ GameState *game_init(GameConfig game_config) {
              ->target;
     camera->camera = CAM_MAIN;
     camera_target->entity_id = ball_entity->id;
+    game_state->vars.camera_entity_id = camera_entity->id;
 
-    game_state->render_texture = LoadRenderTexture((f32)game_state->config.screen_width,
-                                                   (f32)game_state->config.screen_height);
     game_state->camera.zoom = 1;
     game_state->camera.rotation = 0;
-    game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
-                                          (f32)game_state->config.screen_height / 2};
+    // game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
+    //                                       (f32)game_state->config.screen_height / 2};
+    game_state->virtual_camera.zoom = 1;
+    game_state->virtual_camera.rotation = 0;
+    game_state->virtual_camera.offset =
+        (Vector2){(f32)game_state->config.virtual_screen_width / 2,
+                  (f32)game_state->config.virtual_screen_height / 2};
+
     game_state->vars.ball_is_playable = true;
     game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->id};
 #endif
+
+    game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
+                                                   (f32)game_state->config.virtual_screen_height);
 
     game_state->initialised = true;
 
@@ -203,13 +215,30 @@ void game_draw(GameState *game_state) {
 
     memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 
+    ComponentTransform *camera_transform = entities_component_get_typed(
+        game_state->entity_repository, CT_TRANSFORM, game_state->vars.camera_entity_id);
+
+    // Round worldSpace coordinates, keep decimals into screenSpace coordinates
+    f32 virtual_ratio =
+        (f32)game_state->config.screen_width / (f32)game_state->config.virtual_screen_width;
+
+    game_state->virtual_camera.target.x = (u64)camera_transform->position.x;
+    game_state->camera.target.x =
+        camera_transform->position.x - game_state->virtual_camera.target.x;
+    game_state->camera.target.x *= virtual_ratio;
+
+    game_state->virtual_camera.target.y = (u64)camera_transform->position.y;
+    game_state->camera.target.y =
+        camera_transform->position.y - game_state->virtual_camera.target.y;
+    game_state->camera.target.y *= virtual_ratio;
+
     Texture2D pitch_texture =
         assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture;
 
     BeginTextureMode(game_state->render_texture);
     ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
 
-    BeginMode2D(game_state->camera);
+    BeginMode2D(game_state->virtual_camera);
 
     f32 stretched_width = pitch_texture.width * 1.0f;
     f32 stretched_height = pitch_texture.height * 1.0f;
@@ -229,12 +258,20 @@ void game_draw(GameState *game_state) {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    Rectangle rect = (Rectangle){.x = 0,
-                                 .y = 0,
-                                 .width = game_state->render_texture.texture.width,
-                                 .height = -game_state->render_texture.texture.height};
-    DrawTextureRec(game_state->render_texture.texture, rect, Vector2Zero(), WHITE);
+    // The target's height is flipped (in the source Rectangle), due to OpenGL reasons
+    Rectangle source_rec = {0.0f, 0.0f, (float)game_state->render_texture.texture.width,
+                            -(float)game_state->render_texture.texture.height};
+    Rectangle dest_rec = {-virtual_ratio, -virtual_ratio,
+                          game_state->config.screen_width + (virtual_ratio * 2),
+                          game_state->config.screen_height + (virtual_ratio * 2)};
 
+    Vector2 origin = {0.0f, 0.0f};
+
+    BeginMode2D(game_state->camera);
+    DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
+    EndMode2D();
+
+    layers_hud_draw(game_state);
     layers_debug_draw(game_state->layer_debug);
 
     if (game_state->vars.is_tweakui_shown) {

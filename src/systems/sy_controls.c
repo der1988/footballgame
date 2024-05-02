@@ -32,7 +32,7 @@ void systems_controls(GameState *game_state, Input *input) {
         }
         }
         if (input->buttons[button_type].down) {
-            p1_charge->power += 1 * game_state->dt;
+            p1_charge->power += 2 * game_state->dt;
             p1_charge->power = Clamp(p1_charge->power, 0, 1.0f);
             layers_debug_queue_draw_text(game_state->layer_debug,
                                          TextFormat("p1_charge: %.2f", p1_charge->power));
