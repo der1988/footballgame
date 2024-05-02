@@ -32,3 +32,4 @@ v implement a physics step
 v fix build system to support fixed timestep
 - implement teams
 - implement passing
+- limit angle of control run relative to current heading
