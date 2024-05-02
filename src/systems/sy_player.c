@@ -96,12 +96,10 @@ void systems_player(GameState *game_state, Input *input) {
             }
 
             v2 effective_steering = player_controls->steering;
-            if (player->sprint_locked) {
-                // If sprint locked we seek the ball
+            // If sprint locked or charging kick we seek the ball
+            if (player->sprint_locked || game_state->vars.p1.controls.charge.charging) {
                 effective_steering = Vector2Normalize(
                     Vector2Subtract(ball_transform->position, transform->position));
-            } else if (game_state->vars.p1.controls.charge.charging) {
-                effective_steering = game_state->vars.p1.controls.charge.normalised_direction;
             }
             physics->max_velocity = game_state->constants.player_run_max_velocity;
             v2 force_to_apply = Vector2Zero();

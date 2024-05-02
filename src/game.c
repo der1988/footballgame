@@ -53,7 +53,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_max_velocity = 1000.0f,
                                             .player_movement_force = 7333.0f,
                                             .player_movement_drag = 4166.0f,
-                                            .player_control_max_velocity = 50.0f,
+                                            .player_control_max_velocity = 60.0f,
                                             .player_run_max_velocity = 100.0f,
                                             .player_control_radius = 6,
                                             .kick_charge_reset_time = 1.5f};
