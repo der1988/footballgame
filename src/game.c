@@ -43,7 +43,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_run_force = 33.3f,
                                             .ball_control_force = 13.3f,
                                             .ball_shot_force = 533.0f,
-                                            .ball_shot_height = 0.3f,
+                                            .ball_shot_height = 0.35f,
                                             .ball_pass_force = 533.0f,
                                             .ball_long_pass_force = 266.0f,
                                             .ball_long_pass_height = 1.0f,
@@ -271,6 +271,7 @@ void game_draw(GameState *game_state) {
     DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
     EndMode2D();
 
+    layers_hud_draw(game_state);
     layers_debug_draw(game_state->layer_debug);
 
     if (game_state->vars.is_tweakui_shown) {

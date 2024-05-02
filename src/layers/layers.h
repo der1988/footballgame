@@ -26,4 +26,6 @@ void layers_debug_destroy(LayersDebug *handle);
 void layers_debug_reset(LayersDebug *handle);
 void layers_debug_queue_draw_text(LayersDebug *handle, const char *text);
 void layers_debug_draw(LayersDebug *handle);
+
+void layers_hud_draw(GameState *game_state);
 #endif // !LAYERS_H
