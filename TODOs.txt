@@ -30,6 +30,6 @@ v allow entity configuration on creation
 v component create should return a typed component
 v implement a physics step
 v fix build system to support fixed timestep
+v limit angle of run with ball relative to current heading
 - implement teams
 - implement passing
-- limit angle of control run relative to current heading

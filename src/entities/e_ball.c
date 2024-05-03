@@ -4,6 +4,7 @@
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
+#include "layers.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
@@ -167,6 +168,13 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
                                    v2 player_velocity, f32 control_quality, GameState *game_state) {
     ComponentPhysics3d *ball_physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    // Limit angle between requested run direction and current velocity
+    f32 angle = Vector2Angle(control_direction, player_velocity) * RAD2DEG;
+    if (angle > 5) {
+        control_direction = Vector2Rotate(player_velocity, 5);
+    } else if (angle < -5) {
+        control_direction = Vector2Rotate(player_velocity, -5);
+    }
     v3 velocity_to_add =
         Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.1f}),
                      // TODO: some ball_run_force has to always be applied
