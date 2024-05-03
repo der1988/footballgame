@@ -171,10 +171,11 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
     // Limit angle between requested run direction and current velocity
     if (Vector2Length(player_velocity) > 0.7f * game_state->constants.player_run_max_velocity) {
         f32 angle = Vector2Angle(control_direction, player_velocity) * RAD2DEG;
-        if (angle > 5) {
+        if (angle > game_state->constants.player_run_control_max_angle) {
             control_direction = Vector2Rotate(player_velocity, 5);
-        } else if (angle < -5) {
-            control_direction = Vector2Rotate(player_velocity, -5);
+        } else if (angle < -game_state->constants.player_run_control_max_angle) {
+            control_direction =
+                Vector2Rotate(player_velocity, -game_state->constants.player_run_control_max_angle);
         }
     }
     v3 velocity_to_add =

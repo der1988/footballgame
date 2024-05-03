@@ -56,6 +56,7 @@ GameState *game_init(GameConfig game_config) {
                                             .player_control_max_velocity = 60.0f,
                                             .player_run_max_velocity = 100.0f,
                                             .player_control_radius = 6,
+                                            .player_run_control_max_angle = 5,
                                             .kick_charge_reset_time = 1.5f};
 
     // Partition game memory

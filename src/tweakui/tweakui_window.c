@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 540;
+    handle->window_size.y = 560;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -128,6 +128,10 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Player control radius",
               TextFormat("%.2f", game_state->constants.player_control_radius),
               &game_state->constants.player_control_radius, 0, 100.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Player control run max angle",
+              TextFormat("%.2f", game_state->constants.player_run_control_max_angle),
+              &game_state->constants.player_run_control_max_angle, 0, 30);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Kick charge reset time",
               TextFormat("%.2f", game_state->constants.kick_charge_reset_time),
