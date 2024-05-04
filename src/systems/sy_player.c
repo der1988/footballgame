@@ -152,7 +152,8 @@ void systems_player(GameState *game_state, Input *input) {
                     CheckCollisionCircles(transform->position, collider->props.circle.radius,
                                           ball_transform->position,
                                           ball_collider->props.circle.radius) &&
-                    ball_transform->virtual_height < 40.0f;
+                    // Player height
+                    ball_transform->virtual_height < game_state->constants.player_control_height;
 
                 if (is_colliding_with_ball && (game_state->time - player->last_shot) > 0.1f) {
                     f32 distance_from_the_ball =

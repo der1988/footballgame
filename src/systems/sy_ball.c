@@ -31,7 +31,7 @@ void systems_ball(GameState *game_state, Input *input) {
                                         game_state->vars.p1.player_entity_id)
                      ->transform;
             transform->position = p1_transform->position;
-            transform->virtual_height = 0;
+            transform->virtual_height = 100;
             physics_3d->accel = Vector3Zero();
             physics_3d->velocity = Vector3Zero();
             game_state->vars.ball_is_playable = true;

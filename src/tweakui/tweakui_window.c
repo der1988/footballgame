@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 560;
+    handle->window_size.y = 550;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -96,18 +96,18 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Ball short pass force",
               TextFormat("%.2f", game_state->constants.ball_pass_force),
               &game_state->constants.ball_pass_force, 0, 200000.0f);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Ball after touch delay time",
-              TextFormat("%.2f", game_state->constants.ball_after_touch_delay_time),
-              &game_state->constants.ball_after_touch_delay_time, 0, 1.0f);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Ball after touch max time",
-              TextFormat("%.2f", game_state->constants.ball_after_touch_max_time),
-              &game_state->constants.ball_after_touch_max_time, 0, 1.0f);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Ball after touch force",
-              TextFormat("%.2f", game_state->constants.ball_after_touch_force),
-              &game_state->constants.ball_after_touch_force, 0, 100.0f);
+    // MOVE_DOWN_ONE_ROW(slider_bounds);
+    // GuiSlider(slider_bounds, "Ball after touch delay time",
+    //           TextFormat("%.2f", game_state->constants.ball_after_touch_delay_time),
+    //           &game_state->constants.ball_after_touch_delay_time, 0, 1.0f);
+    // MOVE_DOWN_ONE_ROW(slider_bounds);
+    // GuiSlider(slider_bounds, "Ball after touch max time",
+    //           TextFormat("%.2f", game_state->constants.ball_after_touch_max_time),
+    //           &game_state->constants.ball_after_touch_max_time, 0, 1.0f);
+    // MOVE_DOWN_ONE_ROW(slider_bounds);
+    // GuiSlider(slider_bounds, "Ball after touch force",
+    //           TextFormat("%.2f", game_state->constants.ball_after_touch_force),
+    //           &game_state->constants.ball_after_touch_force, 0, 100.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player movement force",
               TextFormat("%.2f", game_state->constants.player_movement_force),
@@ -128,6 +128,10 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Player control radius",
               TextFormat("%.2f", game_state->constants.player_control_radius),
               &game_state->constants.player_control_radius, 0, 100.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Player control height",
+              TextFormat("%.2f", game_state->constants.player_control_height),
+              &game_state->constants.player_control_height, 0, 30.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player control run max angle",
               TextFormat("%.2f", game_state->constants.player_run_control_max_angle),
