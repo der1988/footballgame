@@ -135,7 +135,7 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player control run max angle",
               TextFormat("%.2f", game_state->constants.player_run_control_max_angle),
-              &game_state->constants.player_run_control_max_angle, 0, 30);
+              &game_state->constants.player_run_control_max_angle, 0, 60);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Kick charge reset time",
               TextFormat("%.2f", game_state->constants.kick_charge_reset_time),

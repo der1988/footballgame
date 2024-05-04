@@ -9,6 +9,7 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 typedef struct {
     v2 steering;
@@ -239,12 +240,17 @@ void systems_player(GameState *game_state, Input *input) {
         if (player_on_the_ball.controls->shot > 0 && steering_magnitude > 0.1f) {
             // Shot
             player_on_the_ball.player->last_shot = game_state->time;
-            v3 shot_direction =
-                Vector3Add(Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0)),
-                           (Vector3){.x = 0,
-                                     .y = game_state->constants.ball_shot_height *
-                                          player_on_the_ball.controls->shot,
-                                     .z = 0});
+            v2 shot_direction = Vector2Normalize(player_on_the_ball.controls->steering);
+            // Limit angle between requested shoot direction and current velocity
+            f32 angle = Vector2Angle(player_on_the_ball.velocity, shot_direction);
+            f32 max_angle = 100 * DEG2RAD;
+            if (angle > max_angle) {
+                shot_direction =
+                    Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, max_angle));
+            } else if (angle < -max_angle) {
+                shot_direction =
+                    Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, -max_angle));
+            }
             entities_ball_shoot(game_state->vars.ball_entity_id, shot_direction,
                                 player_on_the_ball.controls->shot, game_state);
             kicked_ball = true;
@@ -261,12 +267,17 @@ void systems_player(GameState *game_state, Input *input) {
         if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
             player_on_the_ball.player->last_shot = game_state->time;
-            v3 long_pass_direction =
-                Vector3Add(Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0)),
-                           (Vector3){.x = 0,
-                                     .y = game_state->constants.ball_long_pass_height *
-                                          player_on_the_ball.controls->long_pass,
-                                     .z = 0});
+            v2 long_pass_direction = Vector2Normalize(player_on_the_ball.controls->steering);
+            // Limit angle between requested shoot direction and current velocity
+            f32 angle = Vector2Angle(player_on_the_ball.velocity, long_pass_direction);
+            f32 max_angle = 120 * DEG2RAD;
+            if (angle > max_angle) {
+                long_pass_direction =
+                    Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, max_angle));
+            } else if (angle < -max_angle) {
+                long_pass_direction =
+                    Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, -max_angle));
+            }
             entities_ball_long_pass(game_state->vars.ball_entity_id, long_pass_direction,
                                     player_on_the_ball.controls->long_pass, game_state);
             kicked_ball = true;
@@ -276,8 +287,21 @@ void systems_player(GameState *game_state, Input *input) {
             if (player_on_the_ball.controls->sprint) {
                 // Run control
                 player_on_the_ball.player->sprint_locked = true;
-                entities_ball_control_running(game_state->vars.ball_entity_id,
-                                              player_on_the_ball.controls->steering,
+                v2 control_direction = player_on_the_ball.controls->steering;
+                // Limit angle between requested run direction and current velocity
+                if (Vector2Length(player_on_the_ball.velocity) >
+                    // Only limit if velocity is at least 70% of max
+                    0.7f * game_state->constants.player_run_max_velocity) {
+                    f32 angle = Vector2Angle(player_on_the_ball.velocity,
+                                             player_on_the_ball.controls->steering);
+                    f32 max_angle = game_state->constants.player_run_control_max_angle * DEG2RAD;
+                    if (angle > max_angle) {
+                        control_direction = Vector2Rotate(player_on_the_ball.velocity, max_angle);
+                    } else if (angle < -max_angle) {
+                        control_direction = Vector2Rotate(player_on_the_ball.velocity, -max_angle);
+                    }
+                }
+                entities_ball_control_running(game_state->vars.ball_entity_id, control_direction,
                                               player_on_the_ball.velocity, 0.0f, game_state);
             } else {
                 // Precision control

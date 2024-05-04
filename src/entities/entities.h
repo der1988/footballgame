@@ -71,10 +71,10 @@ void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity
                                      GameState *game_state);
 void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
                                    v2 player_velocity, f32 control_quality, GameState *game_state);
-void entities_ball_shoot(EntityId ball_entity_id, v3 direction, f32 power, GameState *game_state);
+void entities_ball_shoot(EntityId ball_entity_id, v2 direction, f32 power, GameState *game_state);
 void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
                               GameState *game_state);
-void entities_ball_long_pass(EntityId ball_entity_id, v3 direction, f32 power,
+void entities_ball_long_pass(EntityId ball_entity_id, v2 direction, f32 power,
                              GameState *game_state);
 
 // END - Ball
