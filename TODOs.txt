@@ -34,3 +34,7 @@ v limit angle of run with ball relative to current heading
 v when stopping a run with the ball continue running to catch it and then we can reduce velocity
 - implement teams
 - implement passing
+- limit angle of shoot
+- goal is too small? proportional to ball instead of player?
+- improve kick power control
+- use r1 to dribble?
