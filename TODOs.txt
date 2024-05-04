@@ -31,6 +31,6 @@ v component create should return a typed component
 v implement a physics step
 v fix build system to support fixed timestep
 v limit angle of run with ball relative to current heading
+v when stopping a run with the ball continue running to catch it and then we can reduce velocity
 - implement teams
 - implement passing
-- when stopping a run with the ball continue running to catch it and then we can reduce velocity

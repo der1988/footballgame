@@ -212,8 +212,8 @@ void systems_player(GameState *game_state, Input *input) {
                     sprite->frame_id = player->stand_frames[player->last_direction];
                 }
 
-                if (!player_controls->sprint ||
-                    entity_id != ball->last_player_on_the_ball_entity_id) {
+                if (entity_id != ball->last_player_on_the_ball_entity_id ||
+                    game_state->vars.someone_scored || !game_state->vars.ball_is_playable) {
                     // If this player wasn't the last controlling the ball or sprint is disabled we
                     // can reset sprint lock
                     player->sprint_locked = false;
