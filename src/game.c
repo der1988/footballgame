@@ -220,7 +220,7 @@ void game_draw(GameState *game_state) {
     ComponentTransform *camera_transform = entities_component_get_typed(
         game_state->entity_repository, CT_TRANSFORM, game_state->vars.camera_entity_id);
 
-    // Round worldSpace coordinates, keep decimals into screenSpace coordinates
+    // Round virtual space coordinates, keep decimals into screen space coordinates
     f32 virtual_ratio =
         (f32)game_state->config.screen_width / (f32)game_state->config.virtual_screen_width;
 
