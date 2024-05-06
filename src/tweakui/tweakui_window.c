@@ -50,9 +50,10 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Gravity force",
               TextFormat("%.2f", game_state->constants.gravity_force.y),
               &game_state->constants.gravity_force.y, -800.0f, 0.0f);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Air density", TextFormat("%.2f", game_state->constants.air_density),
-              &game_state->constants.air_density, 0, 10.0f);
+    // MOVE_DOWN_ONE_ROW(slider_bounds);
+    // GuiSlider(slider_bounds, "Air density", TextFormat("%.2f",
+    // game_state->constants.air_density),
+    //           &game_state->constants.air_density, 0, 10.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball CR", TextFormat("%.2f", game_state->constants.ball_cr),
               &game_state->constants.ball_cr, 0, 1.0f);
@@ -79,7 +80,7 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball shot force",
               TextFormat("%.2f", game_state->constants.ball_shot_force),
-              &game_state->constants.ball_shot_force, 0, 100000.0f);
+              &game_state->constants.ball_shot_force, 0, 1000.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball shot height",
               TextFormat("%.2f", game_state->constants.ball_shot_height),
@@ -87,7 +88,7 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball long pass force",
               TextFormat("%.2f", game_state->constants.ball_long_pass_force),
-              &game_state->constants.ball_long_pass_force, 0, 200000.0f);
+              &game_state->constants.ball_long_pass_force, 0, 1000.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball long pass height",
               TextFormat("%.2f", game_state->constants.ball_long_pass_height),
@@ -95,19 +96,19 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Ball short pass force",
               TextFormat("%.2f", game_state->constants.ball_pass_force),
-              &game_state->constants.ball_pass_force, 0, 200000.0f);
-    // MOVE_DOWN_ONE_ROW(slider_bounds);
-    // GuiSlider(slider_bounds, "Ball after touch delay time",
-    //           TextFormat("%.2f", game_state->constants.ball_after_touch_delay_time),
-    //           &game_state->constants.ball_after_touch_delay_time, 0, 1.0f);
-    // MOVE_DOWN_ONE_ROW(slider_bounds);
-    // GuiSlider(slider_bounds, "Ball after touch max time",
-    //           TextFormat("%.2f", game_state->constants.ball_after_touch_max_time),
-    //           &game_state->constants.ball_after_touch_max_time, 0, 1.0f);
-    // MOVE_DOWN_ONE_ROW(slider_bounds);
-    // GuiSlider(slider_bounds, "Ball after touch force",
-    //           TextFormat("%.2f", game_state->constants.ball_after_touch_force),
-    //           &game_state->constants.ball_after_touch_force, 0, 100.0f);
+              &game_state->constants.ball_pass_force, 0, 1000.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball after touch delay time",
+              TextFormat("%.2f", game_state->constants.ball_after_touch_delay_time),
+              &game_state->constants.ball_after_touch_delay_time, 0, 1.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball after touch max time",
+              TextFormat("%.2f", game_state->constants.ball_after_touch_max_time),
+              &game_state->constants.ball_after_touch_max_time, 0, 1.0f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Ball after touch force",
+              TextFormat("%.2f", game_state->constants.ball_after_touch_force),
+              &game_state->constants.ball_after_touch_force, 0, 1000.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player movement force",
               TextFormat("%.2f", game_state->constants.player_movement_force),

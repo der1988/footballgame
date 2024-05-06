@@ -69,7 +69,7 @@ void systems_player(GameState *game_state, Input *input) {
                 game_state->memory_by_lifetime[MAL_UPDATE], sizeof(PlayerControls));
 
             if (game_state->vars.p1.player_entity_id == entity_id) {
-                player_controls->steering = game_state->vars.p1.controls.normalised_direction;
+                player_controls->steering = game_state->vars.p1.controls.steering;
                 player_controls->sprint = game_state->vars.p1.controls.sprint;
 
                 if (game_state->vars.p1.controls.charge.ready) {
@@ -171,29 +171,6 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                 }
 
-                // // After touch
-                // // TODO: this has to be refactored to use acceleration, if we decide to keep
-                // // it...
-                // if (ball->subject_to_after_touch &&
-                //     (game_state->time - ball->shot_time) >
-                //         game_state->constants.ball_after_touch_delay_time &&
-                //     (game_state->time - ball->shot_time) <
-                //         game_state->constants.ball_after_touch_max_time) {
-                //     v2 after_touch_input = player_controls->steering;
-                //     v2 ball_2d_vel = V3_TO_V2(ball_physics_3d->velocity);
-                //     v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
-                //     f32 after_touch_height =
-                //         Clamp(Vector2ProjectScalar(ball_2d_vel, after_touch_input), -1.0f, 0.4f);
-                //     v2 after_touch_side = Vector2Project(ball_2d_vel_perp, after_touch_input);
-                //     v3 after_touch_direction = (v3){
-                //         .x = after_touch_side.x, .y = -after_touch_height, .z =
-                //         after_touch_side.y};
-                //     ball_physics_3d->velocity =
-                //         Vector3Add(ball_physics_3d->velocity,
-                //                    Vector3Scale(after_touch_direction,
-                //                                 game_state->constants.ball_after_touch_force));
-                // }
-
                 // Calculate frame to display
                 if (Vector2Length(physics->velocity) > 3) {
                     Direction pd = entities_common_calculate_direction(physics->velocity);
@@ -251,8 +228,8 @@ void systems_player(GameState *game_state, Input *input) {
                 shot_direction =
                     Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, -max_angle));
             }
-            entities_ball_shoot(game_state->vars.ball_entity_id, shot_direction,
-                                player_on_the_ball.controls->shot, game_state);
+            entities_ball_shoot(game_state->vars.ball_entity_id, player_on_the_ball.id,
+                                shot_direction, player_on_the_ball.controls->shot, game_state);
             kicked_ball = true;
         }
         if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
@@ -260,8 +237,8 @@ void systems_player(GameState *game_state, Input *input) {
             player_on_the_ball.player->last_shot = game_state->time;
             v3 pass_direction =
                 Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
-            entities_ball_short_pass(game_state->vars.ball_entity_id, pass_direction,
-                                     player_on_the_ball.controls->pass, game_state);
+            entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
+                                     pass_direction, player_on_the_ball.controls->pass, game_state);
             kicked_ball = true;
         }
         if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
@@ -278,8 +255,9 @@ void systems_player(GameState *game_state, Input *input) {
                 long_pass_direction =
                     Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, -max_angle));
             }
-            entities_ball_long_pass(game_state->vars.ball_entity_id, long_pass_direction,
-                                    player_on_the_ball.controls->long_pass, game_state);
+            entities_ball_long_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
+                                    long_pass_direction, player_on_the_ball.controls->long_pass,
+                                    game_state);
             kicked_ball = true;
         } else if (steering_magnitude > 0.01f) {
             // For ball control we use velocity directly because it's easier and produce

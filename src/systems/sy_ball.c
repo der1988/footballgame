@@ -94,6 +94,30 @@ void systems_ball(GameState *game_state, Input *input) {
                 physics_3d->velocity.z += physics_3d->velocity.z *
                                           -game_state->constants.ball_friction_on_pitch *
                                           game_state->dt;
+                ball->subject_to_after_touch = false;
+            }
+
+            // After touch
+            f32 after_touch_time = (game_state->time - ball->kick_time);
+            if (ball->subject_to_after_touch &&
+                after_touch_time > game_state->constants.ball_after_touch_delay_time) {
+                v2 input = game_state->vars.p1.controls.steering;
+                f32 force = 1 - Clamp(powf((after_touch_time -
+                                            game_state->constants.ball_after_touch_delay_time),
+                                           2) /
+                                          powf((game_state->constants.ball_after_touch_max_time -
+                                                game_state->constants.ball_after_touch_delay_time),
+                                               2),
+                                      0, 1);
+                v2 ball_2d_vel = V3_TO_V2(physics_3d->velocity);
+                v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
+                v2 after_touch_side = Vector2Project(ball_2d_vel_perp, input);
+                v3 after_touch_direction =
+                    (v3){.x = after_touch_side.x, .y = 0, .z = after_touch_side.y};
+                physics_3d->accel =
+                    Vector3Add(physics_3d->accel,
+                               Vector3Scale(after_touch_direction,
+                                            game_state->constants.ball_after_touch_force * force));
             }
 
             // Apply acceleration...

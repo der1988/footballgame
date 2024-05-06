@@ -175,7 +175,8 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
     ball_physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
 }
 
-void entities_ball_shoot(EntityId ball_entity_id, v2 direction, f32 power, GameState *game_state) {
+void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
+                         f32 power, GameState *game_state) {
     ComponentPhysics3d *ball_physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
@@ -188,24 +189,32 @@ void entities_ball_shoot(EntityId ball_entity_id, v2 direction, f32 power, GameS
         Vector3Scale(shot_direction, (game_state->constants.ball_shot_force * 0.5f +
                                       power * 0.5f * game_state->constants.ball_shot_force) /
                                          game_state->dt));
-    ball->shot_time = game_state->time;
+    ball->kick_time = game_state->time;
+    ball->last_kicker_entity_id = kicker_entity_id;
+    ball->subject_to_after_touch = true;
 }
 
-void entities_ball_short_pass(EntityId ball_entity_id, v3 direction, f32 power,
-                              GameState *game_state) {
+void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
+                              f32 power, GameState *game_state) {
     ComponentPhysics3d *ball_physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentBall *ball =
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     ball_physics_3d->accel =
         Vector3Add(ball_physics_3d->accel,
                    Vector3Scale(direction, (game_state->constants.ball_pass_force * 0.5f +
                                             power * 0.5f * game_state->constants.ball_pass_force) /
                                                game_state->dt));
+    ball->kick_time = game_state->time;
+    ball->last_kicker_entity_id = kicker_entity_id;
 }
 
-void entities_ball_long_pass(EntityId ball_entity_id, v2 direction, f32 power,
-                             GameState *game_state) {
+void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
+                             f32 power, GameState *game_state) {
     ComponentPhysics3d *ball_physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentBall *ball =
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     v3 long_pass_direction = Vector3Add(
         Vector3Normalize(V2_TO_V3(direction, 0)),
         (Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
@@ -215,4 +224,6 @@ void entities_ball_long_pass(EntityId ball_entity_id, v2 direction, f32 power,
                                 (game_state->constants.ball_long_pass_force * 0.75f +
                                  power * 0.25f * game_state->constants.ball_long_pass_force) /
                                     game_state->dt));
+    ball->kick_time = game_state->time;
+    ball->last_kicker_entity_id = kicker_entity_id;
 }

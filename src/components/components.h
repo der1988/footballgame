@@ -130,7 +130,9 @@ typedef struct {
 typedef struct {
     struct StateMachineBall *state_machine;
     EntityId last_player_on_the_ball_entity_id;
-    f64 shot_time;
+    EntityId last_kicker_entity_id;
+    b32 subject_to_after_touch;
+    f64 kick_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     Direction last_direction;
     f32 last_frame_update_time;

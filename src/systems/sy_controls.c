@@ -6,7 +6,7 @@
 #include <raymath.h>
 
 void systems_controls(GameState *game_state, Input *input) {
-    game_state->vars.p1.controls.normalised_direction = Vector2ClampValue(input->left_stick, -1, 1);
+    game_state->vars.p1.controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
     game_state->vars.p1.controls.sprint = input->buttons[IBT_BUTTON_TRIGGER_RIGHT].down;
     ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
     if (p1_charge->ready) {
@@ -55,7 +55,7 @@ void systems_controls(GameState *game_state, Input *input) {
         }
         if (charging) {
             p1_charge->ready = false;
-            p1_charge->normalised_direction = game_state->vars.p1.controls.normalised_direction;
+            p1_charge->direction = Vector2Normalize(game_state->vars.p1.controls.steering);
             p1_charge->started = game_state->time;
             p1_charge->power = 0.0f;
             p1_charge->ended = 0;

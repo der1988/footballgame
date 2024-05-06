@@ -49,7 +49,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_long_pass_height = 1.0f,
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.5f,
-                                            .ball_after_touch_force = 15.0f,
+                                            .ball_after_touch_force = 500.0f,
                                             .ball_max_velocity = 1000.0f,
                                             .player_movement_force = 7333.0f,
                                             .player_movement_drag = 4166.0f,
