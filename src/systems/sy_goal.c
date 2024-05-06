@@ -56,11 +56,15 @@ void systems_goal(GameState *game_state) {
             f32 post_width = 2;
 
             if (game_state->vars.someone_scored) {
-                if (ball_transform->position.y < goal_rectangle.y - 7 ||
+                if (ball_transform->position.y < goal_rectangle.y - 3 ||
                     ball_transform->position.x < goal_rectangle.x ||
                     ball_transform->position.x > (goal_rectangle.x + goal_rectangle.width)) {
-                    ball_physics_3d->velocity.x = 0;
-                    ball_physics_3d->velocity.z = 0;
+                    ball_physics_3d->velocity.x *= 0.8f;
+                    ball_physics_3d->velocity.z *= 0.8f;
+                    if (ball_transform->virtual_height > goal_rectangle.height &&
+                        ball_physics_3d->velocity.y > 0) {
+                        ball_physics_3d->velocity.y *= 0.9f;
+                    }
                 }
             } else if (game_state->vars.ball_is_playable && !game_state->vars.someone_scored &&
                        CheckCollisionCircleRec(ball_transform->position,
