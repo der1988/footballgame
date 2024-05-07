@@ -31,6 +31,10 @@ void systems_render_debug(GameState *game_state) {
                     assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
                     position, rotation, scale, sprite->pivot_override);
 
+                // Debug lines for pitch
+                Rectangle pitch = game_state->vars.pitch_rectangle;
+                DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
+
                 if (wrapper_collider->header.enabled) {
                     ComponentCollider *collider = &wrapper_collider->collider;
                     if (collider->shape == CS_CIRCLE) {

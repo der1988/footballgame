@@ -134,6 +134,7 @@ void systems_goal(GameState *game_state) {
                         goal->hit_crossbar_time = game_state->time;
                     }
                     if (collided_with_post) {
+                        ball->subject_to_after_touch = false;
                         ball_physics_3d->velocity = Vector3Scale(
                             ball_physics_3d->velocity, game_state->constants.ball_cr_against_post);
 
@@ -145,10 +146,19 @@ void systems_goal(GameState *game_state) {
                         ball_transform->position = V3_TO_V2(final_pos);
                         ball_transform->virtual_height = final_pos.y;
                         printf("post at %.2f, %.2f, %.2f\n", final_pos.x, final_pos.y, final_pos.z);
-                    } else {
+                    } else if (collision.point.x > (goal_rectangle.x + post_width +
+                                                    ball_collider->props.circle.radius) &&
+                               collision.point.x <
+                                   (goal_rectangle.x + goal_rectangle.width - post_width -
+                                    ball_collider->props.circle.radius) &&
+                               collision.point.y < (goal_rectangle.height - post_width -
+                                                    ball_collider->props.circle.radius)) {
                         game_state->vars.someone_scored = true;
                         printf("goal at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
+                    } else {
+                        game_state->vars.ball_is_playable = false;
+                        printf("ball is out\n");
                     }
                 } else {
                     game_state->vars.ball_is_playable = false;
