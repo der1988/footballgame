@@ -121,6 +121,7 @@ GameState *game_init(GameConfig game_config) {
     entities_player_create(
         game_state,
         (PlayerConfig){
+            .is_goalie = true,
             .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 20.0f}});
 
     Entity *ball_entity = entities_ball_create(

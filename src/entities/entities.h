@@ -99,6 +99,19 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
+typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_COUNT } StateMachineGoalieState;
+
+static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "count"};
+
+DeclareStateMachineEnterAndExit(goalie);
+
+typedef union {
+    StateMachineDefaultEmptyData protect_goal;
+} StateMachineGoalieStateData;
+
+DefineStateMachine(Goalie);
+DefineStateMachineFunctions(Goalie, goalie);
+
 struct Entity *entities_player_create(GameState *game_state, PlayerConfig config);
 void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
 void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,

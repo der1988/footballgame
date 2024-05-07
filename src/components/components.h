@@ -26,6 +26,7 @@ typedef enum {
     CT_PLAYER,
     CT_BALL,
     CT_GOAL,
+    CT_GOALIE,
     CT_COUNT,
     CT_NONE
 } ComponentType;
@@ -145,6 +146,13 @@ typedef struct {
     Time hit_crossbar_time;
     b32 scored;
 } ComponentGoal;
+
+typedef struct {
+    struct StateMachineGoalie *state_machine;
+    AssetsAnimationId save_animations[D_COUNT];
+    f32 last_frame_update_time;
+    u16 last_running_frame_idx;
+} ComponentGoalie;
 
 typedef struct {
     ComponentType type;

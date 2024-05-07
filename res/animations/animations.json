@@ -41,6 +41,48 @@
       "prefix": "run_back_right_"
     }
   },
+  "goalkeeper": {
+    "run_front": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_front_"
+    },
+    "run_back": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_back_"
+    },
+    "run_left": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_left_"
+    },
+    "run_right": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_right_"
+    },
+    "run_front_left": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_front_left_"
+    },
+    "run_front_right": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_front_right_"
+    },
+    "run_back_left": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_back_left_"
+    },
+    "run_back_right": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_back_right_"
+    }
+  },
   "ball": {
     "down": {
       "delay": 0.05,

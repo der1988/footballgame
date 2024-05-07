@@ -15,8 +15,11 @@
 #include <string.h>
 
 ImplementStateMachineFunctions(Player, player);
+ImplementStateMachineFunctions(Goalie, goalie);
 
 static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
+static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
+                               GameState *game_state);
 
 struct Entity *entities_player_create(GameState *game_state, PlayerConfig config) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
@@ -74,7 +77,21 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     // Initialise action
     entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
 
-    prepare_gfx(player, game_state);
+    if (config.is_goalie) {
+        // Initialise goalie
+        ComponentGoalie *goalie =
+            entities_component_create(game_state->entity_repository, CT_GOALIE, entity->id);
+        StateMachineGoalie *state_machine = memory_arena_push(
+            game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineGoalie));
+        state_machine->owner_entity = entity->id;
+        state_machine->previous_state = GS_NONE;
+        state_machine->current_state = GS_PROTECT_GOAL;
+        goalie->state_machine = state_machine;
+
+        prepare_goalie_gfx(player, goalie, game_state);
+    } else {
+        prepare_gfx(player, game_state);
+    }
 
     entities_player_state_machine_on_enter(entity, game_state);
 
@@ -139,6 +156,46 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
 }
 
+void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
+    ComponentGoalie *goalie =
+        entities_component_get_typed(game_state->entity_repository, CT_GOALIE, entity->id);
+    StateMachineGoalie *state_machine = goalie->state_machine;
+
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
+                   StateMachineGoalieStateString[state_machine->current_state]);
+
+    // Reset state data
+    memset(&state_machine->state_data, 0, sizeof(StateMachineGoalieStateData));
+
+    switch (state_machine->current_state) {
+    case GS_NONE:
+        break;
+    case GS_PROTECT_GOAL: {
+    } break;
+    case GS_COUNT:
+        break;
+    }
+}
+
+void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
+    ComponentGoalie *goalie =
+        entities_component_get_typed(game_state->entity_repository, CT_GOALIE, entity->id);
+    StateMachineGoalie *state_machine = goalie->state_machine;
+
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
+                   StateMachineGoalieStateString[state_machine->previous_state]);
+
+    switch (state_machine->previous_state) {
+    case GS_NONE:
+        break;
+    case GS_PROTECT_GOAL: {
+        break;
+    }
+    case GS_COUNT:
+        break;
+    }
+}
+
 static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
     // Stand frames
     player->stand_frames[D_DOWN] =
@@ -175,4 +232,47 @@ static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
         entities_common_animation_id_from_name("player", "run_back_left", game_state);
     player->run_animations[D_UP_RIGHT] =
         entities_common_animation_id_from_name("player", "run_back_right", game_state);
+}
+
+static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
+                               GameState *game_state) {
+    // Stand frames
+    player->stand_frames[D_DOWN] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_0")->id;
+    player->stand_frames[D_UP] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_0")->id;
+    player->stand_frames[D_LEFT] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_left_0")->id;
+    player->stand_frames[D_RIGHT] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_right_0")->id;
+    player->stand_frames[D_DOWN_LEFT] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_left_0")
+            ->id;
+    player->stand_frames[D_DOWN_RIGHT] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_right_0")
+            ->id;
+    player->stand_frames[D_UP_LEFT] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_left_0")
+            ->id;
+    player->stand_frames[D_UP_RIGHT] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_right_0")
+            ->id;
+
+    // Running animations
+    player->run_animations[D_DOWN] =
+        entities_common_animation_id_from_name("goalkeeper", "run_front", game_state);
+    player->run_animations[D_UP] =
+        entities_common_animation_id_from_name("goalkeeper", "run_back", game_state);
+    player->run_animations[D_LEFT] =
+        entities_common_animation_id_from_name("goalkeeper", "run_left", game_state);
+    player->run_animations[D_RIGHT] =
+        entities_common_animation_id_from_name("goalkeeper", "run_right", game_state);
+    player->run_animations[D_DOWN_LEFT] =
+        entities_common_animation_id_from_name("goalkeeper", "run_front_left", game_state);
+    player->run_animations[D_DOWN_RIGHT] =
+        entities_common_animation_id_from_name("goalkeeper", "run_front_right", game_state);
+    player->run_animations[D_UP_LEFT] =
+        entities_common_animation_id_from_name("goalkeeper", "run_back_left", game_state);
+    player->run_animations[D_UP_RIGHT] =
+        entities_common_animation_id_from_name("goalkeeper", "run_back_right", game_state);
 }
