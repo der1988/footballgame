@@ -94,7 +94,6 @@ void systems_ball(GameState *game_state, Input *input) {
                 physics_3d->velocity.z += physics_3d->velocity.z *
                                           -game_state->constants.ball_friction_on_pitch *
                                           game_state->dt;
-                ball->subject_to_after_touch = false;
             }
 
             // After touch
@@ -113,8 +112,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 v2 ball_2d_vel = V3_TO_V2(physics_3d->velocity);
                 v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
                 v2 after_touch_side = Vector2Project(ball_2d_vel_perp, input);
-                v3 after_touch_direction =
-                    (v3){.x = after_touch_side.x, .y = 0, .z = after_touch_side.y};
+                v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
                 physics_3d->accel =
                     Vector3Add(physics_3d->accel,
                                Vector3Scale(after_touch_direction,
@@ -130,6 +128,7 @@ void systems_ball(GameState *game_state, Input *input) {
 
             // Make the ball bounce
             if (ball_position_3d.y < 0) {
+                ball->subject_to_after_touch = false;
                 ball_position_3d.y = 0;
                 physics_3d->accel.y *= game_state->constants.ball_cr;
                 physics_3d->velocity.y *= -game_state->constants.ball_cr;

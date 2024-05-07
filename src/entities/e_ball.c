@@ -226,4 +226,5 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
                                     game_state->dt));
     ball->kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
+    ball->subject_to_after_touch = true;
 }
