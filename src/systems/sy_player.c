@@ -111,7 +111,7 @@ void systems_player(GameState *game_state, Input *input) {
             switch (state_machine->current_state) {
             case PS_NONE:
                 break;
-            case PS_RUN: {
+            case PS_NORMAL: {
                 // Run force
                 force_to_apply =
                     Vector2Scale(effective_steering, game_state->constants.player_movement_force);

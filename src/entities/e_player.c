@@ -68,7 +68,7 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
     state_machine->owner_entity = entity->id;
     state_machine->previous_state = PS_NONE;
-    state_machine->current_state = PS_RUN;
+    state_machine->current_state = PS_NORMAL;
     player->state_machine = state_machine;
 
     // Initialise action
@@ -113,7 +113,7 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
     switch (state_machine->current_state) {
     case PS_NONE:
         break;
-    case PS_RUN: {
+    case PS_NORMAL: {
     } break;
     case PS_COUNT:
         break;
@@ -131,7 +131,7 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     switch (state_machine->previous_state) {
     case PS_NONE:
         break;
-    case PS_RUN: {
+    case PS_NORMAL: {
         break;
     }
     case PS_COUNT:

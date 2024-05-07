@@ -82,19 +82,18 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
 
 // START - Player
 
-typedef enum { PS_NONE, PS_RUN, PS_COUNT } StateMachinePlayerState;
+typedef enum { PS_NONE, PS_NORMAL, PS_COUNT } StateMachinePlayerState;
 
-static char const *StateMachinePlayerStateString[] = {"none", "run", "count"};
+static char const *StateMachinePlayerStateString[] = {"none", "normal", "count"};
 
 DeclareStateMachineEnterAndExit(player);
 
 typedef struct {
     Direction running_action_direction;
-} StateMachinePlayerRunData;
+} StateMachinePlayerNormalData;
 
 typedef union {
-    StateMachineDefaultEmptyData stand;
-    StateMachinePlayerRunData run;
+    StateMachinePlayerNormalData normal;
 } StateMachinePlayerStateData;
 
 DefineStateMachine(Player);
