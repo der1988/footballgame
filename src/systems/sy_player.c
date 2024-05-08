@@ -63,7 +63,8 @@ void systems_player(GameState *game_state, Input *input) {
 
             StateMachinePlayer *state_machine = player->state_machine;
 
-            collider->props.circle.radius = game_state->constants.player_control_radius;
+            collider->colliders[0].props_circle.radius =
+                game_state->constants.player_control_radius;
 
             switch (state_machine->current_state) {
             case PS_NONE:
@@ -150,9 +151,10 @@ void systems_player(GameState *game_state, Input *input) {
                                                         Vector2Length(physics->velocity)));
 
                 b32 is_colliding_with_ball =
-                    CheckCollisionCircles(transform->position, collider->props.circle.radius,
+                    CheckCollisionCircles(transform->position,
+                                          collider->colliders[0].props_circle.radius,
                                           ball_transform->position,
-                                          ball_collider->props.circle.radius) &&
+                                          ball_collider->colliders[0].props_circle.radius) &&
                     // Player height
                     ball_transform->virtual_height < game_state->constants.player_control_height;
 
@@ -288,7 +290,8 @@ void systems_player(GameState *game_state, Input *input) {
                 v2 position_to_seek = Vector2Add(
                     player_on_the_ball.position,
                     Vector2Scale(normalized_velocity,
-                                 player_on_the_ball.collider->props.circle.radius * 0.9f));
+                                 player_on_the_ball.collider->colliders[0].props_circle.radius *
+                                     0.9f));
                 entities_ball_control_precision(game_state->vars.ball_entity_id,
                                                 player_on_the_ball.velocity, position_to_seek, 1.0f,
                                                 game_state);

@@ -59,8 +59,11 @@ struct Entity *entities_ball_create(GameState *game_state, BallConfig config) {
     // Initialise collider
     ComponentCollider *collider =
         entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    collider->shape = CS_CIRCLE;
-    collider->props.circle.radius = 2.5f;
+    collider->colliders =
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
+    collider->num_colliders = 1;
+    collider->colliders[0].shape = CS_CIRCLE;
+    collider->colliders[0].props_circle.radius = 2.5f;
 
     // Initialise action
     entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -169,7 +172,7 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
     ComponentPhysics3d *ball_physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     v3 velocity_to_add =
-        Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 0.5f}),
+        Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 1.0f}),
                      // TODO: some ball_run_force has to always be applied
                      game_state->constants.ball_run_force * (1 - control_quality));
     ball_physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);

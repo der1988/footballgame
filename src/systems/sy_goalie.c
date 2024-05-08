@@ -43,7 +43,8 @@ void systems_goalie(GameState *game_state, Input *input) {
 
             StateMachineGoalie *state_machine = goalie->state_machine;
 
-            collider->props.circle.radius = game_state->constants.player_control_radius;
+            collider->colliders[0].props_circle.radius =
+                game_state->constants.player_control_radius;
 
             switch (state_machine->current_state) {
             case GS_NONE:

@@ -42,8 +42,11 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     // Initialise collider
     ComponentCollider *collider =
         entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    collider->shape = CS_CIRCLE;
-    collider->props.circle.radius = game_state->constants.player_control_radius;
+    collider->colliders =
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
+    collider->num_colliders = 1;
+    collider->colliders[0].shape = CS_CIRCLE;
+    collider->colliders[0].props_circle.radius = game_state->constants.player_control_radius;
 
     // Initialise sprite
     ComponentSprite *sprite =

@@ -82,21 +82,24 @@ typedef enum { CS_CIRCLE, CS_RECTANGLE } ColliderShape;
 typedef struct {
     f32 radius;
     v2 offset;
-} ColliderCircle;
+} ColliderPropsCircle;
 
 typedef struct {
     v2 size;
     v2 offset;
-} ColliderRectangle;
-
-typedef union {
-    ColliderCircle circle;
-    ColliderRectangle rectangle;
-} ColliderProperties;
+} ColliderPropsRectangle;
 
 typedef struct {
     ColliderShape shape;
-    ColliderProperties props;
+    union {
+        ColliderPropsCircle props_circle;
+        ColliderPropsRectangle props_rectangle;
+    };
+} Collider;
+
+typedef struct {
+    Collider *colliders;
+    u16 num_colliders;
 } ComponentCollider;
 
 typedef struct {

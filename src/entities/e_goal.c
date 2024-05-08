@@ -60,10 +60,14 @@ struct Entity *entities_goal_create(GameState *game_state, GoalConfig config) {
     // Initialise collider
     ComponentCollider *collider =
         entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    collider->shape = CS_RECTANGLE;
-    collider->props.rectangle.size = (v2){.x = 79, .y = 27};
-    collider->props.rectangle.offset =
-        (v2){.x = -collider->props.rectangle.size.x / 2.0f, .y = -collider->props.rectangle.size.y};
+    collider->colliders =
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
+    collider->num_colliders = 1;
+    collider->colliders[0].shape = CS_RECTANGLE;
+    collider->colliders[0].props_rectangle.size = (v2){.x = 79, .y = 27};
+    collider->colliders[0].props_rectangle.offset =
+        (v2){.x = -collider->colliders[0].props_rectangle.size.x / 2.0f,
+             .y = -collider->colliders[0].props_rectangle.size.y};
 
     // Initialise goal
     entities_component_create(game_state->entity_repository, CT_GOAL, entity->id);

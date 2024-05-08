@@ -33,10 +33,10 @@ void systems_goal(GameState *game_state) {
                 game_state->entity_repository, CT_COLLIDER, entity_id);
 
             Rectangle goal_rectangle = {
-                .x = transform->position.x + collider->props.rectangle.offset.x,
-                .y = transform->position.y + collider->props.rectangle.offset.y,
-                .width = collider->props.rectangle.size.x,
-                .height = collider->props.rectangle.size.y};
+                .x = transform->position.x + collider->colliders[0].props_rectangle.offset.x,
+                .y = transform->position.y + collider->colliders[0].props_rectangle.offset.y,
+                .width = collider->colliders[0].props_rectangle.size.x,
+                .height = collider->colliders[0].props_rectangle.size.y};
 
             v3 goal_line_p1 = (v3){.x = game_state->vars.pitch_rectangle.x,
                                    .y = 0,
@@ -68,7 +68,7 @@ void systems_goal(GameState *game_state) {
                 }
             } else if (game_state->vars.ball_is_playable && !game_state->vars.someone_scored &&
                        CheckCollisionCircleRec(ball_transform->position,
-                                               ball_collider->props.circle.radius,
+                                               ball_collider->colliders[0].props_circle.radius,
                                                goal_rectangle) &&
                        ball_transform->position.y < game_state->vars.pitch_rectangle.y) {
 
@@ -81,16 +81,17 @@ void systems_goal(GameState *game_state) {
                 // printf("original collision %.2f, %.2f, %.2f\n", collision.point.x,
                 //        collision.point.y, collision.point.z);
                 if (collision.hit &&
-                    collision.point.x > (goal_rectangle.x - ball_collider->props.circle.radius) &&
+                    collision.point.x >
+                        (goal_rectangle.x - ball_collider->colliders[0].props_circle.radius) &&
                     collision.point.x < (goal_rectangle.x + goal_rectangle.width +
-                                         ball_collider->props.circle.radius) &&
+                                         ball_collider->colliders[0].props_circle.radius) &&
                     collision.point.y <
-                        (goal_rectangle.height + ball_collider->props.circle.radius)) {
+                        (goal_rectangle.height + ball_collider->colliders[0].props_circle.radius)) {
 
                     b32 collided_with_post = false;
                     if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
-                        collision.point.x <
-                            (goal_rectangle.x + post_width + ball_collider->props.circle.radius)) {
+                        collision.point.x < (goal_rectangle.x + post_width +
+                                             ball_collider->colliders[0].props_circle.radius)) {
                         // hit left post
                         f32 normalised_hit_point = Clamp(
                             (collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width,
@@ -104,7 +105,7 @@ void systems_goal(GameState *game_state) {
                     } else if (HAS_TIME_PASSED(game_state->time, goal->hit_right_post_time, 0.1f) &&
                                collision.point.x >
                                    (goal_rectangle.x + goal_rectangle.width - post_width -
-                                    ball_collider->props.circle.radius)) {
+                                    ball_collider->colliders[0].props_circle.radius)) {
                         // hit right post
                         f32 normalised_hit_point =
                             Clamp((collision.point.x - goal_rectangle.x - goal_rectangle.width +
@@ -118,8 +119,9 @@ void systems_goal(GameState *game_state) {
                         collided_with_post = true;
                         goal->hit_right_post_time = game_state->time;
                     } else if (HAS_TIME_PASSED(game_state->time, goal->hit_crossbar_time, 0.1f) &&
-                               collision.point.y > (goal_rectangle.height - post_width -
-                                                    ball_collider->props.circle.radius)) {
+                               collision.point.y >
+                                   (goal_rectangle.height - post_width -
+                                    ball_collider->colliders[0].props_circle.radius)) {
                         // hit cross bar
                         f32 normalised_hit_point =
                             Clamp((collision.point.y - goal_rectangle.height + post_width) /
@@ -146,13 +148,15 @@ void systems_goal(GameState *game_state) {
                         ball_transform->position = V3_TO_V2(final_pos);
                         ball_transform->virtual_height = final_pos.y;
                         printf("post at %.2f, %.2f, %.2f\n", final_pos.x, final_pos.y, final_pos.z);
-                    } else if (collision.point.x > (goal_rectangle.x + post_width +
-                                                    ball_collider->props.circle.radius) &&
+                    } else if (collision.point.x >
+                                   (goal_rectangle.x + post_width +
+                                    ball_collider->colliders[0].props_circle.radius) &&
                                collision.point.x <
                                    (goal_rectangle.x + goal_rectangle.width - post_width -
-                                    ball_collider->props.circle.radius) &&
-                               collision.point.y < (goal_rectangle.height - post_width -
-                                                    ball_collider->props.circle.radius)) {
+                                    ball_collider->colliders[0].props_circle.radius) &&
+                               collision.point.y <
+                                   (goal_rectangle.height - post_width -
+                                    ball_collider->colliders[0].props_circle.radius)) {
                         game_state->vars.someone_scored = true;
                         printf("goal at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
