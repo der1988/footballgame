@@ -42,11 +42,6 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     // Initialise collider
     ComponentCollider *collider =
         entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
-    collider->colliders =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
-    collider->num_colliders = 1;
-    collider->colliders[0].shape = CS_CIRCLE;
-    collider->colliders[0].props_circle.radius = game_state->constants.player_control_radius;
 
     // Initialise sprite
     ComponentSprite *sprite =
@@ -94,11 +89,25 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
         entities_goalie_state_machine_on_enter(entity, game_state);
 
         prepare_goalie_gfx(player, goalie, game_state);
+
+        collider->colliders =
+            memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider) * 2);
+        collider->num_colliders = 2;
+        collider->colliders[1].shape = CS_CIRCLE;
+        collider->colliders[1].props_circle.offset = (v2){.y = -7};
+        collider->colliders[1].props_circle.radius = 10;
     } else {
         player_state_machine->current_state = PS_NORMAL;
 
         prepare_gfx(player, game_state);
+
+        collider->colliders =
+            memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
+        collider->num_colliders = 1;
     }
+
+    collider->colliders[0].shape = CS_CIRCLE;
+    collider->colliders[0].props_circle.radius = game_state->constants.player_control_radius;
 
     entities_player_state_machine_on_enter(entity, game_state);
 
