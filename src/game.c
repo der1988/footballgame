@@ -122,7 +122,7 @@ GameState *game_init(GameConfig game_config) {
         game_state,
         (PlayerConfig){
             .is_goalie = true,
-            .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 20.0f}});
+            .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 220.0f}});
 
     Entity *ball_entity = entities_ball_create(
         game_state,
@@ -207,6 +207,7 @@ void game_update(GameState *game_state, Input *input) {
 
     systems_controls(game_state, input);
     systems_player(game_state, input);
+    systems_goalie(game_state);
     systems_ball(game_state, input);
     systems_goal(game_state);
     systems_action(game_state);

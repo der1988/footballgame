@@ -67,12 +67,11 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     // Initialise player
     ComponentPlayer *player =
         entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id);
-    StateMachinePlayer *state_machine =
+    StateMachinePlayer *player_state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
-    state_machine->owner_entity = entity->id;
-    state_machine->previous_state = PS_NONE;
-    state_machine->current_state = PS_NORMAL;
-    player->state_machine = state_machine;
+    player_state_machine->owner_entity = entity->id;
+    player_state_machine->previous_state = PS_NONE;
+    player->state_machine = player_state_machine;
 
     // Initialise action
     entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
@@ -87,9 +86,14 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
         state_machine->previous_state = GS_NONE;
         state_machine->current_state = GS_PROTECT_GOAL;
         goalie->state_machine = state_machine;
+        player_state_machine->current_state = PS_GOALIE;
+
+        entities_goalie_state_machine_on_enter(entity, game_state);
 
         prepare_goalie_gfx(player, goalie, game_state);
     } else {
+        player_state_machine->current_state = PS_NORMAL;
+
         prepare_gfx(player, game_state);
     }
 
@@ -132,6 +136,8 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
         break;
     case PS_NORMAL: {
     } break;
+    case PS_GOALIE: {
+    } break;
     case PS_COUNT:
         break;
     }
@@ -151,6 +157,8 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     case PS_NORMAL: {
         break;
     }
+    case PS_GOALIE: {
+    } break;
     case PS_COUNT:
         break;
     }

@@ -51,15 +51,17 @@ struct Entity *entities_camera_create(GameState *game_state);
 
 // START - Ball
 
-typedef enum { BS_NONE, BS_IN_PLAY, BS_OUT_OF_PLAY, BS_COUNT } StateMachineBallState;
+typedef enum { BS_NONE, BS_IN_PLAY, BS_OUT_OF_PLAY, BS_GK_HANDS, BS_COUNT } StateMachineBallState;
 
-static char const *StateMachineBallStateString[] = {"none", "in_play", "out_of_play", "count"};
+static char const *StateMachineBallStateString[] = {"none", "in_play", "out_of_play", "gk_hands",
+                                                    "count"};
 
 DeclareStateMachineEnterAndExit(ball);
 
 typedef union {
     StateMachineDefaultEmptyData in_play;
     StateMachineDefaultEmptyData out_of_play;
+    StateMachineDefaultEmptyData gk_hands;
 } StateMachineBallStateData;
 
 DefineStateMachine(Ball);
@@ -82,9 +84,9 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
 
 // START - Player
 
-typedef enum { PS_NONE, PS_NORMAL, PS_COUNT } StateMachinePlayerState;
+typedef enum { PS_NONE, PS_NORMAL, PS_GOALIE, PS_COUNT } StateMachinePlayerState;
 
-static char const *StateMachinePlayerStateString[] = {"none", "normal", "count"};
+static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie", "count"};
 
 DeclareStateMachineEnterAndExit(player);
 
@@ -94,6 +96,7 @@ typedef struct {
 
 typedef union {
     StateMachinePlayerNormalData normal;
+    StateMachineDefaultEmptyData goalie;
 } StateMachinePlayerStateData;
 
 DefineStateMachine(Player);

@@ -65,53 +65,53 @@ void systems_player(GameState *game_state, Input *input) {
 
             collider->props.circle.radius = game_state->constants.player_control_radius;
 
-            PlayerControls *player_controls = memory_arena_push(
-                game_state->memory_by_lifetime[MAL_UPDATE], sizeof(PlayerControls));
-
-            if (game_state->vars.p1.player_entity_id == entity_id) {
-                player_controls->steering = game_state->vars.p1.controls.steering;
-                player_controls->sprint = game_state->vars.p1.controls.sprint;
-
-                if (game_state->vars.p1.controls.charge.ready) {
-                    switch (game_state->vars.p1.controls.charge.type) {
-                    case ACT_SHOOT: {
-                        player_controls->shot = game_state->vars.p1.controls.charge.power;
-                        break;
-                    }
-                    case ACT_PASS: {
-                        player_controls->pass = game_state->vars.p1.controls.charge.power;
-                        break;
-                    }
-                    case ACT_LONG_PASS: {
-                        player_controls->long_pass = game_state->vars.p1.controls.charge.power;
-                        break;
-                    }
-                    }
-                }
-            } else {
-                if (game_state->constants.ai_enabled) {
-                    player_controls->steering = steering_pursuit(
-                        transform->position, physics->velocity, physics->max_velocity,
-                        ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
-                }
-            }
-
-            v2 effective_steering = player_controls->steering;
-            // If sprint locked or charging kick we seek the ball
-            if (player->sprint_locked || game_state->vars.p1.controls.charge.charging) {
-                effective_steering = Vector2Normalize(
-                    Vector2Subtract(ball_transform->position, transform->position));
-            }
-            physics->max_velocity = game_state->constants.player_run_max_velocity;
-            v2 force_to_apply = Vector2Zero();
-            v2 normalized_velocity = Vector2Normalize(physics->velocity);
-            f32 steering_magnitude = Vector2Length(effective_steering);
-            f32 current_velocity = Vector2Length(physics->velocity);
-
             switch (state_machine->current_state) {
             case PS_NONE:
                 break;
             case PS_NORMAL: {
+                PlayerControls *player_controls = memory_arena_push(
+                    game_state->memory_by_lifetime[MAL_UPDATE], sizeof(PlayerControls));
+
+                if (game_state->vars.p1.player_entity_id == entity_id) {
+                    player_controls->steering = game_state->vars.p1.controls.steering;
+                    player_controls->sprint = game_state->vars.p1.controls.sprint;
+
+                    if (game_state->vars.p1.controls.charge.ready) {
+                        switch (game_state->vars.p1.controls.charge.type) {
+                        case ACT_SHOOT: {
+                            player_controls->shot = game_state->vars.p1.controls.charge.power;
+                            break;
+                        }
+                        case ACT_PASS: {
+                            player_controls->pass = game_state->vars.p1.controls.charge.power;
+                            break;
+                        }
+                        case ACT_LONG_PASS: {
+                            player_controls->long_pass = game_state->vars.p1.controls.charge.power;
+                            break;
+                        }
+                        }
+                    }
+                } else {
+                    if (game_state->constants.ai_enabled) {
+                        player_controls->steering = steering_pursuit(
+                            transform->position, physics->velocity, physics->max_velocity,
+                            ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
+                    }
+                }
+
+                v2 effective_steering = player_controls->steering;
+                // If sprint locked or charging kick we seek the ball
+                if (player->sprint_locked || game_state->vars.p1.controls.charge.charging) {
+                    effective_steering = Vector2Normalize(
+                        Vector2Subtract(ball_transform->position, transform->position));
+                }
+                physics->max_velocity = game_state->constants.player_run_max_velocity;
+                v2 force_to_apply = Vector2Zero();
+                v2 normalized_velocity = Vector2Normalize(physics->velocity);
+                f32 steering_magnitude = Vector2Length(effective_steering);
+                f32 current_velocity = Vector2Length(physics->velocity);
+
                 // Run force
                 force_to_apply =
                     Vector2Scale(effective_steering, game_state->constants.player_movement_force);
@@ -200,6 +200,8 @@ void systems_player(GameState *game_state, Input *input) {
 
                 break;
             }
+            case PS_GOALIE:
+                break;
             case PS_COUNT:
                 break;
             }
