@@ -89,6 +89,7 @@ void systems_goal(GameState *game_state) {
                         (goal_rectangle.height + ball_collider->colliders[0].props_circle.radius)) {
 
                     b32 collided_with_post = false;
+                    b32 scored_off_post = false;
                     if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
                         collision.point.x < (goal_rectangle.x + post_width +
                                              ball_collider->colliders[0].props_circle.radius)) {
@@ -102,6 +103,10 @@ void systems_goal(GameState *game_state) {
                             120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_left_post_time = game_state->time;
+                        // This needs to be generalised to account for goal position (top vs bottom)
+                        if (ball_physics_3d->velocity.x > 0 && ball_physics_3d->velocity.z < 0) {
+                            scored_off_post = true;
+                        }
                     } else if (HAS_TIME_PASSED(game_state->time, goal->hit_right_post_time, 0.1f) &&
                                collision.point.x >
                                    (goal_rectangle.x + goal_rectangle.width - post_width -
@@ -118,6 +123,9 @@ void systems_goal(GameState *game_state) {
                             120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_right_post_time = game_state->time;
+                        if (ball_physics_3d->velocity.x < 0 && ball_physics_3d->velocity.z < 0) {
+                            scored_off_post = true;
+                        }
                     } else if (HAS_TIME_PASSED(game_state->time, goal->hit_crossbar_time, 0.1f) &&
                                collision.point.y >
                                    (goal_rectangle.height - post_width -
@@ -134,6 +142,9 @@ void systems_goal(GameState *game_state) {
                             120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_crossbar_time = game_state->time;
+                        if (ball_physics_3d->velocity.z < 0) {
+                            scored_off_post = true;
+                        }
                     }
                     if (collided_with_post) {
                         ball->subject_to_after_touch = false;
@@ -147,7 +158,12 @@ void systems_goal(GameState *game_state) {
 
                         ball_transform->position = V3_TO_V2(final_pos);
                         ball_transform->virtual_height = final_pos.y;
-                        printf("post at %.2f, %.2f, %.2f\n", final_pos.x, final_pos.y, final_pos.z);
+                        printf("post at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
+                               collision.point.z);
+                        if (scored_off_post) {
+                            game_state->vars.someone_scored = true;
+                            printf("goal off post\n");
+                        }
                     } else if (collision.point.x >
                                    (goal_rectangle.x + post_width +
                                     ball_collider->colliders[0].props_circle.radius) &&
