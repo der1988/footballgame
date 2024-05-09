@@ -35,6 +35,7 @@ v when stopping a run with the ball continue running to catch it and then we can
 v limit angle of all types of kick
 v improve kick power control
 v restore after touch
+v fixed goal off post is buggy
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
