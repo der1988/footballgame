@@ -231,3 +231,14 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->subject_to_after_touch = true;
 }
+
+void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
+                                             GameState *game_state) {
+    ComponentTransform *ball_transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ball_transform->position = V3_TO_V2(pos);
+    ball_transform->virtual_height = pos.y;
+    ball_physics_3d->velocity = velocity;
+}

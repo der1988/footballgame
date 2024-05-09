@@ -79,6 +79,8 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
                               f32 power, GameState *game_state);
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                              f32 power, GameState *game_state);
+void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
+                                             GameState *game_state);
 
 // END - Ball
 
