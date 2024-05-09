@@ -52,6 +52,26 @@ void systems_goalie(GameState *game_state, Input *input) {
             case GS_PROTECT_GOAL: {
                 if (player->state_machine->current_state == PS_GOALIE) {
 
+                    b32 is_colliding_with_ball =
+                        CheckCollisionCircles(transform->position,
+                                              collider->colliders[1].props_circle.radius,
+                                              ball_transform->position,
+                                              ball_collider->colliders[0].props_circle.radius) &&
+                        // Player height
+                        ball_transform->virtual_height <
+                            game_state->constants.player_control_height;
+
+                    static f64 last_save_time;
+                    if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.3f) &&
+                        is_colliding_with_ball) {
+                        v3 new_velocity = Vector3Negate(ball_physics_3d->velocity);
+                        entities_ball_set_position_and_velocity(
+                            game_state->vars.ball_entity_id,
+                            V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+                            new_velocity, game_state);
+                        last_save_time = game_state->time;
+                    }
+
                     v2 goal_center = {.x = game_state->vars.pitch_rectangle.x +
                                            game_state->vars.pitch_rectangle.width * 0.5f,
                                       .y = 80};
@@ -88,6 +108,9 @@ void systems_goalie(GameState *game_state, Input *input) {
                         sprite->frame_id = player->stand_frames[player->last_direction];
                     }
                 }
+                break;
+            }
+            case GS_SAVE: {
                 break;
             }
             case GS_COUNT:

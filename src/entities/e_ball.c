@@ -189,9 +189,7 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
                    (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
     ball_physics_3d->accel = Vector3Add(
         ball_physics_3d->accel,
-        Vector3Scale(shot_direction, (game_state->constants.ball_shot_force * 0.5f +
-                                      power * 0.5f * game_state->constants.ball_shot_force) /
-                                         game_state->dt));
+        Vector3Scale(shot_direction, (game_state->constants.ball_shot_force) / game_state->dt));
     ball->kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->subject_to_after_touch = true;

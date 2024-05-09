@@ -104,9 +104,9 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_COUNT } StateMachineGoalieState;
+typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_SAVE, GS_COUNT } StateMachineGoalieState;
 
-static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "count"};
+static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "save", "count"};
 
 DeclareStateMachineEnterAndExit(goalie);
 
