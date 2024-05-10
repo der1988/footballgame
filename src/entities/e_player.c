@@ -21,7 +21,7 @@ static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
 static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
                                GameState *game_state);
 
-struct Entity *entities_player_create(GameState *game_state, PlayerConfig config) {
+struct Entity *entities_player_create(PlayerConfig config, GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
     // Initialise transform
@@ -116,20 +116,55 @@ struct Entity *entities_player_create(GameState *game_state, PlayerConfig config
     return entity;
 }
 
-void entities_player_apply_force(Vector2 force_to_apply, ComponentPhysics *physics, DeltaTime dt) {
+void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_apply,
+                                 GameState *game_state) {
+    ComponentPhysics *physics =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, player_entity_id);
+
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
     // Calculate velocity
-    physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
+    physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, game_state->dt));
     if (Vector2Length(physics->velocity) > physics->max_velocity) {
         physics->velocity =
             Vector2Scale(Vector2Normalize(physics->velocity), physics->max_velocity);
     }
 }
 
-void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
-                                    DeltaTime dt) {
-    transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
+void entities_player_apply_velocity(EntityId player_entity_id, GameState *game_state) {
+    ComponentTransform *transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, player_entity_id);
+    ComponentPhysics *physics =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, player_entity_id);
+    transform->position =
+        Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
+}
+
+void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
+                                             f32 velocity_threshold, GameState *game_state) {
+    ComponentPhysics *physics =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, player_entity_id);
+    ComponentPlayer *player =
+        entities_component_get_typed(game_state->entity_repository, CT_PLAYER, player_entity_id);
+    ComponentSprite *sprite =
+        entities_component_get_typed(game_state->entity_repository, CT_SPRITE, player_entity_id);
+
+    if (Vector2Length(physics->velocity) > velocity_threshold) {
+        Direction pd = entities_common_calculate_direction(direction);
+        AssetsAnimation *animation =
+            assets_animation_get_by_id(game_state->animation_cache, player->run_animations[pd]);
+        f32 max_player_velocity = game_state->constants.player_run_max_velocity;
+        if ((game_state->time - player->last_frame_update_time) >
+            (animation->delay * (2 - Vector2Length(physics->velocity) / max_player_velocity))) {
+            player->last_frame_update_time = game_state->time;
+            u16 new_frame_id = (player->last_running_frame_idx + 1) % animation->frames_count;
+            sprite->frame_id = animation->frames[new_frame_id];
+            player->last_running_frame_idx = new_frame_id;
+        }
+        player->last_direction = pd;
+    } else {
+        sprite->frame_id = player->stand_frames[player->last_direction];
+    }
 }
 
 void entities_player_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
@@ -295,4 +330,30 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
         entities_common_animation_id_from_name("goalkeeper", "run_back_left", game_state);
     player->run_animations[D_UP_RIGHT] =
         entities_common_animation_id_from_name("goalkeeper", "run_back_right", game_state);
+
+    // Save frames
+    goalie->save_frames[SFS_UP][SFT_WITHOUT_BALL] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_front_0")
+            ->id;
+    goalie->save_frames[SFS_UP][SFT_WITH_BALL] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+                                        "goalkeeper_save_ball_front_0")
+            ->id;
+    goalie->save_frames[SFS_DOWN][SFT_WITHOUT_BALL] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_back_0")
+            ->id;
+    goalie->save_frames[SFS_DOWN][SFT_WITH_BALL] =
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+                                        "goalkeeper_save_ball_back_0")
+            ->id;
+
+    // Diving animations
+    goalie->dive_animations[SFS_UP][SFD_LEFT] =
+        entities_common_animation_id_from_name("goalkeeper", "save_front_left", game_state);
+    goalie->dive_animations[SFS_UP][SFD_RIGHT] =
+        entities_common_animation_id_from_name("goalkeeper", "save_front_right", game_state);
+    goalie->dive_animations[SFS_DOWN][SFD_LEFT] =
+        entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
+    goalie->dive_animations[SFS_DOWN][SFD_RIGHT] =
+        entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
 }

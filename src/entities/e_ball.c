@@ -18,7 +18,7 @@ ImplementStateMachineFunctions(Ball, ball);
 
 void ball_prepare_gfx(ComponentBall *ball, GameState *game_state);
 
-struct Entity *entities_ball_create(GameState *game_state, BallConfig config) {
+struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
 
     // Initialise transform

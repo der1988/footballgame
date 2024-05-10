@@ -67,7 +67,7 @@ typedef union {
 DefineStateMachine(Ball);
 DefineStateMachineFunctions(Ball, ball);
 
-struct Entity *entities_ball_create(GameState *game_state, BallConfig config);
+struct Entity *entities_ball_create(BallConfig config, GameState *game_state);
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
                                      v2 position_to_seek, f32 control_quality,
                                      GameState *game_state);
@@ -104,7 +104,7 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_SAVE, GS_COUNT } StateMachineGoalieState;
+typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_SAVE, GS_SEEK_BALL, GS_COUNT } StateMachineGoalieState;
 
 static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "save", "count"};
 
@@ -117,15 +117,18 @@ typedef union {
 DefineStateMachine(Goalie);
 DefineStateMachineFunctions(Goalie, goalie);
 
-struct Entity *entities_player_create(GameState *game_state, PlayerConfig config);
-void entities_player_apply_force(Vector2 steering, ComponentPhysics *physics, DeltaTime dt);
-void entities_player_apply_velocity(ComponentTransform *transform, ComponentPhysics *physics,
-                                    DeltaTime dt);
+struct Entity *entities_player_create(PlayerConfig config, GameState *game_state);
+void entities_player_apply_force(EntityId player_entity_id, Vector2 steering,
+                                 GameState *game_state);
+void entities_player_apply_velocity(EntityId player_entity_id, GameState *game_state);
+void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
+                                             f32 velocity_threshold, GameState *game_state);
+
 // END - Player
 
 // START - Goal
 
-struct Entity *entities_goal_create(GameState *game_state, GoalConfig config);
+struct Entity *entities_goal_create(GoalConfig config, GameState *game_state);
 
 // END - Goal
 

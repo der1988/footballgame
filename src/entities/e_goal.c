@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_create(GameState *game_state, GoalConfig config) {
+struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
     // Initialise transform

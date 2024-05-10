@@ -150,14 +150,16 @@ typedef struct {
     b32 scored;
 } ComponentGoal;
 
-typedef enum { SFD_UP, SFD_DOWN, SFD_COUNT } SaveFrameDirection;
+typedef enum { SFS_UP, SFS_DOWN, SFS_COUNT } SaveFrameSide;
+typedef enum { SFD_LEFT, SFD_RIGHT, SFD_COUNT } SaveFrameDirection;
 typedef enum { SFT_WITHOUT_BALL, SFT_WITH_BALL, SFT_COUNT } SaveFrameType;
 
 typedef struct {
     struct StateMachineGoalie *state_machine;
-    AssetsSpriteFrameId save_frames[SFD_COUNT][SFT_COUNT];
+    AssetsSpriteFrameId save_frames[SFS_COUNT][SFT_COUNT];
+    AssetsAnimationId dive_animations[SFS_COUNT][SFD_COUNT];
     f32 last_frame_update_time;
-    u16 last_running_frame_idx;
+    u16 last_diving_frame_idx;
 } ComponentGoalie;
 
 typedef struct {

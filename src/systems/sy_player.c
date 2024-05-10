@@ -139,8 +139,8 @@ void systems_player(GameState *game_state, Input *input) {
                     force_to_apply = Vector2Add(force_to_apply, parachute);
                 }
 
-                entities_player_apply_force(force_to_apply, physics, game_state->dt);
-                entities_player_apply_velocity(transform, physics, game_state->dt);
+                entities_player_apply_force(entity_id, force_to_apply, game_state);
+                entities_player_apply_velocity(entity_id, game_state);
 
                 // Velocity has been applied to player after this point
 
@@ -174,24 +174,8 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 // Calculate frame to display
-                if (Vector2Length(physics->velocity) > 3) {
-                    Direction pd = entities_common_calculate_direction(physics->velocity);
-                    AssetsAnimation *animation = assets_animation_get_by_id(
-                        game_state->animation_cache, player->run_animations[pd]);
-                    f32 max_player_velocity = game_state->constants.player_run_max_velocity;
-                    if ((game_state->time - player->last_frame_update_time) >
-                        (animation->delay *
-                         (2 - Vector2Length(physics->velocity) / max_player_velocity))) {
-                        player->last_frame_update_time = game_state->time;
-                        u16 new_frame_id =
-                            (player->last_running_frame_idx + 1) % animation->frames_count;
-                        sprite->frame_id = animation->frames[new_frame_id];
-                        player->last_running_frame_idx = new_frame_id;
-                    }
-                    player->last_direction = pd;
-                } else {
-                    sprite->frame_id = player->stand_frames[player->last_direction];
-                }
+                entities_player_calculate_running_frame(entity_id, physics->velocity, 3,
+                                                        game_state);
 
                 if (entity_id != ball->last_player_on_the_ball_entity_id ||
                     game_state->vars.someone_scored || !game_state->vars.ball_is_playable) {

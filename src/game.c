@@ -115,21 +115,21 @@ GameState *game_init(GameConfig game_config) {
         (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
 
     Entity *player_entity = entities_player_create(
-        game_state,
-        (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}});
+        (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
+        game_state);
 
     entities_player_create(
-        game_state,
         (PlayerConfig){
             .is_goalie = true,
-            .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 220.0f}});
+            .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 220.0f}},
+        game_state);
 
     Entity *ball_entity = entities_ball_create(
-        game_state,
-        (BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}});
+        (BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
+        game_state);
     game_state->vars.ball_entity_id = ball_entity->id;
 
-    entities_goal_create(game_state, (GoalConfig){.position = GP_TOP});
+    entities_goal_create((GoalConfig){.position = GP_TOP}, game_state);
 
     Entity *camera_entity = entities_camera_create(game_state);
     ComponentCamera *camera =
@@ -206,8 +206,8 @@ void game_update(GameState *game_state, Input *input) {
     }
 
     systems_controls(game_state, input);
-    systems_player(game_state, input);
     systems_goalie(game_state);
+    systems_player(game_state, input);
     systems_ball(game_state, input);
     systems_goal(game_state);
     systems_action(game_state);
