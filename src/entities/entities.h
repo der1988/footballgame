@@ -68,6 +68,8 @@ DefineStateMachine(Ball);
 DefineStateMachineFunctions(Ball, ball);
 
 struct Entity *entities_ball_create(BallConfig config, GameState *game_state);
+void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
+                                             GameState *game_state);
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
                                      v2 position_to_seek, f32 control_quality,
                                      GameState *game_state);
@@ -79,8 +81,9 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
                               f32 power, GameState *game_state);
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                              f32 power, GameState *game_state);
-void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
-                                             GameState *game_state);
+void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
+                                  GameState *game_state);
+void entities_ball_back_in_play(EntityId ball_entity_id, GameState *game_state);
 
 // END - Ball
 
@@ -88,7 +91,7 @@ void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3
 
 typedef enum { PS_NONE, PS_NORMAL, PS_GOALIE, PS_COUNT } StateMachinePlayerState;
 
-static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie", "count"};
+static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie"};
 
 DeclareStateMachineEnterAndExit(player);
 
@@ -104,14 +107,29 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_SAVE, GS_SEEK_BALL, GS_COUNT } StateMachineGoalieState;
+typedef enum {
+    GS_NONE,
+    GS_PROTECT_GOAL,
+    GS_DIVE,
+    GS_SEEK_BALL,
+    GS_HOLD_BALL,
+    GS_COUNT
+} StateMachineGoalieState;
 
-static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "save", "count"};
+static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "dive", "seek_ball",
+                                                      "hold_ball"};
 
 DeclareStateMachineEnterAndExit(goalie);
 
+typedef struct {
+    Time hold_start_time;
+} StateMachineGoalieHoldBallData;
+
 typedef union {
     StateMachineDefaultEmptyData protect_goal;
+    StateMachineDefaultEmptyData dive;
+    StateMachineDefaultEmptyData seek_ball;
+    StateMachineGoalieHoldBallData hold_ball;
 } StateMachineGoalieStateData;
 
 DefineStateMachine(Goalie);

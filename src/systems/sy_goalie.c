@@ -57,11 +57,12 @@ void systems_goalie(GameState *game_state, Input *input) {
 
             collider->colliders[0].props_circle.radius =
                 game_state->constants.player_control_radius;
+            Collider *save_collider = &collider->colliders[1];
 
             b32 is_colliding_with_ball =
-                CheckCollisionCircles(
-                    transform->position, collider->colliders[1].props_circle.radius,
-                    ball_transform->position, ball_collider->colliders[0].props_circle.radius) &&
+                CheckCollisionCircles(transform->position, save_collider->props_circle.radius,
+                                      ball_transform->position,
+                                      ball_collider->colliders[0].props_circle.radius) &&
                 // Player height
                 ball_transform->virtual_height < game_state->constants.player_control_height;
 
@@ -99,9 +100,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                                                                       GS_SEEK_BALL, game_state);
                     }
 
+                    direction = Vector2Normalize(
+                        Vector2Subtract(ball_transform->position, transform->position));
+                    entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
+
                     break;
                 }
-                case GS_SAVE: {
+                case GS_DIVE: {
                     break;
                 }
                 case GS_SEEK_BALL: {
@@ -114,21 +119,48 @@ void systems_goalie(GameState *game_state, Input *input) {
                     entities_player_apply_force(entity_id, force_to_apply, game_state);
                     entities_player_apply_velocity(entity_id, game_state);
 
-                    if (distance_from_goal > 100) {
+                    if (is_colliding_with_ball) {
+                        // hold ball in hands
+                        entities_ball_held_by_goalie(game_state->vars.ball_entity_id, entity_id,
+                                                     game_state);
+                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                      GS_HOLD_BALL, game_state);
+                    } else if (distance_from_goal > 100) {
+                        // protect goal
                         entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                       GS_PROTECT_GOAL, game_state);
                     }
+                    v2 direction = Vector2Normalize(
+                        Vector2Subtract(ball_transform->position, transform->position));
+                    entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
 
+                    break;
+                }
+                case GS_HOLD_BALL: {
+                    if (HAS_TIME_PASSED(game_state->time,
+                                        goalie->state_machine->state_data.hold_ball.hold_start_time,
+                                        1)) {
+                        entities_ball_back_in_play(game_state->vars.ball_entity_id, game_state);
+                        v2 new_ball_position = Vector2Add(
+                            transform->position,
+                            Vector2Scale((v2){.y = 1},
+                                         save_collider->props_circle.offset.y +
+                                             save_collider->props_circle.radius +
+                                             ball_collider->colliders[0].props_circle.radius + 7));
+                        entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+                                                                V2_TO_V3(new_ball_position, 10),
+                                                                Vector3Zero(), game_state);
+                        entities_ball_long_pass(game_state->vars.ball_entity_id, entity_id,
+                                                (v2){.y = 1}, 0.7f, game_state);
+                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                      GS_PROTECT_GOAL, game_state);
+                    }
                     break;
                 }
                 case GS_COUNT:
                     break;
                 }
             }
-
-            v2 direction =
-                Vector2Normalize(Vector2Subtract(ball_transform->position, transform->position));
-            entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
         }
     }
 }

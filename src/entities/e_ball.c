@@ -88,6 +88,8 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
 }
 
 void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
+    Component *sprite =
+        entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, entity->id);
     StateMachineBall *state_machine = ball->state_machine;
@@ -102,15 +104,22 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
     case BS_NONE:
         break;
     case BS_IN_PLAY: {
-    } break;
+        break;
+    }
     case BS_OUT_OF_PLAY: {
-    } break;
+        break;
+    }
+    case BS_GK_HANDS: {
+        sprite->header.enabled = false;
+    }
     case BS_COUNT:
         break;
     }
 }
 
 void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
+    Component *sprite =
+        entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, entity->id);
     StateMachineBall *state_machine = ball->state_machine;
@@ -122,9 +131,13 @@ void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_
     case BS_NONE:
         break;
     case BS_IN_PLAY: {
-
-    } break;
+        break;
+    }
     case BS_OUT_OF_PLAY: {
+        break;
+    }
+    case BS_GK_HANDS: {
+        sprite->header.enabled = true;
         break;
     }
     case BS_COUNT:
@@ -149,6 +162,17 @@ void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
         entities_common_animation_id_from_name("ball", "down_left", game_state);
     ball->roll_animations[D_DOWN_RIGHT] =
         entities_common_animation_id_from_name("ball", "down_right", game_state);
+}
+
+void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
+                                             GameState *game_state) {
+    ComponentTransform *ball_transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
+    ComponentPhysics3d *ball_physics_3d =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ball_transform->position = V3_TO_V2(pos);
+    ball_transform->virtual_height = pos.y;
+    ball_physics_3d->velocity = velocity;
 }
 
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
@@ -230,13 +254,15 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
     ball->subject_to_after_touch = true;
 }
 
-void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
-                                             GameState *game_state) {
-    ComponentTransform *ball_transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ball_transform->position = V3_TO_V2(pos);
-    ball_transform->virtual_height = pos.y;
-    ball_physics_3d->velocity = velocity;
+void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
+                                  GameState *game_state) {
+    ComponentBall *ball =
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    entities_ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
+}
+
+void entities_ball_back_in_play(EntityId ball_entity_id, GameState *game_state) {
+    ComponentBall *ball =
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    entities_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }

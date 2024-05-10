@@ -12,13 +12,13 @@ void systems_ball(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
     EntityId ball_id = game_state->vars.ball_entity_id;
-    if (entity_repository->entities[ball_id].alive) {
+    if (entities_entity_is_alive_and_has_components(game_state->entity_repository, ball_id, 4,
+                                                    CT_TRANSFORM, CT_PHYSICS_3D, CT_SPRITE,
+                                                    CT_BALL)) {
         ComponentTransform *transform =
             entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_id);
         ComponentPhysics3d *physics_3d =
             entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_id);
-        ComponentCollider *collider =
-            entities_component_get_typed(game_state->entity_repository, CT_COLLIDER, ball_id);
         ComponentSprite *sprite =
             entities_component_get_typed(game_state->entity_repository, CT_SPRITE, ball_id);
         ComponentBall *ball =
@@ -166,7 +166,11 @@ void systems_ball(GameState *game_state, Input *input) {
             }
         } break;
         case BS_OUT_OF_PLAY: {
-        } break;
+            break;
+        }
+        case BS_GK_HANDS: {
+            break;
+        }
         case BS_COUNT:
             break;
         }

@@ -212,6 +212,8 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
 }
 
 void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
+    ComponentSprite *sprite =
+        entities_component_get_typed(game_state->entity_repository, CT_SPRITE, entity->id);
     ComponentGoalie *goalie =
         entities_component_get_typed(game_state->entity_repository, CT_GOALIE, entity->id);
     StateMachineGoalie *state_machine = goalie->state_machine;
@@ -226,7 +228,19 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
     case GS_NONE:
         break;
     case GS_PROTECT_GOAL: {
-    } break;
+        break;
+    }
+    case GS_DIVE: {
+        break;
+    }
+    case GS_SEEK_BALL: {
+        break;
+    }
+    case GS_HOLD_BALL: {
+        goalie->state_machine->state_data.hold_ball.hold_start_time = game_state->time;
+        sprite->frame_id = goalie->save_frames[SFS_UP][SFT_WITH_BALL];
+        break;
+    }
     case GS_COUNT:
         break;
     }
@@ -244,6 +258,15 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *gam
     case GS_NONE:
         break;
     case GS_PROTECT_GOAL: {
+        break;
+    }
+    case GS_DIVE: {
+        break;
+    }
+    case GS_SEEK_BALL: {
+        break;
+    }
+    case GS_HOLD_BALL: {
         break;
     }
     case GS_COUNT:
