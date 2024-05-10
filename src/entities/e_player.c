@@ -212,6 +212,10 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
 }
 
 void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
+    ComponentTransform *transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    ComponentPhysics *physics =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, entity->id);
     ComponentSprite *sprite =
         entities_component_get_typed(game_state->entity_repository, CT_SPRITE, entity->id);
     ComponentGoalie *goalie =
@@ -231,6 +235,12 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
         break;
     }
     case GS_DIVE: {
+        ComponentTransform *ball_transform = entities_component_get_typed(
+            game_state->entity_repository, CT_TRANSFORM, game_state->vars.ball_entity_id);
+        physics->max_velocity = game_state->constants.player_run_max_velocity * 4;
+        goalie->last_diving_frame_idx = 0;
+        goalie->state_machine->state_data.dive.dive_direction =
+            (ball_transform->position.x - transform->position.x) > 0 ? SD_RIGHT : SD_LEFT;
         break;
     }
     case GS_SEEK_BALL: {
@@ -238,7 +248,7 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
     }
     case GS_HOLD_BALL: {
         goalie->state_machine->state_data.hold_ball.hold_start_time = game_state->time;
-        sprite->frame_id = goalie->save_frames[SFS_UP][SFT_WITH_BALL];
+        sprite->frame_id = goalie->save_frames[SS_UP][ST_WITH_BALL];
         break;
     }
     case GS_COUNT:
@@ -249,6 +259,8 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
 void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
     ComponentGoalie *goalie =
         entities_component_get_typed(game_state->entity_repository, CT_GOALIE, entity->id);
+    ComponentPhysics *physics =
+        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, entity->id);
     StateMachineGoalie *state_machine = goalie->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
@@ -261,6 +273,7 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *gam
         break;
     }
     case GS_DIVE: {
+        physics->max_velocity = game_state->constants.player_run_max_velocity;
         break;
     }
     case GS_SEEK_BALL: {
@@ -355,28 +368,28 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
         entities_common_animation_id_from_name("goalkeeper", "run_back_right", game_state);
 
     // Save frames
-    goalie->save_frames[SFS_UP][SFT_WITHOUT_BALL] =
+    goalie->save_frames[SS_UP][ST_WITHOUT_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_front_0")
             ->id;
-    goalie->save_frames[SFS_UP][SFT_WITH_BALL] =
+    goalie->save_frames[SS_UP][ST_WITH_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
                                         "goalkeeper_save_ball_front_0")
             ->id;
-    goalie->save_frames[SFS_DOWN][SFT_WITHOUT_BALL] =
+    goalie->save_frames[SS_DOWN][ST_WITHOUT_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_back_0")
             ->id;
-    goalie->save_frames[SFS_DOWN][SFT_WITH_BALL] =
+    goalie->save_frames[SS_DOWN][ST_WITH_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
                                         "goalkeeper_save_ball_back_0")
             ->id;
 
     // Diving animations
-    goalie->dive_animations[SFS_UP][SFD_LEFT] =
+    goalie->dive_animations[SS_UP][SD_LEFT] =
         entities_common_animation_id_from_name("goalkeeper", "save_front_left", game_state);
-    goalie->dive_animations[SFS_UP][SFD_RIGHT] =
+    goalie->dive_animations[SS_UP][SD_RIGHT] =
         entities_common_animation_id_from_name("goalkeeper", "save_front_right", game_state);
-    goalie->dive_animations[SFS_DOWN][SFD_LEFT] =
+    goalie->dive_animations[SS_DOWN][SD_LEFT] =
         entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
-    goalie->dive_animations[SFS_DOWN][SFD_RIGHT] =
+    goalie->dive_animations[SS_DOWN][SD_RIGHT] =
         entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
 }

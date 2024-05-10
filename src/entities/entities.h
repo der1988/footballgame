@@ -125,9 +125,13 @@ typedef struct {
     Time hold_start_time;
 } StateMachineGoalieHoldBallData;
 
+typedef struct {
+    SaveDirection dive_direction;
+} StateMachineGoalieDiveData;
+
 typedef union {
     StateMachineDefaultEmptyData protect_goal;
-    StateMachineDefaultEmptyData dive;
+    StateMachineGoalieDiveData dive;
     StateMachineDefaultEmptyData seek_ball;
     StateMachineGoalieHoldBallData hold_ball;
 } StateMachineGoalieStateData;

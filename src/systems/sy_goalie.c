@@ -106,9 +106,6 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     break;
                 }
-                case GS_DIVE: {
-                    break;
-                }
                 case GS_SEEK_BALL: {
                     v2 steering = steering_seek(transform->position, physics->velocity,
                                                 physics->max_velocity, ball_transform->position);
@@ -129,7 +126,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                         // protect goal
                         entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                       GS_PROTECT_GOAL, game_state);
+                    } else if (fabs(transform->position.y - ball_transform->position.y) < 5 &&
+                               fabs(transform->position.x - ball_transform->position.x) > 5 &&
+                               fabs(transform->position.x - ball_transform->position.x) < 50) {
+                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                      GS_DIVE, game_state);
                     }
+
                     v2 direction = Vector2Normalize(
                         Vector2Subtract(ball_transform->position, transform->position));
                     entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
@@ -155,6 +158,34 @@ void systems_goalie(GameState *game_state, Input *input) {
                         entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                       GS_PROTECT_GOAL, game_state);
                     }
+                    break;
+                }
+                case GS_DIVE: {
+                    SaveDirection direction = goalie->state_machine->state_data.dive.dive_direction;
+
+                    v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
+                    // Run force
+                    v2 force_to_apply = Vector2Scale(steering, 40000);
+
+                    entities_player_apply_force(entity_id, force_to_apply, game_state);
+                    entities_player_apply_velocity(entity_id, game_state);
+
+                    AssetsAnimation *animation = assets_animation_get_by_id(
+                        game_state->animation_cache, goalie->dive_animations[SS_UP][direction]);
+                    if ((game_state->time - goalie->last_frame_update_time) >
+                        (animation->delay *
+                         (2 - Vector2Length(physics->velocity) / physics->max_velocity))) {
+                        goalie->last_frame_update_time = game_state->time;
+                        u16 new_frame_id = goalie->last_diving_frame_idx + 1;
+                        if (new_frame_id == animation->frames_count) {
+                            entities_goalie_state_machine_change_state_to(
+                                goalie->state_machine, GS_PROTECT_GOAL, game_state);
+                        } else {
+                            sprite->frame_id = animation->frames[new_frame_id];
+                            goalie->last_diving_frame_idx = new_frame_id;
+                        }
+                    }
+
                     break;
                 }
                 case GS_COUNT:
