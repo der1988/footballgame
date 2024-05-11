@@ -29,7 +29,8 @@ GameState *game_init(GameConfig game_config) {
     // pitch in game is 1080 pixels long
     // 1m is ~10 pixels in game
     // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
-    game_state->constants = (GameConstants){.render_debug = true,
+    game_state->constants = (GameConstants){.fixed_timestep = 1 / 480.0,
+                                            .render_debug = true,
                                             .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,

@@ -26,11 +26,9 @@ int main() {
 
     GameState *game_state = game_init(game_config);
 
-    // Fixed timestep
-    const double dt = 1 / 480.0;
-
     double current_time = GetTime();
     double accumulator = 0.0;
+    double dt = game_state->constants.fixed_timestep;
 
     //--------------------------------------------------------------------------------------
 

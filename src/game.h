@@ -29,6 +29,7 @@ typedef struct GameConfig {
 } GameConfig;
 
 typedef struct GameConstants {
+    f64 fixed_timestep;
     b32 render_debug;
     b32 ai_enabled;
     f32 input_stick_dead_zone;
