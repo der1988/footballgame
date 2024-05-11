@@ -166,53 +166,53 @@ void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
 
 void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
                                              GameState *game_state) {
-    ComponentTransform *ball_transform =
+    ComponentTransform *transform =
         entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d =
+    ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ball_transform->position = V3_TO_V2(pos);
-    ball_transform->virtual_height = pos.y;
-    ball_physics_3d->velocity = velocity;
+    transform->position = V3_TO_V2(pos);
+    transform->virtual_height = pos.y;
+    physics_3d->velocity = velocity;
 }
 
 void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity,
                                      v2 position_to_seek, f32 control_quality,
                                      GameState *game_state) {
-    ComponentTransform *ball_transform =
+    ComponentTransform *transform =
         entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d =
+    ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
 
-    ball_physics_3d->velocity = Vector3Add(
-        V2_TO_V3(player_velocity, 0),
-        Vector3Scale(Vector3Normalize(Vector3Subtract(
-                         V2_TO_V3(position_to_seek, 0),
-                         V2_TO_V3(ball_transform->position, ball_transform->virtual_height))),
-                     game_state->constants.ball_control_force * control_quality));
+    physics_3d->velocity =
+        Vector3Add(V2_TO_V3(player_velocity, 0),
+                   Vector3Scale(Vector3Normalize(Vector3Subtract(
+                                    V2_TO_V3(position_to_seek, 0),
+                                    V2_TO_V3(transform->position, transform->virtual_height))),
+                                game_state->constants.ball_control_force * control_quality));
 }
 
 void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
                                    v2 player_velocity, f32 control_quality, GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d =
+    ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     v3 velocity_to_add =
         Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 1.0f}),
                      // TODO: some ball_run_force has to always be applied
                      game_state->constants.ball_run_force * (1 - control_quality));
-    ball_physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
+    physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
 }
 
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                          f32 power, GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d =
+    ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     v3 shot_direction =
         Vector3Add(V2_TO_V3(direction, 0),
                    (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
-    ball_physics_3d->accel = Vector3Add(
-        ball_physics_3d->accel,
+    physics_3d->accel = Vector3Add(
+        physics_3d->accel,
         Vector3Scale(shot_direction, (game_state->constants.ball_shot_force) / game_state->dt));
     ball->kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
@@ -221,12 +221,12 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
 
 void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
                               f32 power, GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d =
+    ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
-    ball_physics_3d->accel =
-        Vector3Add(ball_physics_3d->accel,
+    physics_3d->accel =
+        Vector3Add(physics_3d->accel,
                    Vector3Scale(direction, (game_state->constants.ball_pass_force * 0.5f +
                                             power * 0.5f * game_state->constants.ball_pass_force) /
                                                game_state->dt));
@@ -236,15 +236,15 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
 
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                              f32 power, GameState *game_state) {
-    ComponentPhysics3d *ball_physics_3d =
+    ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     v3 long_pass_direction = Vector3Add(
         Vector3Normalize(V2_TO_V3(direction, 0)),
         (Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
-    ball_physics_3d->accel =
-        Vector3Add(ball_physics_3d->accel,
+    physics_3d->accel =
+        Vector3Add(physics_3d->accel,
                    Vector3Scale(long_pass_direction,
                                 (game_state->constants.ball_long_pass_force * 0.75f +
                                  power * 0.25f * game_state->constants.ball_long_pass_force) /
