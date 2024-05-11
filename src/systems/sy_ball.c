@@ -1,6 +1,7 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
+#include "../sim/simulation.h"
 #include "../utils/utils.h"
 #include "input.h"
 #include "layers/layers.h"
@@ -57,46 +58,9 @@ void systems_ball(GameState *game_state, Input *input) {
         case BS_NONE:
             break;
         case BS_IN_PLAY: {
-
-            Vector3 ball_position_3d = V2_TO_V3(transform->position, transform->virtual_height);
-
-            /*
-             * Drag in the air calculation
-             *
-             * Formula for drag is FD=1/2CρAv^2
-             * A (soccer ball) = 0.038 m^2
-             * C (sphere) = 0.45
-             * p (air) = 1.21 kg/m3
-             *
-             * Formula needs meters so we need to convert from pixels to meters and back
-             */
-            f32 drag_force =
-                0.5f * game_state->constants.ball_drag_coefficient *
-                game_state->constants.air_density *
-                game_state->constants.ball_cross_sectional_area *
-                powf(Vector3Length(physics_3d->velocity) / game_state->constants.pixels_per_meter,
-                     2) *
-                game_state->constants.pixels_per_meter;
-            physics_3d->accel =
-                Vector3Add(physics_3d->accel,
-                           Vector3Scale(Vector3Negate(Vector3Normalize(physics_3d->velocity)),
-                                        drag_force / physics_3d->mass));
-
-            // If ball is in the air apply gravity
-            b32 on_the_ground = true;
-            if (ball_position_3d.y > 0) {
-                on_the_ground = false;
-                physics_3d->accel =
-                    Vector3Add(physics_3d->accel, game_state->constants.gravity_force);
-            } else {
-                // If it's on the pitch we apply a hacky drag
-                physics_3d->velocity.x += physics_3d->velocity.x *
-                                          -game_state->constants.ball_friction_on_pitch *
-                                          game_state->dt;
-                physics_3d->velocity.z += physics_3d->velocity.z *
-                                          -game_state->constants.ball_friction_on_pitch *
-                                          game_state->dt;
-            }
+            Vector3 position = V2_TO_V3(transform->position, transform->virtual_height);
+            Vector3 velocity = physics_3d->velocity;
+            Vector3 accel = physics_3d->accel;
 
             // After touch
             f32 after_touch_time = (game_state->time - ball->kick_time);
@@ -111,40 +75,31 @@ void systems_ball(GameState *game_state, Input *input) {
                                                 game_state->constants.ball_after_touch_delay_time),
                                                2),
                                       0, 1);
-                v2 ball_2d_vel = V3_TO_V2(physics_3d->velocity);
+                v2 ball_2d_vel = V3_TO_V2(velocity);
                 v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
                 v2 after_touch_side = Vector2Project(ball_2d_vel_perp, input);
                 v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
-                physics_3d->accel =
-                    Vector3Add(physics_3d->accel,
-                               Vector3Scale(after_touch_direction,
-                                            game_state->constants.ball_after_touch_force * force));
+                accel = Vector3Add(
+                    accel, Vector3Scale(after_touch_direction,
+                                        game_state->constants.ball_after_touch_force * force));
             }
 
-            // Apply acceleration...
-            physics_3d->velocity =
-                Vector3Add(physics_3d->velocity, Vector3Scale(physics_3d->accel, game_state->dt));
-            // ...and velocity
-            ball_position_3d =
-                Vector3Add(ball_position_3d, Vector3Scale(physics_3d->velocity, game_state->dt));
-
-            // Make the ball bounce
-            if (ball_position_3d.y < 0) {
-                ball->subject_to_after_touch = false;
-                ball_position_3d.y = 0;
-                physics_3d->accel.y *= game_state->constants.ball_cr;
-                physics_3d->velocity.y *= -game_state->constants.ball_cr;
-                if (fabsf(physics_3d->velocity.y) < 10.0f) {
-                    physics_3d->velocity.y = 0;
-                }
-            }
+            b32 on_the_ground;
+            b32 bounced;
+            sim_ball_physics(&position, &velocity, accel, physics_3d->mass, &on_the_ground,
+                             &bounced, game_state);
 
             // Project position to 2D
-            transform->position = V3_TO_V2(ball_position_3d);
-            transform->virtual_height = ball_position_3d.y;
+            transform->position = V3_TO_V2(position);
+            transform->virtual_height = position.y;
 
+            physics_3d->velocity = velocity;
             // Acceleration does not accumulate
             physics_3d->accel = Vector3Zero();
+
+            if (bounced) {
+                ball->subject_to_after_touch = false;
+            }
 
             // Calculate frame to display
             Vector2 ball_velocity = V3_TO_V2(physics_3d->velocity);

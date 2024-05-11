@@ -126,11 +126,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                         // protect goal
                         entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                       GS_PROTECT_GOAL, game_state);
-                    } else if (fabs(transform->position.y - ball_transform->position.y) < 5 &&
-                               fabs(transform->position.x - ball_transform->position.x) > 5 &&
-                               fabs(transform->position.x - ball_transform->position.x) < 50) {
-                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
-                                                                      GS_DIVE, game_state);
+                    } else {
+                        double lookahead = 3 * game_state->dt;
+                        v3 future_ball_pos = Vector3Add(
+                            V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+                            Vector3Scale(ball_physics_3d->velocity, lookahead));
+                        // entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                        //                                               GS_DIVE, game_state);
                     }
 
                     v2 direction = Vector2Normalize(
