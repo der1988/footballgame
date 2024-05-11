@@ -21,17 +21,16 @@ void systems_camera(GameState *game_state) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 4,
-                                                        CT_TRANSFORM, CT_PHYSICS, CT_TARGET,
-                                                        CT_CAMERA_PROPS)) {
-            ComponentTransform *transform = ComponentCastToInternalUnchecked(
+        if (entities_entity_is_alive_and_has_components(
+                entity_repository, entity_id, 4, CT_TRANSFORM, CT_PHYSICS, CT_TARGET, CT_CAMERA)) {
+            ComponentTransform *transform = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentPhysics *physics = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_PHYSICS, entity_id);
-            ComponentTarget *target = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_TARGET, entity_id);
-            ComponentCameraProps *props = ComponentCastToInternalUnchecked(
-                game_state->entity_repository, CT_CAMERA_PROPS, entity_id);
+            ComponentPhysics *physics =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
+            ComponentTarget *target =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_TARGET, entity_id);
+            ComponentCamera *props =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_CAMERA, entity_id);
 
             Component *target_transform = entities_component_get(game_state->entity_repository,
                                                                  CT_TRANSFORM, target->entity_id);
@@ -45,7 +44,6 @@ void systems_camera(GameState *game_state) {
 
             apply_force(steering, physics, game_state->dt);
             apply_velocity(transform, physics, game_state->dt);
-            game_state->camera.target = transform->position;
         }
     }
 }

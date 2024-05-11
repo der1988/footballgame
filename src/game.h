@@ -15,11 +15,13 @@ struct TweakUI;
 struct LayersDebug;
 struct Input;
 
-typedef enum { MAL_GAME, MAL_LEVEL, MAL_FRAME, MAL_COUNT } MemoryArenaLifetime;
+typedef enum { MAL_GAME, MAL_LEVEL, MAL_UPDATE, MAL_DRAW, MAL_COUNT } MemoryArenaLifetime;
 
-typedef enum { CAM_MAIN, CAM_PLAYER_2, CAM_COUNT } CameraType;
+typedef enum { CAM_MAIN, CAM_COUNT } CameraType;
 
 typedef struct GameConfig {
+    u32 virtual_screen_width;
+    u32 virtual_screen_height;
     u32 screen_width;
     u32 screen_height;
     void *memory;
@@ -27,6 +29,7 @@ typedef struct GameConfig {
 } GameConfig;
 
 typedef struct GameConstants {
+    f64 fixed_timestep;
     b32 render_debug;
     b32 ai_enabled;
     f32 input_stick_dead_zone;
@@ -51,11 +54,15 @@ typedef struct GameConstants {
     f32 ball_after_touch_max_time;
     f32 ball_after_touch_force;
     f32 ball_max_velocity;
+    // Following constants might become variables that depends on player characteristics at some
+    // point
     f32 player_movement_force;
     f32 player_movement_drag;
     f32 player_control_max_velocity;
     f32 player_run_max_velocity;
     f32 player_control_radius;
+    f32 player_control_height;
+    f32 player_run_control_max_angle;
     f32 kick_charge_reset_time;
 } GameConstants;
 
@@ -63,7 +70,7 @@ typedef enum ActionChargeType { ACT_SHOOT, ACT_PASS, ACT_LONG_PASS } ActionCharg
 
 typedef struct ActionCharge {
     ActionChargeType type;
-    v2 normalised_direction;
+    v2 direction;
     Time started;
     Time ended;
     f32 power;
@@ -72,7 +79,7 @@ typedef struct ActionCharge {
 } ActionCharge;
 
 typedef struct Controls {
-    v2 normalised_direction;
+    v2 steering;
     b32 sprint;
     ActionCharge charge;
 } Controls;
@@ -84,6 +91,7 @@ typedef struct HumanPlayer {
 
 typedef struct GameVariables {
     b32 is_tweakui_shown;
+    EntityId camera_entity_id;
     EntityId ball_entity_id;
     HumanPlayer p1;
     Rectangle pitch_rectangle;
@@ -106,6 +114,7 @@ typedef struct GameState {
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;
+    Camera2D virtual_camera;
     Time time;
     DeltaTime dt;
 } GameState;

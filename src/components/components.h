@@ -10,7 +10,9 @@
 
 #define MaxConcurrentActions 5
 
-struct Entity;
+// Forward declarations
+struct StateMachineBall;
+struct StateMachinePlayer;
 
 typedef enum {
     CT_TRANSFORM,
@@ -18,13 +20,13 @@ typedef enum {
     CT_PHYSICS_3D,
     CT_SPRITE,
     CT_COLLIDER,
-    CT_STATE_MACHINE,
     CT_ACTION,
     CT_TARGET,
-    CT_CAMERA_PROPS,
+    CT_CAMERA,
     CT_PLAYER,
     CT_BALL,
     CT_GOAL,
+    CT_GOALIE,
     CT_COUNT,
     CT_NONE
 } ComponentType;
@@ -68,10 +70,6 @@ typedef struct {
 } ComponentSprite;
 
 typedef struct {
-    void *ptr;
-} ComponentStateMachine;
-
-typedef struct {
     ActionRunner running_actions[MaxConcurrentActions];
 } ComponentAction;
 
@@ -84,27 +82,30 @@ typedef enum { CS_CIRCLE, CS_RECTANGLE } ColliderShape;
 typedef struct {
     f32 radius;
     v2 offset;
-} ColliderCircle;
+} ColliderPropsCircle;
 
 typedef struct {
     v2 size;
     v2 offset;
-} ColliderRectangle;
-
-typedef union {
-    ColliderCircle circle;
-    ColliderRectangle rectangle;
-} ColliderProperties;
+} ColliderPropsRectangle;
 
 typedef struct {
     ColliderShape shape;
-    ColliderProperties props;
+    union {
+        ColliderPropsCircle props_circle;
+        ColliderPropsRectangle props_rectangle;
+    };
+} Collider;
+
+typedef struct {
+    Collider *colliders;
+    u16 num_colliders;
 } ComponentCollider;
 
 typedef struct {
     CameraType camera;
     f32 slowing_distance;
-} ComponentCameraProps;
+} ComponentCamera;
 
 typedef enum {
     D_UP,
@@ -119,6 +120,7 @@ typedef enum {
 } Direction;
 
 typedef struct {
+    struct StateMachinePlayer *state_machine;
     b32 is_controlling_the_ball;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
@@ -130,8 +132,11 @@ typedef struct {
 } ComponentPlayer;
 
 typedef struct {
+    struct StateMachineBall *state_machine;
     EntityId last_player_on_the_ball_entity_id;
-    f64 shot_time;
+    EntityId last_kicker_entity_id;
+    b32 subject_to_after_touch;
+    f64 kick_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     Direction last_direction;
     f32 last_frame_update_time;
@@ -145,6 +150,18 @@ typedef struct {
     b32 scored;
 } ComponentGoal;
 
+typedef enum { SS_UP, SS_DOWN, SS_COUNT } SaveSide;
+typedef enum { SD_LEFT, SD_RIGHT, SD_COUNT } SaveDirection;
+typedef enum { ST_WITHOUT_BALL, ST_WITH_BALL, ST_COUNT } SaveType;
+
+typedef struct {
+    struct StateMachineGoalie *state_machine;
+    AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
+    AssetsAnimationId dive_animations[SS_COUNT][SD_COUNT];
+    f32 last_frame_update_time;
+    u16 last_diving_frame_idx;
+} ComponentGoalie;
+
 typedef struct {
     ComponentType type;
     b32 enabled;
@@ -154,13 +171,12 @@ typedef struct {
 typedef struct {
     ComponentHeader header;
     union {
-        ComponentCameraProps camera_props;
+        ComponentCamera camera;
         ComponentTransform transform;
         ComponentPhysics physics;
         ComponentPhysics3d physics_3d;
         ComponentSprite sprite;
         ComponentCollider collider;
-        ComponentStateMachine state_machine;
         ComponentAction action;
         ComponentTarget target;
         ComponentPlayer player;

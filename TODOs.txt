@@ -25,7 +25,22 @@ v move ball control logic into ball entity
 v implement new shoot logic (with charging bar)
 v block direction when charging kick
 v block direction when running (ala ISS pro)
-- implement a physics step
+v refactor away state machine component
+v allow entity configuration on creation
+v component create should return a typed component
+v implement a physics step
+v fix build system to support fixed timestep
+v limit angle of run with ball relative to current heading
+v when stopping a run with the ball continue running to catch it and then we can reduce velocity
+v limit angle of all types of kick
+v improve kick power control
+v restore after touch
+v fixed goal off post is buggy
+v refactor ball physics in simulation compilation unit
 - implement teams
 - implement passing
-- implement a goalie
+- goal is too small? proportional to ball instead of player?
+- use r1 to dribble?
+- fix the damn bug where everything goes black and there's no way to recover
+- implement a goalkeeper
+- time goalie dive to lookahead ball position
