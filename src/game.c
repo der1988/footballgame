@@ -200,10 +200,12 @@ void game_update(GameState *game_state, Input *input) {
     }
 
     // Slow motion
-    if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
+    game_state->vars.slow_motion = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+    if (game_state->vars.slow_motion) {
         game_state->time -= game_state->dt;
         game_state->dt = game_state->dt * 0.1;
         game_state->time += game_state->dt;
+        game_state->vars.slow_motion = true;
     }
 
     systems_controls(game_state, input);

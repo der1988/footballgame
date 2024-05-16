@@ -90,6 +90,7 @@ typedef struct HumanPlayer {
 } HumanPlayer;
 
 typedef struct GameVariables {
+    b32 slow_motion;
     b32 is_tweakui_shown;
     EntityId camera_entity_id;
     EntityId ball_entity_id;

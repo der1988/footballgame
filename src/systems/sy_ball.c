@@ -96,7 +96,7 @@ void systems_ball(GameState *game_state, Input *input) {
             v3 lookahead_velocity = velocity;
             u16 lookahead = 10;
             for (u16 i = 0; i < lookahead; i += 1) {
-                for (u16 j = 0; j < 10; ++j) {
+                for (u16 j = 0; j < (game_state->vars.slow_motion ? 100 : 10); ++j) {
                     sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
                                      physics_3d->mass, &lookahead_on_the_ground, &lookahead_bounced,
                                      game_state);
