@@ -89,6 +89,35 @@ void systems_ball(GameState *game_state, Input *input) {
             sim_ball_physics(&position, &velocity, accel, physics_3d->mass, &on_the_ground,
                              &bounced, game_state);
 
+            // Calculate next 10 look ahead positions, 10 dts apart from each other
+            b32 lookahead_on_the_ground;
+            b32 lookahead_bounced;
+            v3 lookahead_position = position;
+            v3 lookahead_velocity = velocity;
+            u16 lookahead = 10;
+            for (u16 i = 0; i < lookahead; i += 1) {
+                for (u16 j = 0; j < 10; ++j) {
+                    sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
+                                     physics_3d->mass, &lookahead_on_the_ground, &lookahead_bounced,
+                                     game_state);
+                }
+                ball->lookahead_positions[i] = lookahead_position;
+            }
+
+            // Calculate bounce position
+            lookahead_position = position;
+            lookahead_velocity = velocity;
+            lookahead_on_the_ground = false;
+            lookahead_bounced = false;
+            while (!lookahead_bounced && !lookahead_on_the_ground) {
+                sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
+                                 physics_3d->mass, &lookahead_on_the_ground, &lookahead_bounced,
+                                 game_state);
+                if (lookahead_bounced) {
+                    ball->future_bounce_position = V3_TO_V2(lookahead_position);
+                }
+            }
+
             // Project position to 2D
             transform->position = V3_TO_V2(position);
             transform->virtual_height = position.y;

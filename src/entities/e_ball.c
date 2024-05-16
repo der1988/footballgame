@@ -193,12 +193,15 @@ void entities_ball_control_precision(EntityId ball_entity_id, v2 player_velocity
 
 void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction,
                                    v2 player_velocity, f32 control_quality, GameState *game_state) {
+    ComponentTransform *transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
     ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    v3 velocity_to_add =
-        Vector3Scale(Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = 1.0f}),
-                     // TODO: some ball_run_force has to always be applied
-                     game_state->constants.ball_run_force * (1 - control_quality));
+    f32 vertical_force = transform->virtual_height > 10 ? 0 : 1;
+    v3 velocity_to_add = Vector3Scale(
+        Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
+        // TODO: some ball_run_force has to always be applied
+        game_state->constants.ball_run_force * (1 - control_quality));
     physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
 }
 

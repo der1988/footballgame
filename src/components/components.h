@@ -139,6 +139,8 @@ typedef struct {
     f64 kick_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     Direction last_direction;
+    v2 future_bounce_position;
+    v3 lookahead_positions[10];
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
 } ComponentBall;
@@ -156,6 +158,8 @@ typedef enum { ST_WITHOUT_BALL, ST_WITH_BALL, ST_COUNT } SaveType;
 
 typedef struct {
     struct StateMachineGoalie *state_machine;
+    SaveDirection dive_direction;
+    f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
     AssetsAnimationId dive_animations[SS_COUNT][SD_COUNT];
     f32 last_frame_update_time;

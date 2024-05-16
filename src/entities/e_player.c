@@ -232,18 +232,16 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
     case GS_NONE:
         break;
     case GS_PROTECT_GOAL: {
+        physics->max_velocity = game_state->constants.player_run_max_velocity * 1.25f;
         break;
     }
     case GS_DIVE: {
-        ComponentTransform *ball_transform = entities_component_get_typed(
-            game_state->entity_repository, CT_TRANSFORM, game_state->vars.ball_entity_id);
-        physics->max_velocity = game_state->constants.player_run_max_velocity * 4;
+        physics->max_velocity = game_state->constants.player_run_max_velocity * 5;
         goalie->last_diving_frame_idx = 0;
-        goalie->state_machine->state_data.dive.dive_direction =
-            (ball_transform->position.x - transform->position.x) > 0 ? SD_RIGHT : SD_LEFT;
         break;
     }
     case GS_SEEK_BALL: {
+        physics->max_velocity = game_state->constants.player_run_max_velocity * 1.25f;
         break;
     }
     case GS_HOLD_BALL: {

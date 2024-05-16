@@ -1,10 +1,10 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
+#include "../sim/simulation.h"
 #include "assets.h"
 #include "input.h"
-#include "layers/layers.h"
-#include "memory.h"
+#include "layers.h"
 #include "steering.h"
 #include "utils.h"
 #include <raylib.h>
@@ -64,7 +64,12 @@ void systems_goalie(GameState *game_state, Input *input) {
                                       ball_transform->position,
                                       ball_collider->colliders[0].props_circle.radius) &&
                 // Player height
-                ball_transform->virtual_height < game_state->constants.player_control_height;
+                ball_transform->virtual_height < 30;
+
+            if (is_colliding_with_ball) {
+                // We are the last player on the ball
+                ball->last_player_on_the_ball_entity_id = entity_id;
+            }
 
             if (player->state_machine->current_state == PS_GOALIE) {
                 switch (state_machine->current_state) {
@@ -84,13 +89,12 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     v2 direction =
                         Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
-                    v2 position = Vector2Add(goal_center, Vector2Scale(direction, 40));
+                    v2 position = Vector2Add(goal_center, Vector2Scale(direction, 20));
 
                     v2 steering = steering_seek(transform->position, physics->velocity,
                                                 physics->max_velocity, position);
                     // Run force
-                    v2 force_to_apply =
-                        Vector2Scale(steering, game_state->constants.player_movement_force);
+                    v2 force_to_apply = Vector2Scale(steering, 10000);
 
                     entities_player_apply_force(entity_id, force_to_apply, game_state);
                     entities_player_apply_velocity(entity_id, game_state);
@@ -110,8 +114,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     v2 steering = steering_seek(transform->position, physics->velocity,
                                                 physics->max_velocity, ball_transform->position);
                     // Run force
-                    v2 force_to_apply =
-                        Vector2Scale(steering, game_state->constants.player_movement_force);
+                    v2 force_to_apply = Vector2Scale(steering, 10000);
 
                     entities_player_apply_force(entity_id, force_to_apply, game_state);
                     entities_player_apply_velocity(entity_id, game_state);
@@ -127,12 +130,34 @@ void systems_goalie(GameState *game_state, Input *input) {
                         entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                       GS_PROTECT_GOAL, game_state);
                     } else {
-                        double lookahead = 3 * game_state->dt;
-                        v3 future_ball_pos = Vector3Add(
-                            V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-                            Vector3Scale(ball_physics_3d->velocity, lookahead));
-                        // entities_goalie_state_machine_change_state_to(goalie->state_machine,
-                        //                                               GS_DIVE, game_state);
+                        if (Vector3Length(ball_physics_3d->velocity) > 100) {
+                            // Only dive if ball velocity is higher than 10km/h
+                            for (u16 i = 0; i < 10; ++i) {
+                                v3 pos_to_check = ball->lookahead_positions[i];
+                                b32 is_colliding_with_ball =
+                                    CheckCollisionCircles(
+                                        transform->position, save_collider->props_circle.radius,
+                                        V3_TO_V2(pos_to_check),
+                                        ball_collider->colliders[0].props_circle.radius) &&
+                                    // Player height
+                                    pos_to_check.y < 30;
+                                if (is_colliding_with_ball) {
+                                    // Ball is coming our direction, let's wait
+                                    break;
+                                }
+                                // Check the ball is still savable
+                                f32 x_diff = pos_to_check.x - transform->position.x;
+                                f32 y_diff = pos_to_check.z - transform->position.y;
+                                if (y_diff > 0 && y_diff < 5 && fabsf(x_diff) < 60) {
+                                    printf("ball will take %d * dt to reach point of no return\n",
+                                           i);
+                                    goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
+                                    entities_goalie_state_machine_change_state_to(
+                                        goalie->state_machine, GS_DIVE, game_state);
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     v2 direction = Vector2Normalize(
@@ -163,29 +188,56 @@ void systems_goalie(GameState *game_state, Input *input) {
                     break;
                 }
                 case GS_DIVE: {
-                    SaveDirection direction = goalie->state_machine->state_data.dive.dive_direction;
+                    SaveDirection direction = goalie->dive_direction;
 
-                    v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
-                    // Run force
-                    v2 force_to_apply = Vector2Scale(steering, 40000);
-
-                    entities_player_apply_force(entity_id, force_to_apply, game_state);
-                    entities_player_apply_velocity(entity_id, game_state);
-
+                    StateMachineGoalieDiveData *dive_state_data =
+                        &goalie->state_machine->state_data.dive;
                     AssetsAnimation *animation = assets_animation_get_by_id(
                         game_state->animation_cache, goalie->dive_animations[SS_UP][direction]);
-                    if ((game_state->time - goalie->last_frame_update_time) >
-                        (animation->delay *
-                         (2 - Vector2Length(physics->velocity) / physics->max_velocity))) {
+                    if (!dive_state_data->animation_completed &&
+                        (game_state->time - goalie->last_frame_update_time) >
+                            (animation->delay *
+                             (2 - Vector2Length(physics->velocity) / physics->max_velocity))) {
                         goalie->last_frame_update_time = game_state->time;
                         u16 new_frame_id = goalie->last_diving_frame_idx + 1;
                         if (new_frame_id == animation->frames_count) {
-                            entities_goalie_state_machine_change_state_to(
-                                goalie->state_machine, GS_PROTECT_GOAL, game_state);
+                            dive_state_data->animation_completed = true;
+                            dive_state_data->animation_end_time = game_state->time;
                         } else {
                             sprite->frame_id = animation->frames[new_frame_id];
                             goalie->last_diving_frame_idx = new_frame_id;
                         }
+                    }
+                    v2 force_to_apply = Vector2Zero();
+                    if (dive_state_data->animation_completed) {
+                        // Apply friction
+                        force_to_apply =
+                            Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 80000);
+                    } else {
+                        v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
+                        force_to_apply = Vector2Scale(steering, 60000);
+                    }
+                    entities_player_apply_force(entity_id, force_to_apply, game_state);
+                    entities_player_apply_velocity(entity_id, game_state);
+
+                    static f64 last_save_time = 0;
+                    if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
+                        is_colliding_with_ball) {
+                        // Bounce ball
+                        v3 new_ball_velocity = ball_physics_3d->velocity;
+                        new_ball_velocity = Vector3RotateByAxisAngle(
+                            Vector3Negate(new_ball_velocity), (v3){.y = 1},
+                            60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
+                        entities_ball_set_position_and_velocity(
+                            game_state->vars.ball_entity_id,
+                            V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+                            Vector3Scale(new_ball_velocity, 0.3f), game_state);
+                        last_save_time = game_state->time;
+                    } else if (dive_state_data->animation_completed &&
+                               HAS_TIME_PASSED(game_state->time,
+                                               dive_state_data->animation_end_time, 0.75f)) {
+                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                      GS_PROTECT_GOAL, game_state);
                     }
 
                     break;

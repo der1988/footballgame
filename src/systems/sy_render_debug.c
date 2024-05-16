@@ -53,5 +53,13 @@ void systems_render_debug(GameState *game_state) {
                 }
             }
         }
+
+        // Ball debug
+        ComponentBall *ball = entities_component_get_typed(game_state->entity_repository, CT_BALL,
+                                                           game_state->vars.ball_entity_id);
+        for (u8 i = 0; i < 25; ++i) {
+            DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
+        }
+        DrawCircle(ball->future_bounce_position.x, ball->future_bounce_position.y, 1, PURPLE);
     }
 }

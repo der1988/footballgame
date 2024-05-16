@@ -126,7 +126,8 @@ typedef struct {
 } StateMachineGoalieHoldBallData;
 
 typedef struct {
-    SaveDirection dive_direction;
+    b32 animation_completed;
+    f64 animation_end_time;
 } StateMachineGoalieDiveData;
 
 typedef union {
