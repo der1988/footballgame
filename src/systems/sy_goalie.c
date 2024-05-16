@@ -76,15 +76,12 @@ void systems_goalie(GameState *game_state, Input *input) {
                 case GS_NONE:
                     break;
                 case GS_PROTECT_GOAL: {
-                    static f64 last_save_time;
-                    if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.3f) &&
-                        is_colliding_with_ball) {
-                        v3 new_velocity = Vector3Negate(ball_physics_3d->velocity);
-                        entities_ball_set_position_and_velocity(
-                            game_state->vars.ball_entity_id,
-                            V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-                            new_velocity, game_state);
-                        last_save_time = game_state->time;
+                    if (is_colliding_with_ball) {
+                        // hold ball in hands
+                        entities_ball_held_by_goalie(game_state->vars.ball_entity_id, entity_id,
+                                                     game_state);
+                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                      GS_HOLD_BALL, game_state);
                     }
 
                     v2 direction =
@@ -224,10 +221,11 @@ void systems_goalie(GameState *game_state, Input *input) {
                     if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
                         is_colliding_with_ball) {
                         // Bounce ball
-                        v3 new_ball_velocity = ball_physics_3d->velocity;
-                        new_ball_velocity = Vector3RotateByAxisAngle(
-                            Vector3Negate(new_ball_velocity), (v3){.y = 1},
-                            60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
+                        v3 new_ball_velocity =
+                            Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
+                        // new_ball_velocity = Vector3RotateByAxisAngle(
+                        //     new_ball_velocity, (v3){.y = 1},
+                        //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
                         entities_ball_set_position_and_velocity(
                             game_state->vars.ball_entity_id,
                             V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
