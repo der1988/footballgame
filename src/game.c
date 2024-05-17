@@ -57,8 +57,8 @@ GameState *game_init(GameConfig game_config) {
                                             .player_movement_force = 8500.0f,
                                             .player_movement_drag = 4166.0f,
                                             .player_control_max_velocity = 6.6f * PIXELS_PER_METER,
-                                            // Fastest player should reach ~11m/s, slowest 7.8m/s
-                                            .player_run_max_velocity = 11 * PIXELS_PER_METER,
+                                            // Fastest player should reach ~10.5m/s, slowest 7.8m/s
+                                            .player_run_max_velocity = 10.5f * PIXELS_PER_METER,
                                             .player_control_radius = 6,
                                             .player_control_height = 19,
                                             .player_run_control_max_angle = 45,
