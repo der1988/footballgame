@@ -107,17 +107,9 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum {
-    GS_NONE,
-    GS_PROTECT_GOAL,
-    GS_DIVE,
-    GS_SEEK_BALL,
-    GS_HOLD_BALL,
-    GS_COUNT
-} StateMachineGoalieState;
+typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_DIVE, GS_HOLD_BALL, GS_COUNT } StateMachineGoalieState;
 
-static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "dive", "seek_ball",
-                                                      "hold_ball"};
+static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "dive", "hold_ball"};
 
 DeclareStateMachineEnterAndExit(goalie);
 
@@ -133,7 +125,6 @@ typedef struct {
 typedef union {
     StateMachineDefaultEmptyData protect_goal;
     StateMachineGoalieDiveData dive;
-    StateMachineDefaultEmptyData seek_ball;
     StateMachineGoalieHoldBallData hold_ball;
 } StateMachineGoalieStateData;
 

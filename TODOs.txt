@@ -39,9 +39,11 @@ v fixed goal off post is buggy
 v refactor ball physics in simulation compilation unit
 v time goalie dive to lookahead ball position
 v make lookahead work with slow motion
+v implement a goalkeeper
+v unify seek and protect goal goalie states
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - fix the damn bug where everything goes black and there's no way to recover
-- implement a goalkeeper
+- if shot is too fast goalie should just bounce the ball back

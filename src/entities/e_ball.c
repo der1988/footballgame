@@ -197,7 +197,7 @@ void entities_ball_control_running(EntityId ball_entity_id, v2 control_direction
         entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
     ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    f32 vertical_force = transform->virtual_height > 10 ? 0 : 1;
+    f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
     v3 velocity_to_add = Vector3Scale(
         Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
         // TODO: some ball_run_force has to always be applied

@@ -82,84 +82,61 @@ void systems_goalie(GameState *game_state, Input *input) {
                                                      game_state);
                         entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                       GS_HOLD_BALL, game_state);
+                        break;
                     }
 
-                    v2 direction =
-                        Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
-                    v2 position = Vector2Add(goal_center, Vector2Scale(direction, 20));
+                    v2 destination;
+                    v2 direction;
+                    if ((distance_from_goal < 100 || distance_from_ball < 10) &&
+                        ball_transform->virtual_height < 20) {
+                        // seek ball
+                        destination = ball_transform->position;
+                        direction =
+                            Vector2Normalize(Vector2Subtract(destination, transform->position));
+                    } else {
+                        // protect goal
+                        direction = Vector2Normalize(
+                            Vector2Subtract(ball_transform->position, goal_center));
+                        destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
+                    }
 
                     v2 steering = steering_seek(transform->position, physics->velocity,
-                                                physics->max_velocity, position);
+                                                physics->max_velocity, destination);
                     // Run force
                     v2 force_to_apply = Vector2Scale(steering, 10000);
 
                     entities_player_apply_force(entity_id, force_to_apply, game_state);
                     entities_player_apply_velocity(entity_id, game_state);
 
-                    if (distance_from_goal < 100 && ball_transform->virtual_height < 20) {
-                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
-                                                                      GS_SEEK_BALL, game_state);
-                    }
-
-                    direction = Vector2Normalize(
-                        Vector2Subtract(ball_transform->position, transform->position));
                     entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
 
-                    break;
-                }
-                case GS_SEEK_BALL: {
-                    v2 steering = steering_seek(transform->position, physics->velocity,
-                                                physics->max_velocity, ball_transform->position);
-                    // Run force
-                    v2 force_to_apply = Vector2Scale(steering, 10000);
-
-                    entities_player_apply_force(entity_id, force_to_apply, game_state);
-                    entities_player_apply_velocity(entity_id, game_state);
-
-                    if (is_colliding_with_ball) {
-                        // hold ball in hands
-                        entities_ball_held_by_goalie(game_state->vars.ball_entity_id, entity_id,
-                                                     game_state);
-                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
-                                                                      GS_HOLD_BALL, game_state);
-                    } else if (distance_from_goal > 100) {
-                        // protect goal
-                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
-                                                                      GS_PROTECT_GOAL, game_state);
-                    } else {
-                        if (Vector3Length(ball_physics_3d->velocity) > 100) {
-                            // Only dive if ball velocity is higher than 10km/h
-                            for (u16 i = 0; i < 10; ++i) {
-                                v3 pos_to_check = ball->lookahead_positions[i];
-                                b32 is_colliding_with_ball =
-                                    CheckCollisionCircles(
-                                        transform->position, save_collider->props_circle.radius,
-                                        V3_TO_V2(pos_to_check),
-                                        ball_collider->colliders[0].props_circle.radius) &&
-                                    // Player height
-                                    pos_to_check.y < 30;
-                                if (is_colliding_with_ball) {
-                                    // Ball is coming our direction, let's wait
-                                    break;
-                                }
-                                // Check the ball is still savable
-                                f32 x_diff = pos_to_check.x - transform->position.x;
-                                f32 y_diff = pos_to_check.z - transform->position.y;
-                                if (y_diff > 0 && y_diff < 5 && fabsf(x_diff) < 60) {
-                                    printf("ball will take %d * dt to reach point of no return\n",
-                                           i);
-                                    goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
-                                    entities_goalie_state_machine_change_state_to(
-                                        goalie->state_machine, GS_DIVE, game_state);
-                                    break;
-                                }
+                    if (Vector3Length(ball_physics_3d->velocity) > 100) {
+                        // Only dive if ball velocity is higher than 10km/h
+                        for (u16 i = 0; i < 10; ++i) {
+                            v3 pos_to_check = ball->lookahead_positions[i];
+                            b32 is_colliding_with_ball =
+                                CheckCollisionCircles(
+                                    transform->position, save_collider->props_circle.radius,
+                                    V3_TO_V2(pos_to_check),
+                                    ball_collider->colliders[0].props_circle.radius) &&
+                                // Player height
+                                pos_to_check.y < 30;
+                            if (is_colliding_with_ball) {
+                                // Ball is coming our direction, let's wait
+                                break;
+                            }
+                            // Check the ball is still savable
+                            f32 x_diff = pos_to_check.x - transform->position.x;
+                            f32 y_diff = pos_to_check.z - transform->position.y;
+                            if (y_diff > 0 && y_diff < 5 && fabsf(x_diff) < 60) {
+                                printf("ball will take %d * dt to reach point of no return\n", i);
+                                goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
+                                entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                              GS_DIVE, game_state);
+                                break;
                             }
                         }
                     }
-
-                    v2 direction = Vector2Normalize(
-                        Vector2Subtract(ball_transform->position, transform->position));
-                    entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
 
                     break;
                 }

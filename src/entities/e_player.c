@@ -240,10 +240,6 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
         goalie->last_diving_frame_idx = 0;
         break;
     }
-    case GS_SEEK_BALL: {
-        physics->max_velocity = game_state->constants.player_run_max_velocity * 1.25f;
-        break;
-    }
     case GS_HOLD_BALL: {
         goalie->state_machine->state_data.hold_ball.hold_start_time = game_state->time;
         sprite->frame_id = goalie->save_frames[SS_UP][ST_WITH_BALL];
@@ -272,9 +268,6 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
     case GS_DIVE: {
         physics->max_velocity = game_state->constants.player_run_max_velocity;
-        break;
-    }
-    case GS_SEEK_BALL: {
         break;
     }
     case GS_HOLD_BALL: {
