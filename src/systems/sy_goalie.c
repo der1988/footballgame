@@ -64,7 +64,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                       ball_transform->position,
                                       ball_collider->colliders[0].props_circle.radius) &&
                 // Player height
-                ball_transform->virtual_height < 30;
+                ball_transform->virtual_height < 25;
 
             if (is_colliding_with_ball) {
                 // We are the last player on the ball
@@ -87,21 +87,24 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     v2 destination;
                     v2 direction;
+                    v2 steering;
                     if ((distance_from_goal < 100 || distance_from_ball < 10) &&
                         ball_transform->virtual_height < 20) {
                         // seek ball
                         destination = ball_transform->position;
                         direction =
                             Vector2Normalize(Vector2Subtract(destination, transform->position));
+                        steering = steering_seek(transform->position, physics->velocity,
+                                                 physics->max_velocity, destination);
                     } else {
                         // protect goal
                         direction = Vector2Normalize(
                             Vector2Subtract(ball_transform->position, goal_center));
                         destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
+                        steering = steering_arrive(transform->position, physics->velocity,
+                                                   physics->max_velocity, destination, 10);
                     }
 
-                    v2 steering = steering_seek(transform->position, physics->velocity,
-                                                physics->max_velocity, destination);
                     // Run force
                     v2 force_to_apply = Vector2Scale(steering, 10000);
 
@@ -119,8 +122,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                     transform->position, save_collider->props_circle.radius,
                                     V3_TO_V2(pos_to_check),
                                     ball_collider->colliders[0].props_circle.radius) &&
-                                // Player height
-                                pos_to_check.y < 30;
+                                pos_to_check.y < 25;
                             if (is_colliding_with_ball) {
                                 // Ball is coming our direction, let's wait
                                 break;
