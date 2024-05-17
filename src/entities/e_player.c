@@ -94,8 +94,8 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
             memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider) * 2);
         collider->num_colliders = 2;
         collider->colliders[1].shape = CS_CIRCLE;
-        collider->colliders[1].props_circle.offset = (v2){.y = -7};
-        collider->colliders[1].props_circle.radius = 10;
+        collider->colliders[1].props_circle.offset = (v2){.y = 0};
+        collider->colliders[1].props_circle.radius = 6;
     } else {
         player_state_machine->current_state = PS_NORMAL;
 
@@ -236,7 +236,7 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
         break;
     }
     case GS_DIVE: {
-        physics->max_velocity = game_state->constants.player_run_max_velocity * 5;
+        physics->max_velocity = game_state->constants.player_run_max_velocity * 2;
         goalie->last_diving_frame_idx = 0;
         break;
     }

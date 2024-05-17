@@ -64,7 +64,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                       ball_transform->position,
                                       ball_collider->colliders[0].props_circle.radius) &&
                 // Player height
-                ball_transform->virtual_height < 25;
+                ball_transform->virtual_height < 30;
 
             if (is_colliding_with_ball) {
                 // We are the last player on the ball
@@ -122,7 +122,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                     transform->position, save_collider->props_circle.radius,
                                     V3_TO_V2(pos_to_check),
                                     ball_collider->colliders[0].props_circle.radius) &&
-                                pos_to_check.y < 25;
+                                pos_to_check.y < 30;
                             if (is_colliding_with_ball) {
                                 // Ball is coming our direction, let's wait
                                 break;
@@ -188,7 +188,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     if (dive_state_data->animation_completed) {
                         // Apply friction
                         force_to_apply =
-                            Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 80000);
+                            Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 50000);
                     } else {
                         v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
                         force_to_apply = Vector2Scale(steering, 60000);
