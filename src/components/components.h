@@ -133,6 +133,7 @@ typedef struct {
 
 typedef struct {
     struct StateMachineBall *state_machine;
+    b32 is_on_the_ground;
     EntityId last_player_on_the_ball_entity_id;
     EntityId last_kicker_entity_id;
     b32 subject_to_after_touch;

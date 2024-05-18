@@ -88,6 +88,7 @@ void systems_ball(GameState *game_state, Input *input) {
             b32 bounced;
             sim_ball_physics(&position, &velocity, accel, physics_3d->mass, &on_the_ground,
                              &bounced, game_state);
+            ball->is_on_the_ground = on_the_ground && !bounced;
 
             // Calculate next 10 look ahead positions, 10 dts apart from each other
             b32 lookahead_on_the_ground;

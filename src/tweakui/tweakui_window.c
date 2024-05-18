@@ -13,7 +13,7 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle) {
     handle->initialised = true;
 
     handle->window_size.x = 800;
-    handle->window_size.y = 550;
+    handle->window_size.y = 700;
 
     GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 
@@ -137,6 +137,22 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiSlider(slider_bounds, "Player control run max angle",
               TextFormat("%.2f", game_state->constants.player_run_control_max_angle),
               &game_state->constants.player_run_control_max_angle, 0, 60);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Goalie reaction time",
+              TextFormat("%.2f", game_state->constants.goalie_dive_reaction_time),
+              &game_state->constants.goalie_dive_reaction_time, 0, 0.4f);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Goalie run force",
+              TextFormat("%.2f", game_state->constants.goalie_run_force),
+              &game_state->constants.goalie_run_force, 5000, 20000);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Goalie dive force",
+              TextFormat("%.2f", game_state->constants.goalie_dive_force),
+              &game_state->constants.goalie_dive_force, 5000, 20000);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds, "Goalie dive max velocity",
+              TextFormat("%.2f", game_state->constants.goalie_dive_max_velocity),
+              &game_state->constants.goalie_dive_max_velocity, 100, 300);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Kick charge reset time",
               TextFormat("%.2f", game_state->constants.kick_charge_reset_time),

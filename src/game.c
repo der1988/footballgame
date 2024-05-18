@@ -62,6 +62,9 @@ GameState *game_init(GameConfig game_config) {
                                             .player_control_radius = 6,
                                             .player_control_height = 19,
                                             .player_run_control_max_angle = 45,
+                                            .goalie_run_force = 10000,
+                                            // Elite goalie has 150ms reaction time
+                                            .goalie_dive_reaction_time = 0.150f,
                                             .goalie_dive_force = 8500,
                                             .goalie_dive_max_velocity = 20 * PIXELS_PER_METER,
                                             .kick_charge_reset_time = 1.5f};

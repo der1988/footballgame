@@ -42,6 +42,7 @@ v make lookahead work with slow motion
 v implement a goalkeeper
 v unify seek and protect goal goalie states
 v link dive speed to distance from ball and time to contact
+v implement goalie reaction time
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?

@@ -88,9 +88,12 @@ void systems_goalie(GameState *game_state, Input *input) {
                     v2 destination;
                     v2 direction;
                     v2 steering;
+                    f32 force;
                     if ((distance_from_goal < 100 || distance_from_ball < 10) &&
                         ball_transform->virtual_height < 20) {
                         // seek ball
+                        physics->max_velocity = game_state->constants.player_run_max_velocity * 2;
+                        force = game_state->constants.goalie_run_force * 2;
                         destination = ball_transform->position;
                         direction =
                             Vector2Normalize(Vector2Subtract(destination, transform->position));
@@ -98,6 +101,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                                                  physics->max_velocity, destination);
                     } else {
                         // protect goal
+                        physics->max_velocity = game_state->constants.player_run_max_velocity;
+                        force = game_state->constants.goalie_run_force;
                         direction = Vector2Normalize(
                             Vector2Subtract(ball_transform->position, goal_center));
                         destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
@@ -106,7 +111,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     }
 
                     // Run force
-                    v2 force_to_apply = Vector2Scale(steering, 10000);
+                    v2 force_to_apply = Vector2Scale(steering, force);
 
                     entities_player_apply_force(entity_id, force_to_apply, game_state);
                     entities_player_apply_velocity(entity_id, game_state);
@@ -131,7 +136,9 @@ void systems_goalie(GameState *game_state, Input *input) {
                             f32 x_diff = pos_to_check.x - transform->position.x;
                             f32 y_diff = pos_to_check.z - transform->position.y;
                             f32 distance_to_cover = fabsf(x_diff);
-                            if (y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
+                            if (HAS_TIME_PASSED(game_state->time, ball->kick_time,
+                                                game_state->constants.goalie_dive_reaction_time) &&
+                                y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
                                 f32 time_to_unsaveable = (i + 1) * game_state->dt * 10;
                                 goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
                                 f32 max_distance_we_can_cover_in_available_time =
