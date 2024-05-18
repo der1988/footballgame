@@ -41,6 +41,7 @@ v time goalie dive to lookahead ball position
 v make lookahead work with slow motion
 v implement a goalkeeper
 v unify seek and protect goal goalie states
+v link dive speed to distance from ball and time to contact
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
@@ -48,4 +49,4 @@ v unify seek and protect goal goalie states
 - fix the damn bug where everything goes black and there's no way to recover
 - if shot is too fast goalie should just bounce the ball back
 - fix bug when ball hits crossbar and it's deflected high but it's still goal
-- link dive speed to distance from ball and time to contact
+- improve codebase quality

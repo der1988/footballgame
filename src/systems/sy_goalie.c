@@ -114,7 +114,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
 
                     if (Vector3Length(ball_physics_3d->velocity) > 100) {
-                        // Only dive if ball velocity is higher than 10km/h
+                        // Only dive if ball velocity is higher than 36km/h
                         for (u16 i = 0; i < 10; ++i) {
                             v3 pos_to_check = ball->lookahead_positions[i];
                             b32 is_colliding_with_ball =
@@ -130,9 +130,22 @@ void systems_goalie(GameState *game_state, Input *input) {
                             // Check the ball is still savable
                             f32 x_diff = pos_to_check.x - transform->position.x;
                             f32 y_diff = pos_to_check.z - transform->position.y;
-                            if (y_diff > 0 && y_diff < 5 && fabsf(x_diff) < 60) {
-                                printf("ball will take %d * dt to reach point of no return\n", i);
+                            f32 distance_to_cover = fabsf(x_diff);
+                            if (y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
+                                f32 time_to_unsaveable = (i + 1) * game_state->dt * 10;
                                 goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
+                                f32 max_distance_we_can_cover_in_available_time =
+                                    game_state->constants.goalie_dive_max_velocity *
+                                    time_to_unsaveable / 1.0f;
+                                goalie->dive_speed =
+                                    Clamp(distance_to_cover /
+                                              max_distance_we_can_cover_in_available_time,
+                                          0, 1) *
+                                    game_state->constants.goalie_dive_max_velocity;
+                                printf("goalie has %.3fs to save a ball that will be %.2fpx away: "
+                                       "dive "
+                                       "speed %fpx/s\n",
+                                       time_to_unsaveable, distance_to_cover, goalie->dive_speed);
                                 entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                               GS_DIVE, game_state);
                                 break;

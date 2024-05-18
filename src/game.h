@@ -63,6 +63,8 @@ typedef struct GameConstants {
     f32 player_control_radius;
     f32 player_control_height;
     f32 player_run_control_max_angle;
+    f32 goalie_dive_force;
+    f32 goalie_dive_max_velocity;
     f32 kick_charge_reset_time;
 } GameConstants;
 

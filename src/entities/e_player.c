@@ -236,7 +236,7 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
         break;
     }
     case GS_DIVE: {
-        physics->max_velocity = game_state->constants.player_run_max_velocity * 2;
+        physics->max_velocity = goalie->dive_speed;
         goalie->last_diving_frame_idx = 0;
         break;
     }
