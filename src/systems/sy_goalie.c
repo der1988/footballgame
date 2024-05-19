@@ -66,11 +66,6 @@ void systems_goalie(GameState *game_state, Input *input) {
                 // Player height
                 ball_transform->virtual_height < 30;
 
-            if (is_colliding_with_ball) {
-                // We are the last player on the ball
-                ball->last_player_on_the_ball_entity_id = entity_id;
-            }
-
             if (player->state_machine->current_state == PS_GOALIE) {
                 switch (state_machine->current_state) {
                 case GS_NONE:
@@ -230,6 +225,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                             V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
                             Vector3Scale(new_ball_velocity, 0.3f), game_state);
                         last_save_time = game_state->time;
+                        entities_ball_saved_by_goalie(game_state->vars.ball_entity_id, entity_id,
+                                                      game_state);
                     } else if (dive_state_data->animation_completed &&
                                HAS_TIME_PASSED(game_state->time,
                                                dive_state_data->animation_end_time, 0.75f)) {
