@@ -66,7 +66,7 @@ GameState *game_init(GameConfig game_config) {
                                             // Elite goalie has 150ms reaction time
                                             .goalie_dive_reaction_time = 0.150f,
                                             .goalie_dive_force = 8500,
-                                            .goalie_dive_max_velocity = 20 * PIXELS_PER_METER,
+                                            .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
                                             .kick_charge_reset_time = 1.5f};
 
     // Partition game memory
