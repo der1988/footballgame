@@ -52,6 +52,6 @@ v dive animation speed should be proportional to the distance we have to cover
 - if shot is too fast goalie should just bounce the ball back
 - fix bug when ball hits crossbar and it's deflected high but it's still goal
 - improve codebase quality
-- implement logic that keeps height on ball into account when hitting it
+- implement logic that keeps height of ball into account when hitting it
 - introduce an on-screen log
 - implement a way to have ball crossed automatically to test first time shot
