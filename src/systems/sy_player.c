@@ -267,7 +267,8 @@ void systems_player(GameState *game_state, Input *input) {
                         control_direction = Vector2Rotate(player_on_the_ball.velocity, -max_angle);
                     }
                 }
-                entities_ball_control_running(game_state->vars.ball_entity_id, control_direction,
+                entities_ball_control_running(game_state->vars.ball_entity_id,
+                                              player_on_the_ball.id, control_direction,
                                               player_on_the_ball.velocity, 0.0f, game_state);
             } else {
                 // Precision control
@@ -277,8 +278,8 @@ void systems_player(GameState *game_state, Input *input) {
                                  player_on_the_ball.collider->colliders[0].props_circle.radius *
                                      0.9f));
                 entities_ball_control_precision(game_state->vars.ball_entity_id,
-                                                player_on_the_ball.velocity, position_to_seek, 1.0f,
-                                                game_state);
+                                                player_on_the_ball.id, player_on_the_ball.velocity,
+                                                position_to_seek, 1.0f, game_state);
             }
         }
 
