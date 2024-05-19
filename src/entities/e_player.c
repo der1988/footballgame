@@ -90,12 +90,17 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 
         prepare_goalie_gfx(player, goalie, game_state);
 
-        collider->colliders =
-            memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider) * 2);
-        collider->num_colliders = 2;
+        collider->num_colliders = 3;
+        collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
+                                                sizeof(Collider) * collider->num_colliders);
         collider->colliders[1].shape = CS_CIRCLE;
         collider->colliders[1].props_circle.offset = (v2){.y = 0};
-        collider->colliders[1].props_circle.radius = 6;
+        collider->colliders[1].props_circle.radius = 8;
+
+        collider->colliders[2].shape = CS_RECTANGLE;
+        collider->colliders[2].props_rectangle.offset = (v2){.x = -10, .y = -5};
+        collider->colliders[2].props_rectangle.size.x = 22;
+        collider->colliders[2].props_rectangle.size.y = 10;
     } else {
         player_state_machine->current_state = PS_NORMAL;
 

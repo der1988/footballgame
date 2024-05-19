@@ -58,19 +58,22 @@ void systems_goalie(GameState *game_state, Input *input) {
             collider->colliders[0].props_circle.radius =
                 game_state->constants.player_control_radius;
             Collider *save_collider = &collider->colliders[1];
+            Collider *dive_collider = &collider->colliders[2];
 
-            b32 is_colliding_with_ball =
-                CheckCollisionCircles(transform->position, save_collider->props_circle.radius,
-                                      ball_transform->position,
-                                      ball_collider->colliders[0].props_circle.radius) &&
-                // Player height
-                ball_transform->virtual_height < 30;
+            u8 cross_bar_height = 27;
 
             if (player->state_machine->current_state == PS_GOALIE) {
                 switch (state_machine->current_state) {
                 case GS_NONE:
                     break;
                 case GS_PROTECT_GOAL: {
+                    b32 is_colliding_with_ball =
+                        CheckCollisionCircles(
+                            Vector2Add(transform->position, save_collider->props_circle.offset),
+                            save_collider->props_circle.radius, ball_transform->position,
+                            ball_collider->colliders[0].props_circle.radius) &&
+                        ball_transform->virtual_height < cross_bar_height;
+
                     if (is_colliding_with_ball) {
                         // hold ball in hands
                         entities_ball_held_by_goalie(game_state->vars.ball_entity_id, entity_id,
@@ -85,7 +88,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     v2 steering;
                     f32 force;
                     if ((distance_from_goal < 100 || distance_from_ball < 10) &&
-                        ball_transform->virtual_height < 20) {
+                        ball_transform->virtual_height < (cross_bar_height - 7)) {
                         // seek ball
                         physics->max_velocity = game_state->constants.player_run_max_velocity * 2;
                         force = game_state->constants.goalie_run_force * 2;
@@ -119,10 +122,11 @@ void systems_goalie(GameState *game_state, Input *input) {
                             v3 pos_to_check = ball->lookahead_positions[i];
                             b32 is_colliding_with_ball =
                                 CheckCollisionCircles(
-                                    transform->position, save_collider->props_circle.radius,
-                                    V3_TO_V2(pos_to_check),
-                                    ball_collider->colliders[0].props_circle.radius) &&
-                                pos_to_check.y < 30;
+                                    Vector2Add(V3_TO_V2(pos_to_check),
+                                               save_collider->props_circle.offset),
+                                    ball_collider->colliders[0].props_circle.radius,
+                                    transform->position, save_collider->props_circle.radius) &&
+                                pos_to_check.y < cross_bar_height;
                             if (is_colliding_with_ball) {
                                 // Ball is coming our direction, let's wait
                                 break;
@@ -211,6 +215,17 @@ void systems_goalie(GameState *game_state, Input *input) {
                     entities_player_apply_force(entity_id, force_to_apply, game_state);
                     entities_player_apply_velocity(entity_id, game_state);
 
+                    Rectangle dive_rectangle = (Rectangle){
+                        .x = transform->position.x + dive_collider->props_rectangle.offset.x,
+                        .y = transform->position.y + dive_collider->props_rectangle.offset.y,
+                        .width = dive_collider->props_rectangle.size.x,
+                        .height = dive_collider->props_rectangle.size.y};
+                    b32 is_colliding_with_ball =
+                        CheckCollisionCircleRec(ball_transform->position,
+                                                ball_collider->colliders[0].props_circle.radius,
+                                                dive_rectangle) &&
+                        ball_transform->virtual_height < (cross_bar_height - 2);
+
                     static f64 last_save_time = 0;
                     if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
                         is_colliding_with_ball) {
@@ -220,6 +235,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                         // new_ball_velocity = Vector3RotateByAxisAngle(
                         //     new_ball_velocity, (v3){.y = 1},
                         //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
+
+                        // TODO: position should be outside collider
                         entities_ball_set_position_and_velocity(
                             game_state->vars.ball_entity_id,
                             V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
