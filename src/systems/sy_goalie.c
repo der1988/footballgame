@@ -144,15 +144,16 @@ void systems_goalie(GameState *game_state, Input *input) {
                                 f32 max_distance_we_can_cover_in_available_time =
                                     game_state->constants.goalie_dive_max_velocity *
                                     time_to_unsaveable / 1.0f;
-                                goalie->dive_speed =
-                                    Clamp(distance_to_cover /
-                                              max_distance_we_can_cover_in_available_time,
-                                          0, 1) *
-                                    game_state->constants.goalie_dive_max_velocity;
+                                goalie->dive_speed = Clamp(
+                                    distance_to_cover / max_distance_we_can_cover_in_available_time,
+                                    0, 1);
+                                goalie->dive_distance = distance_to_cover;
                                 printf("goalie has %.3fs to save a ball that will be %.2fpx away: "
                                        "dive "
                                        "speed %fpx/s\n",
-                                       time_to_unsaveable, distance_to_cover, goalie->dive_speed);
+                                       time_to_unsaveable, distance_to_cover,
+                                       goalie->dive_speed *
+                                           game_state->constants.goalie_dive_max_velocity);
                                 entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                               GS_DIVE, game_state);
                                 break;
@@ -192,8 +193,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                         game_state->animation_cache, goalie->dive_animations[SS_UP][direction]);
                     if (!dive_state_data->animation_completed &&
                         (game_state->time - goalie->last_frame_update_time) >
-                            (animation->delay *
-                             (2 - Vector2Length(physics->velocity) / physics->max_velocity))) {
+                            (animation->delay * (1 + goalie->dive_speed))) {
                         goalie->last_frame_update_time = game_state->time;
                         u16 new_frame_id = goalie->last_diving_frame_idx + 1;
                         if (new_frame_id == animation->frames_count) {

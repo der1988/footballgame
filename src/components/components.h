@@ -160,6 +160,7 @@ typedef enum { ST_WITHOUT_BALL, ST_WITH_BALL, ST_COUNT } SaveType;
 typedef struct {
     struct StateMachineGoalie *state_machine;
     SaveDirection dive_direction;
+    f32 dive_distance;
     f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
     AssetsAnimationId dive_animations[SS_COUNT][SD_COUNT];
