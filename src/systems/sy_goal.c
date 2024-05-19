@@ -144,7 +144,7 @@ void systems_goal(GameState *game_state) {
                                                      120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_crossbar_time = game_state->time;
-                        if (new_velocity.z < 0) {
+                        if (new_velocity.z < 0 && new_velocity.y < 0) {
                             scored_off_post = true;
                         }
                     }
