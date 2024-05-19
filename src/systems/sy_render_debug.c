@@ -36,18 +36,20 @@ void systems_render_debug(GameState *game_state) {
                 DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
                 if (wrapper_collider->header.enabled) {
+                    static Color colliders_colors[] = {RED, VIOLET, PINK, YELLOW};
                     ComponentCollider *collider = &wrapper_collider->collider;
                     for (u16 i = 0; i < collider->num_colliders; ++i) {
                         if (collider->colliders[i].shape == CS_CIRCLE) {
                             v2 pos = Vector2Add(transform->position,
                                                 collider->colliders[i].props_circle.offset);
-                            DrawCircleLinesV(pos, collider->colliders[i].props_circle.radius, RED);
+                            DrawCircleLinesV(pos, collider->colliders[i].props_circle.radius,
+                                             colliders_colors[i]);
                         } else if (collider->colliders[i].shape == CS_RECTANGLE) {
                             v2 pos = Vector2Add(transform->position,
                                                 collider->colliders[i].props_rectangle.offset);
-                            DrawRectangleLines(pos.x, pos.y,
-                                               collider->colliders[i].props_rectangle.size.x,
-                                               collider->colliders[i].props_rectangle.size.y, RED);
+                            DrawRectangleLines(
+                                pos.x, pos.y, collider->colliders[i].props_rectangle.size.x,
+                                collider->colliders[i].props_rectangle.size.y, colliders_colors[i]);
                         }
                     }
                 }
