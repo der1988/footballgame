@@ -152,7 +152,7 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Goalie dive max velocity",
               TextFormat("%.2f", game_state->constants.goalie_dive_max_velocity),
-              &game_state->constants.goalie_dive_max_velocity, 100, 300);
+              &game_state->constants.goalie_dive_max_velocity, 0, 300);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Kick charge reset time",
               TextFormat("%.2f", game_state->constants.kick_charge_reset_time),
