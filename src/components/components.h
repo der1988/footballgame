@@ -33,24 +33,24 @@ typedef enum {
 
 typedef struct ComponentTransform {
     struct ComponentTransform *parent;
-    Vector2 position;
+    v2 position;
     f32 rotation;
-    Vector2 scale;
+    v2 scale;
     f32 virtual_height;
 } ComponentTransform;
 
 typedef struct {
     f32 mass;
-    Vector2 accel;
-    Vector2 velocity;
+    v2 accel;
+    v2 velocity;
     f32 max_velocity;
     f32 max_force;
 } ComponentPhysics;
 
 typedef struct {
     f32 mass;
-    Vector3 accel;
-    Vector3 velocity;
+    v3 accel;
+    v3 velocity;
     f32 max_velocity;
     f32 max_force;
 } ComponentPhysics3d;
