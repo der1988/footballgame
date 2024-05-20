@@ -2,6 +2,8 @@
 #include "../entities/entities.h"
 #include "../game.h"
 #include "../steering/steering.h"
+#include "layers.h"
+#include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -32,13 +34,28 @@ void systems_camera(GameState *game_state) {
             ComponentCamera *props =
                 ComponentCastToTypedUnchecked(game_state->entity_repository, CT_CAMERA, entity_id);
 
-            Component *target_transform = entities_component_get(game_state->entity_repository,
-                                                                 CT_TRANSFORM, target->entity_id);
+            ComponentTransform *target_transform = entities_component_get_typed(
+                game_state->entity_repository, CT_TRANSFORM, target->entity_id);
+            ComponentPhysics3d *target_physics = entities_component_get_typed(
+                game_state->entity_repository, CT_PHYSICS_3D, target->entity_id);
             v2 steering = Vector2Zero();
-            if (target_transform && target_transform->header.enabled) {
-                steering =
-                    steering_arrive(transform->position, physics->velocity, physics->max_velocity,
-                                    target_transform->transform.position, props->slowing_distance);
+            if (target_transform && target_physics) {
+                if (fabsf(target_physics->velocity.z) > 30) {
+                    if (target_physics->velocity.z < 0) {
+                        props->offset.y -= 70 * game_state->dt;
+                    } else {
+                        props->offset.y += 70 * game_state->dt;
+                    }
+                    props->offset.y = Clamp(props->offset.y, -50, 50);
+                } else {
+                    props->offset.y *= 0.997f;
+                }
+
+                layers_debug_queue_draw_text(game_state->layer_debug,
+                                             TextFormat("Camera offset y: %.2f", props->offset.y));
+                steering = steering_arrive(
+                    transform->position, physics->velocity, physics->max_velocity,
+                    Vector2Add(target_transform->position, props->offset), props->slowing_distance);
             }
             steering = Vector2Scale(steering, physics->max_velocity * physics->max_force);
 
