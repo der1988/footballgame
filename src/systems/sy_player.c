@@ -256,8 +256,8 @@ void systems_player(GameState *game_state, Input *input) {
                 v2 control_direction = player_on_the_ball.controls->steering;
                 // Limit angle between requested run direction and current velocity
                 if (Vector2Length(player_on_the_ball.velocity) >
-                    // Only limit if velocity is at least 70% of max
-                    0.7f * game_state->constants.player_run_max_velocity) {
+                    // Only limit if velocity is at least 90% of max
+                    0.9f * game_state->constants.player_run_max_velocity) {
                     f32 angle = Vector2Angle(player_on_the_ball.velocity,
                                              player_on_the_ball.controls->steering);
                     f32 max_angle = game_state->constants.player_run_control_max_angle * DEG2RAD;
