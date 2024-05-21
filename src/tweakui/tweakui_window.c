@@ -47,6 +47,9 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
     GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 100, .height = 15},
               "AI Enabled", (bool *)&game_state->constants.ai_enabled);
     MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 100, .height = 15},
+              "Shoot Aid Enabled", (bool *)&game_state->constants.shoot_aid);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Gravity force",
               TextFormat("%.2f", game_state->constants.gravity_force.y),
               &game_state->constants.gravity_force.y, -800.0f, 0.0f);
