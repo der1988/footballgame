@@ -45,6 +45,9 @@ v link dive speed to distance from ball and time to contact
 v implement goalie reaction time
 v dive animation speed should be proportional to the distance we have to cover
 v fix bug when ball hits crossbar and it's deflected high but it's still goal
+v enable VSYNC
+v fix longstanding bug about input being weird in some cases, related to VSYNC
+v make shot aid toggleable
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
