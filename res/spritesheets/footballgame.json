@@ -1,6 +1,6 @@
 { "frames": [
    {
-    "filename": "ball_right0",
+    "filename": "ball_right_0",
     "frame": { "x": 0, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -9,7 +9,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right1",
+    "filename": "ball_right_1",
     "frame": { "x": 23, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -18,7 +18,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right2",
+    "filename": "ball_right_2",
     "frame": { "x": 46, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -27,7 +27,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right3",
+    "filename": "ball_right_3",
     "frame": { "x": 69, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -36,7 +36,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left0",
+    "filename": "ball_left_0",
     "frame": { "x": 69, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -45,7 +45,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left1",
+    "filename": "ball_left_1",
     "frame": { "x": 46, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -54,7 +54,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left2",
+    "filename": "ball_left_2",
     "frame": { "x": 23, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -63,7 +63,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left3",
+    "filename": "ball_left_3",
     "frame": { "x": 0, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -72,7 +72,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_up0",
+    "filename": "ball_up_0",
     "frame": { "x": 92, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -81,7 +81,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_up1",
+    "filename": "ball_up_1",
     "frame": { "x": 115, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -90,7 +90,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_up2",
+    "filename": "ball_up_2",
     "frame": { "x": 138, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -99,7 +99,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_up3",
+    "filename": "ball_up_3",
     "frame": { "x": 161, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -108,7 +108,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_down0",
+    "filename": "ball_down_0",
     "frame": { "x": 161, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -117,7 +117,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_down1",
+    "filename": "ball_down_1",
     "frame": { "x": 138, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -126,7 +126,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_down2",
+    "filename": "ball_down_2",
     "frame": { "x": 115, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -135,7 +135,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_down3",
+    "filename": "ball_down_3",
     "frame": { "x": 92, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -144,7 +144,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right_updown0",
+    "filename": "ball_right_updown_0",
     "frame": { "x": 184, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -153,7 +153,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right_updown1",
+    "filename": "ball_right_updown_1",
     "frame": { "x": 207, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -162,7 +162,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right_updown2",
+    "filename": "ball_right_updown_2",
     "frame": { "x": 230, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -171,7 +171,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_right_updown3",
+    "filename": "ball_right_updown_3",
     "frame": { "x": 253, "y": 0, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -180,7 +180,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left_updown0",
+    "filename": "ball_left_updown_0",
     "frame": { "x": 0, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -189,7 +189,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left_updown1",
+    "filename": "ball_left_updown_1",
     "frame": { "x": 23, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -198,7 +198,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left_updown2",
+    "filename": "ball_left_updown_2",
     "frame": { "x": 46, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -207,7 +207,7 @@
     "duration": 100
    },
    {
-    "filename": "ball_left_updown3",
+    "filename": "ball_left_updown_3",
     "frame": { "x": 69, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -216,7 +216,7 @@
     "duration": 100
    },
    {
-    "filename": "player_front0",
+    "filename": "player_front_0",
     "frame": { "x": 92, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -225,7 +225,7 @@
     "duration": 100
    },
    {
-    "filename": "player_back0",
+    "filename": "player_back_0",
     "frame": { "x": 115, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -234,7 +234,7 @@
     "duration": 100
    },
    {
-    "filename": "player_left0",
+    "filename": "player_left_0",
     "frame": { "x": 138, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -243,7 +243,7 @@
     "duration": 100
    },
    {
-    "filename": "player_right0",
+    "filename": "player_right_0",
     "frame": { "x": 161, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -252,7 +252,7 @@
     "duration": 100
    },
    {
-    "filename": "player_front_left0",
+    "filename": "player_front_left_0",
     "frame": { "x": 184, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -261,7 +261,7 @@
     "duration": 100
    },
    {
-    "filename": "player_front_right0",
+    "filename": "player_front_right_0",
     "frame": { "x": 207, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -270,7 +270,7 @@
     "duration": 100
    },
    {
-    "filename": "player_back_left0",
+    "filename": "player_back_left_0",
     "frame": { "x": 230, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -279,7 +279,7 @@
     "duration": 100
    },
    {
-    "filename": "player_back_right0",
+    "filename": "player_back_right_0",
     "frame": { "x": 253, "y": 23, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -288,7 +288,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front0",
+    "filename": "player_run_front_0",
     "frame": { "x": 0, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -297,7 +297,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front1",
+    "filename": "player_run_front_1",
     "frame": { "x": 23, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -306,7 +306,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front2",
+    "filename": "player_run_front_2",
     "frame": { "x": 46, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -315,7 +315,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front3",
+    "filename": "player_run_front_3",
     "frame": { "x": 69, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -324,7 +324,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back0",
+    "filename": "player_run_back_0",
     "frame": { "x": 92, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -333,7 +333,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back1",
+    "filename": "player_run_back_1",
     "frame": { "x": 115, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -342,7 +342,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back2",
+    "filename": "player_run_back_2",
     "frame": { "x": 138, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -351,7 +351,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back3",
+    "filename": "player_run_back_3",
     "frame": { "x": 161, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -360,7 +360,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_right0",
+    "filename": "player_run_right_0",
     "frame": { "x": 184, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -369,7 +369,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_right1",
+    "filename": "player_run_right_1",
     "frame": { "x": 207, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -378,7 +378,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_right2",
+    "filename": "player_run_right_2",
     "frame": { "x": 230, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -387,7 +387,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_right3",
+    "filename": "player_run_right_3",
     "frame": { "x": 253, "y": 46, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -396,7 +396,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_left0",
+    "filename": "player_run_left_0",
     "frame": { "x": 0, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -405,7 +405,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_left1",
+    "filename": "player_run_left_1",
     "frame": { "x": 23, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -414,7 +414,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_left2",
+    "filename": "player_run_left_2",
     "frame": { "x": 46, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -423,7 +423,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_left3",
+    "filename": "player_run_left_3",
     "frame": { "x": 69, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -432,7 +432,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_left0",
+    "filename": "player_run_front_left_0",
     "frame": { "x": 92, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -441,7 +441,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_left1",
+    "filename": "player_run_front_left_1",
     "frame": { "x": 115, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -450,7 +450,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_left2",
+    "filename": "player_run_front_left_2",
     "frame": { "x": 138, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -459,7 +459,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_left3",
+    "filename": "player_run_front_left_3",
     "frame": { "x": 161, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -468,7 +468,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_right0",
+    "filename": "player_run_front_right_0",
     "frame": { "x": 184, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -477,7 +477,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_right1",
+    "filename": "player_run_front_right_1",
     "frame": { "x": 207, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -486,7 +486,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_right2",
+    "filename": "player_run_front_right_2",
     "frame": { "x": 230, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -495,7 +495,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_front_right3",
+    "filename": "player_run_front_right_3",
     "frame": { "x": 253, "y": 69, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -504,7 +504,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_right0",
+    "filename": "player_run_back_right_0",
     "frame": { "x": 0, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -513,7 +513,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_right1",
+    "filename": "player_run_back_right_1",
     "frame": { "x": 23, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -522,7 +522,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_right2",
+    "filename": "player_run_back_right_2",
     "frame": { "x": 46, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -531,7 +531,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_right3",
+    "filename": "player_run_back_right_3",
     "frame": { "x": 69, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -540,7 +540,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_left0",
+    "filename": "player_run_back_left_0",
     "frame": { "x": 92, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -549,7 +549,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_left1",
+    "filename": "player_run_back_left_1",
     "frame": { "x": 115, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -558,7 +558,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_left2",
+    "filename": "player_run_back_left_2",
     "frame": { "x": 138, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -567,7 +567,7 @@
     "duration": 100
    },
    {
-    "filename": "player_run_back_left3",
+    "filename": "player_run_back_left_3",
     "frame": { "x": 161, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -576,7 +576,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_front0",
+    "filename": "goalkeeper_front_0",
     "frame": { "x": 184, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -585,7 +585,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_front_ball0",
+    "filename": "goalkeeper_front_ball_0",
     "frame": { "x": 207, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -594,7 +594,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_back0",
+    "filename": "goalkeeper_back_0",
     "frame": { "x": 230, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -603,7 +603,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_back_ball0",
+    "filename": "goalkeeper_back_ball_0",
     "frame": { "x": 253, "y": 92, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -612,7 +612,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_left0",
+    "filename": "goalkeeper_left_0",
     "frame": { "x": 0, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -621,7 +621,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_right0",
+    "filename": "goalkeeper_right_0",
     "frame": { "x": 23, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -630,7 +630,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_front_left0",
+    "filename": "goalkeeper_front_left_0",
     "frame": { "x": 46, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -639,7 +639,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_front_right0",
+    "filename": "goalkeeper_front_right_0",
     "frame": { "x": 69, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -648,7 +648,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_back_right0",
+    "filename": "goalkeeper_back_right_0",
     "frame": { "x": 92, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -657,7 +657,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_back_left0",
+    "filename": "goalkeeper_back_left_0",
     "frame": { "x": 115, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -666,7 +666,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_ball0",
+    "filename": "goalkeeper_save_front_ball_0",
     "frame": { "x": 138, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -675,7 +675,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front0",
+    "filename": "goalkeeper_save_front_0",
     "frame": { "x": 161, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -684,7 +684,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_right0",
+    "filename": "goalkeeper_dash_front_right_0",
     "frame": { "x": 184, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -693,7 +693,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_right1",
+    "filename": "goalkeeper_dash_front_right_1",
     "frame": { "x": 207, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -702,7 +702,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_left0",
+    "filename": "goalkeeper_dash_front_left_0",
     "frame": { "x": 230, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -711,7 +711,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_left1",
+    "filename": "goalkeeper_dash_front_left_1",
     "frame": { "x": 253, "y": 115, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -720,7 +720,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_left0",
+    "filename": "goalkeeper_dash_front_left_0",
     "frame": { "x": 0, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -729,7 +729,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_left1",
+    "filename": "goalkeeper_dash_front_left_1",
     "frame": { "x": 23, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -738,7 +738,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_right0",
+    "filename": "goalkeeper_dash_front_right_0",
     "frame": { "x": 46, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -747,7 +747,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_dash_front_right1",
+    "filename": "goalkeeper_dash_front_right_1",
     "frame": { "x": 69, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -756,7 +756,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_right0",
+    "filename": "goalkeeper_save_front_high_right_0",
     "frame": { "x": 92, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -765,7 +765,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_right1",
+    "filename": "goalkeeper_save_front_high_right_1",
     "frame": { "x": 115, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -774,7 +774,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_right2",
+    "filename": "goalkeeper_save_front_high_right_2",
     "frame": { "x": 138, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -783,7 +783,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_right3",
+    "filename": "goalkeeper_save_front_high_right_3",
     "frame": { "x": 161, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -792,7 +792,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_left0",
+    "filename": "goalkeeper_save_front_high_left_0",
     "frame": { "x": 184, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -801,7 +801,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_left1",
+    "filename": "goalkeeper_save_front_high_left_1",
     "frame": { "x": 207, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -810,7 +810,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_left2",
+    "filename": "goalkeeper_save_front_high_left_2",
     "frame": { "x": 230, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -819,7 +819,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_high_left3",
+    "filename": "goalkeeper_save_front_high_left_3",
     "frame": { "x": 253, "y": 138, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -828,7 +828,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_left0",
+    "filename": "goalkeeper_save_front_low_left_0",
     "frame": { "x": 0, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -837,7 +837,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_left1",
+    "filename": "goalkeeper_save_front_low_left_1",
     "frame": { "x": 23, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -846,7 +846,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_left2",
+    "filename": "goalkeeper_save_front_low_left_2",
     "frame": { "x": 46, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -855,7 +855,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_left3",
+    "filename": "goalkeeper_save_front_low_left_3",
     "frame": { "x": 69, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -864,7 +864,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_right0",
+    "filename": "goalkeeper_save_front_low_right_0",
     "frame": { "x": 92, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -873,7 +873,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_right1",
+    "filename": "goalkeeper_save_front_low_right_1",
     "frame": { "x": 115, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -882,7 +882,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_right2",
+    "filename": "goalkeeper_save_front_low_right_2",
     "frame": { "x": 138, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -891,7 +891,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_front_low_right3",
+    "filename": "goalkeeper_save_front_low_right_3",
     "frame": { "x": 161, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -900,7 +900,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_back0",
+    "filename": "goalkeeper_save_back_0",
     "frame": { "x": 184, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -909,7 +909,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_save_back_ball0",
+    "filename": "goalkeeper_save_back_ball_0",
     "frame": { "x": 207, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -918,7 +918,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front0",
+    "filename": "goalkeeper_run_front_0",
     "frame": { "x": 230, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -927,7 +927,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front1",
+    "filename": "goalkeeper_run_front_1",
     "frame": { "x": 253, "y": 161, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -936,7 +936,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front2",
+    "filename": "goalkeeper_run_front_2",
     "frame": { "x": 0, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -945,7 +945,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front3",
+    "filename": "goalkeeper_run_front_3",
     "frame": { "x": 23, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -954,7 +954,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back0",
+    "filename": "goalkeeper_run_back_0",
     "frame": { "x": 46, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -963,7 +963,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back1",
+    "filename": "goalkeeper_run_back_1",
     "frame": { "x": 69, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -972,7 +972,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back2",
+    "filename": "goalkeeper_run_back_2",
     "frame": { "x": 92, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -981,7 +981,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back3",
+    "filename": "goalkeeper_run_back_3",
     "frame": { "x": 115, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -990,7 +990,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_left0",
+    "filename": "goalkeeper_run_left_0",
     "frame": { "x": 138, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -999,7 +999,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_left1",
+    "filename": "goalkeeper_run_left_1",
     "frame": { "x": 161, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1008,7 +1008,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_left2",
+    "filename": "goalkeeper_run_left_2",
     "frame": { "x": 184, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1017,7 +1017,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_left3",
+    "filename": "goalkeeper_run_left_3",
     "frame": { "x": 207, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1026,7 +1026,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_right0",
+    "filename": "goalkeeper_run_right_0",
     "frame": { "x": 230, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1035,7 +1035,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_right1",
+    "filename": "goalkeeper_run_right_1",
     "frame": { "x": 253, "y": 184, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1044,7 +1044,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_right2",
+    "filename": "goalkeeper_run_right_2",
     "frame": { "x": 0, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1053,7 +1053,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_right3",
+    "filename": "goalkeeper_run_right_3",
     "frame": { "x": 23, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1062,7 +1062,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_right0",
+    "filename": "goalkeeper_run_front_right_0",
     "frame": { "x": 46, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1071,7 +1071,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_right1",
+    "filename": "goalkeeper_run_front_right_1",
     "frame": { "x": 69, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1080,7 +1080,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_right2",
+    "filename": "goalkeeper_run_front_right_2",
     "frame": { "x": 92, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1089,7 +1089,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_right3",
+    "filename": "goalkeeper_run_front_right_3",
     "frame": { "x": 115, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1098,7 +1098,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_left0",
+    "filename": "goalkeeper_run_front_left_0",
     "frame": { "x": 138, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1107,7 +1107,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_left1",
+    "filename": "goalkeeper_run_front_left_1",
     "frame": { "x": 161, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1116,7 +1116,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_left2",
+    "filename": "goalkeeper_run_front_left_2",
     "frame": { "x": 184, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1125,7 +1125,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_front_left3",
+    "filename": "goalkeeper_run_front_left_3",
     "frame": { "x": 207, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1134,7 +1134,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_right0",
+    "filename": "goalkeeper_run_back_right_0",
     "frame": { "x": 230, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1143,7 +1143,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_right1",
+    "filename": "goalkeeper_run_back_right_1",
     "frame": { "x": 253, "y": 207, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1152,7 +1152,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_right2",
+    "filename": "goalkeeper_run_back_right_2",
     "frame": { "x": 0, "y": 230, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1161,7 +1161,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_right3",
+    "filename": "goalkeeper_run_back_right_3",
     "frame": { "x": 23, "y": 230, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1170,7 +1170,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_left0",
+    "filename": "goalkeeper_run_back_left_0",
     "frame": { "x": 46, "y": 230, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1179,7 +1179,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_left1",
+    "filename": "goalkeeper_run_back_left_1",
     "frame": { "x": 69, "y": 230, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1188,7 +1188,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_left2",
+    "filename": "goalkeeper_run_back_left_2",
     "frame": { "x": 92, "y": 230, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
@@ -1197,7 +1197,7 @@
     "duration": 100
    },
    {
-    "filename": "goalkeeper_run_back_left3",
+    "filename": "goalkeeper_run_back_left_3",
     "frame": { "x": 115, "y": 230, "w": 23, "h": 23 },
     "rotated": false,
     "trimmed": true,
