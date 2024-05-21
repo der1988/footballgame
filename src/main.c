@@ -1,8 +1,10 @@
 #include "game.h"
 #include "input/input.h"
+#include "layers.h"
 #include "types.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 int main() {
@@ -14,6 +16,7 @@ int main() {
     const float virtual_screen_width = 640;
     const float virtual_screen_height = 360;
 
+    SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screen_width, screen_height, "The Game");
 
     void *memory = malloc(Megabytes(64));
@@ -37,12 +40,12 @@ int main() {
         double frame_time = new_time - current_time;
         current_time = new_time;
 
+        PollInputEvents();
+        Input input = input_handle(game_state);
+
+        u32 physics_iterations = 0;
         accumulator += frame_time;
         while (accumulator > 0) {
-
-            PollInputEvents();
-
-            Input input = input_handle(game_state);
 
             game_state->dt = dt;
 
@@ -50,7 +53,13 @@ int main() {
 
             accumulator -= dt;
             game_state->time += dt;
+
+            physics_iterations++;
         }
+        layers_debug_queue_draw_text(game_state->layer_debug,
+                                     TextFormat("Physics iter/frame: %d", physics_iterations));
+        layers_debug_queue_draw_text(game_state->layer_debug,
+                                     TextFormat("FPS: %.2f", 1 / frame_time));
 
         game_draw(game_state);
 
