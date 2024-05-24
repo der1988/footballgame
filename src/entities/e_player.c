@@ -371,14 +371,14 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
             ->id;
     goalie->save_frames[SS_UP][ST_WITH_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-                                        "goalkeeper_save_ball_front_0")
+                                        "goalkeeper_save_front_ball_0")
             ->id;
     goalie->save_frames[SS_DOWN][ST_WITHOUT_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_back_0")
             ->id;
     goalie->save_frames[SS_DOWN][ST_WITH_BALL] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-                                        "goalkeeper_save_ball_back_0")
+                                        "goalkeeper_save_back_ball_0")
             ->id;
 
     // Diving animations
@@ -386,8 +386,8 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
         entities_common_animation_id_from_name("goalkeeper", "save_front_left", game_state);
     goalie->dive_animations[SS_UP][SD_RIGHT] =
         entities_common_animation_id_from_name("goalkeeper", "save_front_right", game_state);
-    goalie->dive_animations[SS_DOWN][SD_LEFT] =
-        entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
-    goalie->dive_animations[SS_DOWN][SD_RIGHT] =
-        entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
+    // goalie->dive_animations[SS_DOWN][SD_LEFT] =
+    //     entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
+    // goalie->dive_animations[SS_DOWN][SD_RIGHT] =
+    //     entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
 }
