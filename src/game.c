@@ -54,7 +54,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_after_touch_force = 300.0f,
                                             // 50m/s seems fair, that would be 180km/h
                                             .ball_max_velocity = 50 * PIXELS_PER_METER,
-                                            .player_movement_force = 8500,
+                                            .player_movement_force = 15000,
                                             .player_movement_drag = 4166,
                                             .player_control_max_velocity = 6.6f * PIXELS_PER_METER,
                                             // Fastest player should reach ~10.5m/s, slowest 7.8m/s
@@ -67,6 +67,7 @@ GameState *game_init(GameConfig game_config) {
                                             .goalie_dive_reaction_time = 0.150f,
                                             .goalie_dive_force = 8500,
                                             .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
+                                            .shoot_aid = true,
                                             .kick_charge_reset_time = 1.5f};
 
     // Partition game memory
