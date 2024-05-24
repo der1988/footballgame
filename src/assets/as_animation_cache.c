@@ -97,8 +97,8 @@ static AssetsAnimation *load_from_json(const char *filename, const usize initial
             usize frames_count = 0;
             char *frames = NULL;
             char *frame = NULL;
-            char frame_name_format[40];
-            char frame_name[40];
+            char frame_name_format[50];
+            char frame_name[50];
             for (frames = animation_frames;; frames = NULL) {
                 frame = strtok(frames, ",");
 
@@ -117,7 +117,8 @@ static AssetsAnimation *load_from_json(const char *filename, const usize initial
                     assets_sprite_frame_get_by_name(sprite_frame_cache, frame_name);
                 if (!sprite_frame) {
                     GLOGF_WARN_CTX(LS_ASSETS, filename,
-                                   "animation sprite frame not found in cache: %s", frame_name);
+                                   "animation %s sprite frame not found in cache: %s",
+                                   assets_animation->name, frame_name);
                     continue;
                 }
                 sprite_frames_buffer[frames_count] = sprite_frame->id;
