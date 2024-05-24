@@ -55,6 +55,19 @@ void systems_ball(GameState *game_state, Input *input) {
                 return;
             }
 
+            // Test cross
+            if (input->buttons[IBT_BUTTON_UP].released) {
+                transform->position = (v2){.x = game_state->vars.pitch_rectangle.x + 600, .y = 100};
+                transform->virtual_height = 0;
+                physics_3d->accel = Vector3Zero();
+                physics_3d->velocity = Vector3Scale((v3){.x = -1, .y = 0.3f, .z = 0.2}, 280.5f);
+                game_state->vars.ball_is_playable = true;
+                game_state->vars.someone_scored = false;
+                ball->subject_to_after_touch = false;
+                ball->last_player_on_the_ball_entity_id = -1;
+                return;
+            }
+
             // Sprite draw ordering when ball is in upper goal
             sprite->layer = transform->position.y < game_state->vars.pitch_rectangle.y
                                 ? SL_UPPER_GOAL

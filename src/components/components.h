@@ -105,6 +105,7 @@ typedef struct {
 typedef struct {
     CameraType camera;
     f32 slowing_distance;
+    v2 offset;
 } ComponentCamera;
 
 typedef enum {
