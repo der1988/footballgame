@@ -58,3 +58,4 @@ v implement a way to have ball crossed automatically to test first time shot
 - improve codebase quality
 - implement logic that keeps height of ball into account when hitting it
 - introduce an on-screen log
+- improve goalkeeper dive animation
