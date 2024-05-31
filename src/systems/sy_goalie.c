@@ -140,6 +140,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                 y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
                                 f32 time_to_unsaveable = (i + 1) * game_state->dt * 10;
                                 goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
+                                goalie->dive_height = pos_to_check.y < 15 ? SH_LOW : SH_HIGH;
                                 f32 max_distance_we_can_cover_in_available_time =
                                     game_state->constants.goalie_dive_max_velocity *
                                     time_to_unsaveable / 1.0f;
@@ -189,7 +190,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                     StateMachineGoalieDiveData *dive_state_data =
                         &goalie->state_machine->state_data.dive;
                     AssetsAnimation *animation = assets_animation_get_by_id(
-                        game_state->animation_cache, goalie->dive_animations[SS_UP][direction]);
+                        game_state->animation_cache,
+                        goalie->dive_animations[SS_UP][direction][goalie->dive_height]);
                     if (!dive_state_data->animation_completed &&
                         (game_state->time - goalie->last_frame_update_time) >
                             (animation->delay * (1 + goalie->dive_speed))) {

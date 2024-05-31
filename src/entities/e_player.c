@@ -382,10 +382,14 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
             ->id;
 
     // Diving animations
-    goalie->dive_animations[SS_UP][SD_LEFT] =
-        entities_common_animation_id_from_name("goalkeeper", "save_front_left", game_state);
-    goalie->dive_animations[SS_UP][SD_RIGHT] =
-        entities_common_animation_id_from_name("goalkeeper", "save_front_right", game_state);
+    goalie->dive_animations[SS_UP][SD_LEFT][SH_HIGH] =
+        entities_common_animation_id_from_name("goalkeeper", "save_front_high_left", game_state);
+    goalie->dive_animations[SS_UP][SD_RIGHT][SH_HIGH] =
+        entities_common_animation_id_from_name("goalkeeper", "save_front_high_right", game_state);
+    goalie->dive_animations[SS_UP][SD_LEFT][SH_LOW] =
+        entities_common_animation_id_from_name("goalkeeper", "save_front_low_left", game_state);
+    goalie->dive_animations[SS_UP][SD_RIGHT][SH_LOW] =
+        entities_common_animation_id_from_name("goalkeeper", "save_front_low_right", game_state);
     // goalie->dive_animations[SS_DOWN][SD_LEFT] =
     //     entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
     // goalie->dive_animations[SS_DOWN][SD_RIGHT] =
