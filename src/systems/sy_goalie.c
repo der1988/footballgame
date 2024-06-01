@@ -118,7 +118,10 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     if (Vector3Length(ball_physics_3d->velocity) > 100) {
                         // Only dive if ball velocity is higher than 36km/h
-                        for (u16 i = 0; i < 10; ++i) {
+                        const int steps_per_lookahead = (game_state->vars.slow_motion ? 10 : 1) *
+                                                        game_state->constants.ball_lookahead_dts;
+                        const int lookaheads = game_state->constants.ball_lookaheads;
+                        for (u16 i = 0; i < lookaheads; ++i) {
                             v3 pos_to_check = ball->lookahead_positions[i];
                             b32 is_colliding_with_ball =
                                 CheckCollisionCircles(
@@ -138,12 +141,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                             if (HAS_TIME_PASSED(game_state->time, ball->kick_time,
                                                 game_state->constants.goalie_dive_reaction_time) &&
                                 y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
-                                f32 time_to_unsaveable = (i + 1) * game_state->dt * 10;
-                                goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
-                                goalie->dive_height = pos_to_check.y < 15 ? SH_LOW : SH_HIGH;
+                                f32 time_to_unsaveable =
+                                    (i + 1) * game_state->dt * steps_per_lookahead;
                                 f32 max_distance_we_can_cover_in_available_time =
                                     game_state->constants.goalie_dive_max_velocity *
                                     time_to_unsaveable / 1.0f;
+                                goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
+                                goalie->dive_height = pos_to_check.y < 10 ? SH_LOW : SH_HIGH;
                                 goalie->dive_speed = Clamp(
                                     distance_to_cover / max_distance_we_can_cover_in_available_time,
                                     0, 1);

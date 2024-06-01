@@ -113,6 +113,12 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
               TextFormat("%.2f", game_state->constants.ball_after_touch_force),
               &game_state->constants.ball_after_touch_force, 0, 1000.0f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSpinner(slider_bounds, "Ball lookaheads", (int *)&game_state->constants.ball_lookaheads, 3,
+               10, false);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSpinner(slider_bounds, "Ball lookahead dts",
+               (int *)&game_state->constants.ball_lookahead_dts, 10, 50, false);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player movement force",
               TextFormat("%.2f", game_state->constants.player_movement_force),
               &game_state->constants.player_movement_force, 0, 40000.0f);

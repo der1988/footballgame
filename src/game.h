@@ -55,6 +55,8 @@ typedef struct GameConstants {
     f32 ball_after_touch_max_time;
     f32 ball_after_touch_force;
     f32 ball_max_velocity;
+    u32 ball_lookaheads;
+    u32 ball_lookahead_dts;
     // Following constants might become variables that depends on player characteristics at some
     // point
     f32 player_movement_force;

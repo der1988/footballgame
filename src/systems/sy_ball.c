@@ -123,10 +123,12 @@ void systems_ball(GameState *game_state, Input *input) {
                 b32 lookahead_bounced;
                 v3 lookahead_position = position;
                 v3 lookahead_velocity = velocity;
-                u16 lookahead = 10;
-                for (u16 i = 0; i < lookahead; ++i) {
+                u16 lookaheads = game_state->constants.ball_lookaheads;
+                u32 lookahead_dts = (game_state->vars.slow_motion ? 10 : 1) *
+                                    game_state->constants.ball_lookahead_dts;
+                for (u16 i = 0; i < lookaheads; ++i) {
                     // 10 dt steps (100 in slow motion)
-                    for (u16 j = 0; j < (game_state->vars.slow_motion ? 100 : 10); ++j) {
+                    for (u16 j = 0; j < lookahead_dts; ++j) {
                         sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
                                          physics_3d->mass, &lookahead_on_the_ground,
                                          &lookahead_bounced, game_state);
