@@ -49,13 +49,14 @@ v enable VSYNC
 v fix longstanding bug about input being weird in some cases, related to VSYNC
 v make shot aid toggleable
 v implement a way to have ball crossed automatically to test first time shot
+v improve goalkeeper dive animation
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
+- use r1 to make the player face the goal?
 - fix the damn bug where everything goes black and there's no way to recover
 - if shot is too fast goalie should just bounce the ball back
 - improve codebase quality
 - implement logic that keeps height of ball into account when hitting it
 - introduce an on-screen log
-- improve goalkeeper dive animation
