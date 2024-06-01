@@ -97,8 +97,8 @@ static AssetsAnimation *load_from_json(const char *filename, const usize initial
             usize frames_count = 0;
             char *frames = NULL;
             char *frame = NULL;
-            char frame_name_format[50];
-            char frame_name[50];
+            char frame_name_format[MaxStringSize];
+            char frame_name[MaxStringSize];
             for (frames = animation_frames;; frames = NULL) {
                 frame = strtok(frames, ",");
 

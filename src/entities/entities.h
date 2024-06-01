@@ -161,7 +161,7 @@ static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "
 typedef struct Entity {
     b32 alive;
     EntityId id;
-    char name[40];
+    char name[MaxStringSize];
     EntityType type;
 } Entity;
 

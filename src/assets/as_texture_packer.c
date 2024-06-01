@@ -80,7 +80,7 @@ AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename, co
 
         AssetsSpriteFrame *sprite_frame = current_sprite_frame++;
         sprite_frame->id = current_sprite_frame_id++;
-        strncpy(sprite_frame->name, name, 50);
+        strncpy(sprite_frame->name, name, MaxStringSize);
         sprite_frame->frame = (Rectangle){frame_x, frame_y, frame_w, frame_h};
         sprite_frame->trimmed = trimmed;
         sprite_frame->rotated = rotated;
