@@ -164,7 +164,7 @@ GameState *game_init(GameConfig game_config) {
         (Vector2){(f32)game_state->config.virtual_screen_width / 2,
                   (f32)game_state->config.virtual_screen_height / 2};
 
-    game_state->vars.ball_is_playable = true;
+    game_state->vars.match_state = MS_PLAY;
     game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->id};
 #endif
 

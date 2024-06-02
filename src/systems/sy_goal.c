@@ -1,7 +1,6 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
-#include "../steering/steering.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
@@ -19,6 +18,7 @@ void systems_goal(GameState *game_state) {
     ComponentBall *ball = entities_component_get_typed(game_state->entity_repository, CT_BALL,
                                                        game_state->vars.ball_entity_id);
 
+    // First let's check if it's a goal
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(
                 entity_repository, entity_id, 4, CT_TRANSFORM, CT_SPRITE, CT_GOAL, CT_COLLIDER)) {
@@ -55,7 +55,7 @@ void systems_goal(GameState *game_state) {
 
             f32 post_width = 2;
 
-            if (game_state->vars.someone_scored) {
+            if (game_state->vars.match_state == MS_GOAL) {
                 if (ball_transform->position.y < goal_rectangle.y - 3 ||
                     ball_transform->position.x < goal_rectangle.x ||
                     ball_transform->position.x > (goal_rectangle.x + goal_rectangle.width)) {
@@ -66,7 +66,7 @@ void systems_goal(GameState *game_state) {
                         ball_physics_3d->velocity.y *= 0.9f;
                     }
                 }
-            } else if (game_state->vars.ball_is_playable && !game_state->vars.someone_scored &&
+            } else if (game_state->vars.match_state == MS_PLAY &&
                        CheckCollisionCircleRec(ball_transform->position,
                                                ball_collider->colliders[0].props_circle.radius,
                                                goal_rectangle) &&
@@ -105,7 +105,8 @@ void systems_goal(GameState *game_state) {
                                                      120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_left_post_time = game_state->time;
-                        // This needs to be generalised to account for goal position (top vs bottom)
+                        // This needs to be generalised to account for goal position (top vs
+                        // bottom)
                         if (new_velocity.x > 0 && new_velocity.z < 0) {
                             scored_off_post = true;
                         }
@@ -162,7 +163,7 @@ void systems_goal(GameState *game_state) {
                         printf("post at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
                         if (scored_off_post) {
-                            game_state->vars.someone_scored = true;
+                            game_state->vars.match_state = MS_GOAL;
                             printf("goal off post\n");
                         }
                     } else if (collision.point.x >
@@ -174,18 +175,30 @@ void systems_goal(GameState *game_state) {
                                collision.point.y <
                                    (goal_rectangle.height - post_width -
                                     ball_collider->colliders[0].props_circle.radius)) {
-                        game_state->vars.someone_scored = true;
+                        game_state->vars.match_state = MS_GOAL;
                         printf("goal at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
                     } else {
-                        game_state->vars.ball_is_playable = false;
+                        game_state->vars.match_state = MS_CORNER_KICK;
                         printf("ball is out\n");
                     }
                 } else {
-                    game_state->vars.ball_is_playable = false;
+                    game_state->vars.match_state = MS_CORNER_KICK;
                     printf("ball is out\n");
                 }
             }
+        }
+    }
+    if (game_state->vars.match_state == MS_PLAY &&
+        !CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch_rectangle)) {
+        // Ball is out of bounds
+        Rectangle *pitch_rectangle = &game_state->vars.pitch_rectangle;
+        if (ball_transform->position.x < pitch_rectangle->x) {
+            // Throw in left
+            game_state->vars.match_state = MS_THROW_IN;
+        } else if (ball_transform->position.x > (pitch_rectangle->x + pitch_rectangle->width)) {
+            // Throw in right
+            game_state->vars.match_state = MS_THROW_IN;
         }
     }
 }

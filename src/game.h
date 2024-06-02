@@ -96,15 +96,25 @@ typedef struct HumanPlayer {
     EntityId player_entity_id;
 } HumanPlayer;
 
+typedef enum MatchState {
+    MS_KICKOFF,
+    MS_PLAY,
+    MS_GOAL,
+    MS_THROW_IN,
+    MS_GOAL_KICK,
+    MS_CORNER_KICK,
+    MS_PENALTY_KICK,
+    MS_FREE_KICK
+} MatchState;
+
 typedef struct GameVariables {
+    MatchState match_state;
     b32 slow_motion;
     b32 is_tweakui_shown;
     EntityId camera_entity_id;
     EntityId ball_entity_id;
     HumanPlayer p1;
     Rectangle pitch_rectangle;
-    b32 ball_is_playable;
-    b32 someone_scored;
 } GameVariables;
 
 typedef struct GameState {
