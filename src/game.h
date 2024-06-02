@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "assets/assets.h"
+#include "football/football.h"
 #include "raygui/raygui.h"
 #include "types.h"
 #include <raylib.h>
@@ -95,34 +96,6 @@ typedef struct HumanPlayer {
     Controls controls;
     EntityId player_entity_id;
 } HumanPlayer;
-
-typedef enum MatchState {
-    MS_KICKOFF,
-    MS_PLAY,
-    MS_GOAL,
-    MS_THROW_IN,
-    MS_GOAL_KICK,
-    MS_CORNER_KICK,
-    MS_PENALTY_KICK,
-    MS_FREE_KICK
-} MatchState;
-
-typedef struct MatchScore {
-    u16 home;
-    u16 away;
-} MatchScore;
-
-typedef struct Match {
-    MatchState state;
-    MatchScore score;
-} Match;
-
-typedef enum PitchType { PT_NORMAL, PT_MUD, PT_SNOW } PitchType;
-
-typedef struct Pitch {
-    Rectangle rectangle;
-    PitchType type;
-} Pitch;
 
 typedef struct GameVariables {
     Match match;

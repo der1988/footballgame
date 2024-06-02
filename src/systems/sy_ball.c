@@ -3,6 +3,7 @@
 #include "../game.h"
 #include "../sim/simulation.h"
 #include "../utils/utils.h"
+#include "football/football.h"
 #include "input.h"
 #include "layers/layers.h"
 #include "sprites.h"
@@ -35,7 +36,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 transform->virtual_height = 50;
                 physics_3d->accel = Vector3Zero();
                 physics_3d->velocity = Vector3Zero();
-                game_state->vars.match.state = MS_PLAY;
+                football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
@@ -47,7 +48,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 transform->virtual_height = 0;
                 physics_3d->accel = Vector3Zero();
                 physics_3d->velocity = Vector3Scale((v3){.x = 0, .y = 0.2f, .z = -1}, 413.5f);
-                game_state->vars.match.state = MS_PLAY;
+                football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
@@ -59,7 +60,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 transform->virtual_height = 0;
                 physics_3d->accel = Vector3Zero();
                 physics_3d->velocity = Vector3Scale((v3){.x = -1, .y = 0.3f, .z = 0.2}, 280.5f);
-                game_state->vars.match.state = MS_PLAY;
+                football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;

@@ -3,6 +3,7 @@
 #include "components/components.h"
 #include "config.h"
 #include "entities/entities.h"
+#include "football/football.h"
 #include "input/input.h"
 #include "layers/layers.h"
 #include "memory/memory.h"
@@ -164,7 +165,7 @@ GameState *game_init(GameConfig game_config) {
         (Vector2){(f32)game_state->config.virtual_screen_width / 2,
                   (f32)game_state->config.virtual_screen_height / 2};
 
-    game_state->vars.match.state = MS_PLAY;
+    football_match_change_state(game_state, MS_PLAY);
     game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->id};
 #endif
 

@@ -163,7 +163,7 @@ void systems_goal(GameState *game_state) {
                         printf("post at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
                         if (scored_off_post) {
-                            game_state->vars.match.state = MS_GOAL;
+                            football_match_change_state(game_state, MS_GOAL);
                             printf("goal off post\n");
                         }
                     } else if (collision.point.x >
@@ -175,15 +175,15 @@ void systems_goal(GameState *game_state) {
                                collision.point.y <
                                    (goal_rectangle.height - post_width -
                                     ball_collider->colliders[0].props_circle.radius)) {
-                        game_state->vars.match.state = MS_GOAL;
+                        football_match_change_state(game_state, MS_GOAL);
                         printf("goal at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
                     } else {
-                        game_state->vars.match.state = MS_CORNER_KICK;
+                        football_match_change_state(game_state, MS_CORNER_KICK);
                         printf("ball is out\n");
                     }
                 } else {
-                    game_state->vars.match.state = MS_CORNER_KICK;
+                    football_match_change_state(game_state, MS_CORNER_KICK);
                     printf("ball is out\n");
                 }
             }
@@ -195,10 +195,10 @@ void systems_goal(GameState *game_state) {
         Rectangle *pitch_rectangle = &game_state->vars.pitch.rectangle;
         if (ball_transform->position.x < pitch_rectangle->x) {
             // Throw in left
-            game_state->vars.match.state = MS_THROW_IN;
+            football_match_change_state(game_state, MS_THROW_IN);
         } else if (ball_transform->position.x > (pitch_rectangle->x + pitch_rectangle->width)) {
             // Throw in right
-            game_state->vars.match.state = MS_THROW_IN;
+            football_match_change_state(game_state, MS_THROW_IN);
         }
     }
 }
