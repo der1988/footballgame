@@ -123,7 +123,7 @@ GameState *game_init(GameConfig game_config) {
 
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
-    game_state->vars.pitch_rectangle =
+    game_state->vars.pitch.rectangle =
         (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
 
     Entity *player_entity = entities_player_create(
@@ -141,7 +141,7 @@ GameState *game_init(GameConfig game_config) {
         game_state);
     game_state->vars.ball_entity_id = ball_entity->id;
 
-    entities_goal_create((GoalConfig){.position = GP_TOP}, game_state);
+    entities_goal_create((GoalConfig){.position = GP_NORTH}, game_state);
 
     Entity *camera_entity = entities_camera_create(game_state);
     ComponentCamera *camera =
@@ -164,7 +164,7 @@ GameState *game_init(GameConfig game_config) {
         (Vector2){(f32)game_state->config.virtual_screen_width / 2,
                   (f32)game_state->config.virtual_screen_height / 2};
 
-    game_state->vars.match_state = MS_PLAY;
+    game_state->vars.match.state = MS_PLAY;
     game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->id};
 #endif
 

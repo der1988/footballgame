@@ -32,7 +32,7 @@ void systems_render_debug(GameState *game_state) {
                     position, rotation, scale, sprite->pivot_override);
 
                 // Debug lines for pitch
-                Rectangle pitch = game_state->vars.pitch_rectangle;
+                Rectangle pitch = game_state->vars.pitch.rectangle;
                 DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
                 if (wrapper_collider->header.enabled) {

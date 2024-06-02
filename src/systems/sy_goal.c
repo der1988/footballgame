@@ -38,24 +38,24 @@ void systems_goal(GameState *game_state) {
                 .width = collider->colliders[0].props_rectangle.size.x,
                 .height = collider->colliders[0].props_rectangle.size.y};
 
-            v3 goal_line_p1 = (v3){.x = game_state->vars.pitch_rectangle.x,
+            v3 goal_line_p1 = (v3){.x = game_state->vars.pitch.rectangle.x,
                                    .y = 0,
-                                   .z = game_state->vars.pitch_rectangle.y};
-            v3 goal_line_p2 = (v3){.x = game_state->vars.pitch_rectangle.x,
+                                   .z = game_state->vars.pitch.rectangle.y};
+            v3 goal_line_p2 = (v3){.x = game_state->vars.pitch.rectangle.x,
                                    .y = goal_rectangle.height,
-                                   .z = game_state->vars.pitch_rectangle.y};
-            v3 goal_line_p3 = (v3){.x = game_state->vars.pitch_rectangle.x +
-                                        game_state->vars.pitch_rectangle.width,
+                                   .z = game_state->vars.pitch.rectangle.y};
+            v3 goal_line_p3 = (v3){.x = game_state->vars.pitch.rectangle.x +
+                                        game_state->vars.pitch.rectangle.width,
                                    .y = goal_rectangle.height,
-                                   .z = game_state->vars.pitch_rectangle.y};
-            v3 goal_line_p4 = (v3){.x = game_state->vars.pitch_rectangle.x +
-                                        game_state->vars.pitch_rectangle.width,
+                                   .z = game_state->vars.pitch.rectangle.y};
+            v3 goal_line_p4 = (v3){.x = game_state->vars.pitch.rectangle.x +
+                                        game_state->vars.pitch.rectangle.width,
                                    .y = 0,
-                                   .z = game_state->vars.pitch_rectangle.y};
+                                   .z = game_state->vars.pitch.rectangle.y};
 
             f32 post_width = 2;
 
-            if (game_state->vars.match_state == MS_GOAL) {
+            if (game_state->vars.match.state == MS_GOAL) {
                 if (ball_transform->position.y < goal_rectangle.y - 3 ||
                     ball_transform->position.x < goal_rectangle.x ||
                     ball_transform->position.x > (goal_rectangle.x + goal_rectangle.width)) {
@@ -66,11 +66,11 @@ void systems_goal(GameState *game_state) {
                         ball_physics_3d->velocity.y *= 0.9f;
                     }
                 }
-            } else if (game_state->vars.match_state == MS_PLAY &&
+            } else if (game_state->vars.match.state == MS_PLAY &&
                        CheckCollisionCircleRec(ball_transform->position,
                                                ball_collider->colliders[0].props_circle.radius,
                                                goal_rectangle) &&
-                       ball_transform->position.y < game_state->vars.pitch_rectangle.y) {
+                       ball_transform->position.y < game_state->vars.pitch.rectangle.y) {
 
                 v3 current_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 
@@ -163,7 +163,7 @@ void systems_goal(GameState *game_state) {
                         printf("post at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
                         if (scored_off_post) {
-                            game_state->vars.match_state = MS_GOAL;
+                            game_state->vars.match.state = MS_GOAL;
                             printf("goal off post\n");
                         }
                     } else if (collision.point.x >
@@ -175,30 +175,30 @@ void systems_goal(GameState *game_state) {
                                collision.point.y <
                                    (goal_rectangle.height - post_width -
                                     ball_collider->colliders[0].props_circle.radius)) {
-                        game_state->vars.match_state = MS_GOAL;
+                        game_state->vars.match.state = MS_GOAL;
                         printf("goal at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
                                collision.point.z);
                     } else {
-                        game_state->vars.match_state = MS_CORNER_KICK;
+                        game_state->vars.match.state = MS_CORNER_KICK;
                         printf("ball is out\n");
                     }
                 } else {
-                    game_state->vars.match_state = MS_CORNER_KICK;
+                    game_state->vars.match.state = MS_CORNER_KICK;
                     printf("ball is out\n");
                 }
             }
         }
     }
-    if (game_state->vars.match_state == MS_PLAY &&
-        !CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch_rectangle)) {
+    if (game_state->vars.match.state == MS_PLAY &&
+        !CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch.rectangle)) {
         // Ball is out of bounds
-        Rectangle *pitch_rectangle = &game_state->vars.pitch_rectangle;
+        Rectangle *pitch_rectangle = &game_state->vars.pitch.rectangle;
         if (ball_transform->position.x < pitch_rectangle->x) {
             // Throw in left
-            game_state->vars.match_state = MS_THROW_IN;
+            game_state->vars.match.state = MS_THROW_IN;
         } else if (ball_transform->position.x > (pitch_rectangle->x + pitch_rectangle->width)) {
             // Throw in right
-            game_state->vars.match_state = MS_THROW_IN;
+            game_state->vars.match.state = MS_THROW_IN;
         }
     }
 }

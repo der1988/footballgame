@@ -22,10 +22,10 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
-    if (config.position == GP_TOP) {
-        transform->position = (Vector2){game_state->vars.pitch_rectangle.x +
-                                            game_state->vars.pitch_rectangle.width / 2.0f,
-                                        game_state->vars.pitch_rectangle.y};
+    if (config.position == GP_NORTH) {
+        transform->position = (Vector2){game_state->vars.pitch.rectangle.x +
+                                            game_state->vars.pitch.rectangle.width / 2.0f,
+                                        game_state->vars.pitch.rectangle.y};
     } else {
         // Not implemented
         assert(false);
@@ -50,7 +50,7 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     sprite->flipX = false;
     sprite->flipY = false;
     sprite->pivot_override = (v2){.x = 0.5, .y = 1};
-    sprite->layer = SL_UPPER_GOAL;
+    sprite->layer = SL_NORTH_GOAL;
     sprite->draw_shadow = false;
     sprite->shadow_color = BLACK;
     sprite->shadow_color.a = 100;

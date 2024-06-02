@@ -12,7 +12,7 @@ typedef struct {
     v2 position;
 } BallConfig;
 
-typedef enum { GP_TOP, GP_BOTTOM } GoalPosition;
+typedef enum { GP_NORTH, GP_SOUTH } GoalPosition;
 
 typedef struct {
     GoalPosition position;

@@ -178,7 +178,7 @@ void systems_player(GameState *game_state, Input *input) {
                                                         game_state);
 
                 if (entity_id != ball->last_player_on_the_ball_entity_id ||
-                    game_state->vars.someone_scored || !game_state->vars.ball_is_playable) {
+                    game_state->vars.match.state != MS_PLAY) {
                     // If this player wasn't the last controlling the ball or sprint is disabled we
                     // can reset sprint lock
                     player->sprint_locked = false;
@@ -210,9 +210,9 @@ void systems_player(GameState *game_state, Input *input) {
             if (!game_state->constants.shoot_aid) {
                 shot_direction = Vector2Normalize(player_on_the_ball.controls->steering);
             } else {
-                v2 center_of_goal = (Vector2){game_state->vars.pitch_rectangle.x +
-                                                  game_state->vars.pitch_rectangle.width / 2.0f,
-                                              game_state->vars.pitch_rectangle.y};
+                v2 center_of_goal = (Vector2){game_state->vars.pitch.rectangle.x +
+                                                  game_state->vars.pitch.rectangle.width / 2.0f,
+                                              game_state->vars.pitch.rectangle.y};
                 v2 shot_direction_to_center =
                     Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
                 v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(

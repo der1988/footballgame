@@ -107,14 +107,31 @@ typedef enum MatchState {
     MS_FREE_KICK
 } MatchState;
 
+typedef struct MatchScore {
+    u16 home;
+    u16 away;
+} MatchScore;
+
+typedef struct Match {
+    MatchState state;
+    MatchScore score;
+} Match;
+
+typedef enum PitchType { PT_NORMAL, PT_MUD, PT_SNOW } PitchType;
+
+typedef struct Pitch {
+    Rectangle rectangle;
+    PitchType type;
+} Pitch;
+
 typedef struct GameVariables {
-    MatchState match_state;
-    b32 slow_motion;
-    b32 is_tweakui_shown;
+    Match match;
+    Pitch pitch;
     EntityId camera_entity_id;
     EntityId ball_entity_id;
     HumanPlayer p1;
-    Rectangle pitch_rectangle;
+    b32 slow_motion;
+    b32 is_tweakui_shown;
 } GameVariables;
 
 typedef struct GameState {
