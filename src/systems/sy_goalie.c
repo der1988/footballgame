@@ -234,7 +234,11 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     static f64 last_save_time = 0;
                     if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
-                        is_colliding_with_ball) {
+                        is_colliding_with_ball &&
+                        (!dive_state_data->animation_completed ||
+                         // If ball height is very low we are going to make the save even when lying
+                         // on the floor after the dive
+                         ball_transform->virtual_height < 3)) {
                         // Bounce ball
                         v3 new_ball_velocity =
                             Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
