@@ -11,10 +11,10 @@ int main() {
     // Initialization
     //--------------------------------------------------------------------------------------
 
-    const float screen_width = 1920;
-    const float screen_height = 1080;
-    const float virtual_screen_width = 640;
-    const float virtual_screen_height = 360;
+    const f32 screen_width = 1920;
+    const f32 screen_height = 1080;
+    const f32 virtual_screen_width = 640;
+    const f32 virtual_screen_height = 360;
 
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screen_width, screen_height, "The Game");
@@ -29,14 +29,14 @@ int main() {
 
     GameState *game_state = game_init(game_config);
 
-    double current_time = GetTime();
-    double accumulator = 0.0;
-    double dt = game_state->constants.fixed_timestep;
+    f64 current_time = GetTime();
+    f64 accumulator = 0.0;
+    f64 dt = game_state->constants.fixed_timestep;
     b32 window_should_close = false;
 
     while (!window_should_close) {
-        double new_time = GetTime();
-        double frame_time = new_time - current_time;
+        f64 new_time = GetTime();
+        f64 frame_time = new_time - current_time;
         current_time = new_time;
 
         u32 physics_iterations = 0;
