@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#define LOG_LEVEL LT_INFO
+#define LOG_LEVEL LT_DEBUG
 
 void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const char *ctx,
                const char *format, ...) {

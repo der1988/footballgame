@@ -28,6 +28,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                                         CT_TRANSFORM, CT_PHYSICS, CT_SPRITE,
                                                         CT_GOALIE, CT_COLLIDER)) {
 
+            Entity *entity = entities_entity_get(game_state->entity_repository, entity_id);
             ComponentTransform *transform = ComponentCastToTypedUnchecked(
                 game_state->entity_repository, CT_TRANSFORM, entity_id);
             ComponentPhysics *physics =
@@ -152,10 +153,10 @@ void systems_goalie(GameState *game_state, Input *input) {
                                     distance_to_cover / max_distance_we_can_cover_in_available_time,
                                     0, 1);
                                 goalie->dive_distance = distance_to_cover;
-                                GLOGF_DEBUG(
-                                    LS_GAME,
+                                GLOGF_DEBUG_CTX(
+                                    LS_GAME, entity->name,
                                     "goalie has %.3fs to save a ball that will be %.2fpx away: "
-                                    "dive speed %fpx/s",
+                                    "dive speed %.2fpx/s",
                                     time_to_unsaveable, distance_to_cover,
                                     goalie->dive_speed *
                                         game_state->constants.goalie_dive_max_velocity);
