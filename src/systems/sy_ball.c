@@ -32,10 +32,8 @@ void systems_ball(GameState *game_state, Input *input) {
                     &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
                                             game_state->vars.p1.player_entity_id)
                          ->transform;
-                transform->position = p1_transform->position;
-                transform->virtual_height = 50;
-                physics_3d->accel = Vector3Zero();
-                physics_3d->velocity = Vector3Zero();
+                entities_ball_set_position_and_velocity(
+                    ball_id, V2_TO_V3(p1_transform->position, 50), Vector3Zero(), game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
@@ -44,10 +42,9 @@ void systems_ball(GameState *game_state, Input *input) {
 
             // Test cross-bar
             if (input->buttons[IBT_BUTTON_SELECT].released) {
-                transform->position = (v2){.x = game_state->vars.pitch.rectangle.x + 340, .y = 300};
-                transform->virtual_height = 0;
-                physics_3d->accel = Vector3Zero();
-                physics_3d->velocity = Vector3Scale((v3){.x = 0, .y = 0.2f, .z = -1}, 413.5f);
+                entities_ball_set_position_and_velocity(
+                    ball_id, (v3){.x = game_state->vars.pitch.rectangle.x + 340, .z = 300},
+                    Vector3Scale((v3){.x = 0, .y = 0.2f, .z = -1}, 413.5f), game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;

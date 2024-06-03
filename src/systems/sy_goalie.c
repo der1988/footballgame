@@ -152,12 +152,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                                     distance_to_cover / max_distance_we_can_cover_in_available_time,
                                     0, 1);
                                 goalie->dive_distance = distance_to_cover;
-                                printf("goalie has %.3fs to save a ball that will be %.2fpx away: "
-                                       "dive "
-                                       "speed %fpx/s\n",
-                                       time_to_unsaveable, distance_to_cover,
-                                       goalie->dive_speed *
-                                           game_state->constants.goalie_dive_max_velocity);
+                                GLOGF_DEBUG(
+                                    LS_GAME,
+                                    "goalie has %.3fs to save a ball that will be %.2fpx away: "
+                                    "dive speed %fpx/s",
+                                    time_to_unsaveable, distance_to_cover,
+                                    goalie->dive_speed *
+                                        game_state->constants.goalie_dive_max_velocity);
                                 entities_goalie_state_machine_change_state_to(goalie->state_machine,
                                                                               GS_DIVE, game_state);
                                 break;

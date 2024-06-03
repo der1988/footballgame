@@ -1,9 +1,28 @@
 #include "../game.h"
+#include "components.h"
+#include "entities.h"
 #include "football/football.h"
 #include "utils.h"
 #include <raylib.h>
+#include <raymath.h>
 
 void football_match_change_state(struct GameState *game_state, MatchState new_state) {
     game_state->vars.match.state = new_state;
     GLOGF_INFO(LS_GAME, "match state changed to: %s", MatchStateToString[new_state]);
+    switch (new_state) {
+    case MS_KICKOFF:
+    case MS_THROW_IN:
+    case MS_CORNER_KICK: {
+        // TODO: quick hack to put the ball back in play
+        ComponentTransform *transform = entities_component_get_typed(
+            game_state->entity_repository, CT_TRANSFORM, game_state->vars.p1.player_entity_id);
+        entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+                                                V2_TO_V3(transform->position, 30), Vector3Zero(),
+                                                game_state);
+        game_state->vars.match.state = MS_PLAY;
+        break;
+    }
+    default:
+        break;
+    }
 }

@@ -1,6 +1,7 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
+#include "football/football.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
@@ -160,11 +161,11 @@ void systems_goal(GameState *game_state) {
                         entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
                                                                 new_position, new_velocity,
                                                                 game_state);
-                        printf("post at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
-                               collision.point.z);
+                        GLOGF_INFO(LS_GAME, "hit post at %.2f, %.2f, %.2f", collision.point.x,
+                                   collision.point.y, collision.point.z);
                         if (scored_off_post) {
+                            GLOG_INFO(LS_GAME, "goal off post");
                             football_match_change_state(game_state, MS_GOAL);
-                            printf("goal off post\n");
                         }
                     } else if (collision.point.x >
                                    (goal_rectangle.x + post_width +
@@ -176,29 +177,32 @@ void systems_goal(GameState *game_state) {
                                    (goal_rectangle.height - post_width -
                                     ball_collider->colliders[0].props_circle.radius)) {
                         football_match_change_state(game_state, MS_GOAL);
-                        printf("goal at %.2f, %.2f, %.2f\n", collision.point.x, collision.point.y,
-                               collision.point.z);
-                    } else {
-                        football_match_change_state(game_state, MS_CORNER_KICK);
-                        printf("ball is out\n");
+                        GLOGF_INFO(LS_GAME, "goal at %.2f, %.2f, %.2f", collision.point.x,
+                                   collision.point.y, collision.point.z);
                     }
-                } else {
-                    football_match_change_state(game_state, MS_CORNER_KICK);
-                    printf("ball is out\n");
                 }
             }
-        }
-    }
-    if (game_state->vars.match.state == MS_PLAY &&
-        !CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch.rectangle)) {
-        // Ball is out of bounds
-        Rectangle *pitch_rectangle = &game_state->vars.pitch.rectangle;
-        if (ball_transform->position.x < pitch_rectangle->x) {
-            // Throw in left
-            football_match_change_state(game_state, MS_THROW_IN);
-        } else if (ball_transform->position.x > (pitch_rectangle->x + pitch_rectangle->width)) {
-            // Throw in right
-            football_match_change_state(game_state, MS_THROW_IN);
+            if (game_state->vars.match.state == MS_PLAY &&
+                !CheckCollisionPointRec(ball_transform->position,
+                                        game_state->vars.pitch.rectangle)) {
+                // Ball is out of bounds
+                Rectangle *pitch_rectangle = &game_state->vars.pitch.rectangle;
+                if (ball_transform->position.x < pitch_rectangle->x - 50) {
+                    // Throw in left
+                    football_match_change_state(game_state, MS_THROW_IN);
+                } else if (ball_transform->position.x >
+                           (pitch_rectangle->x + pitch_rectangle->width + 50)) {
+                    // Throw in right
+                    football_match_change_state(game_state, MS_THROW_IN);
+                } else if (ball_transform->position.y < pitch_rectangle->y - 50) {
+                    // Corner kick north
+                    football_match_change_state(game_state, MS_CORNER_KICK);
+                } else if (ball_transform->position.y >
+                           (pitch_rectangle->y + pitch_rectangle->height + 50)) {
+                    // Corner kick south
+                    football_match_change_state(game_state, MS_CORNER_KICK);
+                }
+            }
         }
     }
 }
