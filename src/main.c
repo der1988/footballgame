@@ -32,20 +32,19 @@ int main() {
     double current_time = GetTime();
     double accumulator = 0.0;
     double dt = game_state->constants.fixed_timestep;
+    b32 window_should_close = false;
 
-    //--------------------------------------------------------------------------------------
-
-    while (!WindowShouldClose()) {
+    while (!window_should_close) {
         double new_time = GetTime();
         double frame_time = new_time - current_time;
         current_time = new_time;
 
-        PollInputEvents();
-        Input input = input_handle(game_state);
-
         u32 physics_iterations = 0;
         accumulator += frame_time;
         while (accumulator > 0) {
+            PollInputEvents();
+            window_should_close |= WindowShouldClose();
+            Input input = input_handle(game_state);
 
             game_state->dt = dt;
 
@@ -56,6 +55,7 @@ int main() {
 
             physics_iterations++;
         }
+
         layers_debug_queue_draw_text(game_state->layer_debug,
                                      TextFormat("Physics iter/frame: %d", physics_iterations));
         layers_debug_queue_draw_text(game_state->layer_debug,
