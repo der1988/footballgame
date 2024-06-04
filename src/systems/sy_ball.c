@@ -70,6 +70,10 @@ void systems_ball(GameState *game_state, Input *input) {
 
             layers_debug_queue_draw_text(
                 game_state->layer_debug,
+                TextFormat("Ball pos: %.2f, %.2f", transform->position.x, transform->position.y));
+
+            layers_debug_queue_draw_text(
+                game_state->layer_debug,
                 TextFormat("Ball height: %.2f", transform->virtual_height));
 
             layers_debug_queue_draw_text(

@@ -144,12 +144,6 @@ void systems_player(GameState *game_state, Input *input) {
 
                 // Velocity has been applied to player after this point
 
-                layers_debug_queue_draw_text(game_state->layer_debug,
-                                             TextFormat("Player %02d pos: [%0.2f, %0.2f] vel: %.2f",
-                                                        entity_id, transform->position.x,
-                                                        transform->position.y,
-                                                        Vector2Length(physics->velocity)));
-
                 b32 is_colliding_with_ball =
                     CheckCollisionCircles(transform->position,
                                           collider->colliders[0].props_circle.radius,
@@ -191,6 +185,11 @@ void systems_player(GameState *game_state, Input *input) {
             case PS_COUNT:
                 break;
             }
+            layers_debug_queue_draw_text(game_state->layer_debug,
+                                         TextFormat("Player %02d pos: [%0.2f, %0.2f] vel: %.2f",
+                                                    entity_id, transform->position.x,
+                                                    transform->position.y,
+                                                    Vector2Length(physics->velocity)));
         }
     }
 
