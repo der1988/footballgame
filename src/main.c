@@ -35,31 +35,49 @@ int main() {
     b32 window_should_close = false;
 
     while (!window_should_close) {
-        f64 new_time = GetTime();
-        f64 frame_time = new_time - current_time;
-        current_time = new_time;
-
-        u32 physics_iterations = 0;
-        accumulator += frame_time;
-        while (accumulator > 0) {
+        if (game_state->vars.is_tweakui_shown) {
             PollInputEvents();
-            window_should_close |= WindowShouldClose();
-            Input input = input_handle(game_state);
+            window_should_close = WindowShouldClose();
+            if (IsKeyReleased(KEY_P)) {
+                game_state->vars.is_tweakui_shown = false;
+            }
+        } else {
+            // Update game
+            f64 new_time = GetTime();
+            f64 frame_time = new_time - current_time;
+            f64 total_update_time = 0;
+            current_time = new_time;
 
-            game_state->dt = dt;
+            u32 physics_iterations = 0;
+            accumulator += frame_time;
+            while (accumulator > 0) {
+                PollInputEvents();
+                window_should_close |= WindowShouldClose();
+                if (IsKeyReleased(KEY_P)) {
+                    game_state->vars.is_tweakui_shown = true;
+                }
+                Input input = input_handle(game_state);
 
-            game_update(game_state, &input);
+                game_state->dt = dt;
 
-            accumulator -= dt;
-            game_state->time += dt;
+                f64 update_time = GetTime();
+                game_update(game_state, &input);
+                total_update_time += GetTime() - update_time;
 
-            physics_iterations++;
+                accumulator -= dt;
+                game_state->time += dt;
+
+                physics_iterations++;
+            }
+
+            layers_debug_queue_draw_text(
+                game_state->layer_debug,
+                TextFormat("Update time: %.6f", total_update_time / physics_iterations));
+            layers_debug_queue_draw_text(game_state->layer_debug,
+                                         TextFormat("Physics iter/frame: %d", physics_iterations));
+            layers_debug_queue_draw_text(game_state->layer_debug,
+                                         TextFormat("FPS: %.2f", 1 / frame_time));
         }
-
-        layers_debug_queue_draw_text(game_state->layer_debug,
-                                     TextFormat("Physics iter/frame: %d", physics_iterations));
-        layers_debug_queue_draw_text(game_state->layer_debug,
-                                     TextFormat("FPS: %.2f", 1 / frame_time));
 
         game_draw(game_state);
 

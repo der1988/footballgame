@@ -206,10 +206,6 @@ void game_update(GameState *game_state, Input *input) {
     memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
     layers_debug_reset(game_state->layer_debug);
 
-    if (IsKeyReleased(KEY_P)) {
-        game_state->vars.is_tweakui_shown = !game_state->vars.is_tweakui_shown;
-    }
-
     // Slow motion
     game_state->vars.slow_motion = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
     if (game_state->vars.slow_motion) {
