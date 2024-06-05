@@ -207,7 +207,7 @@ void game_update(GameState *game_state, Input *input) {
     layers_debug_reset(game_state->layer_debug);
 
     // Slow motion
-    game_state->vars.slow_motion = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+    game_state->vars.slow_motion = input->buttons[IBT_BUTTON_TRIGGER_LEFT].down;
     if (game_state->vars.slow_motion) {
         game_state->time -= game_state->dt;
         game_state->dt = game_state->dt * 0.1;
