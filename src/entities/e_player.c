@@ -245,6 +245,11 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
         goalie->last_diving_frame_idx = 0;
         break;
     }
+    case GS_DASH: {
+        physics->max_velocity = goalie->dive_speed * game_state->constants.goalie_dive_max_velocity;
+        sprite->frame_id = goalie->dash_frames[SS_UP][SD_LEFT][ST_WITHOUT_BALL];
+        break;
+    }
     case GS_HOLD_BALL: {
         physics->velocity = Vector2Zero();
         physics->accel = Vector2Zero();
@@ -273,6 +278,7 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *gam
     case GS_PROTECT_GOAL: {
         break;
     }
+    case GS_DASH:
     case GS_DIVE: {
         physics->max_velocity = game_state->constants.player_run_max_velocity;
         break;

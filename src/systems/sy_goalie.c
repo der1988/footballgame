@@ -265,6 +265,31 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     break;
                 }
+                case GS_DASH: {
+                    SaveDirection direction = goalie->dive_direction;
+
+                    v2 force_to_apply = Vector2Zero();
+                    v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
+                    force_to_apply = Vector2Scale(steering, 60000);
+                    entities_player_apply_force(entity_id, force_to_apply, game_state);
+                    entities_player_apply_velocity(entity_id, game_state);
+
+                    Rectangle dive_rectangle = (Rectangle){
+                        .x = transform->position.x + dive_collider->props_rectangle.offset.x,
+                        .y = transform->position.y + dive_collider->props_rectangle.offset.y,
+                        .width = dive_collider->props_rectangle.size.x,
+                        .height = dive_collider->props_rectangle.size.y};
+                    b32 is_colliding_with_ball =
+                        CheckCollisionCircleRec(ball_transform->position,
+                                                ball_collider->colliders[0].props_circle.radius,
+                                                dive_rectangle) &&
+                        ball_transform->virtual_height < (cross_bar_height - 2);
+
+                    if (is_colliding_with_ball && ball_transform->virtual_height < 5) {
+                    }
+
+                    break;
+                }
                 case GS_COUNT:
                     break;
                 }
