@@ -82,22 +82,22 @@
       "frames": "0,1,2,3",
       "prefix": "run_back_right_"
     },
-    "save_front_low_left": {
+    "dive_front_low_left": {
       "delay": 0.02,
       "frames": "0,0,0,0,1,1,1,1,2,2,2,2,2,3,3",
       "prefix": "save_front_low_left_"
     },
-    "save_front_low_right": {
+    "dive_front_low_right": {
       "delay": 0.02,
       "frames": "0,0,0,0,1,1,1,1,2,2,2,2,2,3,3",
       "prefix": "save_front_low_right_"
     },
-    "save_front_high_left": {
+    "dive_front_high_left": {
       "delay": 0.02,
       "frames": "0,0,0,0,1,1,1,1,1,2,2,2,2,3,3",
       "prefix": "save_front_high_left_"
     },
-    "save_front_high_right": {
+    "dive_front_high_right": {
       "delay": 0.02,
       "frames": "0,0,0,0,1,1,1,1,1,2,2,2,2,3,3",
       "prefix": "save_front_high_right_"
