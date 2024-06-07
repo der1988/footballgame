@@ -62,5 +62,4 @@ v fixed long-standing issue with tweakui toggling
 - implement logic that keeps height of ball into account when hitting it
 - introduce an on-screen log
 - do we need a match entity?
-- implement dash for goalie
 - should arrays in goalie component be allocated elsewhere?
