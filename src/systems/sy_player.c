@@ -215,7 +215,7 @@ void systems_player(GameState *game_state, Input *input) {
                 v2 shot_direction_to_center =
                     Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
                 v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
-                    Vector2Add(center_of_goal, (v2){.x = 60}), ball_transform->position));
+                    Vector2Add(center_of_goal, (v2){.x = 50}), ball_transform->position));
                 f32 angle_center_to_post =
                     Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
 
@@ -237,8 +237,7 @@ void systems_player(GameState *game_state, Input *input) {
             entities_ball_shoot(game_state->vars.ball_entity_id, player_on_the_ball.id,
                                 shot_direction, player_on_the_ball.controls->shot, game_state);
             kicked_ball = true;
-        }
-        if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
+        } else if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
             // Pass
             player_on_the_ball.player->last_shot = game_state->time;
             v3 pass_direction =
@@ -246,8 +245,7 @@ void systems_player(GameState *game_state, Input *input) {
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
                                      pass_direction, player_on_the_ball.controls->pass, game_state);
             kicked_ball = true;
-        }
-        if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
+        } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
             player_on_the_ball.player->last_shot = game_state->time;
             v2 long_pass_direction = Vector2Normalize(player_on_the_ball.controls->steering);
@@ -265,7 +263,7 @@ void systems_player(GameState *game_state, Input *input) {
                                     long_pass_direction, player_on_the_ball.controls->long_pass,
                                     game_state);
             kicked_ball = true;
-        } else if (steering_magnitude > 0.01f) {
+        } else if (!kicked_ball && steering_magnitude > 0.01f) {
             // For ball control we use velocity directly because it's easier and produce
             // better results
             if (player_on_the_ball.controls->sprint) {
