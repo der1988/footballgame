@@ -70,7 +70,8 @@ GameState *game_init(GameConfig game_config) {
                                             .goalie_dive_reaction_time = 0.150f,
                                             .goalie_dive_force = 8500,
                                             .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
-                                            .shoot_aid = true,
+                                            .shoot_aid_enabled = true,
+                                            .shoot_aid_no_inertia = false,
                                             .kick_charge_reset_time = 1.5f};
 
     // Partition game memory

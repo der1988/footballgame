@@ -206,7 +206,7 @@ void systems_player(GameState *game_state, Input *input) {
             player_on_the_ball.player->last_shot = game_state->time;
             v2 shot_direction;
 
-            if (!game_state->constants.shoot_aid) {
+            if (!game_state->constants.shoot_aid_enabled) {
                 shot_direction = Vector2Normalize(player_on_the_ball.controls->steering);
             } else {
                 v2 center_of_goal = (Vector2){game_state->vars.pitch.rectangle.x +
