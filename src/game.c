@@ -45,7 +45,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_run_force = 20,
                                             .ball_control_force = 13,
                                             // This will translate to instant velocity, so 129km/h
-                                            .ball_shot_force = 30 * PIXELS_PER_METER,
+                                            .ball_shot_force = 36 * PIXELS_PER_METER,
                                             .ball_shot_height = 0.35f,
                                             .ball_pass_force = 30 * PIXELS_PER_METER,
                                             .ball_long_pass_force = 26 * PIXELS_PER_METER,
