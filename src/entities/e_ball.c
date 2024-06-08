@@ -305,3 +305,9 @@ void entities_ball_back_in_play(EntityId ball_entity_id, GameState *game_state) 
         entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }
+
+void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state) {
+    ComponentBall *ball =
+        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    ball->subject_to_after_touch = false;
+}

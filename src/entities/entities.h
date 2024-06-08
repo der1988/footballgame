@@ -87,6 +87,7 @@ void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entit
 void entities_ball_saved_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
                                    GameState *game_state);
 void entities_ball_back_in_play(EntityId ball_entity_id, GameState *game_state);
+void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state);
 
 // END - Ball
 
