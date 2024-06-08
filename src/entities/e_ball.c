@@ -224,6 +224,9 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     v3 shot_direction =
         Vector3Add(V2_TO_V3(direction, 0),
                    (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
+    // reset velocity to avoid existing inertia affecting the trajectory: not sure this is better
+    // though, need to test
+    physics_3d->velocity = Vector3Zero();
     physics_3d->accel = Vector3Add(
         physics_3d->accel,
         Vector3Scale(shot_direction, (game_state->constants.ball_shot_force) / game_state->dt));
@@ -239,6 +242,9 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    // reset velocity to avoid existing inertia affecting the trajectory: not sure this is better
+    // though, need to test
+    physics_3d->velocity = Vector3Zero();
     physics_3d->accel =
         Vector3Add(physics_3d->accel,
                    Vector3Scale(direction, (game_state->constants.ball_pass_force * 0.5f +
@@ -258,6 +264,9 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
     v3 long_pass_direction = Vector3Add(
         Vector3Normalize(V2_TO_V3(direction, 0)),
         (Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
+    // reset velocity to avoid existing inertia affecting the trajectory: not sure this is better
+    // though, need to test
+    physics_3d->velocity = Vector3Zero();
     physics_3d->accel =
         Vector3Add(physics_3d->accel,
                    Vector3Scale(long_pass_direction,
