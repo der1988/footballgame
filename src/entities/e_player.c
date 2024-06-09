@@ -54,13 +54,13 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     sprite->color = WHITE;
     sprite->flipX = false;
     sprite->flipY = false;
-    sprite->pivot_override = (v2){.x = 0.5, .y = 0.8};
+    sprite->pivot_override = (v2){.x = 0.5, .y = 0.65};
     sprite->layer = SL_PLAYERS_AND_BALL;
-    sprite->draw_shadow = true;
-    sprite->shadow_color = BLACK;
-    sprite->shadow_color.a = 100;
-    sprite->shadow_offset = (v2){.x = 0.5, .y = 0.5};
-    sprite->shadow_scale = (v2){.x = 0.6, .y = 1};
+    sprite->draw_shadow = false;
+    // sprite->shadow_color = BLACK;
+    // sprite->shadow_color.a = 100;
+    // sprite->shadow_offset = (v2){.x = 0.5, .y = 0.5};
+    // sprite->shadow_scale = (v2){.x = 0.6, .y = 1};
 
     // Initialise player
     ComponentPlayer *player =
@@ -95,7 +95,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
                                                 sizeof(Collider) * collider->num_colliders);
         collider->colliders[1].shape = CS_CIRCLE;
         collider->colliders[1].props_circle.offset = (v2){.y = 0};
-        collider->colliders[1].props_circle.radius = 8;
+        collider->colliders[1].props_circle.radius = 6;
 
         collider->colliders[2].shape = CS_RECTANGLE;
         collider->colliders[2].props_rectangle.offset = (v2){.x = -10, .y = -5};
@@ -367,18 +367,14 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
 
     // Save frames
     goalie->save_frames[SS_UP][ST_WITHOUT_BALL] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_front_0")
-            ->id;
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_0")->id;
     goalie->save_frames[SS_UP][ST_WITH_BALL] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-                                        "goalkeeper_save_front_ball_0")
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_ball_0")
             ->id;
     goalie->save_frames[SS_DOWN][ST_WITHOUT_BALL] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_save_back_0")
-            ->id;
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_0")->id;
     goalie->save_frames[SS_DOWN][ST_WITH_BALL] =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
-                                        "goalkeeper_save_back_ball_0")
+        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_ball_0")
             ->id;
 
     // Dash frames
