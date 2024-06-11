@@ -192,6 +192,7 @@ typedef struct {
         ComponentPlayer player;
         ComponentBall ball;
         ComponentGoal goal;
+        ComponentGoalie goalie;
     };
 } Component;
 
