@@ -242,7 +242,7 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
     }
     case GS_DIVE: {
         physics->max_velocity = goalie->dive_speed * game_state->constants.goalie_dive_max_velocity;
-        goalie->last_diving_frame_idx = 0;
+        state_machine->state_data.dive.animation_start_time = game_state->time;
         break;
     }
     case GS_HOLD_BALL: {
@@ -396,14 +396,29 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
             ->id;
 
     // Diving animations
-    goalie->dive_animations[SS_UP][SD_LEFT][SH_HIGH] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_left", game_state);
-    goalie->dive_animations[SS_UP][SD_RIGHT][SH_HIGH] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_right", game_state);
-    goalie->dive_animations[SS_UP][SD_LEFT][SH_LOW] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left", game_state);
-    goalie->dive_animations[SS_UP][SD_RIGHT][SH_LOW] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_right", game_state);
+    goalie->dive_animations[SS_UP][SD_LEFT][SH_HIGH][AP_START] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_left_start",
+                                               game_state);
+    goalie->dive_animations[SS_UP][SD_LEFT][SH_HIGH][AP_END] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_left_end",
+                                               game_state);
+    goalie->dive_animations[SS_UP][SD_RIGHT][SH_HIGH][AP_START] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_right_start",
+                                               game_state);
+    goalie->dive_animations[SS_UP][SD_RIGHT][SH_HIGH][AP_END] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_right_end",
+                                               game_state);
+    goalie->dive_animations[SS_UP][SD_LEFT][SH_LOW][AP_START] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left_start",
+                                               game_state);
+    goalie->dive_animations[SS_UP][SD_LEFT][SH_LOW][AP_END] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left_end", game_state);
+    goalie->dive_animations[SS_UP][SD_RIGHT][SH_LOW][AP_START] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_right_start",
+                                               game_state);
+    goalie->dive_animations[SS_UP][SD_RIGHT][SH_LOW][AP_END] =
+        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_right_end",
+                                               game_state);
     // goalie->dive_animations[SS_DOWN][SD_LEFT] =
     //     entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
     // goalie->dive_animations[SS_DOWN][SD_RIGHT] =

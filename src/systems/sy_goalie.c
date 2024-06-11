@@ -195,22 +195,50 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     StateMachineGoalieDiveData *dive_state_data =
                         &goalie->state_machine->state_data.dive;
-                    AssetsAnimation *animation = assets_animation_get_by_id(
-                        game_state->animation_cache,
-                        goalie->dive_animations[SS_UP][direction][goalie->dive_height]);
-                    if (!dive_state_data->animation_completed &&
-                        (game_state->time - goalie->last_frame_update_time) >
-                            (animation->delay * (1 + goalie->dive_speed))) {
-                        goalie->last_frame_update_time = game_state->time;
-                        u16 new_frame_id = goalie->last_diving_frame_idx + 1;
-                        if (new_frame_id == animation->frames_count) {
+
+                    if (!dive_state_data->animation_first_phase_completed) {
+                        AssetsAnimation *animation = assets_animation_get_by_id(
+                            game_state->animation_cache,
+                            goalie
+                                ->dive_animations[SS_UP][direction][goalie->dive_height][AP_START]);
+                        f32 animation_completion =
+                            Clamp((game_state->time - dive_state_data->animation_start_time) /
+                                      (animation->delay * animation->frames_count),
+                                  0, 1);
+                        u16 new_frame_id =
+                            floorf(animation_completion * (animation->frames_count - 1));
+                        if (animation_completion >= 1) {
+                            animation_completion = 1;
+                            dive_state_data->animation_first_phase_completed = true;
+                            dive_state_data->animation_first_phase_end_time = game_state->time;
+                        }
+                        sprite->frame_id = animation->frames[new_frame_id];
+                    } else if ((dive_state_data->ball_saved ||
+                                HAS_TIME_PASSED(game_state->time,
+                                                dive_state_data->animation_first_phase_end_time,
+                                                goalie->dive_speed * 0.25f)) &&
+                               !dive_state_data->animation_completed) {
+                        if (!dive_state_data->animation_second_phase_started) {
+                            dive_state_data->animation_second_phase_started = true;
+                            dive_state_data->animation_start_time = game_state->time;
+                        }
+                        AssetsAnimation *animation = assets_animation_get_by_id(
+                            game_state->animation_cache,
+                            goalie->dive_animations[SS_UP][direction][goalie->dive_height][AP_END]);
+                        f32 animation_completion =
+                            Clamp((game_state->time - dive_state_data->animation_start_time) /
+                                      (animation->delay * animation->frames_count),
+                                  0, 1);
+                        u16 new_frame_id =
+                            floorf(animation_completion * (animation->frames_count - 1));
+                        if (animation_completion >= 1) {
+                            animation_completion = 1;
                             dive_state_data->animation_completed = true;
                             dive_state_data->animation_end_time = game_state->time;
-                        } else {
-                            sprite->frame_id = animation->frames[new_frame_id];
-                            goalie->last_diving_frame_idx = new_frame_id;
                         }
+                        sprite->frame_id = animation->frames[new_frame_id];
                     }
+
                     v2 force_to_apply = Vector2Zero();
                     if (dive_state_data->animation_completed) {
                         // Apply friction
@@ -235,7 +263,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                         ball_transform->virtual_height < (cross_bar_height - 2);
 
                     static f64 last_save_time = 0;
-                    if (HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
+                    if (!dive_state_data->ball_saved &&
+                        HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
                         is_colliding_with_ball &&
                         (!dive_state_data->animation_completed ||
                          // If ball height is very low we are going to make the save even when lying
@@ -254,6 +283,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                             V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
                             Vector3Scale(new_ball_velocity, 0.3f), game_state);
                         last_save_time = game_state->time;
+                        dive_state_data->ball_saved = true;
                         entities_ball_saved_by_goalie(game_state->vars.ball_entity_id, entity_id,
                                                       game_state);
                     } else if (dive_state_data->animation_completed &&

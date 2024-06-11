@@ -122,8 +122,13 @@ typedef struct {
 } StateMachineGoalieHoldBallData;
 
 typedef struct {
-    b32 animation_completed;
+    f64 animation_start_time;
+    f64 animation_first_phase_end_time;
     f64 animation_end_time;
+    b32 animation_first_phase_completed;
+    b32 animation_second_phase_started;
+    b32 animation_completed;
+    b32 ball_saved;
 } StateMachineGoalieDiveData;
 
 typedef union {

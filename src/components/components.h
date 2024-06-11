@@ -158,6 +158,7 @@ typedef enum { SS_UP, SS_DOWN, SS_COUNT } SaveSide;
 typedef enum { SD_LEFT, SD_RIGHT, SD_COUNT } SaveDirection;
 typedef enum { SH_HIGH, SH_LOW, SH_COUNT } SaveHeight;
 typedef enum { ST_WITHOUT_BALL, ST_WITH_BALL, ST_COUNT } SaveType;
+typedef enum { AP_START, AP_END, AP_COUNT } AnimationPhase;
 
 typedef struct {
     struct StateMachineGoalie *state_machine;
@@ -167,9 +168,8 @@ typedef struct {
     f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
     AssetsSpriteFrameId dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
-    AssetsAnimationId dive_animations[SS_COUNT][SD_COUNT][SH_COUNT];
+    AssetsAnimationId dive_animations[SS_COUNT][SD_COUNT][SH_COUNT][AP_COUNT];
     f32 last_frame_update_time;
-    u16 last_diving_frame_idx;
 } ComponentGoalie;
 
 typedef struct {
