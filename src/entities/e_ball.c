@@ -53,7 +53,7 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
     sprite->draw_shadow = true;
     sprite->shadow_color = BLACK;
     sprite->shadow_color.a = 100;
-    sprite->shadow_offset = (v2){.x = 0.05, .y = 0.05};
+    sprite->shadow_offset = (v2){.x = 0.03, .y = 0.05};
     sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
