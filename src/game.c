@@ -53,8 +53,8 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_after_touch_delay_time = 0.1f,
                                             .ball_after_touch_max_time = 0.75f,
                                             .ball_after_touch_force = 300.0f,
-                                            // 50m/s seems fair, that would be 180km/h
-                                            .ball_max_velocity = 50 * PIXELS_PER_METER,
+                                            // 36m/s seems fair, that would be 129km/h
+                                            .ball_max_velocity = 36 * PIXELS_PER_METER,
                                             .ball_lookaheads = 3,
                                             .ball_lookahead_dts = 50,
                                             .player_movement_force = 15000,
