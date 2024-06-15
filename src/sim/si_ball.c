@@ -38,6 +38,10 @@ void sim_ball_physics(v3 *out_position, v3 *out_velocity, v3 accel, f32 mass,
 
     // Apply acceleration...
     velocity = Vector3Add(velocity, Vector3Scale(accel, game_state->dt));
+    if (Vector3Length(velocity) > game_state->constants.ball_max_velocity) {
+        velocity =
+            Vector3Scale(Vector3Normalize(velocity), game_state->constants.ball_max_velocity);
+    }
     // ...and velocity
     position = Vector3Add(position, Vector3Scale(velocity, game_state->dt));
 
