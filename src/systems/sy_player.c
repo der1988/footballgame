@@ -13,7 +13,6 @@
 
 typedef struct {
     v2 steering;
-    b32 sprint;
     f32 shot;
     f32 pass;
     f32 long_pass;
@@ -75,7 +74,6 @@ void systems_player(GameState *game_state, Input *input) {
 
                 if (game_state->vars.p1.player_entity_id == entity_id) {
                     player_controls->steering = game_state->vars.p1.controls.steering;
-                    player_controls->sprint = game_state->vars.p1.controls.sprint;
 
                     if (game_state->vars.p1.controls.charge.ready) {
                         switch (game_state->vars.p1.controls.charge.type) {
@@ -103,7 +101,7 @@ void systems_player(GameState *game_state, Input *input) {
 
                 v2 effective_steering = player_controls->steering;
                 // If sprint locked or charging kick we seek the ball
-                if (player->sprint_locked || game_state->vars.p1.controls.charge.charging) {
+                if (game_state->vars.p1.controls.charge.charging) {
                     effective_steering = Vector2Normalize(
                         Vector2Subtract(ball_transform->position, transform->position));
                 }
@@ -129,15 +127,16 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 // Bring speed back smoothly if decreasing sprint
-                if (current_velocity > game_state->constants.player_control_max_velocity +
-                                           (game_state->constants.player_run_max_velocity -
-                                            game_state->constants.player_control_max_velocity) *
-                                               (player_controls->sprint || player->sprint_locked)) {
-                    Vector2 parachute =
-                        Vector2Scale(Vector2Negate(normalized_velocity),
-                                     game_state->constants.player_movement_force * 1.2f);
-                    force_to_apply = Vector2Add(force_to_apply, parachute);
-                }
+                // TODO: fix this
+                // if (current_velocity > game_state->constants.player_control_max_velocity +
+                //                            (game_state->constants.player_run_max_velocity -
+                //                             game_state->constants.player_control_max_velocity) *
+                //                                player_controls->sprint) {
+                //     Vector2 parachute =
+                //         Vector2Scale(Vector2Negate(normalized_velocity),
+                //                      game_state->constants.player_movement_force * 1.2f);
+                //     force_to_apply = Vector2Add(force_to_apply, parachute);
+                // }
 
                 entities_player_apply_force(entity_id, force_to_apply, game_state);
                 entities_player_apply_velocity(entity_id, game_state);
@@ -165,18 +164,14 @@ void systems_player(GameState *game_state, Input *input) {
                         player_on_the_ball.controls = player_controls;
                         player_on_the_ball.collider = collider;
                     }
+                } else {
+                    player->control_ball = true;
+                    player->time_spent_in_precision_control = 0;
                 }
 
                 // Calculate frame to display
                 entities_player_calculate_running_frame(entity_id, physics->velocity, 3,
                                                         game_state);
-
-                if (entity_id != ball->last_player_on_the_ball_entity_id ||
-                    game_state->vars.match.state != MS_PLAY) {
-                    // If this player wasn't the last controlling the ball or sprint is disabled we
-                    // can reset sprint lock
-                    player->sprint_locked = false;
-                }
 
                 break;
             }
@@ -196,10 +191,10 @@ void systems_player(GameState *game_state, Input *input) {
     if (player_on_the_ball.exists) {
 
         b32 kicked_ball = false;
+        f32 velocity_length = Vector2Length(player_on_the_ball.velocity);
         v2 normalized_velocity = Vector2Normalize(player_on_the_ball.velocity);
         f32 steering_magnitude = Vector2Length(player_on_the_ball.controls->steering);
         ball->last_player_on_the_ball_entity_id = player_on_the_ball.id;
-        player_on_the_ball.player->sprint_locked = false;
 
         if (player_on_the_ball.controls->shot > 0 && steering_magnitude > 0.1f) {
             // Shot
@@ -266,36 +261,57 @@ void systems_player(GameState *game_state, Input *input) {
         } else if (!kicked_ball && steering_magnitude > 0.01f) {
             // For ball control we use velocity directly because it's easier and produce
             // better results
-            if (player_on_the_ball.controls->sprint) {
-                // Run control
-                player_on_the_ball.player->sprint_locked = true;
-                v2 control_direction = player_on_the_ball.controls->steering;
-                // Limit angle between requested run direction and current velocity
-                if (Vector2Length(player_on_the_ball.velocity) >
-                    // Only limit if velocity is at least 90% of max
-                    0.9f * game_state->constants.player_run_max_velocity) {
-                    f32 angle = Vector2Angle(player_on_the_ball.velocity,
-                                             player_on_the_ball.controls->steering);
-                    f32 max_angle = game_state->constants.player_run_control_max_angle * DEG2RAD;
-                    if (angle > max_angle) {
-                        control_direction = Vector2Rotate(player_on_the_ball.velocity, max_angle);
-                    } else if (angle < -max_angle) {
-                        control_direction = Vector2Rotate(player_on_the_ball.velocity, -max_angle);
-                    }
-                }
-                entities_ball_control_running(game_state->vars.ball_entity_id,
-                                              player_on_the_ball.id, control_direction,
-                                              player_on_the_ball.velocity, 0.0f, game_state);
-            } else {
+            if (velocity_length < game_state->constants.player_run_max_velocity * 0.7f) {
+                player_on_the_ball.player->control_ball = true;
+                player_on_the_ball.player->time_spent_in_run_control = 0;
+            }
+            if (player_on_the_ball.player->control_ball) {
                 // Precision control
+                player_on_the_ball.player->time_spent_in_precision_control += game_state->dt;
+                player_on_the_ball.player->time_spent_in_run_control = 0;
+                if (player_on_the_ball.player->time_spent_in_precision_control > 0.5f) {
+                    player_on_the_ball.player->control_ball = false;
+                }
+                layers_debug_queue_draw_text(
+                    game_state->layer_debug,
+                    TextFormat("prec_ctrl: %.2f",
+                               player_on_the_ball.player->time_spent_in_precision_control));
                 v2 position_to_seek = Vector2Add(
                     player_on_the_ball.position,
                     Vector2Scale(normalized_velocity,
                                  player_on_the_ball.collider->colliders[0].props_circle.radius *
-                                     0.9f));
-                entities_ball_control_precision(game_state->vars.ball_entity_id,
-                                                player_on_the_ball.id, player_on_the_ball.velocity,
-                                                position_to_seek, 1.0f, game_state);
+                                     1));
+                if (player_on_the_ball.player->time_spent_in_precision_control < 1) {
+                    entities_ball_control_precision(
+                        game_state->vars.ball_entity_id, player_on_the_ball.id,
+                        player_on_the_ball.velocity, position_to_seek, 1, game_state);
+                }
+            } else {
+                // Run control
+                player_on_the_ball.player->time_spent_in_run_control += game_state->dt;
+                player_on_the_ball.player->time_spent_in_precision_control = 0;
+                if (player_on_the_ball.player->time_spent_in_run_control > 0.5f) {
+                    player_on_the_ball.player->control_ball = true;
+                }
+                v2 control_direction = player_on_the_ball.controls->steering;
+                // Limit angle between requested run direction and current velocity
+                // if (Vector2Length(player_on_the_ball.velocity) >
+                //     // Only limit if velocity is at least 90% of max
+                //     0.9f * game_state->constants.player_run_max_velocity) {
+                //     f32 angle = Vector2Angle(player_on_the_ball.velocity,
+                //                              player_on_the_ball.controls->steering);
+                //     f32 max_angle = game_state->constants.player_run_control_max_angle * DEG2RAD;
+                //     if (angle > max_angle) {
+                //         control_direction = Vector2Rotate(player_on_the_ball.velocity,
+                //         max_angle);
+                //     } else if (angle < -max_angle) {
+                //         control_direction = Vector2Rotate(player_on_the_ball.velocity,
+                //         -max_angle);
+                //     }
+                // }
+                entities_ball_control_running(game_state->vars.ball_entity_id,
+                                              player_on_the_ball.id, control_direction,
+                                              player_on_the_ball.velocity, 0.0f, game_state);
             }
         }
 

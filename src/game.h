@@ -89,7 +89,6 @@ typedef struct ActionCharge {
 
 typedef struct Controls {
     v2 steering;
-    b32 sprint;
     ActionCharge charge;
 } Controls;
 
