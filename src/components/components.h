@@ -125,6 +125,7 @@ typedef struct {
     b32 control_ball;
     Time time_spent_in_precision_control;
     Time time_spent_in_run_control;
+    f32 current_max_velocity;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
     Direction last_direction;

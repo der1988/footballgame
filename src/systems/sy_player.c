@@ -105,7 +105,6 @@ void systems_player(GameState *game_state, Input *input) {
                     effective_steering = Vector2Normalize(
                         Vector2Subtract(ball_transform->position, transform->position));
                 }
-                physics->max_velocity = game_state->constants.player_run_max_velocity;
                 v2 force_to_apply = Vector2Zero();
                 v2 normalized_velocity = Vector2Normalize(physics->velocity);
                 f32 steering_magnitude = Vector2Length(effective_steering);
@@ -126,17 +125,18 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                 }
 
-                // Bring speed back smoothly if decreasing sprint
-                // TODO: fix this
-                // if (current_velocity > game_state->constants.player_control_max_velocity +
-                //                            (game_state->constants.player_run_max_velocity -
-                //                             game_state->constants.player_control_max_velocity) *
-                //                                player_controls->sprint) {
-                //     Vector2 parachute =
-                //         Vector2Scale(Vector2Negate(normalized_velocity),
-                //                      game_state->constants.player_movement_force * 1.2f);
-                //     force_to_apply = Vector2Add(force_to_apply, parachute);
-                // }
+                // Handle max velocity
+                f32 initial_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
+                if (current_velocity >= player->current_max_velocity &&
+                    player->current_max_velocity < game_state->constants.player_run_max_velocity) {
+                    player->current_max_velocity += 50 * game_state->dt;
+                    player->current_max_velocity =
+                        fminf(player->current_max_velocity,
+                              game_state->constants.player_run_max_velocity);
+                } else if (current_velocity < initial_max_velocity) {
+                    player->current_max_velocity = initial_max_velocity;
+                }
+                physics->max_velocity = player->current_max_velocity;
 
                 entities_player_apply_force(entity_id, force_to_apply, game_state);
                 entities_player_apply_velocity(entity_id, game_state);
@@ -281,7 +281,8 @@ void systems_player(GameState *game_state, Input *input) {
                     Vector2Scale(normalized_velocity,
                                  player_on_the_ball.collider->colliders[0].props_circle.radius *
                                      1));
-                if (player_on_the_ball.player->time_spent_in_precision_control < 1) {
+                // TODO: this should depend on player technical abilities
+                if (player_on_the_ball.player->time_spent_in_precision_control < 3) {
                     entities_ball_control_precision(
                         game_state->vars.ball_entity_id, player_on_the_ball.id,
                         player_on_the_ball.velocity, position_to_seek, 1, game_state);
@@ -309,9 +310,13 @@ void systems_player(GameState *game_state, Input *input) {
                 //         -max_angle);
                 //     }
                 // }
-                entities_ball_control_running(game_state->vars.ball_entity_id,
-                                              player_on_the_ball.id, control_direction,
-                                              player_on_the_ball.velocity, 0.0f, game_state);
+
+                // TODO: this should depend on player technical abilities
+                f32 control_ratio = 1 - powf(velocity_length, 4) /
+                                            powf(game_state->constants.player_run_max_velocity, 4);
+                entities_ball_control_running(
+                    game_state->vars.ball_entity_id, player_on_the_ball.id, control_direction,
+                    player_on_the_ball.velocity, control_ratio, game_state);
             }
         }
 
