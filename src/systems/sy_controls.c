@@ -7,7 +7,6 @@
 
 void systems_controls(GameState *game_state, Input *input) {
     game_state->vars.p1.controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
-    game_state->vars.p1.controls.sprint = input->buttons[IBT_BUTTON_TRIGGER_RIGHT].down;
     ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
     if (p1_charge->ready) {
         // Ready

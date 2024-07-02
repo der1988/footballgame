@@ -209,8 +209,8 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
     f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
     v3 velocity_to_add = Vector3Scale(
         Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
-        // TODO: some ball_run_force has to always be applied
-        game_state->constants.ball_run_force * (1 - control_quality));
+        game_state->constants.ball_run_force * 0.5f +
+            game_state->constants.ball_run_force * 0.5f * (1 - control_quality));
     physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }

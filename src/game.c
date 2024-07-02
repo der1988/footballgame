@@ -31,7 +31,7 @@ GameState *game_init(GameConfig game_config) {
     // 1m is ~10 pixels in game
     // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
     game_state->constants = (GameConstants){.fixed_timestep = 1 / 480.0,
-                                            .render_debug = true,
+                                            .render_debug = false,
                                             .input_stick_dead_zone = 0.05f,
                                             // Coefficient of restitution
                                             .ball_cr = 0.5f,
@@ -57,7 +57,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_max_velocity = 36 * PIXELS_PER_METER,
                                             .ball_lookaheads = 3,
                                             .ball_lookahead_dts = 50,
-                                            .player_movement_force = 15000,
+                                            .player_movement_force = 18000,
                                             .player_movement_drag = 4166,
                                             .player_control_max_velocity = 6.6f * PIXELS_PER_METER,
                                             // Fastest player should reach ~10.5m/s, slowest 7.8m/s
