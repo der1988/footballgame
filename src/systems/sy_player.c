@@ -100,7 +100,7 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 v2 effective_steering = player_controls->steering;
-                // If sprint locked or charging kick we seek the ball
+                // If charging kick we seek the ball
                 if (game_state->vars.p1.controls.charge.charging) {
                     effective_steering = Vector2Normalize(
                         Vector2Subtract(ball_transform->position, transform->position));
@@ -126,13 +126,13 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 // Handle max velocity
-                f32 initial_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
+                f32 player_run_max_velocity = game_state->constants.player_run_max_velocity;
+                f32 initial_max_velocity = player_run_max_velocity * 0.5f;
                 if (current_velocity >= player->current_max_velocity &&
-                    player->current_max_velocity < game_state->constants.player_run_max_velocity) {
+                    player->current_max_velocity < player_run_max_velocity) {
                     player->current_max_velocity += 50 * game_state->dt;
                     player->current_max_velocity =
-                        fminf(player->current_max_velocity,
-                              game_state->constants.player_run_max_velocity);
+                        fminf(player->current_max_velocity, player_run_max_velocity);
                 } else if (current_velocity < initial_max_velocity) {
                     player->current_max_velocity = initial_max_velocity;
                 }
@@ -291,7 +291,7 @@ void systems_player(GameState *game_state, Input *input) {
                 // Run control
                 player_on_the_ball.player->time_spent_in_run_control += game_state->dt;
                 player_on_the_ball.player->time_spent_in_precision_control = 0;
-                if (player_on_the_ball.player->time_spent_in_run_control > 0.5f) {
+                if (player_on_the_ball.player->time_spent_in_run_control > 0.25f) {
                     player_on_the_ball.player->control_ball = true;
                 }
                 v2 control_direction = player_on_the_ball.controls->steering;
