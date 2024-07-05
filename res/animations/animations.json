@@ -121,6 +121,46 @@
       "delay": 0.05,
       "frames": "2,3,4",
       "prefix": "save_front_high_right_"
+    },
+    "dive_front_low_left_ball_start": {
+      "delay": 0.05,
+      "frames": "0,1,2",
+      "prefix": "save_front_low_left_ball_"
+    },
+    "dive_front_low_left_ball_end": {
+      "delay": 0.05,
+      "frames": "3",
+      "prefix": "save_front_low_left_ball_"
+    },
+    "dive_front_low_right_ball_start": {
+      "delay": 0.05,
+      "frames": "0,1,2",
+      "prefix": "save_front_low_right_ball_"
+    },
+    "dive_front_low_right_ball_end": {
+      "delay": 0.05,
+      "frames": "3",
+      "prefix": "save_front_low_right_ball_"
+    },
+    "dive_front_high_left_ball_start": {
+      "delay": 0.05,
+      "frames": "0,1",
+      "prefix": "save_front_high_left_ball_"
+    },
+    "dive_front_high_left_ball_end": {
+      "delay": 0.05,
+      "frames": "2,3,4",
+      "prefix": "save_front_high_left_ball_"
+    },
+    "dive_front_high_right_ball_start": {
+      "delay": 0.05,
+      "frames": "0,1",
+      "prefix": "save_front_high_right_ball_"
+    },
+    "dive_front_high_right_ball_end": {
+      "delay": 0.05,
+      "frames": "2,3,4",
+      "prefix": "save_front_high_right_ball_"
     }
   },
   "ball": {
