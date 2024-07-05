@@ -149,7 +149,7 @@
     },
     "dive_front_high_left_ball_end": {
       "delay": 0.05,
-      "frames": "2,3,4",
+      "frames": "2,3,4,5",
       "prefix": "save_front_high_left_ball_"
     },
     "dive_front_high_right_ball_start": {
@@ -159,7 +159,7 @@
     },
     "dive_front_high_right_ball_end": {
       "delay": 0.05,
-      "frames": "2,3,4",
+      "frames": "2,3,4,5",
       "prefix": "save_front_high_right_ball_"
     }
   },
