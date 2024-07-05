@@ -213,10 +213,9 @@ void systems_goalie(GameState *game_state, Input *input) {
                             dive_state_data->animation_first_phase_end_time = game_state->time;
                         }
                         sprite->frame_id = animation->frames[new_frame_id];
-                    } else if ((dive_state_data->ball_saved ||
-                                HAS_TIME_PASSED(game_state->time,
+                    } else if ((HAS_TIME_PASSED(game_state->time,
                                                 dive_state_data->animation_first_phase_end_time,
-                                                goalie->dive_speed * 0.25f)) &&
+                                                goalie->dive_speed * 0.35f)) &&
                                !dive_state_data->animation_completed) {
                         if (!dive_state_data->animation_second_phase_started) {
                             dive_state_data->animation_second_phase_started = true;
