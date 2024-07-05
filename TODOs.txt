@@ -62,5 +62,4 @@ v fix the damn bug where everything goes black and there's no way to recover
 - if shot is too fast goalie should just bounce the ball back
 - improve codebase quality
 - implement logic that keeps height of ball into account when hitting it
-- introduce an on-screen log
-- should arrays in goalie component be allocated elsewhere?
+- implement high dive with ball
