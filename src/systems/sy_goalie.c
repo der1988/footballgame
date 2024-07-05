@@ -199,8 +199,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     if (!dive_state_data->animation_first_phase_completed) {
                         AssetsAnimation *animation = assets_animation_get_by_id(
                             game_state->animation_cache,
-                            goalie
-                                ->dive_animations[SS_UP][direction][goalie->dive_height][AP_START]);
+                            goalie->dive_animations_start[SS_UP][direction][goalie->dive_height]);
                         f32 animation_completion =
                             Clamp((game_state->time - dive_state_data->animation_start_time) /
                                       (animation->delay * animation->frames_count),
@@ -223,7 +222,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                         }
                         AssetsAnimation *animation = assets_animation_get_by_id(
                             game_state->animation_cache,
-                            goalie->dive_animations[SS_UP][direction][goalie->dive_height][AP_END]);
+                            goalie->dive_animations_end[SS_UP][direction][goalie->dive_height]
+                                                       [ST_WITH_BALL]);
                         f32 animation_completion =
                             Clamp((game_state->time - dive_state_data->animation_start_time) /
                                       (animation->delay * animation->frames_count),

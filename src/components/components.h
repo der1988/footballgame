@@ -170,7 +170,8 @@ typedef struct {
     f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
     AssetsSpriteFrameId dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
-    AssetsAnimationId dive_animations[SS_COUNT][SD_COUNT][SH_COUNT][AP_COUNT];
+    AssetsAnimationId dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
+    AssetsAnimationId dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
     f32 last_frame_update_time;
 } ComponentGoalie;
 
