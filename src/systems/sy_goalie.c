@@ -148,7 +148,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                     game_state->constants.goalie_dive_max_velocity *
                                     time_to_unsaveable / 1.0f;
                                 goalie->dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
-                                goalie->dive_height = pos_to_check.y < 10 ? SH_LOW : SH_HIGH;
+                                goalie->dive_height = pos_to_check.y < 12 ? SH_LOW : SH_HIGH;
                                 goalie->dive_speed = Clamp(
                                     distance_to_cover / max_distance_we_can_cover_in_available_time,
                                     0, 1);
@@ -212,7 +212,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                             dive_state_data->animation_first_phase_end_time = game_state->time;
                         }
                         sprite->frame_id = animation->frames[new_frame_id];
-                    } else if ((HAS_TIME_PASSED(game_state->time,
+                    } else if ((dive_state_data->ball_held ||
+                                HAS_TIME_PASSED(game_state->time,
                                                 dive_state_data->animation_first_phase_end_time,
                                                 goalie->dive_speed * 0.35f)) &&
                                !dive_state_data->animation_completed) {
@@ -223,7 +224,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                         AssetsAnimation *animation = assets_animation_get_by_id(
                             game_state->animation_cache,
                             goalie->dive_animations_end[SS_UP][direction][goalie->dive_height]
-                                                       [ST_WITH_BALL]);
+                                                       [dive_state_data->ball_held]);
                         f32 animation_completion =
                             Clamp((game_state->time - dive_state_data->animation_start_time) /
                                       (animation->delay * animation->frames_count),
@@ -269,22 +270,33 @@ void systems_goalie(GameState *game_state, Input *input) {
                          // If ball height is very low we are going to make the save even when lying
                          // on the floor after the dive
                          ball_transform->virtual_height < 3)) {
-                        // Bounce ball
-                        v3 new_ball_velocity =
-                            Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
-                        // new_ball_velocity = Vector3RotateByAxisAngle(
-                        //     new_ball_velocity, (v3){.y = 1},
-                        //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
 
-                        // TODO: position should be outside collider
-                        entities_ball_set_position_and_velocity(
-                            game_state->vars.ball_entity_id,
-                            V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-                            Vector3Scale(new_ball_velocity, 0.3f), game_state);
+                        // Choose whether to bounce or hold the ball
+                        dive_state_data->ball_held = GetRandomValue(0, 99) < 33;
+
+                        if (dive_state_data->ball_held) {
+                            entities_ball_held_by_goalie(game_state->vars.ball_entity_id, entity_id,
+                                                         game_state);
+
+                        } else {
+                            // Bounce ball
+                            v3 new_ball_velocity =
+                                Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
+                            // new_ball_velocity = Vector3RotateByAxisAngle(
+                            //     new_ball_velocity, (v3){.y = 1},
+                            //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
+
+                            // TODO: position should be outside collider
+                            entities_ball_set_position_and_velocity(
+                                game_state->vars.ball_entity_id,
+                                V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+                                Vector3Scale(new_ball_velocity, 0.3f), game_state);
+                            entities_ball_saved_by_goalie(game_state->vars.ball_entity_id,
+                                                          entity_id, game_state);
+                        }
+
                         last_save_time = game_state->time;
                         dive_state_data->ball_saved = true;
-                        entities_ball_saved_by_goalie(game_state->vars.ball_entity_id, entity_id,
-                                                      game_state);
                     } else if (dive_state_data->animation_completed &&
                                HAS_TIME_PASSED(game_state->time,
                                                dive_state_data->animation_end_time, 0.75f)) {

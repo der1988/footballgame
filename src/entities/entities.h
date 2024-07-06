@@ -129,6 +129,7 @@ typedef struct {
     b32 animation_second_phase_started;
     b32 animation_completed;
     b32 ball_saved;
+    b32 ball_held;
 } StateMachineGoalieDiveData;
 
 typedef union {
