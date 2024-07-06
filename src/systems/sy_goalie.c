@@ -256,11 +256,11 @@ void systems_goalie(GameState *game_state, Input *input) {
                         .y = transform->position.y + dive_collider->props_rectangle.offset.y,
                         .width = dive_collider->props_rectangle.size.x,
                         .height = dive_collider->props_rectangle.size.y};
+                    f32 ball_radius = ball_collider->colliders[0].props_circle.radius;
                     b32 is_colliding_with_ball =
-                        CheckCollisionCircleRec(ball_transform->position,
-                                                ball_collider->colliders[0].props_circle.radius,
+                        CheckCollisionCircleRec(ball_transform->position, ball_radius,
                                                 dive_rectangle) &&
-                        ball_transform->virtual_height < (cross_bar_height - 2);
+                        ball_transform->virtual_height < (cross_bar_height - ball_radius);
 
                     if (!dive_state_data->ball_saved &&
                         HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
@@ -268,11 +268,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                         (!dive_state_data->animation_completed ||
                          // If ball height is very low we are going to make the save even when lying
                          // on the floor after the dive
-                         ball_transform->virtual_height < 3)) {
+                         ball_transform->virtual_height < ball_radius)) {
 
                         // Choose whether to bounce or hold the ball
                         dive_state_data->ball_held = GetRandomValue(0, 99) < 33;
 
+                        // TODO: if the ball hit the post and came back we don't want to hold the
+                        // ball
                         if (dive_state_data->ball_held) {
                             entities_ball_held_by_goalie(game_state->vars.ball_entity_id, entity_id,
                                                          game_state);
