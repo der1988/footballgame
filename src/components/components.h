@@ -172,7 +172,8 @@ typedef struct {
     AssetsSpriteFrameId dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
     AssetsAnimationId dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
     AssetsAnimationId dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
-    f32 last_frame_update_time;
+    Time last_frame_update_time;
+    Time last_save_time;
 } ComponentGoalie;
 
 typedef struct {

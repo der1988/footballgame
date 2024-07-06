@@ -262,9 +262,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                                                 dive_rectangle) &&
                         ball_transform->virtual_height < (cross_bar_height - 2);
 
-                    static f64 last_save_time = 0;
                     if (!dive_state_data->ball_saved &&
-                        HAS_TIME_PASSED(game_state->time, last_save_time, 0.1f) &&
+                        HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
                         is_colliding_with_ball &&
                         (!dive_state_data->animation_completed ||
                          // If ball height is very low we are going to make the save even when lying
@@ -295,7 +294,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                                                           entity_id, game_state);
                         }
 
-                        last_save_time = game_state->time;
+                        goalie->last_save_time = game_state->time;
                         dive_state_data->ball_saved = true;
                     } else if (dive_state_data->animation_completed &&
                                HAS_TIME_PASSED(game_state->time,
