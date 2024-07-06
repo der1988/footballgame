@@ -11,14 +11,15 @@
 #include "systems/systems.h"
 #include "tweakui/tweakui.h"
 #include "types.h"
+#include "utils.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 #define PIXELS_PER_METER (1080.0f / 108.0f)
 
 GameState *game_init(GameConfig game_config) {
+    GLOGF_INFO(LS_GAME, "size of a component: %lu bytes", sizeof(Component));
     MemoryArenaHandle *memory_arena_lifetime_game =
         memory_arena_create("game", game_config.memory, Megabytes(1));
 
@@ -174,6 +175,7 @@ GameState *game_init(GameConfig game_config) {
                                                    (f32)game_state->config.virtual_screen_height);
 
     game_state->initialised = true;
+    GLOG_INFO(LS_GAME, "game initialisation complete");
 
     return game_state;
 }
@@ -198,6 +200,7 @@ void game_destroy(GameState *game_state) {
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
 
     game_state->initialised = false;
+    GLOG_INFO(LS_GAME, "game destruction complete");
 }
 
 void game_update(GameState *game_state, Input *input) {
