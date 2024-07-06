@@ -25,6 +25,8 @@ void systems_ball(GameState *game_state, Input *input) {
                 entities_component_get_typed(game_state->entity_repository, CT_SPRITE, ball_id);
             ComponentBall *ball =
                 entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_id);
+            ComponentCollider *collider =
+                entities_component_get_typed(game_state->entity_repository, CT_COLLIDER, ball_id);
             StateMachineBall *state_machine = ball->state_machine;
 
             if (input->buttons[IBT_BUTTON_START].released) {
@@ -113,8 +115,9 @@ void systems_ball(GameState *game_state, Input *input) {
 
                 b32 on_the_ground;
                 b32 bounced;
-                sim_ball_physics(&position, &velocity, accel, physics_3d->mass, &on_the_ground,
-                                 &bounced, game_state);
+                f32 ball_radius = collider->colliders[0].props_circle.radius;
+                sim_ball_physics(&position, &velocity, accel, physics_3d->mass, ball_radius,
+                                 &on_the_ground, &bounced, game_state);
                 ball->is_on_the_ground = on_the_ground && !bounced;
 
                 // Calculate next 10 look ahead positions, 10 dts apart from each other
@@ -129,7 +132,7 @@ void systems_ball(GameState *game_state, Input *input) {
                     // 10 dt steps (100 in slow motion)
                     for (u16 j = 0; j < lookahead_dts; ++j) {
                         sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
-                                         physics_3d->mass, &lookahead_on_the_ground,
+                                         physics_3d->mass, ball_radius, &lookahead_on_the_ground,
                                          &lookahead_bounced, game_state);
                     }
                     ball->lookahead_positions[i] = lookahead_position;
@@ -142,8 +145,8 @@ void systems_ball(GameState *game_state, Input *input) {
                 lookahead_bounced = false;
                 while (!lookahead_bounced && !lookahead_on_the_ground) {
                     sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
-                                     physics_3d->mass, &lookahead_on_the_ground, &lookahead_bounced,
-                                     game_state);
+                                     physics_3d->mass, ball_radius, &lookahead_on_the_ground,
+                                     &lookahead_bounced, game_state);
                     if (lookahead_bounced) {
                         ball->future_bounce_position = V3_TO_V2(lookahead_position);
                     }
