@@ -140,12 +140,13 @@ typedef struct {
     EntityId last_player_on_the_ball_entity_id;
     EntityId last_kicker_entity_id;
     b32 subject_to_after_touch;
-    f64 kick_time;
+    Time last_kick_time;
+    Time last_bounce_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     Direction last_direction;
     v2 future_bounce_position;
     v3 lookahead_positions[10];
-    f32 last_frame_update_time;
+    Time last_frame_update_time;
     u16 last_running_frame_idx;
 } ComponentBall;
 

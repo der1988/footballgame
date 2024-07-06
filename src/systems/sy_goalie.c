@@ -4,12 +4,10 @@
 #include "../sim/simulation.h"
 #include "assets.h"
 #include "input.h"
-#include "layers.h"
 #include "steering.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 void systems_goalie(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
@@ -139,7 +137,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                             f32 x_diff = pos_to_check.x - transform->position.x;
                             f32 y_diff = pos_to_check.z - transform->position.y;
                             f32 distance_to_cover = fabsf(x_diff);
-                            if (HAS_TIME_PASSED(game_state->time, ball->kick_time,
+                            if (HAS_TIME_PASSED(game_state->time, ball->last_kick_time,
                                                 game_state->constants.goalie_dive_reaction_time) &&
                                 y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
                                 f32 time_to_unsaveable =

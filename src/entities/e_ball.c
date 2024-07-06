@@ -4,7 +4,6 @@
 #include "../game.h"
 #include "../memory/memory.h"
 #include "../utils/utils.h"
-#include "layers.h"
 #include "sprites/sprites.h"
 #include "types.h"
 #include <assert.h>
@@ -217,8 +216,12 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
 
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                          f32 power, GameState *game_state) {
+    ComponentTransform *transform =
+        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
     ComponentPhysics3d *physics_3d =
         entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
+    ComponentCollider *collider =
+        entities_component_get_typed(game_state->entity_repository, CT_COLLIDER, ball_entity_id);
     ComponentBall *ball =
         entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
     v3 shot_direction =
@@ -229,10 +232,37 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
         // better though, need to test
         physics_3d->velocity = Vector3Zero();
     }
-    physics_3d->accel = Vector3Add(
-        physics_3d->accel,
-        Vector3Scale(shot_direction, (game_state->constants.ball_shot_force) / game_state->dt));
-    ball->kick_time = game_state->time;
+    // Calculate shot force
+    f32 shot_force = game_state->constants.ball_shot_force;
+    f32 ball_radius = collider->colliders[0].props_circle.radius;
+    if (transform->virtual_height > (ball_radius + 10)) {
+        shot_force *= 0.6f;
+        printf("if you hit the ball so high football is not your sport\n");
+    } else if (transform->virtual_height > ball_radius) {
+        if (physics_3d->velocity.y > 0) {
+            // Ball is falling
+            shot_force *= 1.1f;
+            printf("ball if falling at least\n");
+        } else {
+            // If it's not falling then maybe it's a drop shot?
+            if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f) &&
+                physics_3d->velocity.y < 0) {
+                // Drop shot
+                shot_force *= 1.3f;
+                printf("drop shot\n");
+            } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0.25f,
+                                               0.5f) &&
+                       physics_3d->velocity.y < 0) {
+                // Nope, this must be the shittiest shot ever
+                shot_force *= 0.7f;
+                printf("drop shot too late\n");
+            }
+        }
+    }
+
+    physics_3d->accel =
+        Vector3Add(physics_3d->accel, Vector3Scale(shot_direction, (shot_force) / game_state->dt));
+    ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
     ball->subject_to_after_touch = true;
@@ -254,7 +284,7 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
                    Vector3Scale(direction, (game_state->constants.ball_pass_force * 0.5f +
                                             power * 0.5f * game_state->constants.ball_pass_force) /
                                                game_state->dt));
-    ball->kick_time = game_state->time;
+    ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
 }
@@ -279,7 +309,7 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
                                 (game_state->constants.ball_long_pass_force * 0.75f +
                                  power * 0.25f * game_state->constants.ball_long_pass_force) /
                                     game_state->dt));
-    ball->kick_time = game_state->time;
+    ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
     ball->subject_to_after_touch = true;

@@ -54,6 +54,8 @@ v fixed long-standing issue with tweakui toggling
 v reset ball velocity before kick to avoid existing inertia affecting trajectory
 x do we need a match entity?
 v fix the damn bug where everything goes black and there's no way to recover
+v implement logic that keeps height of ball into account when hitting it
+v implement high dive with ball
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
@@ -61,5 +63,3 @@ v fix the damn bug where everything goes black and there's no way to recover
 - use r1 to make the player stop the ball?
 - if shot is too fast goalie should just bounce the ball back
 - improve codebase quality
-- implement logic that keeps height of ball into account when hitting it
-- implement high dive with ball

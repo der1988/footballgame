@@ -1,7 +1,6 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
-#include "assets.h"
 #include "input.h"
 #include "layers/layers.h"
 #include "memory.h"
@@ -9,7 +8,6 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 typedef struct {
     v2 steering;

@@ -35,7 +35,8 @@ void systems_ball(GameState *game_state, Input *input) {
                                             game_state->vars.p1.player_entity_id)
                          ->transform;
                 entities_ball_set_position_and_velocity(
-                    ball_id, V2_TO_V3(p1_transform->position, 50), Vector3Zero(), game_state);
+                    ball_id, V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
+                    Vector3Zero(), game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
@@ -91,7 +92,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 Vector3 accel = physics_3d->accel;
 
                 // After touch
-                f32 after_touch_time = (game_state->time - ball->kick_time);
+                f32 after_touch_time = (game_state->time - ball->last_kick_time);
                 if (ball->last_kicker_entity_id == game_state->vars.p1.player_entity_id &&
                     ball->subject_to_after_touch &&
                     after_touch_time > game_state->constants.ball_after_touch_delay_time) {
@@ -119,6 +120,9 @@ void systems_ball(GameState *game_state, Input *input) {
                 sim_ball_physics(&position, &velocity, accel, physics_3d->mass, ball_radius,
                                  &on_the_ground, &bounced, game_state);
                 ball->is_on_the_ground = on_the_ground && !bounced;
+                if (bounced) {
+                    ball->last_bounce_time = game_state->time;
+                }
 
                 // Calculate next 10 look ahead positions, 10 dts apart from each other
                 b32 lookahead_on_the_ground;
