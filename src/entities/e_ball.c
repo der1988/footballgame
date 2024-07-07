@@ -235,27 +235,27 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     // Calculate shot force
     f32 shot_force = game_state->constants.ball_shot_force;
     f32 ball_radius = collider->colliders[0].props_circle.radius;
-    if (transform->virtual_height > (ball_radius + 10)) {
-        shot_force *= 0.6f;
-        printf("if you hit the ball so high football is not your sport\n");
-    } else if (transform->virtual_height > ball_radius) {
-        if (physics_3d->velocity.y > 0) {
-            // Ball is falling
-            shot_force *= 1.1f;
-            printf("ball if falling at least\n");
-        } else {
-            // If it's not falling then maybe it's a drop shot?
-            if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f) &&
-                physics_3d->velocity.y < 0) {
-                // Drop shot
-                shot_force *= 1.3f;
-                printf("drop shot\n");
-            } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0.25f,
-                                               0.5f) &&
-                       physics_3d->velocity.y < 0) {
-                // Nope, this must be the shittiest shot ever
-                shot_force *= 0.7f;
-                printf("drop shot too late\n");
+    if (!ball->is_on_the_ground) {
+        if (transform->virtual_height > (ball_radius + 12)) {
+            // TODO: this needs to handle headers
+            printf("probably an header\n");
+        } else if (transform->virtual_height > ball_radius) {
+            if (physics_3d->velocity.y < 0) {
+                // Ball is falling
+                shot_force *= 1.05f;
+                printf("ball is falling at least\n");
+            } else if (physics_3d->velocity.y > 0) {
+                // If it's not falling then maybe it's a drop shot?
+                if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f)) {
+                    // Drop shot
+                    shot_force *= 1.25f;
+                    printf("drop shot\n");
+                } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0.25f,
+                                                   0.5f)) {
+                    // Nope, this must be the shittiest shot ever
+                    shot_force *= 0.8f;
+                    printf("drop shot too late\n");
+                }
             }
         }
     }

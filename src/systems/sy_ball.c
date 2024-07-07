@@ -47,7 +47,7 @@ void systems_ball(GameState *game_state, Input *input) {
             if (input->buttons[IBT_BUTTON_SELECT].released) {
                 entities_ball_set_position_and_velocity(
                     ball_id, (v3){.x = game_state->vars.pitch.rectangle.x + 340, .z = 300},
-                    Vector3Scale((v3){.x = 0, .y = 0.2f, .z = -1}, 413.5f), game_state);
+                    Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 413.5f), game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
@@ -59,7 +59,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 transform->position = (v2){.x = game_state->vars.pitch.rectangle.x + 600, .y = 100};
                 transform->virtual_height = 0;
                 physics_3d->accel = Vector3Zero();
-                physics_3d->velocity = Vector3Scale((v3){.x = -1, .y = 0.3f, .z = 0.2}, 280.5f);
+                physics_3d->velocity = Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
@@ -79,9 +79,14 @@ void systems_ball(GameState *game_state, Input *input) {
                 game_state->layer_debug,
                 TextFormat("Ball height: %.2f", transform->virtual_height));
 
+            layers_debug_queue_draw_text(game_state->layer_debug,
+                                         TextFormat("Ball vel: %.2f, %.2f, %.2f",
+                                                    physics_3d->velocity.x, physics_3d->velocity.y,
+                                                    physics_3d->velocity.z));
+
             layers_debug_queue_draw_text(
                 game_state->layer_debug,
-                TextFormat("Ball vel: %.2f", Vector3Length(physics_3d->velocity)));
+                TextFormat("Ball speed: %.2f", Vector3Length(physics_3d->velocity)));
 
             switch (state_machine->current_state) {
             case BS_NONE:
