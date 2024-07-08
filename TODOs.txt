@@ -64,3 +64,4 @@ v implement high dive with ball
 - if shot is too fast goalie should just bounce the ball back
 - improve codebase quality
 - shot height should depend on starting height of the ball
+- implement header
