@@ -54,6 +54,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                 Vector3Distance(V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
                                 V2_TO_V3(goal_center, 0));
 
+            f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
+
             collider->colliders[0].props_circle.radius =
                 game_state->constants.player_control_radius;
             Collider *save_collider = &collider->colliders[1];
@@ -86,20 +88,42 @@ void systems_goalie(GameState *game_state, Input *input) {
                     v2 direction;
                     v2 steering;
                     f32 force;
-                    if ((distance_from_goal < 100 || distance_from_ball < 10) &&
+
+                    f32 exit_max_speed = game_state->constants.player_run_max_velocity * 1.5f;
+
+                    // Calculate whether goalie can reach the ball using ball future positions
+                    b32 can_reach_ball = false;
+                    const int steps_per_lookahead = (game_state->vars.slow_motion ? 10 : 1) *
+                                                    game_state->constants.ball_lookahead_dts;
+                    const int lookaheads = game_state->constants.ball_lookaheads;
+                    for (u16 i = 0; i < lookaheads; ++i) {
+                        v3 pos_to_check = ball->lookahead_positions[i];
+                        f32 lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
+                        f32 distance_to_cover =
+                            Vector2Distance(V3_TO_V2(pos_to_check), transform->position);
+
+                        if (distance_to_cover < (exit_max_speed * lookahead_time)) {
+                            destination = V3_TO_V2(pos_to_check);
+                            can_reach_ball = true;
+                            break;
+                        } else if (i == (lookaheads - 1)) {
+                            destination = V3_TO_V2(pos_to_check);
+                        }
+                    }
+                    if ((distance_from_goal < 125 || can_reach_ball) &&
                         ball_transform->virtual_height < (cross_bar_height - 7)) {
                         // seek ball
-                        physics->max_velocity = game_state->constants.player_run_max_velocity * 2;
-                        force = game_state->constants.goalie_run_force * 2;
-                        destination = ball_transform->position;
+                        physics->max_velocity = exit_max_speed;
+                        force = game_state->constants.player_movement_force * 2;
+
                         direction =
                             Vector2Normalize(Vector2Subtract(destination, transform->position));
                         steering = steering_seek(transform->position, physics->velocity,
                                                  physics->max_velocity, destination);
                     } else {
-                        // protect goal
+                        // ball isn't within reach, let's protect goal
                         physics->max_velocity = game_state->constants.player_run_max_velocity;
-                        force = game_state->constants.goalie_run_force;
+                        force = game_state->constants.player_movement_force;
                         direction = Vector2Normalize(
                             Vector2Subtract(ball_transform->position, goal_center));
                         destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
@@ -115,7 +139,7 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
 
-                    if (Vector3Length(ball_physics_3d->velocity) > 100) {
+                    if (ball_velocity > (10 * PIXELS_PER_METER)) {
                         // Only dive if ball velocity is higher than 36km/h
                         const int steps_per_lookahead = (game_state->vars.slow_motion ? 10 : 1) *
                                                         game_state->constants.ball_lookahead_dts;
@@ -269,7 +293,9 @@ void systems_goalie(GameState *game_state, Input *input) {
                          ball_transform->virtual_height < ball_radius)) {
 
                         // Choose whether to bounce or hold the ball
-                        dive_state_data->ball_held = GetRandomValue(0, 99) < 33;
+                        // Definitely hold if ball velocity is lower than 54km/h
+                        dive_state_data->ball_held =
+                            ball_velocity < (15 * PIXELS_PER_METER) || GetRandomValue(0, 99) < 33;
 
                         // TODO: if the ball hit the post and came back we don't want to hold the
                         // ball
