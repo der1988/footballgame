@@ -7,6 +7,8 @@
 #include "types.h"
 #include <raylib.h>
 
+#define PIXELS_PER_METER (1080.0f / 108.0f)
+
 // Forward declarations
 struct EntityRepository;
 struct AssetsTextureCache;
@@ -68,7 +70,6 @@ typedef struct GameConstants {
     f32 player_control_radius;
     f32 player_control_height;
     f32 player_run_control_max_angle;
-    f32 goalie_run_force;
     f32 goalie_dive_reaction_time;
     f32 goalie_dive_force;
     f32 goalie_dive_max_velocity;

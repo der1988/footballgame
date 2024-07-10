@@ -154,10 +154,6 @@ void tweakui_draw(TweakUI *handle, GameState *game_state) {
               TextFormat("%.2f", game_state->constants.goalie_dive_reaction_time),
               &game_state->constants.goalie_dive_reaction_time, 0, 0.4f);
     MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiSlider(slider_bounds, "Goalie run force",
-              TextFormat("%.2f", game_state->constants.goalie_run_force),
-              &game_state->constants.goalie_run_force, 5000, 20000);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Goalie dive force",
               TextFormat("%.2f", game_state->constants.goalie_dive_force),
               &game_state->constants.goalie_dive_force, 5000, 20000);

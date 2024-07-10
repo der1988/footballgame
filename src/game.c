@@ -16,8 +16,6 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#define PIXELS_PER_METER (1080.0f / 108.0f)
-
 GameState *game_init(GameConfig game_config) {
     GLOGF_INFO(LS_GAME, "size of a component: %lu bytes", sizeof(Component));
     MemoryArenaHandle *memory_arena_lifetime_game =
@@ -56,7 +54,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_after_touch_force = 300.0f,
                                             // 36m/s seems fair, that would be 129km/h
                                             .ball_max_velocity = 50 * PIXELS_PER_METER,
-                                            .ball_lookaheads = 4,
+                                            .ball_lookaheads = 5,
                                             .ball_lookahead_dts = 30,
                                             .player_movement_force = 25000,
                                             .player_movement_drag = 4166,
@@ -66,7 +64,6 @@ GameState *game_init(GameConfig game_config) {
                                             .player_control_radius = 6,
                                             .player_control_height = 19,
                                             .player_run_control_max_angle = 45,
-                                            .goalie_run_force = 10000,
                                             // Elite goalie has 150ms reaction time
                                             .goalie_dive_reaction_time = 0.150f,
                                             .goalie_dive_force = 8500,
