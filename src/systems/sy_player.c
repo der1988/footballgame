@@ -267,7 +267,7 @@ void systems_player(GameState *game_state, Input *input) {
                 // Precision control
                 player_on_the_ball.player->time_spent_in_precision_control += game_state->dt;
                 player_on_the_ball.player->time_spent_in_run_control = 0;
-                if (player_on_the_ball.player->time_spent_in_precision_control > 0.5f) {
+                if (player_on_the_ball.player->time_spent_in_precision_control > 0.25f) {
                     player_on_the_ball.player->control_ball = false;
                 }
                 layers_debug_queue_draw_text(
@@ -280,7 +280,7 @@ void systems_player(GameState *game_state, Input *input) {
                                  player_on_the_ball.collider->colliders[0].props_circle.radius *
                                      1));
                 // TODO: this should depend on player technical abilities
-                if (player_on_the_ball.player->time_spent_in_precision_control < 3) {
+                if (player_on_the_ball.player->time_spent_in_precision_control < 1) {
                     entities_ball_control_precision(
                         game_state->vars.ball_entity_id, player_on_the_ball.id,
                         player_on_the_ball.velocity, position_to_seek, 1, game_state);
