@@ -149,7 +149,7 @@ void systems_player(GameState *game_state, Input *input) {
                     // Player height
                     ball_transform->virtual_height < game_state->constants.player_control_height;
 
-                if (is_colliding_with_ball && (game_state->time - player->last_shot) > 0.1f) {
+                if (is_colliding_with_ball && (game_state->time - player->last_kick_time) > 0.1f) {
                     f32 distance_from_the_ball =
                         Vector2DistanceSqr(transform->position, ball_transform->position);
                     if (distance_from_the_ball < player_on_the_ball.distance_from_the_ball) {
@@ -196,7 +196,7 @@ void systems_player(GameState *game_state, Input *input) {
 
         if (player_on_the_ball.controls->shot > 0 && steering_magnitude > 0.1f) {
             // Shot
-            player_on_the_ball.player->last_shot = game_state->time;
+            player_on_the_ball.player->last_kick_time = game_state->time;
             v2 shot_direction;
 
             if (!game_state->constants.shoot_aid_enabled) {
@@ -232,7 +232,7 @@ void systems_player(GameState *game_state, Input *input) {
             kicked_ball = true;
         } else if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
             // Pass
-            player_on_the_ball.player->last_shot = game_state->time;
+            player_on_the_ball.player->last_kick_time = game_state->time;
             v3 pass_direction =
                 Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
@@ -240,7 +240,7 @@ void systems_player(GameState *game_state, Input *input) {
             kicked_ball = true;
         } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
-            player_on_the_ball.player->last_shot = game_state->time;
+            player_on_the_ball.player->last_kick_time = game_state->time;
             v2 long_pass_direction = Vector2Normalize(player_on_the_ball.controls->steering);
             // Limit angle between requested shoot direction and current velocity
             f32 angle = Vector2Angle(player_on_the_ball.velocity, long_pass_direction);

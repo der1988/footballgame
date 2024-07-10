@@ -129,7 +129,7 @@ typedef struct {
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
     Direction last_direction;
-    f32 last_shot;
+    f32 last_kick_time;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
 } ComponentPlayer;
