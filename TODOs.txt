@@ -56,6 +56,7 @@ x do we need a match entity?
 v fix the damn bug where everything goes black and there's no way to recover
 v implement logic that keeps height of ball into account when hitting it
 v implement high dive with ball
+v improve goalie exit
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
