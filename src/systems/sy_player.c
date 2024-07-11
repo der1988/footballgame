@@ -6,8 +6,10 @@
 #include "memory.h"
 #include "steering.h"
 #include "utils.h"
+#include <math.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 typedef struct {
     v2 steering;
@@ -26,6 +28,42 @@ typedef struct {
     PlayerControls *controls;
     ComponentCollider *collider;
 } PlayerOnTheBall;
+
+EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_ball,
+                          f32 detection_angle, f32 max_distance) {
+    EntityRepository *entity_repository = game_state->entity_repository;
+    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 3,
+                                                        CT_TRANSFORM, CT_PHYSICS, CT_PLAYER)) {
+
+            ComponentTransform *transform = ComponentCastToTypedUnchecked(
+                game_state->entity_repository, CT_TRANSFORM, entity_id);
+            ComponentPhysics *physics =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
+            ComponentPlayer *player =
+                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PLAYER, entity_id);
+
+            StateMachinePlayer *state_machine = player->state_machine;
+
+            if (player_on_the_ball->id == entity_id) {
+                // We don't want to pass to ourselves, right?
+                continue;
+            }
+
+            v2 selected_direction = player_on_the_ball->controls->steering;
+            v2 to_player = Vector2Subtract(transform->position, player_on_the_ball->position);
+            f32 distance_from_player = Vector2Length(to_player);
+            f32 angle = Vector2Angle(selected_direction, to_player) * RAD2DEG;
+            if (distance_from_player < max_distance && fabs(angle) < detection_angle) {
+                printf("pass target is valid: %zu, %.2f, %.2f\n", entity_id, distance_from_player,
+                       angle);
+            } else {
+                printf("manual pass: %.2f, %.2f\n", distance_from_player, angle);
+            }
+        }
+    }
+    return -1;
+}
 
 void systems_player(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
@@ -233,6 +271,7 @@ void systems_player(GameState *game_state, Input *input) {
         } else if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
             // Pass
             player_on_the_ball.player->last_kick_time = game_state->time;
+            find_pass_target(game_state, &player_on_the_ball, 30, 200);
             v3 pass_direction =
                 Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,

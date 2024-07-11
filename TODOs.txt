@@ -57,6 +57,7 @@ v fix the damn bug where everything goes black and there's no way to recover
 v implement logic that keeps height of ball into account when hitting it
 v implement high dive with ball
 v improve goalie exit
+v EntityId should have a non-valid value definition
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?

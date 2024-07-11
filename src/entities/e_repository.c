@@ -30,7 +30,8 @@ static EntityId find_empty_slot(EntityRepository *entity_repo) {
         entity_repo->entities[id].id = id;
         entity_repo->entities[id].alive = true;
     } else {
-        GLOG_ERROR(LS_ENTITIES, "No more entities available");
+        GLOG_ERROR(LS_ENTITIES, "No more entity slots available");
+        return EID_NOT_VALID;
     }
 
     return id;
@@ -66,6 +67,10 @@ Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *na
     assert(handle->initialised && handle->available_slots > 0);
 
     EntityId id = find_empty_slot(handle);
+    if (id == EID_NOT_VALID) {
+        return NULL;
+    }
+
     Entity *entity = &handle->entities[id];
 
     // Entity header

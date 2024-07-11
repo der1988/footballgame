@@ -9,6 +9,7 @@
 #define Kilobytes(S) (S * 1024)
 #define Megabytes(S) (S * 1024 * 1024)
 #define Gigabytes(S) ((u64)S * 1024 * 1024 * 1024)
+#define EID_NOT_VALID 0xffffffff
 
 typedef uint8_t u8;
 typedef uint16_t u16;
