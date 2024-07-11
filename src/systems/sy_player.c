@@ -30,6 +30,34 @@ typedef struct {
     ComponentCollider *collider;
 } PlayerOnTheBall;
 
+EntityId find_nearest_teammate(GameState *game_state, PlayerOnTheBall *player_on_the_ball,
+                               v2 position) {
+    EntityRepository *entity_repository = game_state->entity_repository;
+    EntityId selected_entity_id = EID_NOT_VALID;
+    f32 selected_distance_sqr = UINT32_MAX;
+    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
+                                                        CT_TRANSFORM, CT_PLAYER)) {
+
+            ComponentTransform *transform = ComponentCastToTypedUnchecked(
+                game_state->entity_repository, CT_TRANSFORM, entity_id);
+            Component *goalie =
+                entities_component_get(game_state->entity_repository, CT_GOALIE, entity_id);
+
+            if (player_on_the_ball->id == entity_id || goalie->header.enabled) {
+                // We don't want to pass to ourselves or to our goalie, right?
+                continue;
+            }
+
+            f32 distance_sqr = Vector2DistanceSqr(position, transform->position);
+            if (distance_sqr < selected_distance_sqr) {
+                selected_entity_id = entity_id;
+            }
+        }
+    }
+    return selected_entity_id;
+}
+
 EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_ball,
                           f32 detection_angle, f32 max_distance) {
     EntityRepository *entity_repository = game_state->entity_repository;
@@ -80,6 +108,7 @@ void systems_player(GameState *game_state, Input *input) {
 
     PlayerOnTheBall player_on_the_ball = {0};
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
+    EntityId new_p1_entity_id = EID_NOT_VALID;
 
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 5,
@@ -134,6 +163,10 @@ void systems_player(GameState *game_state, Input *input) {
                             player_controls->steering =
                                 steering_seek(transform->position, physics->velocity,
                                               physics->max_velocity, ball_transform->position);
+                            layers_debug_queue_draw_text(game_state->layer_debug,
+                                                         TextFormat("steering: %.2f, %.2f",
+                                                                    player_controls->steering.x,
+                                                                    player_controls->steering.y));
                         }
                     }
                 }
@@ -204,7 +237,7 @@ void systems_player(GameState *game_state, Input *input) {
                         player_on_the_ball.controls = player_controls;
                         player_on_the_ball.collider = collider;
 
-                        game_state->vars.p1.player_entity_id = entity_id;
+                        new_p1_entity_id = entity_id;
                         player->should_receive_ball = false;
                     }
                 } else {
@@ -293,6 +326,11 @@ void systems_player(GameState *game_state, Input *input) {
             } else {
                 pass_direction =
                     Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
+                EntityId nearest_teammate =
+                    find_nearest_teammate(game_state, &player_on_the_ball,
+                                          Vector2Add(player_on_the_ball.position,
+                                                     Vector2Scale(V3_TO_V2(pass_direction), 300)));
+                new_p1_entity_id = nearest_teammate;
             }
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
                                      pass_direction, player_on_the_ball.controls->pass, auto_pass,
@@ -361,6 +399,11 @@ void systems_player(GameState *game_state, Input *input) {
                     game_state->vars.ball_entity_id, player_on_the_ball.id, control_direction,
                     player_on_the_ball.velocity, control_ratio, game_state);
             }
+        }
+
+        // Let's change the controller player if needed
+        if (new_p1_entity_id != EID_NOT_VALID) {
+            game_state->vars.p1.player_entity_id = new_p1_entity_id;
         }
 
         // We can reset charge now: we already kicked the ball if needed
