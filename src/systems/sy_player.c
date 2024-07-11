@@ -137,7 +137,8 @@ void systems_player(GameState *game_state, Input *input) {
 
                 v2 effective_steering = player_controls->steering;
                 // If charging kick we seek the ball
-                if (game_state->vars.p1.controls.charge.charging) {
+                if (entity_id == game_state->vars.p1.player_entity_id &&
+                    game_state->vars.p1.controls.charge.charging) {
                     effective_steering = Vector2Normalize(
                         Vector2Subtract(ball_transform->position, transform->position));
                 }
