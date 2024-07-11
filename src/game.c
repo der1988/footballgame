@@ -68,6 +68,7 @@ GameState *game_init(GameConfig game_config) {
                                             .goalie_dive_reaction_time = 0.150f,
                                             .goalie_dive_force = 8500,
                                             .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
+                                            .ai_enabled = true,
                                             .shoot_aid_enabled = true,
                                             .shoot_aid_no_inertia = false,
                                             .kick_charge_reset_time = 1.5f};
@@ -130,10 +131,16 @@ GameState *game_init(GameConfig game_config) {
         (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
         game_state);
 
+    for (usize i = 0; i < 3; ++i) {
+        entities_player_create(
+            (PlayerConfig){
+                .position = {game_state->config.virtual_screen_width / 2.0f + 100 * i, 300.0f}},
+            game_state);
+    }
+
     entities_player_create(
-        (PlayerConfig){
-            .is_goalie = true,
-            .position = {game_state->config.virtual_screen_width / 2.0f - 100.0f, 220.0f}},
+        (PlayerConfig){.is_goalie = true,
+                       .position = {game_state->config.virtual_screen_width / 2.0f, 100.0f}},
         game_state);
 
     Entity *ball_entity = entities_ball_create(

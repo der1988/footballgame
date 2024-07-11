@@ -79,7 +79,7 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                          f32 power, GameState *game_state);
 void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
-                              f32 power, GameState *game_state);
+                              f32 power, b32 auto_pass, GameState *game_state);
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                              f32 power, GameState *game_state);
 void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,

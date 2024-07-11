@@ -5,6 +5,7 @@
 #include "layers/layers.h"
 #include "memory.h"
 #include "steering.h"
+#include "types.h"
 #include "utils.h"
 #include <math.h>
 #include <raylib.h>
@@ -43,8 +44,6 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
             ComponentPlayer *player =
                 ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PLAYER, entity_id);
 
-            StateMachinePlayer *state_machine = player->state_machine;
-
             if (player_on_the_ball->id == entity_id) {
                 // We don't want to pass to ourselves, right?
                 continue;
@@ -57,12 +56,11 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
             if (distance_from_player < max_distance && fabs(angle) < detection_angle) {
                 printf("pass target is valid: %zu, %.2f, %.2f\n", entity_id, distance_from_player,
                        angle);
-            } else {
-                printf("manual pass: %.2f, %.2f\n", distance_from_player, angle);
+                return entity_id;
             }
         }
     }
-    return -1;
+    return EID_NOT_VALID;
 }
 
 void systems_player(GameState *game_state, Input *input) {
@@ -129,9 +127,11 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                 } else {
                     if (game_state->constants.ai_enabled) {
-                        player_controls->steering = steering_pursuit(
-                            transform->position, physics->velocity, physics->max_velocity,
-                            ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
+                        if (player->should_receive_ball) {
+                            player_controls->steering =
+                                steering_seek(transform->position, physics->velocity,
+                                              physics->max_velocity, ball_transform->position);
+                        }
                     }
                 }
 
@@ -200,6 +200,9 @@ void systems_player(GameState *game_state, Input *input) {
                         player_on_the_ball.velocity = physics->velocity;
                         player_on_the_ball.controls = player_controls;
                         player_on_the_ball.collider = collider;
+
+                        game_state->vars.p1.player_entity_id = entity_id;
+                        player->should_receive_ball = false;
                     }
                 } else {
                     player->control_ball = true;
@@ -272,11 +275,25 @@ void systems_player(GameState *game_state, Input *input) {
         } else if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
             // Pass
             player_on_the_ball.player->last_kick_time = game_state->time;
-            find_pass_target(game_state, &player_on_the_ball, 30, 200);
-            v3 pass_direction =
-                Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
+            v3 pass_direction;
+            EntityId teammate_entity_id =
+                find_pass_target(game_state, &player_on_the_ball, 30, 300);
+            b32 auto_pass = teammate_entity_id != EID_NOT_VALID;
+            if (auto_pass) {
+                ComponentTransform *teammate_transform = entities_component_get_typed(
+                    game_state->entity_repository, CT_TRANSFORM, teammate_entity_id);
+                ComponentPlayer *teammate_player = entities_component_get_typed(
+                    game_state->entity_repository, CT_PLAYER, teammate_entity_id);
+                pass_direction = Vector3Normalize(V2_TO_V3(
+                    Vector2Subtract(teammate_transform->position, player_on_the_ball.position), 0));
+                teammate_player->should_receive_ball = true;
+            } else {
+                pass_direction =
+                    Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
+            }
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                     pass_direction, player_on_the_ball.controls->pass, game_state);
+                                     pass_direction, player_on_the_ball.controls->pass, auto_pass,
+                                     game_state);
             kicked_ball = true;
         } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass

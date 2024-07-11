@@ -123,6 +123,7 @@ typedef enum {
 typedef struct {
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
+    b32 should_receive_ball;
     Time time_spent_in_precision_control;
     Time time_spent_in_run_control;
     f32 current_max_velocity;
