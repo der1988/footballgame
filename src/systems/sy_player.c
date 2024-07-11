@@ -33,6 +33,8 @@ typedef struct {
 EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_ball,
                           f32 detection_angle, f32 max_distance) {
     EntityRepository *entity_repository = game_state->entity_repository;
+    EntityId selected_entity_id = EID_NOT_VALID;
+    f32 selected_distance = UINT32_MAX;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 3,
                                                         CT_TRANSFORM, CT_PHYSICS, CT_PLAYER)) {
@@ -53,14 +55,15 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
             v2 to_player = Vector2Subtract(transform->position, player_on_the_ball->position);
             f32 distance_from_player = Vector2Length(to_player);
             f32 angle = Vector2Angle(selected_direction, to_player) * RAD2DEG;
-            if (distance_from_player < max_distance && fabs(angle) < detection_angle) {
+            if (distance_from_player < max_distance && distance_from_player < selected_distance &&
+                fabs(angle) < detection_angle) {
+                selected_entity_id = entity_id;
                 printf("pass target is valid: %zu, %.2f, %.2f\n", entity_id, distance_from_player,
                        angle);
-                return entity_id;
             }
         }
     }
-    return EID_NOT_VALID;
+    return selected_entity_id;
 }
 
 void systems_player(GameState *game_state, Input *input) {
