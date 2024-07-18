@@ -325,8 +325,14 @@ void systems_goalie(GameState *game_state, Input *input) {
                     } else if (dive_state_data->animation_completed &&
                                HAS_TIME_PASSED(game_state->time,
                                                dive_state_data->animation_end_time, 0.75f)) {
-                        entities_goalie_state_machine_change_state_to(goalie->state_machine,
-                                                                      GS_PROTECT_GOAL, game_state);
+                        if (dive_state_data->ball_held) {
+                            entities_goalie_state_machine_change_state_to(goalie->state_machine,
+                                                                          GS_HOLD_BALL, game_state);
+
+                        } else {
+                            entities_goalie_state_machine_change_state_to(
+                                goalie->state_machine, GS_PROTECT_GOAL, game_state);
+                        }
                     }
 
                     break;

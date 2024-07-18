@@ -58,6 +58,7 @@ v implement logic that keeps height of ball into account when hitting it
 v implement high dive with ball
 v improve goalie exit
 v EntityId should have a non-valid value definition
+v fix annoying bug after goalie blocks ball during dive
 - implement teams
 - implement passing
 - goal is too small? proportional to ball instead of player?
