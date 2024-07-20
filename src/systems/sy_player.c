@@ -34,7 +34,7 @@ EntityId find_nearest_teammate(GameState *game_state, PlayerOnTheBall *player_on
                                v2 position) {
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
-    f32 selected_distance_sqr = UINT32_MAX;
+    f32 selected_distance = UINT32_MAX;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
                                                         CT_TRANSFORM, CT_PLAYER)) {
@@ -49,9 +49,10 @@ EntityId find_nearest_teammate(GameState *game_state, PlayerOnTheBall *player_on
                 continue;
             }
 
-            f32 distance_sqr = Vector2DistanceSqr(position, transform->position);
-            if (distance_sqr < selected_distance_sqr) {
+            f32 distance = Vector2Distance(position, transform->position);
+            if (distance < selected_distance) {
                 selected_entity_id = entity_id;
+                selected_distance = distance;
             }
         }
     }
@@ -86,10 +87,16 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
             if (distance_from_player < max_distance && distance_from_player < selected_distance &&
                 fabs(angle) < detection_angle) {
                 selected_entity_id = entity_id;
-                printf("pass target is valid: %zu, %.2f, %.2f\n", entity_id, distance_from_player,
-                       angle);
+                selected_distance = distance_from_player;
+
+                GLOGF_DEBUG(LS_GAME, "found valid pass target: %zu, %.2f, %.2f", entity_id,
+                            distance_from_player, angle);
             }
         }
+    }
+    if (selected_entity_id != EID_NOT_VALID) {
+        GLOGF_DEBUG(LS_GAME, "selected pass target %zu at %.2f", selected_entity_id,
+                    selected_distance);
     }
     return selected_entity_id;
 }
