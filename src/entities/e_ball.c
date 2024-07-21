@@ -216,6 +216,7 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
 
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                          f32 power, GameState *game_state) {
+    Entity *ball_entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     ComponentTransform *transform =
         entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
     ComponentPhysics3d *physics_3d =
@@ -238,23 +239,23 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     if (!ball->is_on_the_ground) {
         if (transform->virtual_height > (ball_radius + 12)) {
             // TODO: this needs to handle headers
-            printf("probably an header\n");
+            GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball shot, should be an header");
         } else if (transform->virtual_height > ball_radius) {
             if (physics_3d->velocity.y < 0) {
                 // Ball is falling
                 shot_force *= 1.05f;
-                printf("ball is falling at least\n");
+                GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball shot during fall trajectory");
             } else if (physics_3d->velocity.y > 0) {
                 // If it's not falling then maybe it's a drop shot?
                 if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f)) {
                     // Drop shot
                     shot_force *= 1.25f;
-                    printf("drop shot\n");
+                    GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball drop shot");
                 } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0.25f,
                                                    0.5f)) {
                     // Nope, this must be the shittiest shot ever
                     shot_force *= 0.8f;
-                    printf("drop shot too late\n");
+                    GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball drop shot too late");
                 }
             }
         }
