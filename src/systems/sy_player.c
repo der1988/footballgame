@@ -30,8 +30,10 @@ typedef struct {
     ComponentCollider *collider;
 } PlayerOnTheBall;
 
-EntityId find_nearest_teammate(GameState *game_state, PlayerOnTheBall *player_on_the_ball,
+EntityId find_nearest_teammate(GameState *game_state, EntityId player_on_the_ball_entity_id,
                                v2 position) {
+    ComponentBall *ball = ComponentCastToTypedUnchecked(game_state->entity_repository, CT_BALL,
+                                                        game_state->vars.ball_entity_id);
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
@@ -44,8 +46,12 @@ EntityId find_nearest_teammate(GameState *game_state, PlayerOnTheBall *player_on
             Component *goalie =
                 entities_component_get(game_state->entity_repository, CT_GOALIE, entity_id);
 
-            if (player_on_the_ball->id == entity_id || goalie->header.enabled) {
-                // We don't want to pass to ourselves or to our goalie, right?
+            if (player_on_the_ball_entity_id == entity_id ||
+                (goalie->header.enabled &&
+                 goalie->goalie.state_machine->current_state != GS_HOLD_BALL) ||
+                ball->pass_target_entity_id == entity_id) {
+                // If player is the one on the ball or a goalie or the destination of the pass let's
+                // skip
                 continue;
             }
 
@@ -114,8 +120,8 @@ void systems_player(GameState *game_state, Input *input) {
                                                        game_state->vars.ball_entity_id);
 
     PlayerOnTheBall player_on_the_ball = {0};
+    player_on_the_ball.id = EID_NOT_VALID;
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
-    EntityId new_p1_entity_id = EID_NOT_VALID;
 
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 5,
@@ -166,7 +172,7 @@ void systems_player(GameState *game_state, Input *input) {
                     }
                 } else {
                     if (game_state->constants.ai_enabled) {
-                        if (player->should_receive_ball) {
+                        if (ball->pass_target_entity_id == entity_id) {
                             player_controls->steering =
                                 steering_seek(transform->position, physics->velocity,
                                               physics->max_velocity, ball_transform->position);
@@ -244,8 +250,7 @@ void systems_player(GameState *game_state, Input *input) {
                         player_on_the_ball.controls = player_controls;
                         player_on_the_ball.collider = collider;
 
-                        new_p1_entity_id = entity_id;
-                        player->should_receive_ball = false;
+                        ball->pass_target_entity_id = EID_NOT_VALID;
                     }
                 } else {
                     player->control_ball = true;
@@ -271,9 +276,9 @@ void systems_player(GameState *game_state, Input *input) {
         }
     }
 
+    b32 kicked_ball = false;
     if (player_on_the_ball.exists) {
 
-        b32 kicked_ball = false;
         f32 velocity_length = Vector2Length(player_on_the_ball.velocity);
         v2 normalized_velocity = Vector2Normalize(player_on_the_ball.velocity);
         f32 steering_magnitude = Vector2Length(player_on_the_ball.controls->steering);
@@ -321,27 +326,20 @@ void systems_player(GameState *game_state, Input *input) {
             v3 pass_direction;
             EntityId teammate_entity_id =
                 find_pass_target(game_state, &player_on_the_ball, 30, 300);
-            b32 auto_pass = teammate_entity_id != EID_NOT_VALID;
-            if (auto_pass) {
+            b32 automatic_pass = teammate_entity_id != EID_NOT_VALID;
+            if (automatic_pass) {
                 ComponentTransform *teammate_transform = entities_component_get_typed(
                     game_state->entity_repository, CT_TRANSFORM, teammate_entity_id);
-                ComponentPlayer *teammate_player = entities_component_get_typed(
-                    game_state->entity_repository, CT_PLAYER, teammate_entity_id);
                 pass_direction = Vector3Normalize(V2_TO_V3(
                     Vector2Subtract(teammate_transform->position, player_on_the_ball.position), 0));
-                teammate_player->should_receive_ball = true;
+                ball->pass_target_entity_id = teammate_entity_id;
             } else {
                 pass_direction =
                     Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
-                EntityId nearest_teammate =
-                    find_nearest_teammate(game_state, &player_on_the_ball,
-                                          Vector2Add(player_on_the_ball.position,
-                                                     Vector2Scale(V3_TO_V2(pass_direction), 300)));
-                new_p1_entity_id = nearest_teammate;
             }
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                     pass_direction, player_on_the_ball.controls->pass, auto_pass,
-                                     game_state);
+                                     pass_direction, player_on_the_ball.controls->pass,
+                                     automatic_pass, game_state);
             kicked_ball = true;
         } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
@@ -408,11 +406,6 @@ void systems_player(GameState *game_state, Input *input) {
             }
         }
 
-        // Let's change the controller player if needed
-        if (new_p1_entity_id != EID_NOT_VALID) {
-            game_state->vars.p1.player_entity_id = new_p1_entity_id;
-        }
-
         // We can reset charge now: we already kicked the ball if needed
         if (kicked_ball && player_on_the_ball.id == game_state->vars.p1.player_entity_id &&
             game_state->vars.p1.controls.charge.ready) {
@@ -420,4 +413,15 @@ void systems_player(GameState *game_state, Input *input) {
                 game_state->vars.p1.controls.charge.charging = false;
         }
     }
+
+    // Select human controlled player
+    EntityId nearest_teammate_entity_id = player_on_the_ball.id;
+    if (kicked_ball) {
+        nearest_teammate_entity_id =
+            find_nearest_teammate(game_state, player_on_the_ball.id, ball_transform->position);
+    } else if (!player_on_the_ball.exists) {
+        nearest_teammate_entity_id =
+            find_nearest_teammate(game_state, EID_NOT_VALID, ball_transform->position);
+    }
+    game_state->vars.p1.player_entity_id = nearest_teammate_entity_id;
 }

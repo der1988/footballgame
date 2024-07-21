@@ -249,7 +249,7 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
                 // If it's not falling then maybe it's a drop shot?
                 if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f)) {
                     // Drop shot
-                    shot_force *= 1.25f;
+                    shot_force *= 1.10;
                     GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball drop shot");
                 } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0.25f,
                                                    0.5f)) {

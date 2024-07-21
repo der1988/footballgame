@@ -43,8 +43,10 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_friction_on_pitch = 0.5f,
                                             .ball_run_force = 20,
                                             .ball_control_force = 13,
-                                            // This will translate to instant velocity, so 129km/h
-                                            .ball_shot_force = 36 * PIXELS_PER_METER,
+                                            // This will translate to instant velocity, so 119km/h
+                                            // We want max ball speed to be ~129km/h, and we get
+                                            // there with some modifiers due to hit position
+                                            .ball_shot_force = 33 * PIXELS_PER_METER,
                                             .ball_shot_height = 0.35f,
                                             .ball_pass_force = 30 * PIXELS_PER_METER,
                                             .ball_long_pass_force = 26 * PIXELS_PER_METER,
@@ -271,6 +273,7 @@ void game_draw(GameState *game_state) {
         Vector2Zero(), 0, WHITE);
 
     systems_render(game_state);
+    systems_render_hud(game_state);
     systems_render_debug(game_state);
 
     EndMode2D();

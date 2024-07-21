@@ -11,6 +11,7 @@ void systems_goalie(GameState *game_state);
 void systems_action(GameState *game_state);
 void systems_camera(GameState *game_state);
 void systems_render(GameState *game_state);
+void systems_render_hud(GameState *game_state);
 void systems_render_debug(GameState *game_state);
 
 #endif // !SYSTEMS_H

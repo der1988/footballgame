@@ -123,7 +123,6 @@ typedef enum {
 typedef struct {
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
-    b32 should_receive_ball;
     Time time_spent_in_precision_control;
     Time time_spent_in_run_control;
     f32 current_max_velocity;
@@ -140,6 +139,7 @@ typedef struct {
     b32 is_on_the_ground;
     EntityId last_player_on_the_ball_entity_id;
     EntityId last_kicker_entity_id;
+    EntityId pass_target_entity_id;
     b32 subject_to_after_touch;
     Time last_kick_time;
     Time last_bounce_time;
