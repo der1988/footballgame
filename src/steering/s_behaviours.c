@@ -13,8 +13,7 @@ v2 steering_seek(v2 position, v2 velocity, f32 max_velocity, v2 target) {
 v2 steering_arrive(v2 position, v2 velocity, f32 max_velocity, v2 target, f32 slowing_distance) {
     v2 target_offset = Vector2Subtract(target, position);
     f32 distance = Vector2Length(target_offset);
-    f32 ramped_speed = max_velocity * (distance / slowing_distance);
-    f32 clipped_speed = fminf(ramped_speed, max_velocity);
+    f32 clipped_speed = max_velocity * Clamp(distance / slowing_distance, 0, 1);
     v2 desired_velocity = Vector2Scale(target_offset, clipped_speed / distance);
     v2 steering = Vector2Subtract(desired_velocity, velocity);
     return Vector2Scale(steering, 1.0f / max_velocity);
@@ -23,7 +22,7 @@ v2 steering_arrive(v2 position, v2 velocity, f32 max_velocity, v2 target, f32 sl
 v2 steering_pursuit(v2 position, v2 velocity, f32 max_velocity, v2 target, v2 target_velocity) {
     v2 target_offset = Vector2Subtract(target, position);
 
-    // the lookahead time is propotional to the distance between the evader
+    // the lookahead time is proportional to the distance between the evader
     // and the pursuer; and is inversely proportional to the sum of the
     // agent's velocities
     f32 look_ahead_time =

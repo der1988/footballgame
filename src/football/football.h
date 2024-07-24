@@ -40,4 +40,35 @@ typedef struct Pitch {
 
 void football_match_change_state(struct GameState *game_state, MatchState new_state);
 
+typedef enum {
+    PR_GK,  // Goalkeeper
+    PR_SB,  // Side Back
+    PR_CB,  // Centre Back
+    PR_DMF, // Defensive Midfielder
+    PR_CMF, // Central Midfielder
+    PR_WB,  // Wing Back
+    PR_SMF, // Side Midfielder
+    PR_AMF, // Attacking Midfielder
+    PR_WF,  // Wing Forward
+    PR_SS,  // Second Striker
+    PR_CF,  // Centre Forward
+    PR_COUNT
+} PlayerRole;
+
+typedef enum { TF_433, TF_442, TF_352, TF_343, TF_532, TF_4312, TF_4231, TF_COUNT } TeamFormation;
+
+typedef enum { SOP_BALANCED, SOP_OFFENSIVE, SOP_DEFENSIVE } StyleOfPlay;
+
+typedef struct {
+    const char *name;
+    PlayerRole supported_roles[3];
+    v2 default_position;
+    StyleOfPlay style_of_play;
+} TeamFormationPosition;
+
+TeamFormationPosition *football_get_team_formation(TeamFormation formation);
+
+TeamFormationPosition *football_get_team_formation_position(TeamFormation formation,
+                                                            u32 position_idx);
+
 #endif // !FOOTBALL

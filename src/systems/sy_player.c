@@ -176,11 +176,24 @@ void systems_player(GameState *game_state, Input *input) {
                             player_controls->steering =
                                 steering_seek(transform->position, physics->velocity,
                                               physics->max_velocity, ball_transform->position);
-                            layers_debug_queue_draw_text(game_state->layer_debug,
-                                                         TextFormat("steering: %.2f, %.2f",
-                                                                    player_controls->steering.x,
-                                                                    player_controls->steering.y));
+                        } else {
+                            TeamFormationPosition *team_formation_position =
+                                football_get_team_formation_position(
+                                    TF_433, player->team_formation_position_idx);
+                            v2 target = team_formation_position->default_position;
+                            target.x = game_state->vars.pitch.rectangle.x +
+                                       game_state->vars.pitch.rectangle.width * 0.5f +
+                                       game_state->vars.pitch.rectangle.width * 0.5f * target.x;
+                            target.y = game_state->vars.pitch.rectangle.y +
+                                       game_state->vars.pitch.rectangle.height * (1 - target.y);
+                            player_controls->steering =
+                                steering_arrive(transform->position, physics->velocity,
+                                                physics->max_velocity, target, 20);
                         }
+                        layers_debug_queue_draw_text(game_state->layer_debug,
+                                                     TextFormat("steering: %.2f, %.2f",
+                                                                player_controls->steering.x,
+                                                                player_controls->steering.y));
                     }
                 }
 
@@ -219,8 +232,10 @@ void systems_player(GameState *game_state, Input *input) {
                     player->current_max_velocity += 50 * game_state->dt;
                     player->current_max_velocity =
                         fminf(player->current_max_velocity, player_run_max_velocity);
-                } else if (current_velocity < initial_max_velocity) {
-                    player->current_max_velocity = initial_max_velocity;
+                } else if (current_velocity < player->current_max_velocity) {
+                    player->current_max_velocity -= 25 * game_state->dt;
+                    player->current_max_velocity =
+                        fmaxf(initial_max_velocity, player->current_max_velocity);
                 }
                 physics->max_velocity = player->current_max_velocity;
 

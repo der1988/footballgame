@@ -133,10 +133,11 @@ GameState *game_init(GameConfig game_config) {
         (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
         game_state);
 
-    for (usize i = 0; i < 3; ++i) {
+    for (usize i = 1; i < 10; ++i) {
         entities_player_create(
             (PlayerConfig){
-                .position = {game_state->config.virtual_screen_width / 2.0f + 100 * i, 300.0f}},
+                .position = {game_state->config.virtual_screen_width / 2.0f + 100 * i, 300.0f},
+                .team_formation_position_idx = i},
             game_state);
     }
 

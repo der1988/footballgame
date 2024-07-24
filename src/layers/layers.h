@@ -5,7 +5,7 @@
 #include "game.h"
 #include "types.h"
 
-#define MAX_QUEUED_DRAW_REQUESTS 20
+#define MAX_QUEUED_DRAW_REQUESTS 50
 
 typedef struct DrawTextRequest {
     char text[80];

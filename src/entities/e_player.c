@@ -65,6 +65,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     // Initialise player
     ComponentPlayer *player =
         entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id);
+    player->team_formation_position_idx = config.team_formation_position_idx;
     StateMachinePlayer *player_state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
     player_state_machine->owner_entity = entity->id;

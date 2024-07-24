@@ -6,6 +6,7 @@
 typedef struct {
     v2 position;
     b32 is_goalie;
+    u8 team_formation_position_idx;
 } PlayerConfig;
 
 typedef struct {

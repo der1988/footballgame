@@ -132,6 +132,7 @@ typedef struct {
     f32 last_kick_time;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
+    u8 team_formation_position_idx;
 } ComponentPlayer;
 
 typedef struct {
