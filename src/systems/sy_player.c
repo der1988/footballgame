@@ -227,13 +227,15 @@ void systems_player(GameState *game_state, Input *input) {
                 // Handle max velocity
                 f32 player_run_max_velocity = game_state->constants.player_run_max_velocity;
                 f32 initial_max_velocity = player_run_max_velocity * 0.5f;
-                if (current_velocity >= player->current_max_velocity &&
-                    player->current_max_velocity < player_run_max_velocity) {
+                physics->max_velocity = initial_max_velocity;
+
+                f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
+                if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
                     player->current_max_velocity += 50 * game_state->dt;
                     player->current_max_velocity =
                         fminf(player->current_max_velocity, player_run_max_velocity);
                 } else if (current_velocity < player->current_max_velocity) {
-                    player->current_max_velocity -= 25 * game_state->dt;
+                    player->current_max_velocity -= 100 * game_state->dt;
                     player->current_max_velocity =
                         fmaxf(initial_max_velocity, player->current_max_velocity);
                 }
