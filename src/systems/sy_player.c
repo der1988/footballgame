@@ -16,6 +16,7 @@ typedef struct {
     v2 steering;
     f32 shot;
     f32 pass;
+    b32 automatic_pass;
     f32 long_pass;
 } PlayerControls;
 
@@ -29,6 +30,25 @@ typedef struct {
     PlayerControls *controls;
     ComponentCollider *collider;
 } PlayerOnTheBall;
+
+v2 calculate_ball_position_to_aim_for(GameState *game_state, v2 player_position,
+                                      ComponentBall *ball) {
+    // Only dive if ball velocity is higher than 36km/h
+    const int steps_per_lookahead =
+        (game_state->vars.slow_motion ? 10 : 1) * game_state->constants.ball_lookahead_dts;
+    const int lookaheads = game_state->constants.ball_lookaheads;
+    for (u16 i = 0; i < lookaheads; ++i) {
+        v2 pos_to_check = V3_TO_V2(ball->lookahead_positions[i]);
+        f32 distance_to_cover = Vector2Distance(player_position, pos_to_check);
+        f32 time = (i + 1) * game_state->dt * steps_per_lookahead;
+        f32 max_distance_we_can_cover_in_available_time =
+            game_state->constants.player_run_max_velocity * time / 1.0f;
+        if (distance_to_cover < max_distance_we_can_cover_in_available_time) {
+            return pos_to_check;
+        }
+    }
+    return V3_TO_V2(ball->lookahead_positions[0]);
+}
 
 EntityId find_nearest_teammate(GameState *game_state, EntityId player_on_the_ball_entity_id,
                                v2 position) {
@@ -162,6 +182,10 @@ void systems_player(GameState *game_state, Input *input) {
                         }
                         case ACT_PASS: {
                             player_controls->pass = game_state->vars.p1.controls.charge.power;
+                            if ((game_state->vars.p1.controls.charge.ended -
+                                 game_state->vars.p1.controls.charge.started) < 0.15f) {
+                                player_controls->automatic_pass = true;
+                            }
                             break;
                         }
                         case ACT_LONG_PASS: {
@@ -173,9 +197,10 @@ void systems_player(GameState *game_state, Input *input) {
                 } else {
                     if (game_state->constants.ai_enabled) {
                         if (ball->pass_target_entity_id == entity_id) {
-                            player_controls->steering =
-                                steering_seek(transform->position, physics->velocity,
-                                              physics->max_velocity, ball_transform->position);
+                            player_controls->steering = steering_seek(
+                                transform->position, physics->velocity, physics->max_velocity,
+                                calculate_ball_position_to_aim_for(game_state, transform->position,
+                                                                   ball));
                         } else {
                             TeamFormationPosition *team_formation_position =
                                 football_get_team_formation_position(
@@ -343,20 +368,23 @@ void systems_player(GameState *game_state, Input *input) {
             v3 pass_direction;
             EntityId teammate_entity_id =
                 find_pass_target(game_state, &player_on_the_ball, 30, 300);
-            b32 automatic_pass = teammate_entity_id != EID_NOT_VALID;
+            f32 power = player_on_the_ball.controls->pass;
+            b32 automatic_pass =
+                teammate_entity_id != EID_NOT_VALID && player_on_the_ball.controls->automatic_pass;
             if (automatic_pass) {
                 ComponentTransform *teammate_transform = entities_component_get_typed(
                     game_state->entity_repository, CT_TRANSFORM, teammate_entity_id);
-                pass_direction = Vector3Normalize(V2_TO_V3(
-                    Vector2Subtract(teammate_transform->position, player_on_the_ball.position), 0));
+                v2 to_teammate =
+                    Vector2Subtract(teammate_transform->position, player_on_the_ball.position);
+                pass_direction = Vector3Normalize(V2_TO_V3(to_teammate, 0));
                 ball->pass_target_entity_id = teammate_entity_id;
+                power = Vector2Length(to_teammate) / 300.0f;
             } else {
                 pass_direction =
                     Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
             }
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                     pass_direction, player_on_the_ball.controls->pass,
-                                     automatic_pass, game_state);
+                                     pass_direction, power, automatic_pass, game_state);
             kicked_ball = true;
         } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
