@@ -128,6 +128,9 @@ void systems_ball(GameState *game_state, Input *input) {
                 if (bounced) {
                     ball->last_bounce_time = game_state->time;
                 }
+                if (ball->is_on_the_ground) {
+                    ball->future_bounce_position = V3_TO_V2(position);
+                }
 
                 // Calculate next 10 look ahead positions, 10 dts apart from each other
                 b32 lookahead_on_the_ground;
@@ -158,6 +161,7 @@ void systems_ball(GameState *game_state, Input *input) {
                                      &lookahead_bounced, game_state);
                     if (lookahead_bounced) {
                         ball->future_bounce_position = V3_TO_V2(lookahead_position);
+                        break;
                     }
                 }
 

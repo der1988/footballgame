@@ -465,12 +465,16 @@ void systems_player(GameState *game_state, Input *input) {
     if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f)) {
         player_to_avoid_entity_id = ball->last_kicker_entity_id;
     }
+    v2 epicenter = ball_transform->position;
+    if (Vector2Distance(epicenter, ball->future_bounce_position) > 100) {
+        epicenter = ball->future_bounce_position;
+    }
     if (kicked_ball) {
         nearest_teammate_entity_id =
-            find_nearest_teammate(game_state, player_to_avoid_entity_id, ball_transform->position);
+            find_nearest_teammate(game_state, player_to_avoid_entity_id, epicenter);
     } else if (!player_on_the_ball.exists) {
         nearest_teammate_entity_id =
-            find_nearest_teammate(game_state, player_to_avoid_entity_id, ball_transform->position);
+            find_nearest_teammate(game_state, player_to_avoid_entity_id, epicenter);
     }
     game_state->vars.p1.player_entity_id = nearest_teammate_entity_id;
 }
