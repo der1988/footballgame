@@ -31,9 +31,9 @@ typedef struct {
     ComponentCollider *collider;
 } PlayerOnTheBall;
 
+// TODO: generalise this function
 v2 calculate_ball_position_to_aim_for(GameState *game_state, v2 player_position,
                                       ComponentBall *ball) {
-    // Only dive if ball velocity is higher than 36km/h
     const int steps_per_lookahead =
         (game_state->vars.slow_motion ? 10 : 1) * game_state->constants.ball_lookahead_dts;
     const int lookaheads = game_state->constants.ball_lookaheads;
@@ -50,7 +50,7 @@ v2 calculate_ball_position_to_aim_for(GameState *game_state, v2 player_position,
     return V3_TO_V2(ball->lookahead_positions[0]);
 }
 
-EntityId find_nearest_teammate(GameState *game_state, EntityId player_on_the_ball_entity_id,
+EntityId find_nearest_teammate(GameState *game_state, EntityId player_to_not_select_entity_id,
                                v2 position) {
     ComponentBall *ball = ComponentCastToTypedUnchecked(game_state->entity_repository, CT_BALL,
                                                         game_state->vars.ball_entity_id);
@@ -66,7 +66,7 @@ EntityId find_nearest_teammate(GameState *game_state, EntityId player_on_the_bal
             Component *goalie =
                 entities_component_get(game_state->entity_repository, CT_GOALIE, entity_id);
 
-            if (player_on_the_ball_entity_id == entity_id ||
+            if (player_to_not_select_entity_id == entity_id ||
                 (goalie->header.enabled &&
                  goalie->goalie.state_machine->current_state != GS_HOLD_BALL) ||
                 ball->pass_target_entity_id == entity_id) {
@@ -461,12 +461,16 @@ void systems_player(GameState *game_state, Input *input) {
 
     // Select human controlled player
     EntityId nearest_teammate_entity_id = player_on_the_ball.id;
+    EntityId player_to_avoid_entity_id = EID_NOT_VALID;
+    if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f)) {
+        player_to_avoid_entity_id = ball->last_kicker_entity_id;
+    }
     if (kicked_ball) {
         nearest_teammate_entity_id =
-            find_nearest_teammate(game_state, player_on_the_ball.id, ball_transform->position);
+            find_nearest_teammate(game_state, player_to_avoid_entity_id, ball_transform->position);
     } else if (!player_on_the_ball.exists) {
         nearest_teammate_entity_id =
-            find_nearest_teammate(game_state, EID_NOT_VALID, ball_transform->position);
+            find_nearest_teammate(game_state, player_to_avoid_entity_id, ball_transform->position);
     }
     game_state->vars.p1.player_entity_id = nearest_teammate_entity_id;
 }
