@@ -68,3 +68,4 @@ v fix annoying bug after goalie blocks ball during dive
 - improve codebase quality
 - shot height should depend on starting height of the ball
 - implement header
+- fix broken after touch

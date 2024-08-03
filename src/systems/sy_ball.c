@@ -98,8 +98,11 @@ void systems_ball(GameState *game_state, Input *input) {
 
                 // After touch
                 f32 after_touch_time = (game_state->time - ball->last_kick_time);
-                if (ball->last_kicker_entity_id == game_state->vars.p1.player_entity_id &&
-                    ball->subject_to_after_touch &&
+                // TODO: the following has to be fixed but I can't be bothered to do that now:
+                // we want the human player that kicked the ball to be able to control after touch.
+                // Also we'd like CPU controlled players to be able to control after touch in some
+                // way.
+                if (ball->subject_to_after_touch &&
                     after_touch_time > game_state->constants.ball_after_touch_delay_time) {
                     v2 input = game_state->vars.p1.controls.steering;
                     f32 force =
