@@ -59,8 +59,8 @@ v implement high dive with ball
 v improve goalie exit
 v EntityId should have a non-valid value definition
 v fix annoying bug after goalie blocks ball during dive
+v implement passing
 - implement teams
-- implement passing
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - use r1 to make the player stop the ball?
@@ -69,3 +69,6 @@ v fix annoying bug after goalie blocks ball during dive
 - shot height should depend on starting height of the ball
 - implement header
 - fix broken after touch
+- implement goalie high catch/bounce
+- improve player selection system
+- implement pitch radar
