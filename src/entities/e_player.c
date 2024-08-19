@@ -66,6 +66,8 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     ComponentPlayer *player =
         entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id);
     player->team_formation_position_idx = config.team_formation_position_idx;
+    // Sets initial max velocity to half of max run velocity
+    player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
     StateMachinePlayer *player_state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
     player_state_machine->owner_entity = entity->id;
