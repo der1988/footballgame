@@ -342,19 +342,21 @@ void systems_player(GameState *game_state, Input *input) {
             EntityId teammate_entity_id =
                 find_pass_target(game_state, &player_on_the_ball, 30, 300);
             b32 automatic_pass = teammate_entity_id != EID_NOT_VALID;
+            f32 pass_power;
             if (automatic_pass) {
                 ComponentTransform *teammate_transform = entities_component_get_typed(
                     game_state->entity_repository, CT_TRANSFORM, teammate_entity_id);
                 pass_direction = Vector3Normalize(V2_TO_V3(
                     Vector2Subtract(teammate_transform->position, player_on_the_ball.position), 0));
                 ball->pass_target_entity_id = teammate_entity_id;
+                pass_power = 1;
             } else {
+                pass_power = player_on_the_ball.controls->pass;
                 pass_direction =
                     Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
             }
             entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                     pass_direction, player_on_the_ball.controls->pass,
-                                     automatic_pass, game_state);
+                                     pass_direction, pass_power, automatic_pass, game_state);
             kicked_ball = true;
         } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
