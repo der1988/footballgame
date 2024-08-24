@@ -1,6 +1,7 @@
 #include "../components/components.h"
 #include "../entities/entities.h"
 #include "../game.h"
+#include "football.h"
 #include "input.h"
 #include "layers/layers.h"
 #include "memory.h"
@@ -48,6 +49,12 @@ v2 calculate_ball_position_to_aim_for(GameState *game_state, v2 player_position,
         }
     }
     return V3_TO_V2(ball->lookahead_positions[0]);
+}
+
+v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos) {
+    pos.x = pitch.x + pitch.width * 0.5f + pitch.width * 0.5f * pos.x;
+    pos.y = pitch.y + pitch.height * (1 - pos.y);
+    return pos;
 }
 
 EntityId find_nearest_teammate(GameState *game_state, EntityId player_to_not_select_entity_id,
@@ -210,12 +217,9 @@ void systems_player(GameState *game_state, Input *input) {
                             TeamFormationPosition *team_formation_position =
                                 football_get_team_formation_position(
                                     TF_433, player->team_formation_position_idx);
-                            v2 target = team_formation_position->default_position;
-                            target.x = game_state->vars.pitch.rectangle.x +
-                                       game_state->vars.pitch.rectangle.width * 0.5f +
-                                       game_state->vars.pitch.rectangle.width * 0.5f * target.x;
-                            target.y = game_state->vars.pitch.rectangle.y +
-                                       game_state->vars.pitch.rectangle.height * (1 - target.y);
+                            v2 target =
+                                pitch_pos_rel_to_abs(game_state->vars.pitch.rectangle,
+                                                     team_formation_position->position[TM_DEFAULT]);
                             player_controls->steering =
                                 steering_arrive(transform->position, physics->velocity,
                                                 physics->max_velocity, target, 20);

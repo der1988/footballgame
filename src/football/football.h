@@ -59,10 +59,12 @@ typedef enum { TF_433, TF_442, TF_352, TF_343, TF_532, TF_4312, TF_4231, TF_COUN
 
 typedef enum { SOP_BALANCED, SOP_OFFENSIVE, SOP_DEFENSIVE } StyleOfPlay;
 
+typedef enum { TM_DEFENSIVE, TM_DEFAULT, TM_ATTACKING, TM_COUNT } TeamMomentum;
+
 typedef struct {
     const char *name;
     PlayerRole supported_roles[3];
-    v2 default_position;
+    v2 position[TM_COUNT];
     StyleOfPlay style_of_play;
 } TeamFormationPosition;
 
