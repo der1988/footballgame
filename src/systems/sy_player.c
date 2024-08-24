@@ -172,6 +172,7 @@ void systems_player(GameState *game_state, Input *input) {
                     game_state->memory_by_lifetime[MAL_UPDATE], sizeof(PlayerControls));
 
                 if (game_state->vars.p1.player_entity_id == entity_id) {
+                    // Player is human controlled
                     player_controls->steering = game_state->vars.p1.controls.steering;
 
                     if (game_state->vars.p1.controls.charge.ready) {
@@ -195,13 +196,17 @@ void systems_player(GameState *game_state, Input *input) {
                         }
                     }
                 } else {
+                    // Player is AI controlled
                     if (game_state->constants.ai_enabled) {
+                        // This player is the target of an automatic pass
+                        // Let's move towards the ball
                         if (ball->pass_target_entity_id == entity_id) {
                             player_controls->steering = steering_seek(
                                 transform->position, physics->velocity, physics->max_velocity,
                                 calculate_ball_position_to_aim_for(game_state, transform->position,
                                                                    ball));
                         } else {
+                            // Let's move based on the tactics of the team
                             TeamFormationPosition *team_formation_position =
                                 football_get_team_formation_position(
                                     TF_433, player->team_formation_position_idx);
@@ -467,6 +472,8 @@ void systems_player(GameState *game_state, Input *input) {
     }
     v2 epicenter = ball_transform->position;
     if (Vector2Distance(epicenter, ball->future_bounce_position) > 100) {
+        // If the ball is in flight and it's gonna bounce far from current ball position,
+        // let's use bounce position instead to select which player is human controlled
         epicenter = ball->future_bounce_position;
     }
     if (kicked_ball) {
