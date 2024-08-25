@@ -21,28 +21,28 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
 
     // Initialise transform
-    ComponentTransform *transform =
-        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    ComponentTransform *transform = &entity->transform;
+    transform->header.enabled = true;
     transform->position = config.position;
     transform->rotation = 0;
     transform->virtual_height = 100;
     transform->scale = (v2){.x = 0.625, .y = 0.625};
 
     // Initialise 3d physics
-    ComponentPhysics3d *physics_3d =
-        entities_component_create(game_state->entity_repository, CT_PHYSICS_3D, entity->id);
+    ComponentPhysics3d *physics_3d = &entity->physics_3d;
+    physics_3d->header.enabled = true;
     physics_3d->mass = 0.43f;
     physics_3d->velocity = (Vector3){0};
     physics_3d->accel = (Vector3){0};
     physics_3d->max_velocity = game_state->constants.ball_max_velocity;
 
     // Initialise sprite
-    ComponentSprite *sprite =
-        entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
+    ComponentSprite *sprite = &entity->sprite;
     char *ball_frame_name = "ball_left_0";
     AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball_frame_name);
     assert(sprite_frame != NULL);
+    sprite->header.enabled = true;
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;
     sprite->flipX = false;
@@ -56,8 +56,8 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
     sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
-    ComponentCollider *collider =
-        entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
+    ComponentCollider *collider = &entity->collider;
+    collider->header.enabled = true;
     collider->colliders =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
     collider->num_colliders = 1;
@@ -65,14 +65,14 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
     collider->colliders[0].props_circle.radius = 2.5f;
 
     // Initialise action
-    entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
+    entity->action.header.enabled = true;
 
     // Initialise ball
-    ComponentBall *ball =
-        entities_component_create(game_state->entity_repository, CT_BALL, entity->id);
+    ComponentBall *ball = &entity->ball;
+    ball->header.enabled = true;
     StateMachineBall *state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineBall));
-    state_machine->owner_entity = entity->id;
+    state_machine->owner_entity = entity->header.id;
     state_machine->previous_state = BS_NONE;
     state_machine->current_state = BS_IN_PLAY;
     ball->state_machine = state_machine;
@@ -81,19 +81,16 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
 
     entities_ball_state_machine_on_enter(entity, game_state);
 
-    GLOG_INFO_CTX(LS_ENTITIES, entity->name, "ball created");
+    GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "ball created");
 
     return entity;
 }
 
 void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    Component *sprite =
-        entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, entity->id);
+    ComponentBall *ball = &entity->ball;
     StateMachineBall *state_machine = ball->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
                    StateMachineBallStateString[state_machine->current_state]);
 
     // Reset state data
@@ -109,6 +106,7 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
         break;
     }
     case BS_GK_HANDS: {
+        ComponentSprite *sprite = &entity->sprite;
         sprite->header.enabled = false;
     }
     case BS_COUNT:
@@ -117,13 +115,11 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
 }
 
 void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    Component *sprite =
-        entities_component_get(game_state->entity_repository, CT_SPRITE, entity->id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, entity->id);
+    ComponentSprite *sprite = &entity->sprite;
+    ComponentBall *ball = &entity->ball;
     StateMachineBall *state_machine = ball->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
                    StateMachineBallStateString[state_machine->previous_state]);
 
     switch (state_machine->previous_state) {
@@ -165,27 +161,21 @@ void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
 
 void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
                                              GameState *game_state) {
-    ComponentTransform *transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentTransform *transform = &entity->transform;
     transform->position = V3_TO_V2(pos);
     transform->virtual_height = pos.y;
-    physics_3d->velocity = velocity;
-    ball->subject_to_after_touch = false;
+    entity->physics_3d.velocity = velocity;
+    entity->ball.subject_to_after_touch = false;
 }
 
 void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
                                      v2 player_velocity, v2 position_to_seek, f32 control_quality,
                                      GameState *game_state) {
-    ComponentTransform *transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentTransform *transform = &entity->transform;
+    ComponentPhysics3d *physics_3d = &entity->physics_3d;
+    ComponentBall *ball = &entity->ball;
 
     physics_3d->velocity =
         Vector3Add(V2_TO_V3(player_velocity, 0),
@@ -199,12 +189,11 @@ void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on
 void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
                                    v2 control_direction, v2 player_velocity, f32 control_quality,
                                    GameState *game_state) {
-    ComponentTransform *transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentTransform *transform = &entity->transform;
+    ComponentPhysics3d *physics_3d = &entity->physics_3d;
+    ComponentBall *ball = &entity->ball;
+
     f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
     v3 velocity_to_add = Vector3Scale(
         Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
@@ -216,15 +205,12 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
 
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                          f32 power, GameState *game_state) {
-    Entity *ball_entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
-    ComponentTransform *transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_entity_id);
-    ComponentPhysics3d *physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ComponentCollider *collider =
-        entities_component_get_typed(game_state->entity_repository, CT_COLLIDER, ball_entity_id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentTransform *transform = &entity->transform;
+    ComponentPhysics3d *physics_3d = &entity->physics_3d;
+    ComponentBall *ball = &entity->ball;
+    ComponentCollider *collider = &entity->collider;
+
     v3 shot_direction =
         Vector3Add(V2_TO_V3(direction, 0),
                    (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
@@ -239,23 +225,23 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     if (!ball->is_on_the_ground) {
         if (transform->virtual_height > (ball_radius + 12)) {
             // TODO: this needs to handle headers
-            GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball shot, should be an header");
+            GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball shot, should be an header");
         } else if (transform->virtual_height > ball_radius) {
             if (physics_3d->velocity.y < 0) {
                 // Ball is falling
                 shot_force *= 1.05f;
-                GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball shot during fall trajectory");
+                GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball shot during fall trajectory");
             } else if (physics_3d->velocity.y > 0) {
                 // If it's not falling then maybe it's a drop shot?
                 if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f)) {
                     // Drop shot
                     shot_force *= 1.10;
-                    GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball drop shot");
+                    GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball drop shot");
                 } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0.25f,
                                                    0.5f)) {
                     // Nope, this must be the shittiest shot ever
                     shot_force *= 0.8f;
-                    GLOG_DEBUG_CTX(LS_GAME, ball_entity->name, "ball drop shot too late");
+                    GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball drop shot too late");
                 }
             }
         }
@@ -271,10 +257,10 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
 
 void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
                               f32 power, b32 auto_pass, GameState *game_state) {
-    ComponentPhysics3d *physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentPhysics3d *physics_3d = &entity->physics_3d;
+    ComponentBall *ball = &entity->ball;
+
     if (auto_pass) {
         // reset velocity to avoid existing inertia affecting the trajectory
         physics_3d->velocity = Vector3Zero();
@@ -291,10 +277,10 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
 
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
                              f32 power, GameState *game_state) {
-    ComponentPhysics3d *physics_3d =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_entity_id);
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentPhysics3d *physics_3d = &entity->physics_3d;
+    ComponentBall *ball = &entity->ball;
+
     v3 long_pass_direction = Vector3Add(
         Vector3Normalize(V2_TO_V3(direction, 0)),
         (Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
@@ -312,27 +298,31 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
 
 void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
                                   GameState *game_state) {
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentBall *ball = &entity->ball;
+
     ball->last_player_on_the_ball_entity_id = goalie_entity_id;
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
 }
 
 void entities_ball_saved_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
                                    GameState *game_state) {
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentBall *ball = &entity->ball;
+
     ball->last_player_on_the_ball_entity_id = goalie_entity_id;
 }
 
 void entities_ball_back_in_play(EntityId ball_entity_id, GameState *game_state) {
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentBall *ball = &entity->ball;
+
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }
 
 void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state) {
-    ComponentBall *ball =
-        entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    ComponentBall *ball = &entity->ball;
+
     ball->subject_to_after_touch = false;
 }

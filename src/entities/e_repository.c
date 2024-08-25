@@ -14,8 +14,8 @@ static EntityId find_empty_slot(EntityRepository *entity_repo) {
     if (entity_repo->available_slots == entity_repo->max_slots) {
         entity_repo->available_slots--;
         entity_repo->last_used_slot = id;
-        entity_repo->entities[id].id = id;
-        entity_repo->entities[id].alive = true;
+        entity_repo->entities[id].header.id = id;
+        entity_repo->entities[id].header.alive = true;
     } else if (entity_repo->available_slots > 0) {
         id = entity_repo->last_used_slot;
         do {
@@ -24,11 +24,11 @@ static EntityId find_empty_slot(EntityRepository *entity_repo) {
             } else {
                 id++;
             }
-        } while ((entity_repo->entities[id].alive));
+        } while ((entity_repo->entities[id].header.alive));
         entity_repo->available_slots--;
         entity_repo->last_used_slot = id;
-        entity_repo->entities[id].id = id;
-        entity_repo->entities[id].alive = true;
+        entity_repo->entities[id].header.id = id;
+        entity_repo->entities[id].header.alive = true;
     } else {
         GLOG_ERROR(LS_ENTITIES, "No more entity slots available");
         return EID_NOT_VALID;
@@ -38,7 +38,7 @@ static EntityId find_empty_slot(EntityRepository *entity_repo) {
 }
 
 static void empty_slot(EntityRepository *entity_repo, EntityId id) {
-    entity_repo->entities[id].alive = false;
+    entity_repo->entities[id].header.alive = false;
     entity_repo->available_slots++;
 }
 
@@ -48,8 +48,6 @@ EntityRepository *entities_repository_init(MemoryArenaHandle *memory_arena_handl
 
     handle->arena_handle = memory_arena_handle;
     handle->entities = memory_arena_push(handle->arena_handle, sizeof(Entity) * MAX_ENTITIES);
-    handle->components =
-        memory_arena_push(handle->arena_handle, CT_COUNT * sizeof(Component) * MAX_ENTITIES);
     handle->max_slots = handle->available_slots = MAX_ENTITIES;
     handle->last_used_slot = 0;
     handle->initialised = true;
@@ -74,10 +72,10 @@ Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *na
     Entity *entity = &handle->entities[id];
 
     // Entity header
-    entity->type = type;
-    snprintf(entity->name, 40, name_format, entity->id);
+    entity->header.type = type;
+    snprintf(entity->header.name, 40, name_format, entity->header.id);
 
-    GLOG_INFO_CTX(LS_ENTITIES, entity->name, "entity initialised");
+    GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "entity initialised");
 
     return entity;
 }
@@ -85,66 +83,10 @@ Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *na
 void entities_entity_destroy(EntityRepository *handle, EntityId id) {
     empty_slot(handle, id);
 
-    GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].name, "entity destroyed");
+    GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].header.name, "entity destroyed");
 }
 
 Entity *entities_entity_get(EntityRepository *handle, EntityId id) {
     assert(handle->initialised);
-    return handle->entities[id].alive ? &handle->entities[id] : NULL;
-}
-
-void *entities_component_create(EntityRepository *entity_repo, ComponentType type, EntityId id) {
-    assert(entity_repo->initialised);
-
-    Component *component = entity_repo->components + ((type * MAX_ENTITIES) + id);
-    component->header.type = type;
-    component->header.enabled = true;
-    component->header.entity_id = id;
-
-    // We return a random union field, since they all start at the same address in memory
-    return &component->transform;
-}
-
-Component *entities_component_get(EntityRepository *entity_repo, ComponentType type, EntityId id) {
-    assert(entity_repo->initialised);
-
-    if (!entity_repo->entities[id].alive) {
-        return NULL;
-    }
-
-    Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
-
-    return component;
-}
-
-void *entities_component_get_typed(EntityRepository *entity_repo, ComponentType type, EntityId id) {
-    assert(entity_repo->initialised);
-
-    if (!entity_repo->entities[id].alive) {
-        return NULL;
-    }
-
-    Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
-
-    return component->header.enabled ? &component->transform : NULL;
-}
-
-b32 entities_entity_is_alive_and_has_components(EntityRepository *entity_repo, EntityId id,
-                                                u32 count, ...) {
-    if (!entity_repo->entities[id].alive) {
-        return false;
-    }
-
-    va_list ap;
-    va_start(ap, count);
-    for (usize i = 0; i < count; ++i) {
-        ComponentType type = va_arg(ap, ComponentType);
-        Component *component = entity_repo->components + ((type * entity_repo->max_slots) + id);
-        if (!component->header.enabled) {
-            return false;
-        }
-    };
-    va_end(ap);
-
-    return true;
+    return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;
 }

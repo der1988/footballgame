@@ -28,7 +28,7 @@ void actions_action_run(ActionRunner *action_runner, EntityId id, GameState *gam
 }
 
 void actions_action_stop(RunningActionIdx running_action_idx, EntityId id, GameState *game_state) {
-    entities_component_get(game_state->entity_repository, CT_ACTION, id)
+    entities_entity_get(game_state->entity_repository, id)
         ->action.running_actions[running_action_idx]
         .action = NULL;
 }

@@ -10,28 +10,24 @@
 void systems_goal(GameState *game_state) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
-    ComponentTransform *ball_transform = entities_component_get_typed(
-        game_state->entity_repository, CT_TRANSFORM, game_state->vars.ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_typed(
-        game_state->entity_repository, CT_PHYSICS_3D, game_state->vars.ball_entity_id);
-    ComponentCollider *ball_collider = entities_component_get_typed(
-        game_state->entity_repository, CT_COLLIDER, game_state->vars.ball_entity_id);
-    ComponentBall *ball = entities_component_get_typed(game_state->entity_repository, CT_BALL,
-                                                       game_state->vars.ball_entity_id);
+    Entity *ball_entity =
+        entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+    ComponentTransform *ball_transform = &ball_entity->transform;
+    ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
+    ComponentCollider *ball_collider = &ball_entity->collider;
+    ComponentBall *ball = &ball_entity->ball;
 
     // First let's check if it's a goal
+    Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(
-                entity_repository, entity_id, 4, CT_TRANSFORM, CT_SPRITE, CT_GOAL, CT_COLLIDER)) {
+        entity = entities_entity_get(game_state->entity_repository, entity_id);
+        if (entity->header.alive && entity->transform.header.enabled &&
+            entity->sprite.header.enabled && entity->goal.header.enabled &&
+            entity->collider.header.enabled) {
 
-            ComponentTransform *transform = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentSprite *sprite =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_SPRITE, entity_id);
-            ComponentGoal *goal =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_GOAL, entity_id);
-            ComponentCollider *collider = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_COLLIDER, entity_id);
+            ComponentTransform *transform = &entity->transform;
+            ComponentGoal *goal = &entity->goal;
+            ComponentCollider *collider = &entity->collider;
 
             Rectangle goal_rectangle = {
                 .x = transform->position.x + collider->colliders[0].props_rectangle.offset.x,

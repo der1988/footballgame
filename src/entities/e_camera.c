@@ -9,15 +9,15 @@ Entity *entities_camera_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
 
     // Initialise transform
-    ComponentTransform *transform =
-        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    ComponentTransform *transform = &entity->transform;
+    transform->header.enabled = true;
     transform->position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     transform->rotation = 0;
     transform->scale = Vector2One();
 
     // Initialise physics
-    ComponentPhysics *physics =
-        entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
+    ComponentPhysics *physics = &entity->physics;
+    physics->header.enabled = true;
     physics->mass = 1;
     physics->velocity = (Vector2){0};
     physics->accel = (Vector2){0};
@@ -26,14 +26,15 @@ Entity *entities_camera_create(GameState *game_state) {
     physics->max_force = 50.0f;
 
     // Initialise props
-    ComponentCamera *camera =
-        entities_component_create(game_state->entity_repository, CT_CAMERA, entity->id);
+    ComponentCamera *camera = &entity->camera;
+    camera->header.enabled = true;
     camera->slowing_distance = 300.0f;
 
     // Initialise target
-    entities_component_create(game_state->entity_repository, CT_TARGET, entity->id);
+    ComponentTarget *target = &entity->target;
+    target->header.enabled = true;
 
-    GLOG_INFO_CTX(LS_ENTITIES, entity->name, "camera created");
+    GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "camera created");
 
     return entity;
 }

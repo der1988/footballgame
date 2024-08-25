@@ -1,7 +1,6 @@
 #include "../actions/actions.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
 #include "../utils/utils.h"
+#include "entities.h"
 #include <raylib.h>
 
 void actions_change_color_from_to_update(ActionRunner *action_runner, EntityId id,
@@ -12,8 +11,8 @@ void actions_change_color_from_to_update(ActionRunner *action_runner, EntityId i
         h = 1;
         action_runner->completed = true;
     }
-    Component *component = entities_component_get(game_state->entity_repository, CT_SPRITE, id);
-    component->sprite.color = utils_color_lerp(action->from, action->to, h);
+    ComponentSprite *sprite = &entities_entity_get(game_state->entity_repository, id)->sprite;
+    sprite->color = utils_color_lerp(action->from, action->to, h);
 }
 
 ActionChangeColorFromTo *

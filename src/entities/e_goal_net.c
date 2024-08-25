@@ -16,16 +16,16 @@ struct Entity *entities_goal_net_create(GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");
 
     // Initialise transform
-    ComponentTransform *transform =
-        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    ComponentTransform *transform = &entity->transform;
+    transform->header.enabled = true;
     transform->position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
 
     // Initialise sprite
-    ComponentSprite *sprite =
-        entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
+    ComponentSprite *sprite = &entity->sprite;
+    sprite->header.enabled = true;
     char *posts_frame_name = "net_0";
     AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
@@ -42,7 +42,7 @@ struct Entity *entities_goal_net_create(GameState *game_state) {
     sprite->shadow_offset = (v2){.x = 0.05, .y = 0.1};
     sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
-    GLOG_INFO_CTX(LS_ENTITIES, entity->name, "goal net created");
+    GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "goal net created");
 
     return entity;
 }

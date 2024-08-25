@@ -22,22 +22,22 @@ void systems_camera(GameState *game_state) {
 
     EntityRepository *entity_repository = game_state->entity_repository;
 
+    Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(
-                entity_repository, entity_id, 4, CT_TRANSFORM, CT_PHYSICS, CT_TARGET, CT_CAMERA)) {
-            ComponentTransform *transform = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentPhysics *physics =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
-            ComponentTarget *target =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_TARGET, entity_id);
-            ComponentCamera *props =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_CAMERA, entity_id);
+        entity = entities_entity_get(game_state->entity_repository, entity_id);
+        if (entity->header.alive && entity->transform.header.enabled &&
+            entity->physics.header.enabled && entity->target.header.enabled &&
+            entity->camera.header.enabled) {
+            ComponentTransform *transform = &entity->transform;
+            ComponentTarget *target = &entity->target;
+            ComponentPhysics *physics = &entity->physics;
+            ComponentCamera *props = &entity->camera;
 
-            ComponentTransform *target_transform = entities_component_get_typed(
-                game_state->entity_repository, CT_TRANSFORM, target->entity_id);
-            ComponentPhysics3d *target_physics = entities_component_get_typed(
-                game_state->entity_repository, CT_PHYSICS_3D, target->entity_id);
+            Entity *target_entity =
+                entities_entity_get(game_state->entity_repository, target->entity_id);
+            ComponentTransform *target_transform = &target_entity->transform;
+            ComponentPhysics3d *target_physics = &target_entity->physics_3d;
+
             v2 steering = Vector2Zero();
             if (target_transform && target_physics) {
                 if (fabsf(target_physics->velocity.z) > 30) {

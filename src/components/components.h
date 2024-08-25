@@ -14,24 +14,12 @@
 struct StateMachineBall;
 struct StateMachinePlayer;
 
-typedef enum {
-    CT_TRANSFORM,
-    CT_PHYSICS,
-    CT_PHYSICS_3D,
-    CT_SPRITE,
-    CT_COLLIDER,
-    CT_ACTION,
-    CT_TARGET,
-    CT_CAMERA,
-    CT_PLAYER,
-    CT_BALL,
-    CT_GOAL,
-    CT_GOALIE,
-    CT_COUNT,
-    CT_NONE
-} ComponentType;
+typedef struct {
+    b32 enabled;
+} ComponentHeader;
 
 typedef struct ComponentTransform {
+    ComponentHeader header;
     struct ComponentTransform *parent;
     v2 position;
     f32 rotation;
@@ -40,6 +28,7 @@ typedef struct ComponentTransform {
 } ComponentTransform;
 
 typedef struct {
+    ComponentHeader header;
     f32 mass;
     v2 accel;
     v2 velocity;
@@ -48,6 +37,7 @@ typedef struct {
 } ComponentPhysics;
 
 typedef struct {
+    ComponentHeader header;
     f32 mass;
     v3 accel;
     v3 velocity;
@@ -56,6 +46,7 @@ typedef struct {
 } ComponentPhysics3d;
 
 typedef struct {
+    ComponentHeader header;
     Color color;
     b32 flipX;
     b32 flipY;
@@ -70,10 +61,12 @@ typedef struct {
 } ComponentSprite;
 
 typedef struct {
+    ComponentHeader header;
     ActionRunner running_actions[MaxConcurrentActions];
 } ComponentAction;
 
 typedef struct {
+    ComponentHeader header;
     EntityId entity_id;
 } ComponentTarget;
 
@@ -98,11 +91,13 @@ typedef struct {
 } Collider;
 
 typedef struct {
+    ComponentHeader header;
     Collider *colliders;
     u16 num_colliders;
 } ComponentCollider;
 
 typedef struct {
+    ComponentHeader header;
     CameraType camera;
     f32 slowing_distance;
     v2 offset;
@@ -121,6 +116,7 @@ typedef enum {
 } Direction;
 
 typedef struct {
+    ComponentHeader header;
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
     Time time_spent_in_precision_control;
@@ -136,6 +132,7 @@ typedef struct {
 } ComponentPlayer;
 
 typedef struct {
+    ComponentHeader header;
     struct StateMachineBall *state_machine;
     b32 is_on_the_ground;
     EntityId last_player_on_the_ball_entity_id;
@@ -153,6 +150,7 @@ typedef struct {
 } ComponentBall;
 
 typedef struct {
+    ComponentHeader header;
     Time hit_left_post_time;
     Time hit_right_post_time;
     Time hit_crossbar_time;
@@ -166,6 +164,7 @@ typedef enum { ST_WITHOUT_BALL, ST_WITH_BALL, ST_COUNT } SaveType;
 typedef enum { AP_START, AP_END, AP_COUNT } AnimationPhase;
 
 typedef struct {
+    ComponentHeader header;
     struct StateMachineGoalie *state_machine;
     SaveDirection dive_direction;
     SaveHeight dive_height;
@@ -178,30 +177,6 @@ typedef struct {
     Time last_frame_update_time;
     Time last_save_time;
 } ComponentGoalie;
-
-typedef struct {
-    ComponentType type;
-    b32 enabled;
-    EntityId entity_id;
-} ComponentHeader;
-
-typedef struct {
-    ComponentHeader header;
-    union {
-        ComponentCamera camera;
-        ComponentTransform transform;
-        ComponentPhysics physics;
-        ComponentPhysics3d physics_3d;
-        ComponentSprite sprite;
-        ComponentCollider collider;
-        ComponentAction action;
-        ComponentTarget target;
-        ComponentPlayer player;
-        ComponentBall ball;
-        ComponentGoal goal;
-        ComponentGoalie goalie;
-    };
-} Component;
 
 RunningActionIdx components_action_run(EntityId id, struct Action *action, GameState *game_state);
 void components_action_stop(EntityId id, RunningActionIdx running_action_idx,

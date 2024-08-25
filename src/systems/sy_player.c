@@ -59,23 +59,23 @@ v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos) {
 
 EntityId find_nearest_teammate(GameState *game_state, EntityId player_to_not_select_entity_id,
                                v2 position) {
-    ComponentBall *ball = ComponentCastToTypedUnchecked(game_state->entity_repository, CT_BALL,
-                                                        game_state->vars.ball_entity_id);
+    Entity *ball_entity =
+        entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+    ComponentBall *ball = &ball_entity->ball;
+
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
+    Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
-                                                        CT_TRANSFORM, CT_PLAYER)) {
+        entity = entities_entity_get(game_state->entity_repository, entity_id);
+        if (entity->header.alive && entity->header.type == ET_PLAYER) {
 
-            ComponentTransform *transform = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_TRANSFORM, entity_id);
-            Component *goalie =
-                entities_component_get(game_state->entity_repository, CT_GOALIE, entity_id);
+            ComponentTransform *transform = &entity->transform;
+            ComponentGoalie *goalie = &entity->goalie;
 
             if (player_to_not_select_entity_id == entity_id ||
-                (goalie->header.enabled &&
-                 goalie->goalie.state_machine->current_state != GS_HOLD_BALL) ||
+                (goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
                 ball->pass_target_entity_id == entity_id) {
                 // If player is the one on the ball or a goalie or the destination of the pass let's
                 // skip
@@ -97,16 +97,12 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
+    Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 3,
-                                                        CT_TRANSFORM, CT_PHYSICS, CT_PLAYER)) {
+        entity = entities_entity_get(game_state->entity_repository, entity_id);
+        if (entity->header.alive && entity->header.type == ET_PLAYER) {
 
-            ComponentTransform *transform = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentPhysics *physics =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
-            ComponentPlayer *player =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PLAYER, entity_id);
+            ComponentTransform *transform = &entity->transform;
 
             if (player_on_the_ball->id == entity_id) {
                 // We don't want to pass to ourselves, right?
@@ -137,34 +133,27 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
 void systems_player(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
-    ComponentTransform *ball_transform = entities_component_get_typed(
-        game_state->entity_repository, CT_TRANSFORM, game_state->vars.ball_entity_id);
-    ComponentPhysics3d *ball_physics_3d = entities_component_get_typed(
-        game_state->entity_repository, CT_PHYSICS_3D, game_state->vars.ball_entity_id);
-    ComponentCollider *ball_collider = entities_component_get_typed(
-        game_state->entity_repository, CT_COLLIDER, game_state->vars.ball_entity_id);
-    ComponentBall *ball = entities_component_get_typed(game_state->entity_repository, CT_BALL,
-                                                       game_state->vars.ball_entity_id);
+    Entity *ball_entity =
+        entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+    ComponentBall *ball = &ball_entity->ball;
+    ComponentTransform *ball_transform = &ball_entity->transform;
+    ComponentCollider *ball_collider = &ball_entity->collider;
 
     PlayerOnTheBall player_on_the_ball = {0};
     player_on_the_ball.id = EID_NOT_VALID;
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
 
+    Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 5,
-                                                        CT_TRANSFORM, CT_PHYSICS, CT_SPRITE,
-                                                        CT_PLAYER, CT_COLLIDER)) {
+        entity = entities_entity_get(game_state->entity_repository, entity_id);
+        if (entity->header.alive && entity->transform.header.enabled &&
+            entity->physics.header.enabled && entity->sprite.header.enabled &&
+            entity->player.header.enabled && entity->collider.header.enabled) {
 
-            ComponentTransform *transform = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_TRANSFORM, entity_id);
-            ComponentPhysics *physics =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PHYSICS, entity_id);
-            ComponentSprite *sprite =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_SPRITE, entity_id);
-            ComponentPlayer *player =
-                ComponentCastToTypedUnchecked(game_state->entity_repository, CT_PLAYER, entity_id);
-            ComponentCollider *collider = ComponentCastToTypedUnchecked(
-                game_state->entity_repository, CT_COLLIDER, entity_id);
+            ComponentTransform *transform = &entity->transform;
+            ComponentPhysics *physics = &entity->physics;
+            ComponentPlayer *player = &entity->player;
+            ComponentCollider *collider = &entity->collider;
 
             StateMachinePlayer *state_machine = player->state_machine;
 
@@ -381,8 +370,9 @@ void systems_player(GameState *game_state, Input *input) {
             b32 automatic_pass =
                 teammate_entity_id != EID_NOT_VALID && player_on_the_ball.controls->automatic_pass;
             if (automatic_pass) {
-                ComponentTransform *teammate_transform = entities_component_get_typed(
-                    game_state->entity_repository, CT_TRANSFORM, teammate_entity_id);
+                ComponentTransform *teammate_transform =
+                    &entities_entity_get(game_state->entity_repository, teammate_entity_id)
+                         ->transform;
                 v2 to_teammate =
                     Vector2Subtract(teammate_transform->position, player_on_the_ball.position);
                 pass_direction = Vector3Normalize(V2_TO_V3(to_teammate, 0));

@@ -13,12 +13,12 @@ void actions_play_animation_update(ActionRunner *action_runner, EntityId id,
         h = 1;
         action_runner->completed = true;
     }
-    Component *component = entities_component_get(game_state->entity_repository, CT_SPRITE, id);
+    ComponentSprite *sprite = &entities_entity_get(game_state->entity_repository, id)->sprite;
     AssetsAnimation *animation =
         assets_animation_get_by_id(game_state->animation_cache, action->animation_id);
     u16 frame_to_show_idx = floorf(h * (animation->frames_count - 1));
     AssetsSpriteFrameId frame_id = animation->frames[frame_to_show_idx];
-    component->sprite.frame_id = frame_id;
+    sprite->frame_id = frame_id;
 }
 
 ActionPlayAnimation *actions_play_animation_create(AssetsAnimation *animation, b32 loop,

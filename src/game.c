@@ -17,7 +17,7 @@
 #include <raymath.h>
 
 GameState *game_init(GameConfig game_config) {
-    GLOGF_INFO(LS_GAME, "size of a component: %lu bytes", sizeof(Component));
+    GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(Entity));
     MemoryArenaHandle *memory_arena_lifetime_game =
         memory_arena_create("game", game_config.memory, Megabytes(1));
 
@@ -149,20 +149,16 @@ GameState *game_init(GameConfig game_config) {
     Entity *ball_entity = entities_ball_create(
         (BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
         game_state);
-    game_state->vars.ball_entity_id = ball_entity->id;
+    game_state->vars.ball_entity_id = ball_entity->header.id;
 
     entities_goal_create((GoalConfig){.position = GP_NORTH}, game_state);
 
     Entity *camera_entity = entities_camera_create(game_state);
-    ComponentCamera *camera =
-        &entities_component_get(game_state->entity_repository, CT_CAMERA, camera_entity->id)
-             ->camera;
-    ComponentTarget *camera_target =
-        &entities_component_get(game_state->entity_repository, CT_TARGET, camera_entity->id)
-             ->target;
+    ComponentCamera *camera = &camera_entity->camera;
+    ComponentTarget *camera_target = &camera_entity->target;
     camera->camera = CAM_MAIN;
-    camera_target->entity_id = ball_entity->id;
-    game_state->vars.camera_entity_id = camera_entity->id;
+    camera_target->entity_id = ball_entity->header.id;
+    game_state->vars.camera_entity_id = camera_entity->header.id;
 
     game_state->camera.zoom = 1;
     game_state->camera.rotation = 0;
@@ -175,7 +171,7 @@ GameState *game_init(GameConfig game_config) {
                   (f32)game_state->config.virtual_screen_height / 2};
 
     football_match_change_state(game_state, MS_PLAY);
-    game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->id};
+    game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->header.id};
 #endif
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
@@ -240,8 +236,9 @@ void game_draw(GameState *game_state) {
 
     memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 
-    ComponentTransform *camera_transform = entities_component_get_typed(
-        game_state->entity_repository, CT_TRANSFORM, game_state->vars.camera_entity_id);
+    ComponentTransform *camera_transform =
+        &entities_entity_get(game_state->entity_repository, game_state->vars.camera_entity_id)
+             ->transform;
 
     // Round virtual space coordinates, keep decimals into screen space coordinates
     f32 virtual_ratio =

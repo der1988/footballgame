@@ -9,15 +9,14 @@ void systems_render_debug(GameState *game_state) {
     if (game_state->constants.render_debug) {
         EntityRepository *entity_repository = game_state->entity_repository;
 
+        Entity *entity;
         for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-            if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
-                                                            CT_TRANSFORM, CT_SPRITE)) {
-                ComponentSprite *sprite =
-                    ComponentCastToTypedUnchecked(entity_repository, CT_SPRITE, entity_id);
-                ComponentTransform *transform =
-                    ComponentCastToTypedUnchecked(entity_repository, CT_TRANSFORM, entity_id);
-                Component *wrapper_collider =
-                    entities_component_get(entity_repository, CT_COLLIDER, entity_id);
+            entity = entities_entity_get(game_state->entity_repository, entity_id);
+            if (entity->header.alive && entity->transform.header.enabled &&
+                entity->sprite.header.enabled) {
+                ComponentTransform *transform = &entity->transform;
+                ComponentSprite *sprite = &entity->sprite;
+                ComponentCollider *collider = &entity->collider;
 
                 Vector2 position = transform->position;
                 f32 rotation = transform->rotation;
@@ -35,9 +34,8 @@ void systems_render_debug(GameState *game_state) {
                 Rectangle pitch = game_state->vars.pitch.rectangle;
                 DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
-                if (wrapper_collider->header.enabled) {
+                if (collider->header.enabled) {
                     static Color colliders_colors[] = {RED, VIOLET, PINK, YELLOW};
-                    ComponentCollider *collider = &wrapper_collider->collider;
                     for (u16 i = 0; i < collider->num_colliders; ++i) {
                         if (collider->colliders[i].shape == CS_CIRCLE) {
                             v2 pos = Vector2Add(transform->position,
@@ -57,8 +55,9 @@ void systems_render_debug(GameState *game_state) {
         }
 
         // Ball debug
-        ComponentBall *ball = entities_component_get_typed(game_state->entity_repository, CT_BALL,
-                                                           game_state->vars.ball_entity_id);
+        ComponentBall *ball =
+            &entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id)
+                 ->ball;
         for (u8 i = 0; i < 25; ++i) {
             DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
         }

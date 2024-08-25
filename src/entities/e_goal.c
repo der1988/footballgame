@@ -17,8 +17,8 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
     // Initialise transform
-    ComponentTransform *transform =
-        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    ComponentTransform *transform = &entity->transform;
+    transform->header.enabled = true;
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
@@ -33,14 +33,13 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
 
     // Create goal net
     Entity *goal_net_entity = entities_goal_net_create(game_state);
-    ComponentTransform *goal_net_transform = entities_component_get_typed(
-        game_state->entity_repository, CT_TRANSFORM, goal_net_entity->id);
+    ComponentTransform *goal_net_transform = &goal_net_entity->transform;
     goal_net_transform->parent = transform;
     goal_net_transform->position = Vector2Zero();
 
     // Initialise sprite
-    ComponentSprite *sprite =
-        entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
+    ComponentSprite *sprite = &entity->sprite;
+    sprite->header.enabled = true;
     char *posts_frame_name = "posts_0";
     AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
@@ -58,8 +57,8 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
-    ComponentCollider *collider =
-        entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
+    ComponentCollider *collider = &entity->collider;
+    collider->header.enabled = true;
     collider->colliders =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
     collider->num_colliders = 1;
@@ -70,9 +69,10 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
              .y = -collider->colliders[0].props_rectangle.size.y};
 
     // Initialise goal
-    entities_component_create(game_state->entity_repository, CT_GOAL, entity->id);
+    ComponentGoal *goal = &entity->goal;
+    goal->header.enabled = true;
 
-    GLOG_INFO_CTX(LS_ENTITIES, entity->name, "goal created");
+    GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "goal created");
 
     return entity;
 }

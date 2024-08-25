@@ -54,13 +54,13 @@ void systems_render(GameState *game_state) {
 
     // Collect information about sprites to draw
     SpriteToDraw *current_idx = ordered_sprites_to_draw;
+    Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        if (entities_entity_is_alive_and_has_components(entity_repository, entity_id, 2,
-                                                        CT_TRANSFORM, CT_SPRITE)) {
-            ComponentTransform *transform =
-                ComponentCastToTypedUnchecked(entity_repository, CT_TRANSFORM, entity_id);
-            ComponentSprite *sprite =
-                ComponentCastToTypedUnchecked(entity_repository, CT_SPRITE, entity_id);
+        entity = entities_entity_get(game_state->entity_repository, entity_id);
+        if (entity->header.alive && entity->transform.header.enabled &&
+            entity->sprite.header.enabled) {
+            ComponentTransform *transform = &entity->transform;
+            ComponentSprite *sprite = &entity->sprite;
             AssetsSpriteFrame *sprite_frame =
                 assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);
 

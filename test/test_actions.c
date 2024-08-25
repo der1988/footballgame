@@ -51,14 +51,14 @@ void tearDown(void) {
 
 void test_action_change_color_from_to() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
-    ComponentSprite *component_sprite =
-        entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
+    ComponentSprite *component_sprite = &entity->sprite;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     ActionChangeColorFromTo *action = actions_change_color_from_to_create(
         1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -84,14 +84,14 @@ void test_action_change_color_from_to() {
 
 void test_action_animation() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
-    ComponentSprite *component_sprite =
-        entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
+    ComponentSprite *component_sprite = &entity->sprite;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     AssetsAnimation *animation =
         assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
@@ -165,14 +165,14 @@ void test_action_animation() {
 
 void test_action_sequence() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
-    ComponentSprite *component_sprite =
-        entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
+    ComponentSprite *component_sprite = &entity->sprite;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     MemoryArenaHandle *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
     ActionChangeColorFromTo *action_1 =
@@ -206,13 +206,14 @@ void test_action_sequence() {
 
 void test_action_spawn() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
-    ComponentSprite *component_sprite =
-        entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
+    EntityId entity_id = entity->header.id;
+
+    ComponentSprite *component_sprite = &entity->sprite;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     AssetsAnimation *animation =
         assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
@@ -256,13 +257,14 @@ void test_action_spawn() {
 
 void test_multiple_parallel_actions() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
-    ComponentSprite *component_sprite =
-        entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
+    EntityId entity_id = entity->header.id;
+
+    ComponentSprite *component_sprite = &entity->sprite;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     AssetsAnimation *animation =
         assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
@@ -308,14 +310,14 @@ void test_multiple_parallel_actions() {
 
 void test_action_pause() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
-    ComponentSprite *component_sprite =
-        entities_component_create(g_game_state->entity_repository, CT_SPRITE, entity_id);
+    ComponentSprite *component_sprite = &entity->sprite;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     ActionChangeColorFromTo *action = actions_change_color_from_to_create(
         1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -359,12 +361,13 @@ void test_action_pause() {
 
 void test_action_tween_float_from_to() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     f32 value = 0.0f;
     ActionTweenFloatFromTo *action = actions_tween_float_from_to_create(
@@ -387,14 +390,14 @@ void test_action_tween_float_from_to() {
 
 void test_action_rotate_to() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentTransform *transform =
-        entities_component_create(g_game_state->entity_repository, CT_TRANSFORM, entity_id);
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentTransform *transform = &entity->transform;
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     transform->rotation = 720.0f;
     ActionRotateTo *action =
@@ -417,12 +420,13 @@ void test_action_rotate_to() {
 
 void test_action_toggle_boolean() {
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action =
-        entities_component_create(g_game_state->entity_repository, CT_ACTION, entity_id);
+    ComponentAction *component_action = &entity->action;
+    // Action component is not enabled by default for player entity
+    component_action->header.enabled = true;
 
     b32 value = false;
     ActionToggleBoolean *action = actions_toggle_boolean_create(

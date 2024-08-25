@@ -13,26 +13,24 @@
 void systems_ball(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
+    Entity *entity;
     for (usize ball_id = 0; ball_id < entity_repository->max_slots; ++ball_id) {
-        if (entities_entity_is_alive_and_has_components(game_state->entity_repository, ball_id, 4,
-                                                        CT_TRANSFORM, CT_PHYSICS_3D, CT_SPRITE,
-                                                        CT_BALL)) {
-            ComponentTransform *transform =
-                entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, ball_id);
-            ComponentPhysics3d *physics_3d =
-                entities_component_get_typed(game_state->entity_repository, CT_PHYSICS_3D, ball_id);
-            ComponentSprite *sprite =
-                entities_component_get_typed(game_state->entity_repository, CT_SPRITE, ball_id);
-            ComponentBall *ball =
-                entities_component_get_typed(game_state->entity_repository, CT_BALL, ball_id);
-            ComponentCollider *collider =
-                entities_component_get_typed(game_state->entity_repository, CT_COLLIDER, ball_id);
+        entity = entities_entity_get(game_state->entity_repository, ball_id);
+        if (entity->header.alive && entity->transform.header.enabled &&
+            entity->physics_3d.header.enabled && entity->sprite.header.enabled &&
+            entity->ball.header.enabled && entity->collider.header.enabled) {
+            ComponentTransform *transform = &entity->transform;
+            ComponentPhysics3d *physics_3d = &entity->physics_3d;
+            ComponentSprite *sprite = &entity->sprite;
+            ComponentBall *ball = &entity->ball;
+            ComponentCollider *collider = &entity->collider;
+
             StateMachineBall *state_machine = ball->state_machine;
 
             if (input->buttons[IBT_BUTTON_START].released) {
                 ComponentTransform *p1_transform =
-                    &entities_component_get(game_state->entity_repository, CT_TRANSFORM,
-                                            game_state->vars.p1.player_entity_id)
+                    &entities_entity_get(game_state->entity_repository,
+                                         game_state->vars.p1.player_entity_id)
                          ->transform;
                 entities_ball_set_position_and_velocity(
                     ball_id, V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),

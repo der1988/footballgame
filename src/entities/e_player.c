@@ -25,31 +25,31 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
     // Initialise transform
-    ComponentTransform *transform =
-        entities_component_create(game_state->entity_repository, CT_TRANSFORM, entity->id);
+    ComponentTransform *transform = &entity->transform;
+    transform->header.enabled = true;
     transform->position = config.position;
     transform->rotation = 0;
     transform->scale = (v2){.x = 1, .y = 1};
 
     // Initialise physics
-    ComponentPhysics *physics =
-        entities_component_create(game_state->entity_repository, CT_PHYSICS, entity->id);
+    ComponentPhysics *physics = &entity->physics;
+    physics->header.enabled = true;
     physics->mass = 75.0f;
     physics->velocity = (Vector2){0};
     physics->accel = (Vector2){0};
     physics->max_velocity = game_state->constants.player_control_max_velocity;
 
     // Initialise collider
-    ComponentCollider *collider =
-        entities_component_create(game_state->entity_repository, CT_COLLIDER, entity->id);
+    ComponentCollider *collider = &entity->collider;
+    collider->header.enabled = true;
 
     // Initialise sprite
-    ComponentSprite *sprite =
-        entities_component_create(game_state->entity_repository, CT_SPRITE, entity->id);
     char *player_frame_name = "player_front_0";
     AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_frame_name);
     assert(sprite_frame != NULL);
+    ComponentSprite *sprite = &entity->sprite;
+    sprite->header.enabled = true;
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;
     sprite->flipX = false;
@@ -63,27 +63,28 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     // sprite->shadow_scale = (v2){.x = 0.6, .y = 1};
 
     // Initialise player
-    ComponentPlayer *player =
-        entities_component_create(game_state->entity_repository, CT_PLAYER, entity->id);
+    ComponentPlayer *player = &entity->player;
+    player->header.enabled = true;
     player->team_formation_position_idx = config.team_formation_position_idx;
     // Sets initial max velocity to half of max run velocity
     player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
     StateMachinePlayer *player_state_machine =
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
-    player_state_machine->owner_entity = entity->id;
+    player_state_machine->owner_entity = entity->header.id;
     player_state_machine->previous_state = PS_NONE;
     player->state_machine = player_state_machine;
 
     // Initialise action
-    entities_component_create(game_state->entity_repository, CT_ACTION, entity->id);
+    ComponentAction *action = &entity->action;
+    action->header.enabled = true;
 
     if (config.is_goalie) {
         // Initialise goalie
-        ComponentGoalie *goalie =
-            entities_component_create(game_state->entity_repository, CT_GOALIE, entity->id);
+        ComponentGoalie *goalie = &entity->goalie;
+        goalie->header.enabled = true;
         StateMachineGoalie *state_machine = memory_arena_push(
             game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineGoalie));
-        state_machine->owner_entity = entity->id;
+        state_machine->owner_entity = entity->header.id;
         state_machine->previous_state = GS_NONE;
         state_machine->current_state = GS_PROTECT_GOAL;
         goalie->state_machine = state_machine;
@@ -91,7 +92,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 
         entities_goalie_state_machine_on_enter(entity, game_state);
 
-        prepare_goalie_gfx(player, goalie, game_state);
+        prepare_goalie_gfx(player, &entity->goalie, game_state);
 
         collider->num_colliders = 3;
         collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
@@ -107,7 +108,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     } else {
         player_state_machine->current_state = PS_NORMAL;
 
-        prepare_gfx(player, game_state);
+        prepare_gfx(&entity->player, game_state);
 
         collider->colliders =
             memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
@@ -119,7 +120,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 
     entities_player_state_machine_on_enter(entity, game_state);
 
-    GLOG_INFO_CTX(LS_ENTITIES, entity->name, "player created");
+    GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "player created");
 
     return entity;
 }
@@ -127,7 +128,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_apply,
                                  GameState *game_state) {
     ComponentPhysics *physics =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, player_entity_id);
+        &entities_entity_get(game_state->entity_repository, player_entity_id)->physics;
 
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
@@ -140,22 +141,19 @@ void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_app
 }
 
 void entities_player_apply_velocity(EntityId player_entity_id, GameState *game_state) {
-    ComponentTransform *transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, player_entity_id);
-    ComponentPhysics *physics =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, player_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    ComponentPhysics *physics = &entity->physics;
+    ComponentTransform *transform = &entity->transform;
     transform->position =
         Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
 }
 
 void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
                                              f32 velocity_threshold, GameState *game_state) {
-    ComponentPhysics *physics =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, player_entity_id);
-    ComponentPlayer *player =
-        entities_component_get_typed(game_state->entity_repository, CT_PLAYER, player_entity_id);
-    ComponentSprite *sprite =
-        entities_component_get_typed(game_state->entity_repository, CT_SPRITE, player_entity_id);
+    Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    ComponentPhysics *physics = &entity->physics;
+    ComponentPlayer *player = &entity->player;
+    ComponentSprite *sprite = &entity->sprite;
 
     if (Vector2Length(physics->velocity) > velocity_threshold) {
         Direction pd = entities_common_calculate_direction(direction);
@@ -176,11 +174,10 @@ void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direc
 }
 
 void entities_player_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    ComponentPlayer *player =
-        entities_component_get_typed(game_state->entity_repository, CT_PLAYER, entity->id);
+    ComponentPlayer *player = &entity->player;
     StateMachinePlayer *state_machine = player->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
                    StateMachinePlayerStateString[state_machine->current_state]);
 
     // Reset state data
@@ -199,11 +196,9 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
 }
 
 void entities_player_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    ComponentPlayer *player =
-        entities_component_get_typed(game_state->entity_repository, CT_PLAYER, entity->id);
-    StateMachinePlayer *state_machine = player->state_machine;
+    StateMachinePlayer *state_machine = entity->player.state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
                    StateMachinePlayerStateString[state_machine->previous_state]);
 
     switch (state_machine->previous_state) {
@@ -220,17 +215,9 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
 }
 
 void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    ComponentTransform *transform =
-        entities_component_get_typed(game_state->entity_repository, CT_TRANSFORM, entity->id);
-    ComponentPhysics *physics =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, entity->id);
-    ComponentSprite *sprite =
-        entities_component_get_typed(game_state->entity_repository, CT_SPRITE, entity->id);
-    ComponentGoalie *goalie =
-        entities_component_get_typed(game_state->entity_repository, CT_GOALIE, entity->id);
-    StateMachineGoalie *state_machine = goalie->state_machine;
+    StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "entering state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
                    StateMachineGoalieStateString[state_machine->current_state]);
 
     // Reset state data
@@ -240,19 +227,20 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
     case GS_NONE:
         break;
     case GS_PROTECT_GOAL: {
-        physics->max_velocity = game_state->constants.player_run_max_velocity * 1.25f;
+        entity->physics.max_velocity = game_state->constants.player_run_max_velocity * 1.25f;
         break;
     }
     case GS_DIVE: {
-        physics->max_velocity = goalie->dive_speed * game_state->constants.goalie_dive_max_velocity;
+        entity->physics.max_velocity =
+            entity->goalie.dive_speed * game_state->constants.goalie_dive_max_velocity;
         state_machine->state_data.dive.animation_start_time = game_state->time;
         break;
     }
     case GS_HOLD_BALL: {
-        physics->velocity = Vector2Zero();
-        physics->accel = Vector2Zero();
-        goalie->state_machine->state_data.hold_ball.hold_start_time = game_state->time;
-        sprite->frame_id = goalie->save_frames[SS_UP][ST_WITH_BALL];
+        entity->physics.velocity = Vector2Zero();
+        entity->physics.accel = Vector2Zero();
+        entity->goalie.state_machine->state_data.hold_ball.hold_start_time = game_state->time;
+        entity->sprite.frame_id = entity->goalie.save_frames[SS_UP][ST_WITH_BALL];
         break;
     }
     case GS_COUNT:
@@ -261,13 +249,9 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
 }
 
 void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    ComponentGoalie *goalie =
-        entities_component_get_typed(game_state->entity_repository, CT_GOALIE, entity->id);
-    ComponentPhysics *physics =
-        entities_component_get_typed(game_state->entity_repository, CT_PHYSICS, entity->id);
-    StateMachineGoalie *state_machine = goalie->state_machine;
+    StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "exiting state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
                    StateMachineGoalieStateString[state_machine->previous_state]);
 
     switch (state_machine->previous_state) {
@@ -277,7 +261,7 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *gam
         break;
     }
     case GS_DIVE: {
-        physics->max_velocity = game_state->constants.player_run_max_velocity;
+        entity->physics.max_velocity = game_state->constants.player_run_max_velocity;
         break;
     }
     case GS_HOLD_BALL: {

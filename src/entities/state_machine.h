@@ -23,7 +23,7 @@
         Entity *entity =                                                                           \
             entities_entity_get(game_state->entity_repository, state_machine->owner_entity);       \
         if (state_machine->current_state == state) {                                               \
-            GLOGF_WARN_CTX(LS_ENTITIES, entity->name, "current state is already %s",               \
+            GLOGF_WARN_CTX(LS_ENTITIES, entity->header.name, "current state is already %s",        \
                            StateMachine##ENTITY_TYPE##StateString[state]);                         \
             return;                                                                                \
         }                                                                                          \
@@ -31,7 +31,7 @@
         state_machine->current_state = state;                                                      \
         entities_##NAME##_state_machine_on_exit(entity, game_state);                               \
         entities_##NAME##_state_machine_on_enter(entity, game_state);                              \
-        GLOGF_INFO_CTX(LS_ENTITIES, entity->name, "current state is now: %s",                      \
+        GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "current state is now: %s",               \
                        StateMachine##ENTITY_TYPE##StateString[state]);                             \
     }
 

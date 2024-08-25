@@ -1,14 +1,13 @@
 #include "../actions/actions.h"
 #include "../components/components.h"
 #include "../entities/entities.h"
-#include "../utils/utils.h"
 #include <math.h>
 #include <raylib.h>
 
 void actions_rotate_to_update(ActionRunner *action_runner, EntityId id, GameState *game_state) {
     ActionRotateTo *action = (ActionRotateTo *)action_runner->action;
-    ComponentTransform *transform =
-        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, id)->transform;
+
+    Entity *entity = entities_entity_get(game_state->entity_repository, id);
 
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
     if (h >= 1) {
@@ -16,15 +15,15 @@ void actions_rotate_to_update(ActionRunner *action_runner, EntityId id, GameStat
         action_runner->completed = true;
     }
 
-    transform->rotation = action->from + action->diff * h;
+    entity->transform.rotation = action->from + action->diff * h;
 }
 
 void actions_rotate_to_start(ActionRunner *action_runner, EntityId id, GameState *game_state) {
     ActionRotateTo *action = (ActionRotateTo *)action_runner->action;
-    ComponentTransform *transform =
-        &entities_component_get(game_state->entity_repository, CT_TRANSFORM, id)->transform;
 
-    f32 start_angle = transform->rotation;
+    Entity *entity = entities_entity_get(game_state->entity_repository, id);
+
+    f32 start_angle = entity->transform.rotation;
     if (start_angle > 0)
         start_angle = fmodf(start_angle, 360.0f);
     else
@@ -37,7 +36,7 @@ void actions_rotate_to_start(ActionRunner *action_runner, EntityId id, GameState
         diff_angle += 360;
 
     // These need to be calculated at every start
-    action->from = transform->rotation;
+    action->from = entity->transform.rotation;
     action->diff = diff_angle;
 }
 
