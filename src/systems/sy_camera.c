@@ -3,7 +3,6 @@
 #include "../game.h"
 #include "../steering/steering.h"
 #include "layers.h"
-#include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
 

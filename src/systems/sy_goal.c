@@ -5,7 +5,6 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 void systems_goal(GameState *game_state) {
     EntityRepository *entity_repository = game_state->entity_repository;
