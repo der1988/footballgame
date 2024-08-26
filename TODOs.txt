@@ -60,6 +60,7 @@ v improve goalie exit
 v EntityId should have a non-valid value definition
 v fix annoying bug after goalie blocks ball during dive
 v implement passing
+v refactor entity system
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
