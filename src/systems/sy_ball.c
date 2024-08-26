@@ -16,14 +16,13 @@ void systems_ball(GameState *game_state, Input *input) {
     Entity *entity;
     for (usize ball_id = 0; ball_id < entity_repository->max_slots; ++ball_id) {
         entity = entities_entity_get(game_state->entity_repository, ball_id);
-        if (entity->header.alive && entity->transform.header.enabled &&
-            entity->physics_3d.header.enabled && entity->sprite.header.enabled &&
-            entity->ball.header.enabled && entity->collider.header.enabled) {
-            ComponentTransform *transform = &entity->transform;
-            ComponentPhysics3d *physics_3d = &entity->physics_3d;
-            ComponentSprite *sprite = &entity->sprite;
-            ComponentBall *ball = &entity->ball;
-            ComponentCollider *collider = &entity->collider;
+        ComponentTransform *transform = &entity->transform;
+        ComponentPhysics3d *physics_3d = &entity->physics_3d;
+        ComponentSprite *sprite = &entity->sprite;
+        ComponentBall *ball = &entity->ball;
+        ComponentCollider *collider = &entity->collider;
+        if (entity->header.alive && transform->header.enabled && physics_3d->header.enabled &&
+            sprite->header.enabled && ball->header.enabled && collider->header.enabled) {
 
             StateMachineBall *state_machine = ball->state_machine;
 

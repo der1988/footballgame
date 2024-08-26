@@ -57,10 +57,9 @@ void systems_render(GameState *game_state) {
     Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
-        if (entity->header.alive && entity->transform.header.enabled &&
-            entity->sprite.header.enabled) {
-            ComponentTransform *transform = &entity->transform;
-            ComponentSprite *sprite = &entity->sprite;
+        ComponentTransform *transform = &entity->transform;
+        ComponentSprite *sprite = &entity->sprite;
+        if (entity->header.alive && transform->header.enabled && sprite->header.enabled) {
             AssetsSpriteFrame *sprite_frame =
                 assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);
 

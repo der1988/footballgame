@@ -8,8 +8,8 @@ void systems_action(GameState *game_state) {
     Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
-        if (entity->header.alive && entity->action.header.enabled) {
-            ComponentAction *action = &entity->action;
+        ComponentAction *action = &entity->action;
+        if (entity->header.alive && action->header.enabled) {
             for (usize j = 0; j < MaxConcurrentActions; ++j) {
                 ActionRunner *action_runner = &action->running_actions[j];
                 if (action_runner && action_runner->action) {

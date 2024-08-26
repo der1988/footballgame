@@ -22,17 +22,15 @@ void systems_goalie(GameState *game_state, Input *input) {
     Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
-        if (entity->header.alive && entity->transform.header.enabled &&
-            entity->physics.header.enabled && entity->sprite.header.enabled &&
-            entity->player.header.enabled && entity->goalie.header.enabled &&
-            entity->collider.header.enabled) {
-
-            ComponentTransform *transform = &entity->transform;
-            ComponentPhysics *physics = &entity->physics;
-            ComponentSprite *sprite = &entity->sprite;
-            ComponentPlayer *player = &entity->player;
-            ComponentGoalie *goalie = &entity->goalie;
-            ComponentCollider *collider = &entity->collider;
+        ComponentTransform *transform = &entity->transform;
+        ComponentPhysics *physics = &entity->physics;
+        ComponentSprite *sprite = &entity->sprite;
+        ComponentPlayer *player = &entity->player;
+        ComponentGoalie *goalie = &entity->goalie;
+        ComponentCollider *collider = &entity->collider;
+        if (entity->header.alive && transform->header.enabled && physics->header.enabled &&
+            sprite->header.enabled && player->header.enabled && goalie->header.enabled &&
+            collider->header.enabled) {
 
             StateMachineGoalie *state_machine = goalie->state_machine;
 

@@ -12,11 +12,10 @@ void systems_render_debug(GameState *game_state) {
         Entity *entity;
         for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
             entity = entities_entity_get(game_state->entity_repository, entity_id);
-            if (entity->header.alive && entity->transform.header.enabled &&
-                entity->sprite.header.enabled) {
-                ComponentTransform *transform = &entity->transform;
-                ComponentSprite *sprite = &entity->sprite;
-                ComponentCollider *collider = &entity->collider;
+            ComponentTransform *transform = &entity->transform;
+            ComponentSprite *sprite = &entity->sprite;
+            ComponentCollider *collider = &entity->collider;
+            if (entity->header.alive && transform->header.enabled && sprite->header.enabled) {
 
                 Vector2 position = transform->position;
                 f32 rotation = transform->rotation;

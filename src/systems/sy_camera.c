@@ -24,13 +24,12 @@ void systems_camera(GameState *game_state) {
     Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
-        if (entity->header.alive && entity->transform.header.enabled &&
-            entity->physics.header.enabled && entity->target.header.enabled &&
-            entity->camera.header.enabled) {
-            ComponentTransform *transform = &entity->transform;
-            ComponentTarget *target = &entity->target;
-            ComponentPhysics *physics = &entity->physics;
-            ComponentCamera *props = &entity->camera;
+        ComponentTransform *transform = &entity->transform;
+        ComponentTarget *target = &entity->target;
+        ComponentPhysics *physics = &entity->physics;
+        ComponentCamera *props = &entity->camera;
+        if (entity->header.alive && transform->header.enabled && physics->header.enabled &&
+            target->header.enabled && props->header.enabled) {
 
             Entity *target_entity =
                 entities_entity_get(game_state->entity_repository, target->entity_id);

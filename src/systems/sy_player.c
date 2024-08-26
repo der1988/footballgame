@@ -70,7 +70,6 @@ EntityId find_nearest_teammate(GameState *game_state, EntityId player_to_not_sel
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
         if (entity->header.alive && entity->header.type == ET_PLAYER) {
-
             ComponentTransform *transform = &entity->transform;
             ComponentGoalie *goalie = &entity->goalie;
 
@@ -146,14 +145,13 @@ void systems_player(GameState *game_state, Input *input) {
     Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
-        if (entity->header.alive && entity->transform.header.enabled &&
-            entity->physics.header.enabled && entity->sprite.header.enabled &&
-            entity->player.header.enabled && entity->collider.header.enabled) {
-
-            ComponentTransform *transform = &entity->transform;
-            ComponentPhysics *physics = &entity->physics;
-            ComponentPlayer *player = &entity->player;
-            ComponentCollider *collider = &entity->collider;
+        ComponentTransform *transform = &entity->transform;
+        ComponentPhysics *physics = &entity->physics;
+        ComponentSprite *sprite = &entity->sprite;
+        ComponentPlayer *player = &entity->player;
+        ComponentCollider *collider = &entity->collider;
+        if (entity->header.alive && transform->header.enabled && physics->header.enabled &&
+            sprite->header.enabled && player->header.enabled && collider->header.enabled) {
 
             StateMachinePlayer *state_machine = player->state_machine;
 
