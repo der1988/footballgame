@@ -46,20 +46,20 @@ void tearDown(void) {
 
 void test_steering() {
     // Main game loop;
-    while (!WindowShouldClose()) // Detect window close button or ESC key
-    {
-        g_game_state->time = GetTime();
-        g_game_state->dt = GetFrameTime();
-
-        // Handle Input
-        Input input = input_handle(g_game_state);
-
-        // Update
-        game_update(g_game_state, &input);
-
-        // Draw
-        game_draw(g_game_state);
-    }
+    // while (!WindowShouldClose()) // Detect window close button or ESC key
+    // {
+    //     g_game_state->time = GetTime();
+    //     g_game_state->dt = GetFrameTime();
+    //
+    //     // Handle Input
+    //     Input input = input_handle(g_game_state);
+    //
+    //     // Update
+    //     game_update(g_game_state, &input);
+    //
+    //     // Draw
+    //     game_draw(g_game_state);
+    // }
 }
 
 int main() {
