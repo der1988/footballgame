@@ -47,30 +47,21 @@ void tearDown(void) {
 void test_entity() {
     struct EntityRepository *entity_repo = g_game_state->entity_repository;
     struct Entity *entity =
-        entities_player_create(g_game_state, (PlayerConfig){.position = Vector2Zero()});
+        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->id;
+    EntityId entity_id = entity->header.id;
 
     entity = entities_entity_get(entity_repo, entity_id);
     TEST_ASSERT_NOT_NULL(entity);
 
-    Component *transform = entities_component_get(entity_repo, CT_TRANSFORM, entity_id);
-    TEST_ASSERT_NOT_NULL(transform);
-    Component *physics = entities_component_get(entity_repo, CT_PHYSICS, entity_id);
-    TEST_ASSERT_NOT_NULL(physics);
-    Component *sprite = entities_component_get(entity_repo, CT_SPRITE, entity_id);
-    TEST_ASSERT_NOT_NULL(sprite);
+    TEST_ASSERT(entity->transform.header.enabled);
+    TEST_ASSERT(entity->physics.header.enabled);
+    TEST_ASSERT(entity->sprite.header.enabled);
 
     entities_entity_destroy(entity_repo, entity_id);
 
     entity = entities_entity_get(entity_repo, entity_id);
-    TEST_ASSERT_NULL(entity);
-    transform = entities_component_get(entity_repo, CT_TRANSFORM, entity_id);
-    TEST_ASSERT_NULL(transform);
-    physics = entities_component_get(entity_repo, CT_PHYSICS, entity_id);
-    TEST_ASSERT_NULL(physics);
-    sprite = entities_component_get(entity_repo, CT_SPRITE, entity_id);
-    TEST_ASSERT_NULL(sprite);
+    TEST_ASSERT(!entity->header.alive);
 }
 
 int main() {
