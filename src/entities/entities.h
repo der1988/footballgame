@@ -194,13 +194,6 @@ typedef struct EntityRepository {
     u32 last_used_slot;
 } EntityRepository;
 
-typedef struct EntityQueryResult {
-    Entity *entities;
-    usize count;
-} EntityQueryResult;
-
-typedef u64 EntityTypeQueryMask;
-
 EntityRepository *entities_repository_init(MemoryArenaHandle *memory_arena_handle);
 void entities_repository_destroy(EntityRepository *handle);
 
