@@ -4,16 +4,34 @@
 #include "../types.h"
 #include <raylib.h>
 
+#define MAX(a, b)                                                                                  \
+    ({                                                                                             \
+        __typeof__(a) _a = (a);                                                                    \
+        __typeof__(b) _b = (b);                                                                    \
+        _a > _b ? _a : _b;                                                                         \
+    })
+
+#define MIN(a, b)                                                                                  \
+    ({                                                                                             \
+        __typeof__(a) _a = (a);                                                                    \
+        __typeof__(b) _b = (b);                                                                    \
+        _a < _b ? _a : _b;                                                                         \
+    })
+
 #define ARRAY_LEN(A) sizeof(A) / sizeof(A[0])
+
 #define V2_TO_V3(vector2, height)                                                                  \
     (v3) { .x = vector2.x, .y = height, .z = vector2.y }
 #define V3_TO_V2(vector3)                                                                          \
     (v2) { .x = vector3.x, .y = vector3.z }
+
 #define STRINGIFY(v) #v
+
 #define HAS_TIME_PASSED(current_time, saved_time, threshold)                                       \
     ((current_time - saved_time) > threshold)
 #define IS_TIME_PASSED_IN_RANGE(current_time, saved_time, min, max)                                \
     ((current_time - saved_time) > min && (current_time - saved_time) < max)
+
 #define JSON_GET_INT(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
