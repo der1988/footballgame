@@ -135,7 +135,10 @@ void systems_goalie(GameState *game_state, Input *input) {
                         // Only dive if ball velocity is higher than 36km/h
                         const int steps_per_lookahead = (game_state->vars.slow_motion ? 10 : 1) *
                                                         game_state->constants.ball_lookahead_dts;
-                        const int lookaheads = game_state->constants.ball_lookaheads;
+                        // We want a lookahead of 150ms for our goalie
+                        const int lookaheads =
+                            floor(Clamp(150.0f / game_state->constants.ball_lookahead_dts, 1,
+                                        game_state->constants.ball_lookaheads));
                         for (u16 i = 0; i < lookaheads; ++i) {
                             v3 pos_to_check = ball->lookahead_positions[i];
                             b32 is_colliding_with_ball =
