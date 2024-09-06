@@ -18,6 +18,8 @@ int main() {
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screen_width, screen_height, "The Game");
 
+    SetWindowMonitor(0);
+
     void *memory = malloc(Megabytes(64));
 
     GameConfig game_config = (GameConfig){.screen_width = GetScreenWidth(),
