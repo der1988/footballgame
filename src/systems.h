@@ -1,7 +1,7 @@
 #ifndef SYSTEMS_H
 #define SYSTEMS_H
 
-#include "../game.h"
+#include "game.h"
 
 void systems_controls(GameState *game_state, struct Input *input);
 void systems_ball(GameState *game_state, struct Input *input);

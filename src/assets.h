@@ -1,7 +1,7 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#include "../memory/memory.h"
+#include "memory.h"
 #include "types.h"
 #include <raylib.h>
 

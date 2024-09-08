@@ -1,4 +1,4 @@
-#include "../actions/actions.h"
+#include "actions.h"
 #include <raylib.h>
 #include <stdarg.h>
 

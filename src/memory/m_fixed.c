@@ -1,6 +1,6 @@
-#include "../utils/utils.h"
 #include "memory.h"
 #include "types.h"
+#include "utils.h"
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>

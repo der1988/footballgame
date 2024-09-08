@@ -1,13 +1,12 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "../components/components.h"
-#include "../entities/state_machine.h"
-#include "../input/input.h"
-#include "../memory/memory.h"
-#include "config.h"
+#include "components.h"
 #include "entities/state_machine.h"
 #include "game.h"
+#include "input.h"
+#include "memory.h"
+#include "state_machine.h"
 #include "types.h"
 
 #define MAX_ENTITIES 100
@@ -19,11 +18,6 @@
 #define EntityForEach(entity_repo, item, entity_id)                                                \
     Entity *item = entity_repo->entities;                                                          \
     for (usize entity_id = 0; entity_id < entity_repo->max_slots; ++entity_id, item++)
-
-#define DeclareStateMachineEnterAndExit(ENTITY_NAME)                                               \
-    void state_machine_##ENTITY_NAME##_on_enter(struct Entity *ENTITY_NAME,                        \
-                                                GameState *game_state);                            \
-    void state_machine_##ENTITY_NAME##_on_exit(struct Entity *ENTITY_NAME, GameState *game_state);
 
 // Shared State Data
 typedef struct {
@@ -47,6 +41,10 @@ struct Entity *entities_camera_create(GameState *game_state);
 // END - Camera
 
 // START - Ball
+
+typedef struct {
+    v2 position;
+} BallConfig;
 
 typedef enum { BS_NONE, BS_IN_PLAY, BS_OUT_OF_PLAY, BS_GK_HANDS, BS_COUNT } StateMachineBallState;
 
@@ -89,6 +87,12 @@ void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state);
 // END - Ball
 
 // START - Player
+
+typedef struct {
+    v2 position;
+    b32 is_goalie;
+    u8 team_formation_position_idx;
+} PlayerConfig;
 
 typedef enum { PS_NONE, PS_NORMAL, PS_GOALIE, PS_COUNT } StateMachinePlayerState;
 
@@ -148,6 +152,12 @@ void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direc
 // END - Player
 
 // START - Goal
+
+typedef enum { GP_NORTH, GP_SOUTH } GoalPosition;
+
+typedef struct {
+    GoalPosition position;
+} GoalConfig;
 
 struct Entity *entities_goal_create(GoalConfig config, GameState *game_state);
 

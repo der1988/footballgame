@@ -61,6 +61,7 @@ v EntityId should have a non-valid value definition
 v fix annoying bug after goalie blocks ball during dive
 v implement passing
 v refactor entity system
+v move header files in project root directory
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -73,3 +74,4 @@ v refactor entity system
 - implement goalie high catch/bounce
 - improve player selection system
 - implement pitch radar
+- after touch direction cannot be changed once selected

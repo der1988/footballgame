@@ -1,9 +1,8 @@
-#include "../components/components.h"
-#include "../entities/entities.h"
-#include "../memory/memory.h"
-#include "../utils/utils.h"
+#include "components.h"
+#include "entities.h"
 #include "memory.h"
 #include "types.h"
+#include "utils.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>

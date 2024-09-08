@@ -1,4 +1,4 @@
-#include "football/football.h"
+#include "football.h"
 #include <raylib.h>
 #include <raymath.h>
 

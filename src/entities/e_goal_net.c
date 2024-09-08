@@ -1,10 +1,10 @@
-#include "../assets/assets.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
-#include "../game.h"
-#include "../utils/utils.h"
-#include "sprites/sprites.h"
+#include "assets.h"
+#include "components.h"
+#include "entities.h"
+#include "game.h"
+#include "sprites.h"
 #include "types.h"
+#include "utils.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>

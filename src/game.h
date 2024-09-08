@@ -1,8 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "assets/assets.h"
-#include "football/football.h"
+#include "assets.h"
+#include "football.h"
 #include "raygui/raygui.h"
 #include "types.h"
 #include <raylib.h>

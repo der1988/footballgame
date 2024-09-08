@@ -1,5 +1,5 @@
 #include "game.h"
-#include "input/input.h"
+#include "input.h"
 #include "layers.h"
 #include "types.h"
 #include <raylib.h>

@@ -1,8 +1,8 @@
 #ifndef ACTIONS_H
 #define ACTIONS_H
 
-#include "../assets/assets.h"
-#include "../game.h"
+#include "assets.h"
+#include "game.h"
 #include "types.h"
 
 typedef enum {

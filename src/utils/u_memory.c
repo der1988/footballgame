@@ -1,4 +1,4 @@
-#include "../types.h"
+#include "types.h"
 
 usize utils_memory_align(usize to_align, u16 alignment) {
     if (alignment > 0) {

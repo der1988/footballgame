@@ -1,9 +1,9 @@
-#include "../actions/actions.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
-#include "../utils/utils.h"
+#include "actions.h"
+#include "components.h"
+#include "entities.h"
 #include "game.h"
 #include "types.h"
+#include "utils.h"
 #include <assert.h>
 
 RunningActionIdx components_action_run(EntityId id, struct Action *action, GameState *game_state) {

@@ -1,8 +1,8 @@
-#include "../components/components.h"
-#include "../entities/entities.h"
-#include "../game.h"
-#include "../steering/steering.h"
+#include "components.h"
+#include "entities.h"
+#include "game.h"
 #include "layers.h"
+#include "steering.h"
 #include <raylib.h>
 #include <raymath.h>
 

@@ -1,5 +1,3 @@
-#ifndef STEERING
-#define STEERING
 #include "steering.h"
 #include <raymath.h>
 
@@ -32,5 +30,3 @@ v2 steering_pursuit(v2 position, v2 velocity, f32 max_velocity, v2 target, v2 ta
     return steering_seek(position, velocity, max_velocity,
                          Vector2Add(target, Vector2Scale(target_velocity, look_ahead_time)));
 }
-
-#endif

@@ -1,7 +1,7 @@
-#include "../assets/assets.h"
-#include "../memory/memory.h"
-#include "../utils/utils.h"
+#include "assets.h"
+#include "memory.h"
 #include "types.h"
+#include "utils.h"
 #include <assert.h>
 #include <raylib.h>
 #include <stdio.h>

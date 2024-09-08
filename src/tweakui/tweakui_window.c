@@ -1,7 +1,7 @@
-#include "../utils/utils.h"
 #include "game.h"
 #include "memory.h"
 #include "tweakui.h"
+#include "utils.h"
 #include <assert.h>
 #include <raylib.h>
 

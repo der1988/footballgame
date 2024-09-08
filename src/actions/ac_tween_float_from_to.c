@@ -1,4 +1,4 @@
-#include "../actions/actions.h"
+#include "actions.h"
 #include <raylib.h>
 
 void actions_tween_float_from_to_update(ActionRunner *action_runner, EntityId id,

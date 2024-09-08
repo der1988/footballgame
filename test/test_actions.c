@@ -1,17 +1,16 @@
 // clang-format off
-#include "../src/memory/memory.h"
-#include "../src/assets/assets.h"
+#include "memory.h"
+#include "assets.h"
 // clang-format on
-#include "../src/types.h"
-#include "actions/actions.h"
-#include "components/components.h"
-#include "config.h"
-#include "entities/entities.h"
+#include "actions.h"
+#include "components.h"
+#include "entities.h"
 #include "game.h"
-#include "systems/systems.h"
+#include "systems.h"
+#include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
-#include "utils/utils.h"
+#include "utils.h"
 #include <assert.h>
 #include <math.h>
 #include <raylib.h>

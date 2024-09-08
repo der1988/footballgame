@@ -1,6 +1,6 @@
-#include "../actions/actions.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
+#include "actions.h"
+#include "components.h"
+#include "entities.h"
 #include <raylib.h>
 
 void actions_action_run(ActionRunner *action_runner, EntityId id, GameState *game_state) {

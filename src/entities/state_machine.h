@@ -16,6 +16,11 @@
     void entities_##NAME##_state_machine_on_enter(struct Entity *entity, GameState *game_state);   \
     void entities_##NAME##_state_machine_on_exit(struct Entity *entity, GameState *game_state);
 
+#define DeclareStateMachineEnterAndExit(ENTITY_NAME)                                               \
+    void state_machine_##ENTITY_NAME##_on_enter(struct Entity *ENTITY_NAME,                        \
+                                                GameState *game_state);                            \
+    void state_machine_##ENTITY_NAME##_on_exit(struct Entity *ENTITY_NAME, GameState *game_state);
+
 #define ImplementStateMachineFunctions(ENTITY_TYPE, NAME)                                          \
     void entities_##NAME##_state_machine_change_state_to(StateMachine##ENTITY_TYPE *state_machine, \
                                                          StateMachine##ENTITY_TYPE##State state,   \

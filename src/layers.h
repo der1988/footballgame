@@ -1,8 +1,8 @@
 #ifndef LAYERS_H
 #define LAYERS_H
 
-#include "../memory/memory.h"
 #include "game.h"
+#include "memory.h"
 #include "types.h"
 
 #define MAX_QUEUED_DRAW_REQUESTS 50

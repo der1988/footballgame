@@ -1,7 +1,7 @@
 #ifndef SPRITES_H
 #define SPRITES_H
 
-#include "../assets/assets.h"
+#include "assets.h"
 
 typedef enum SpriteLayer {
     SL_BACKGROUND = -100,

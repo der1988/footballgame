@@ -1,5 +1,5 @@
-#include "../assets/assets.h"
-#include "../utils/utils.h"
+#include "assets.h"
+#include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
 

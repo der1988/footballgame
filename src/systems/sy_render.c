@@ -1,8 +1,8 @@
-#include "../assets/assets.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
-#include "../game.h"
-#include "../sprites/sprites.h"
+#include "assets.h"
+#include "components.h"
+#include "entities.h"
+#include "game.h"
+#include "sprites.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
-#include "../actions/actions.h"
-#include "../utils/utils.h"
+#include "actions.h"
 #include "entities.h"
+#include "utils.h"
 #include <raylib.h>
 
 void actions_change_color_from_to_update(ActionRunner *action_runner, EntityId id,

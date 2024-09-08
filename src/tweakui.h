@@ -1,8 +1,8 @@
 #ifndef TWEAKUI_H
 #define TWEAKUI_H
 
-#include "../memory/memory.h"
 #include "game.h"
+#include "memory.h"
 #include "types.h"
 
 typedef struct TweakUI {

@@ -1,9 +1,9 @@
-#include "../components/components.h"
-#include "../entities/entities.h"
-#include "../game.h"
-#include "../sim/simulation.h"
 #include "assets.h"
+#include "components.h"
+#include "entities.h"
+#include "game.h"
 #include "input.h"
+#include "simulation.h"
 #include "steering.h"
 #include "utils.h"
 #include <raylib.h>

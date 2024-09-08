@@ -1,6 +1,6 @@
-#include "../game.h"
+#include "game.h"
 #include "input.h"
-#include "layers/layers.h"
+#include "layers.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>

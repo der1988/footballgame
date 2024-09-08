@@ -1,5 +1,5 @@
 #include "input.h"
-#include "../game.h"
+#include "game.h"
 #include <math.h>
 #include <raylib.h>
 

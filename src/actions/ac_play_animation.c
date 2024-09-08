@@ -1,7 +1,7 @@
-#include "../actions/actions.h"
-#include "../assets/assets.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
+#include "actions.h"
+#include "assets.h"
+#include "components.h"
+#include "entities.h"
 #include <math.h>
 #include <raylib.h>
 

@@ -1,4 +1,4 @@
-#include "../types.h"
+#include "types.h"
 #include <raylib.h>
 
 Color utils_color_lerp(Color from, Color to, f32 t) {

@@ -1,5 +1,5 @@
-#include "../types.h"
-#include "../utils/utils.h"
+#include "types.h"
+#include "utils.h"
 #include <raylib.h>
 #include <stdarg.h>
 #include <stdio.h>

@@ -1,6 +1,6 @@
-#include "../actions/actions.h"
-#include "../components/components.h"
-#include "../entities/entities.h"
+#include "actions.h"
+#include "components.h"
+#include "entities.h"
 
 void systems_action(GameState *game_state) {
     EntityRepository *entity_repository = game_state->entity_repository;

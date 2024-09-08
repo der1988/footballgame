@@ -1,7 +1,7 @@
-#include "../memory/memory.h"
-#include "../utils/utils.h"
 #include "assets.h"
 #include "libs/cJSON/cJSON.h"
+#include "memory.h"
+#include "utils.h"
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>

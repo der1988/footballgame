@@ -1,4 +1,4 @@
-#include "../components/components.h"
+#include "components.h"
 #include <raymath.h>
 
 void components_transform_calculate_absolute(ComponentTransform *transform, Vector2 *position,

@@ -1,4 +1,4 @@
-#include "../actions/actions.h"
+#include "actions.h"
 #include <raylib.h>
 
 void actions_toggle_boolean_update(ActionRunner *action_runner, EntityId id,

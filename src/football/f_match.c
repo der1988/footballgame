@@ -1,7 +1,7 @@
-#include "../game.h"
 #include "components.h"
 #include "entities.h"
-#include "football/football.h"
+#include "football.h"
+#include "game.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>

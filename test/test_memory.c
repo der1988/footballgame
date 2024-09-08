@@ -1,15 +1,8 @@
-// clang-format off
-#include "memory/memory.h"
-#include "assets/assets.h"
-// clang-format on
-#include "actions/actions.h"
-#include "components/components.h"
-#include "entities/entities.h"
-#include "game.h"
+#include "memory.h"
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
-#include "utils/utils.h"
+#include "utils.h"
 #include <assert.h>
 #include <raylib.h>
 #include <stdio.h>
