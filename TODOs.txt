@@ -75,3 +75,4 @@ v after touch direction cannot be changed once selected
 - implement goalie high catch/bounce
 - improve player selection system
 - implement pitch radar
+- long distance shots should be catched by goalie without a sweat
