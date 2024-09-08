@@ -136,5 +136,6 @@ f32 utils_math_constrain_angle_180(f32 angle);
 v2 Vector2RotateAroundPivot(v2 vector, v2 pivot, f32 angle);
 float Vector2ProjectScalar(Vector2 project_to, Vector2 project_from);
 Vector2 Vector2Project(Vector2 project_to, Vector2 project_from);
+f32 Vector2ProjectExt(v2 project_to, v2 project_from, v2 *out);
 
 #endif // !UTILS_H

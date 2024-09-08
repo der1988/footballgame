@@ -15,7 +15,7 @@
 
 ImplementStateMachineFunctions(Ball, ball);
 
-void ball_prepare_gfx(ComponentBall *ball, GameState *game_state);
+static void ball_prepare_gfx(ComponentBall *ball, GameState *game_state);
 
 struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
     Entity *entity = entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
@@ -140,7 +140,7 @@ void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_
     }
 }
 
-void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
+static void ball_prepare_gfx(ComponentBall *ball, GameState *game_state) {
     // Roll frames
     ball->roll_animations[D_UP] = entities_common_animation_id_from_name("ball", "up", game_state);
     ball->roll_animations[D_DOWN] =
@@ -167,6 +167,7 @@ void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3
     transform->virtual_height = pos.y;
     entity->physics_3d.velocity = velocity;
     entity->ball.subject_to_after_touch = false;
+    entity->ball.selected_after_touch_side = Vector2Zero();
 }
 
 void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
@@ -255,6 +256,7 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
     ball->subject_to_after_touch = true;
+    ball->selected_after_touch_side = Vector2Zero();
 }
 
 void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
@@ -296,6 +298,7 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
     ball->subject_to_after_touch = true;
+    ball->selected_after_touch_side = Vector2Zero();
 }
 
 void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
@@ -327,4 +330,5 @@ void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state) {
     ComponentBall *ball = &entity->ball;
 
     ball->subject_to_after_touch = false;
+    ball->selected_after_touch_side = Vector2Zero();
 }

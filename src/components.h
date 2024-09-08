@@ -139,6 +139,7 @@ typedef struct {
     EntityId last_kicker_entity_id;
     EntityId pass_target_entity_id;
     b32 subject_to_after_touch;
+    v2 selected_after_touch_side;
     Time last_kick_time;
     Time last_bounce_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];

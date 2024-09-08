@@ -10,6 +10,15 @@
 #include <raylib.h>
 #include <raymath.h>
 
+static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side) {
+    f32 projection = Vector2ProjectScalar(stored_side, selected_side);
+    if (projection > 0) {
+        return true;
+    }
+
+    return false;
+}
+
 void systems_ball(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
 
@@ -35,7 +44,6 @@ void systems_ball(GameState *game_state, Input *input) {
                     ball_id, V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
                     Vector3Zero(), game_state);
                 football_match_change_state(game_state, MS_PLAY);
-                ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
             }
@@ -46,19 +54,16 @@ void systems_ball(GameState *game_state, Input *input) {
                     ball_id, (v3){.x = game_state->vars.pitch.rectangle.x + 340, .z = 300},
                     Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 413.5f), game_state);
                 football_match_change_state(game_state, MS_PLAY);
-                ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
             }
 
             // Test cross
             if (input->buttons[IBT_BUTTON_UP].released) {
-                transform->position = (v2){.x = game_state->vars.pitch.rectangle.x + 600, .y = 100};
-                transform->virtual_height = 0;
-                physics_3d->accel = Vector3Zero();
-                physics_3d->velocity = Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f);
+                entities_ball_set_position_and_velocity(
+                    ball_id, (v3){.x = game_state->vars.pitch.rectangle.x + 600, .z = 100},
+                    Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f), game_state);
                 football_match_change_state(game_state, MS_PLAY);
-                ball->subject_to_after_touch = false;
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
             }
@@ -89,9 +94,9 @@ void systems_ball(GameState *game_state, Input *input) {
             case BS_NONE:
                 break;
             case BS_IN_PLAY: {
-                Vector3 position = V2_TO_V3(transform->position, transform->virtual_height);
-                Vector3 velocity = physics_3d->velocity;
-                Vector3 accel = physics_3d->accel;
+                v3 position = V2_TO_V3(transform->position, transform->virtual_height);
+                v3 velocity = physics_3d->velocity;
+                v3 accel = physics_3d->accel;
 
                 // After touch
                 f32 after_touch_time = (game_state->time - ball->last_kick_time);
@@ -102,21 +107,52 @@ void systems_ball(GameState *game_state, Input *input) {
                 if (ball->subject_to_after_touch &&
                     after_touch_time > game_state->constants.ball_after_touch_delay_time) {
                     v2 input = game_state->vars.p1.controls.steering;
-                    f32 force =
-                        1 - Clamp(powf((after_touch_time -
-                                        game_state->constants.ball_after_touch_delay_time),
-                                       2) /
-                                      powf((game_state->constants.ball_after_touch_max_time -
-                                            game_state->constants.ball_after_touch_delay_time),
-                                           2),
-                                  0, 1);
                     v2 ball_2d_vel = V3_TO_V2(velocity);
                     v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
-                    v2 after_touch_side = Vector2Project(ball_2d_vel_perp, input);
-                    v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
-                    accel = Vector3Add(
-                        accel, Vector3Scale(after_touch_direction,
-                                            game_state->constants.ball_after_touch_force * force));
+                    v2 after_touch_side = Vector2Zero();
+                    f32 after_touch_pressure =
+                        Vector2ProjectExt(ball_2d_vel_perp, input, &after_touch_side);
+                    b32 apply_after_touch = true;
+
+                    if (ball->selected_after_touch_side.x == 0 &&
+                        ball->selected_after_touch_side.y == 0) {
+                        // After touch side not selected yet
+                        if (fabsf(after_touch_pressure) > 0.25f) {
+                            // We need some after touch to be actually applied
+                            ball->selected_after_touch_side = after_touch_side;
+                        } else {
+                            apply_after_touch = false;
+                        }
+                    } else if (!is_applied_after_touch_same_side(ball->selected_after_touch_side,
+                                                                 after_touch_side)) {
+                        // If player changed side of after touch we keep applying the first one
+                        // we've seen
+                        after_touch_side = ball->selected_after_touch_side;
+                    }
+
+                    if (apply_after_touch) {
+                        // Make it 3D
+                        v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
+
+                        // After touch force decays exponentially with time.
+                        // Formula is:
+                        // 1 - clamp((time_since_ball_kicked - after_touch_delay)^2 /
+                        // (max_after_touch_time - after_touch_delay)^2, 0, 1)
+                        f32 force =
+                            1 - Clamp(powf((after_touch_time -
+                                            game_state->constants.ball_after_touch_delay_time),
+                                           2) /
+                                          powf((game_state->constants.ball_after_touch_max_time -
+                                                game_state->constants.ball_after_touch_delay_time),
+                                               2),
+                                      0, 1);
+
+                        // Apply it
+                        accel = Vector3Add(
+                            accel,
+                            Vector3Scale(after_touch_direction,
+                                         game_state->constants.ball_after_touch_force * force));
+                    }
                 }
 
                 b32 on_the_ground;

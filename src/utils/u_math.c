@@ -32,3 +32,9 @@ v2 Vector2Project(v2 project_to, v2 project_from) {
     return Vector2Scale(Vector2Normalize(project_to),
                         Vector2ProjectScalar(project_to, project_from));
 }
+
+f32 Vector2ProjectExt(v2 project_to, v2 project_from, v2 *out) {
+    f32 scalar = Vector2ProjectScalar(project_to, project_from);
+    *out = Vector2Scale(Vector2Normalize(project_to), scalar);
+    return scalar;
+}
