@@ -63,6 +63,7 @@ v implement passing
 v refactor entity system
 v move header files in project root directory
 v after touch direction cannot be changed once selected
+* long distance shots should be catched by goalie without a sweat
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -75,4 +76,3 @@ v after touch direction cannot be changed once selected
 - implement goalie high catch/bounce
 - improve player selection system
 - implement pitch radar
-- long distance shots should be catched by goalie without a sweat
