@@ -30,7 +30,7 @@ void systems_render_debug(GameState *game_state) {
                     position, rotation, scale, sprite->pivot_override);
 
                 // Debug lines for pitch
-                Rectangle pitch = game_state->vars.pitch.rectangle;
+                Rectangle pitch = game_state->vars.pitch.field;
                 DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
                 if (collider->header.enabled) {
@@ -61,5 +61,10 @@ void systems_render_debug(GameState *game_state) {
             DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
         }
         DrawCircle(ball->future_bounce_position.x, ball->future_bounce_position.y, 1, PURPLE);
+
+        // Pitch
+        DrawRectangleLinesEx(game_state->vars.pitch.field, 1, VIOLET);
+        DrawRectangleLinesEx(game_state->vars.pitch.area_north, 1, YELLOW);
+        DrawRectangleLinesEx(game_state->vars.pitch.area_south, 1, YELLOW);
     }
 }

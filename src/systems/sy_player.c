@@ -205,7 +205,7 @@ void systems_player(GameState *game_state, Input *input) {
                                 football_get_team_formation_position(
                                     TF_433, player->team_formation_position_idx);
                             v2 target =
-                                pitch_pos_rel_to_abs(game_state->vars.pitch.rectangle,
+                                pitch_pos_rel_to_abs(game_state->vars.pitch.field,
                                                      team_formation_position->position[TM_DEFAULT]);
                             player_controls->steering =
                                 steering_arrive(transform->position, physics->velocity,
@@ -330,9 +330,9 @@ void systems_player(GameState *game_state, Input *input) {
             if (!game_state->constants.shoot_aid_enabled) {
                 shot_direction = Vector2Normalize(player_on_the_ball.controls->steering);
             } else {
-                v2 center_of_goal = (Vector2){game_state->vars.pitch.rectangle.x +
-                                                  game_state->vars.pitch.rectangle.width / 2.0f,
-                                              game_state->vars.pitch.rectangle.y};
+                v2 center_of_goal = (Vector2){game_state->vars.pitch.field.x +
+                                                  game_state->vars.pitch.field.width / 2.0f,
+                                              game_state->vars.pitch.field.y};
                 v2 shot_direction_to_center =
                     Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
                 v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(

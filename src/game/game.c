@@ -125,8 +125,10 @@ GameState *game_init(GameConfig game_config) {
 
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
-    game_state->vars.pitch.rectangle =
-        (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
+    game_state->vars.pitch.field = (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
+    game_state->vars.pitch.area_north = (Rectangle){.x = 165, .y = 77, .width = 374, .height = 167};
+    game_state->vars.pitch.area_south =
+        (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167};
 
     Entity *player_entity = entities_player_create(
         (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},

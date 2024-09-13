@@ -2,6 +2,7 @@
 #define FOOTBALL
 
 #include "types.h"
+#include <raylib.h>
 
 // Forward declaration
 struct GameState;
@@ -34,7 +35,9 @@ typedef struct Match {
 typedef enum PitchType { PT_NORMAL, PT_MUD, PT_SNOW } PitchType;
 
 typedef struct Pitch {
-    Rectangle rectangle;
+    Rectangle field;
+    Rectangle area_north;
+    Rectangle area_south;
     PitchType type;
 } Pitch;
 

@@ -22,9 +22,9 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
     if (config.position == GP_NORTH) {
-        transform->position = (Vector2){game_state->vars.pitch.rectangle.x +
-                                            game_state->vars.pitch.rectangle.width / 2.0f,
-                                        game_state->vars.pitch.rectangle.y};
+        transform->position =
+            (Vector2){game_state->vars.pitch.field.x + game_state->vars.pitch.field.width / 2.0f,
+                      game_state->vars.pitch.field.y};
     } else {
         // Not implemented
         assert(false);

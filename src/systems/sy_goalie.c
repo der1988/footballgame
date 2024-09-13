@@ -34,8 +34,8 @@ void systems_goalie(GameState *game_state, Input *input) {
 
             StateMachineGoalie *state_machine = goalie->state_machine;
 
-            v2 goal_center = {.x = game_state->vars.pitch.rectangle.x +
-                                   game_state->vars.pitch.rectangle.width * 0.5f,
+            v2 goal_center = {.x = game_state->vars.pitch.field.x +
+                                   game_state->vars.pitch.field.width * 0.5f,
                               .y = 80};
 
             f32 distance_from_ball =

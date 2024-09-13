@@ -51,7 +51,7 @@ void systems_ball(GameState *game_state, Input *input) {
             // Test cross-bar
             if (input->buttons[IBT_BUTTON_SELECT].released) {
                 entities_ball_set_position_and_velocity(
-                    ball_id, (v3){.x = game_state->vars.pitch.rectangle.x + 340, .z = 300},
+                    ball_id, (v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
                     Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 413.5f), game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->last_player_on_the_ball_entity_id = -1;
@@ -61,7 +61,7 @@ void systems_ball(GameState *game_state, Input *input) {
             // Test cross
             if (input->buttons[IBT_BUTTON_UP].released) {
                 entities_ball_set_position_and_velocity(
-                    ball_id, (v3){.x = game_state->vars.pitch.rectangle.x + 600, .z = 100},
+                    ball_id, (v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
                     Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f), game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->last_player_on_the_ball_entity_id = -1;
@@ -69,7 +69,7 @@ void systems_ball(GameState *game_state, Input *input) {
             }
 
             // Sprite draw ordering when ball is in upper goal
-            sprite->layer = transform->position.y < game_state->vars.pitch.rectangle.y
+            sprite->layer = transform->position.y < game_state->vars.pitch.field.y
                                 ? SL_NORTH_GOAL
                                 : SL_PLAYERS_AND_BALL;
 
@@ -166,6 +166,7 @@ void systems_ball(GameState *game_state, Input *input) {
                 }
                 if (ball->is_on_the_ground) {
                     ball->future_bounce_position = V3_TO_V2(position);
+                    ball->dts_to_future_bounce = 0;
                 }
 
                 // Calculate next 10 look ahead positions, 10 dts apart from each other
@@ -191,12 +192,15 @@ void systems_ball(GameState *game_state, Input *input) {
                 lookahead_velocity = velocity;
                 lookahead_on_the_ground = false;
                 lookahead_bounced = false;
+                u16 dts = 0;
                 while (!lookahead_bounced && !lookahead_on_the_ground) {
                     sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
                                      physics_3d->mass, ball_radius, &lookahead_on_the_ground,
                                      &lookahead_bounced, game_state);
+                    dts++;
                     if (lookahead_bounced) {
                         ball->future_bounce_position = V3_TO_V2(lookahead_position);
+                        ball->dts_to_future_bounce = dts;
                         break;
                     }
                 }
