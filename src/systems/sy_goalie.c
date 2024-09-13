@@ -8,6 +8,7 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 void systems_goalie(GameState *game_state, Input *input) {
     EntityRepository *entity_repository = game_state->entity_repository;
@@ -83,30 +84,54 @@ void systems_goalie(GameState *game_state, Input *input) {
 
                     f32 exit_max_speed = game_state->constants.player_run_max_velocity * 1.5f;
 
-                    // Calculate whether goalie can reach the ball using ball future positions
+                    b32 can_reach_ball_at_bounce_pos = false;
                     b32 can_reach_ball = false;
-                    const int steps_per_lookahead = (game_state->vars.slow_motion ? 10 : 1) *
-                                                    game_state->constants.ball_lookahead_dts;
-                    const int lookaheads = game_state->constants.ball_lookaheads;
-                    for (u16 i = 0; i < lookaheads; ++i) {
-                        v3 pos_to_check = ball->lookahead_positions[i];
-                        f32 lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
-                        f32 distance_to_cover =
-                            Vector2Distance(V3_TO_V2(pos_to_check), transform->position);
 
-                        if (distance_to_cover < (exit_max_speed * lookahead_time)) {
-                            destination = V3_TO_V2(pos_to_check);
-                            can_reach_ball = true;
-                            break;
-                        } else if (i == (lookaheads - 1)) {
-                            destination = V3_TO_V2(pos_to_check);
+                    // Calculate whether goalie can reach the ball at its next bounce position
+                    f32 future_bounce_time = game_state->dt * ball->dts_to_future_bounce;
+                    f32 distance_to_cover_to_bounce_pos =
+                        Vector2Distance(ball->future_bounce_position, transform->position);
+
+                    if (distance_to_cover_to_bounce_pos < (exit_max_speed * future_bounce_time)) {
+                        destination = ball->future_bounce_position;
+                        can_reach_ball_at_bounce_pos = true;
+                    }
+
+                    if (!can_reach_ball_at_bounce_pos) {
+                        // Calculate whether goalie can reach the ball using ball future positions
+                        const int steps_per_lookahead = (game_state->vars.slow_motion ? 10 : 1) *
+                                                        game_state->constants.ball_lookahead_dts;
+                        const int lookaheads = game_state->constants.ball_lookaheads;
+                        for (u16 i = 0; i < lookaheads; ++i) {
+                            v3 pos_to_check = ball->lookahead_positions[i];
+                            f32 lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
+                            f32 distance_to_cover =
+                                Vector2Distance(V3_TO_V2(pos_to_check), transform->position);
+
+                            if (distance_to_cover < (exit_max_speed * lookahead_time)) {
+                                destination = V3_TO_V2(pos_to_check);
+                                can_reach_ball = true;
+                                break;
+                            } else if (i == (lookaheads - 1)) {
+                                destination = V3_TO_V2(pos_to_check);
+                            }
                         }
                     }
-                    if ((distance_from_goal < 125 || can_reach_ball) &&
-                        ball_transform->virtual_height < (cross_bar_height - 7)) {
-                        // seek ball
+
+                    if (can_reach_ball_at_bounce_pos) {
+                        // seek ball future bounce position
                         physics->max_velocity = exit_max_speed;
                         force = game_state->constants.player_movement_force * 2;
+
+                        direction =
+                            Vector2Normalize(Vector2Subtract(destination, transform->position));
+                        steering = steering_arrive(transform->position, physics->velocity,
+                                                   physics->max_velocity, destination, 10);
+                    } else if ((distance_from_goal < 125 || can_reach_ball) &&
+                               ball_transform->virtual_height < (cross_bar_height - 7)) {
+                        // seek ball
+                        physics->max_velocity = exit_max_speed;
+                        force = game_state->constants.player_movement_force * 1;
 
                         direction =
                             Vector2Normalize(Vector2Subtract(destination, transform->position));
