@@ -183,7 +183,8 @@ void systems_goalie(GameState *game_state, Input *input) {
                             f32 distance_to_cover = fabsf(x_diff);
                             if (HAS_TIME_PASSED(game_state->time, ball->last_kick_time,
                                                 game_state->constants.goalie_dive_reaction_time) &&
-                                y_diff > 0 && y_diff < 5 && distance_to_cover < 60) {
+                                y_diff > 0 && y_diff < 5 && distance_to_cover < 60 &&
+                                pos_to_check.y < cross_bar_height) {
                                 f32 time_to_unsaveable =
                                     (i + 1) * game_state->dt * steps_per_lookahead;
                                 f32 max_distance_we_can_cover_in_available_time =
