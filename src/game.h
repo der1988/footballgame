@@ -74,6 +74,7 @@ typedef struct GameConstants {
     f32 goalie_dive_force;
     f32 goalie_dive_max_velocity;
     f32 kick_charge_reset_time;
+    u32 crossbar_height;
 } GameConstants;
 
 typedef enum ActionChargeType { ACT_SHOOT, ACT_PASS, ACT_LONG_PASS } ActionChargeType;

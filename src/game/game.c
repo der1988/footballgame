@@ -57,6 +57,7 @@ GameState *game_init(GameConfig game_config) {
                                             .ball_max_velocity = 50 * PIXELS_PER_METER,
                                             .ball_lookaheads = 5,
                                             .ball_lookahead_dts = 30,
+                                            .crossbar_height = 27,
                                             .player_movement_force = 25000,
                                             .player_movement_drag = 4166,
                                             .player_control_max_velocity = 6.6f * PIXELS_PER_METER,
