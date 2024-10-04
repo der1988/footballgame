@@ -18,9 +18,18 @@ struct TweakUI;
 struct LayersDebug;
 struct Input;
 
-typedef enum { MAL_GAME, MAL_LEVEL, MAL_UPDATE, MAL_DRAW, MAL_COUNT } MemoryArenaLifetime;
+typedef enum {
+    MAL_GAME,
+    MAL_LEVEL,
+    MAL_UPDATE,
+    MAL_DRAW,
+    MAL_COUNT
+} MemoryArenaLifetime;
 
-typedef enum { CAM_MAIN, CAM_COUNT } CameraType;
+typedef enum {
+    CAM_MAIN,
+    CAM_COUNT
+} CameraType;
 
 typedef struct GameConfig {
     u32 virtual_screen_width;
@@ -77,7 +86,11 @@ typedef struct GameConstants {
     u32 crossbar_height;
 } GameConstants;
 
-typedef enum ActionChargeType { ACT_SHOOT, ACT_PASS, ACT_LONG_PASS } ActionChargeType;
+typedef enum ActionChargeType {
+    ACT_SHOOT,
+    ACT_PASS,
+    ACT_LONG_PASS
+} ActionChargeType;
 
 typedef struct ActionCharge {
     ActionChargeType type;
