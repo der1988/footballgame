@@ -1,3 +1,9 @@
 Language:        Cpp
 ColumnLimit:     100
 IndentWidth:     4
+
+AlignConsecutiveMacros:
+  Enabled:         true
+
+AllowShortEnumsOnASingleLine: false
+BinPackArguments: false

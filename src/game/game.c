@@ -72,7 +72,7 @@ GameState *game_init(GameConfig game_config) {
                                             .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
                                             .ai_enabled = true,
                                             .shoot_aid_enabled = true,
-                                            .shoot_aid_no_inertia = false,
+                                            .shoot_aid_no_inertia = true,
                                             .kick_charge_reset_time = 1.5f};
 
     // Partition game memory
@@ -104,19 +104,20 @@ GameState *game_init(GameConfig game_config) {
     // Load main spritesheet
     texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/footballgame.png");
     assert(texture);
-    i32 loaded = assets_sprite_frames_load_from_json(game_state->sprite_frame_cache, texture->id,
-                                                     "res/spritesheets/footballgame.json");
+    i32 loaded = assets_sprite_frames_load_from_json(
+        game_state->sprite_frame_cache, texture->id, "res/spritesheets/footballgame.json");
     assert(loaded != -1);
 
     // Load other spritesheet
     texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/other.png");
     assert(texture);
-    loaded = assets_sprite_frames_load_from_json(game_state->sprite_frame_cache, texture->id,
-                                                 "res/spritesheets/other.json");
+    loaded = assets_sprite_frames_load_from_json(
+        game_state->sprite_frame_cache, texture->id, "res/spritesheets/other.json");
     assert(loaded != -1);
 
     // Load Animations
-    assets_animations_load_from_json(game_state->animation_cache, game_state->sprite_frame_cache,
+    assets_animations_load_from_json(game_state->animation_cache,
+                                     game_state->sprite_frame_cache,
                                      "res/animations/animations.json");
 
     game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_GAME]);
@@ -127,25 +128,35 @@ GameState *game_init(GameConfig game_config) {
 #ifndef RUNNING_TEST
     game_state->config.players_count = 1;
     game_state->vars.pitch.field = (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
-    game_state->vars.pitch.area_north = (Rectangle){.x = 165, .y = 77, .width = 374, .height = 167};
-    game_state->vars.pitch.area_south =
-        (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167};
+    game_state->vars.pitch.goal[PSI_NORTH] =
+        (Goal){.center = (v2){.x = game_state->vars.pitch.field.x +
+                                   game_state->vars.pitch.field.width * 0.5f,
+                              .y = 77},
+               .area = (Rectangle){.x = 165, .y = 77, .width = 374, .height = 167}};
+    game_state->vars.pitch.goal[PSI_SOUTH] =
+        (Goal){.center = (v2){.x = game_state->vars.pitch.field.x +
+                                   game_state->vars.pitch.field.width * 0.5f,
+                              .y = 77 + 360 * 3},
+               .area = (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167}};
 
     Entity *player_entity = entities_player_create(
-        (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
+        (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
+                       .side = PSI_SOUTH},
         game_state);
 
     for (usize i = 1; i < 10; ++i) {
         entities_player_create(
             (PlayerConfig){
                 .position = {game_state->config.virtual_screen_width / 2.0f + 100 * i, 300.0f},
+                .side = PSI_SOUTH,
                 .team_formation_position_idx = i},
             game_state);
     }
 
     entities_player_create(
         (PlayerConfig){.is_goalie = true,
-                       .position = {game_state->config.virtual_screen_width / 2.0f, 100.0f}},
+                       .position = {game_state->config.virtual_screen_width / 2.0f, 100.0f},
+                       .side = PSI_NORTH},
         game_state);
 
     Entity *ball_entity = entities_ball_create(
@@ -270,7 +281,9 @@ void game_draw(GameState *game_state) {
         pitch_texture,
         (Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
         (Rectangle){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
-        Vector2Zero(), 0, WHITE);
+        Vector2Zero(),
+        0,
+        WHITE);
 
     systems_render(game_state);
     systems_render_hud(game_state);
@@ -284,9 +297,12 @@ void game_draw(GameState *game_state) {
     ClearBackground(BLACK);
 
     // The target's height is flipped (in the source Rectangle), due to OpenGL reasons
-    Rectangle source_rec = {0.0f, 0.0f, (float)game_state->render_texture.texture.width,
+    Rectangle source_rec = {0.0f,
+                            0.0f,
+                            (float)game_state->render_texture.texture.width,
                             -(float)game_state->render_texture.texture.height};
-    Rectangle dest_rec = {-virtual_ratio, -virtual_ratio,
+    Rectangle dest_rec = {-virtual_ratio,
+                          -virtual_ratio,
                           game_state->config.screen_width + (virtual_ratio * 2),
                           game_state->config.screen_height + (virtual_ratio * 2)};
 

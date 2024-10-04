@@ -32,12 +32,26 @@ typedef struct Match {
     MatchScore score;
 } Match;
 
-typedef enum PitchType { PT_NORMAL, PT_MUD, PT_SNOW } PitchType;
+typedef enum {
+    PT_NORMAL,
+    PT_MUD,
+    PT_SNOW
+} PitchType;
+
+typedef enum {
+    PSI_NORTH,
+    PSI_SOUTH,
+    PSI_COUNT
+} PitchSide;
+
+typedef struct {
+    Rectangle area;
+    v2 center;
+} Goal;
 
 typedef struct Pitch {
     Rectangle field;
-    Rectangle area_north;
-    Rectangle area_south;
+    Goal goal[PSI_COUNT];
     PitchType type;
 } Pitch;
 
@@ -58,11 +72,29 @@ typedef enum {
     PR_COUNT
 } PlayerRole;
 
-typedef enum { TF_433, TF_442, TF_352, TF_343, TF_532, TF_4312, TF_4231, TF_COUNT } TeamFormation;
+typedef enum {
+    TF_433,
+    TF_442,
+    TF_352,
+    TF_343,
+    TF_532,
+    TF_4312,
+    TF_4231,
+    TF_COUNT
+} TeamFormation;
 
-typedef enum { SOP_BALANCED, SOP_OFFENSIVE, SOP_DEFENSIVE } StyleOfPlay;
+typedef enum {
+    SOP_BALANCED,
+    SOP_OFFENSIVE,
+    SOP_DEFENSIVE
+} StyleOfPlay;
 
-typedef enum { TM_DEFENDING, TM_DEFAULT, TM_ATTACKING, TM_COUNT } TeamMomentum;
+typedef enum {
+    TM_DEFENDING,
+    TM_DEFAULT,
+    TM_ATTACKING,
+    TM_COUNT
+} TeamMomentum;
 
 typedef struct {
     const char *name;

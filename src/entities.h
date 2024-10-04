@@ -3,6 +3,7 @@
 
 #include "components.h"
 #include "entities/state_machine.h"
+#include "football.h"
 #include "game.h"
 #include "input.h"
 #include "memory.h"
@@ -11,8 +12,8 @@
 
 #define MAX_ENTITIES 100
 
-#define EntityTypeToBitMask(TYPE) (1 << TYPE)
-#define EntityTypeAllBitMask 0xFFFFFFFFFFFFFFFF
+#define EntityTypeToBitMask(TYPE)       (1 << TYPE)
+#define EntityTypeAllBitMask            0xFFFFFFFFFFFFFFFF
 #define EntityTypeCheckMask(type, mask) (EntityTypeToBitMask(type) & mask)
 
 #define EntityForEach(entity_repo, item, entity_id)                                                \
@@ -46,10 +47,16 @@ typedef struct {
     v2 position;
 } BallConfig;
 
-typedef enum { BS_NONE, BS_IN_PLAY, BS_OUT_OF_PLAY, BS_GK_HANDS, BS_COUNT } StateMachineBallState;
+typedef enum {
+    BS_NONE,
+    BS_IN_PLAY,
+    BS_OUT_OF_PLAY,
+    BS_GK_HANDS,
+    BS_COUNT
+} StateMachineBallState;
 
-static char const *StateMachineBallStateString[] = {"none", "in_play", "out_of_play", "gk_hands",
-                                                    "count"};
+static char const *StateMachineBallStateString[] = {
+    "none", "in_play", "out_of_play", "gk_hands", "count"};
 
 DeclareStateMachineEnterAndExit(ball);
 
@@ -91,10 +98,16 @@ void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state);
 typedef struct {
     v2 position;
     b32 is_goalie;
+    PitchSide side;
     u8 team_formation_position_idx;
 } PlayerConfig;
 
-typedef enum { PS_NONE, PS_NORMAL, PS_GOALIE, PS_COUNT } StateMachinePlayerState;
+typedef enum {
+    PS_NONE,
+    PS_NORMAL,
+    PS_GOALIE,
+    PS_COUNT
+} StateMachinePlayerState;
 
 static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie"};
 
@@ -112,7 +125,13 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum { GS_NONE, GS_PROTECT_GOAL, GS_DIVE, GS_HOLD_BALL, GS_COUNT } StateMachineGoalieState;
+typedef enum {
+    GS_NONE,
+    GS_PROTECT_GOAL,
+    GS_DIVE,
+    GS_HOLD_BALL,
+    GS_COUNT
+} StateMachineGoalieState;
 
 static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "dive", "hold_ball"};
 
@@ -139,6 +158,13 @@ typedef union {
     StateMachineGoalieHoldBallData hold_ball;
 } StateMachineGoalieStateData;
 
+typedef enum {
+    PCT_PLAYER,
+    PCT_GOALIE,
+    PCT_DIVE,
+    PCT_COUNT
+} PlayerColliderType;
+
 DefineStateMachine(Goalie);
 DefineStateMachineFunctions(Goalie, goalie);
 
@@ -153,7 +179,10 @@ void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direc
 
 // START - Goal
 
-typedef enum { GP_NORTH, GP_SOUTH } GoalPosition;
+typedef enum {
+    GP_NORTH,
+    GP_SOUTH
+} GoalPosition;
 
 typedef struct {
     GoalPosition position;
@@ -169,7 +198,14 @@ struct Entity *entities_goal_net_create(GameState *game_state);
 
 // END - Goal net
 
-typedef enum { ET_CAMERA, ET_BALL, ET_PLAYER, ET_GOAL, ET_GOAL_NET, ET_COUNT } EntityType;
+typedef enum {
+    ET_CAMERA,
+    ET_BALL,
+    ET_PLAYER,
+    ET_GOAL,
+    ET_GOAL_NET,
+    ET_COUNT
+} EntityType;
 static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "goal", "goal_net"};
 
 typedef struct EntityHeader {

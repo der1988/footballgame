@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "components.h"
 #include "entities.h"
+#include "football.h"
 #include "sprites.h"
 #include <raylib.h>
 #include <raymath.h>
@@ -27,7 +28,10 @@ void systems_render_debug(GameState *game_state) {
 
                 sprites_draw_debug_frame(
                     assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
-                    position, rotation, scale, sprite->pivot_override);
+                    position,
+                    rotation,
+                    scale,
+                    sprite->pivot_override);
 
                 // Debug lines for pitch
                 Rectangle pitch = game_state->vars.pitch.field;
@@ -39,14 +43,17 @@ void systems_render_debug(GameState *game_state) {
                         if (collider->colliders[i].shape == CS_CIRCLE) {
                             v2 pos = Vector2Add(transform->position,
                                                 collider->colliders[i].props_circle.offset);
-                            DrawCircleLinesV(pos, collider->colliders[i].props_circle.radius,
+                            DrawCircleLinesV(pos,
+                                             collider->colliders[i].props_circle.radius,
                                              colliders_colors[i]);
                         } else if (collider->colliders[i].shape == CS_RECTANGLE) {
                             v2 pos = Vector2Add(transform->position,
                                                 collider->colliders[i].props_rectangle.offset);
-                            DrawRectangleLines(
-                                pos.x, pos.y, collider->colliders[i].props_rectangle.size.x,
-                                collider->colliders[i].props_rectangle.size.y, colliders_colors[i]);
+                            DrawRectangleLines(pos.x,
+                                               pos.y,
+                                               collider->colliders[i].props_rectangle.size.x,
+                                               collider->colliders[i].props_rectangle.size.y,
+                                               colliders_colors[i]);
                         }
                     }
                 }
@@ -64,7 +71,9 @@ void systems_render_debug(GameState *game_state) {
 
         // Pitch
         DrawRectangleLinesEx(game_state->vars.pitch.field, 1, VIOLET);
-        DrawRectangleLinesEx(game_state->vars.pitch.area_north, 1, YELLOW);
-        DrawRectangleLinesEx(game_state->vars.pitch.area_south, 1, YELLOW);
+        DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_NORTH].area, 1, YELLOW);
+        DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_SOUTH].area, 1, YELLOW);
+        DrawCircleV(game_state->vars.pitch.goal[PSI_NORTH].center, 1, RED);
+        DrawCircleV(game_state->vars.pitch.goal[PSI_SOUTH].center, 1, RED);
     }
 }

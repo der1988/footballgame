@@ -70,7 +70,10 @@ typedef struct {
     EntityId entity_id;
 } ComponentTarget;
 
-typedef enum { CS_CIRCLE, CS_RECTANGLE } ColliderShape;
+typedef enum {
+    CS_CIRCLE,
+    CS_RECTANGLE
+} ColliderShape;
 
 typedef struct {
     f32 radius;
@@ -117,6 +120,7 @@ typedef enum {
 
 typedef struct {
     ComponentHeader header;
+    PitchSide side;
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
     Time time_spent_in_precision_control;
@@ -159,11 +163,31 @@ typedef struct {
     b32 scored;
 } ComponentGoal;
 
-typedef enum { SS_UP, SS_DOWN, SS_COUNT } SaveSide;
-typedef enum { SD_LEFT, SD_RIGHT, SD_COUNT } SaveDirection;
-typedef enum { SH_HIGH, SH_LOW, SH_COUNT } SaveHeight;
-typedef enum { ST_WITHOUT_BALL, ST_WITH_BALL, ST_COUNT } SaveType;
-typedef enum { AP_START, AP_END, AP_COUNT } AnimationPhase;
+typedef enum {
+    SS_UP,
+    SS_DOWN,
+    SS_COUNT
+} SaveSide;
+typedef enum {
+    SD_LEFT,
+    SD_RIGHT,
+    SD_COUNT
+} SaveDirection;
+typedef enum {
+    SH_HIGH,
+    SH_LOW,
+    SH_COUNT
+} SaveHeight;
+typedef enum {
+    ST_WITHOUT_BALL,
+    ST_WITH_BALL,
+    ST_COUNT
+} SaveType;
+typedef enum {
+    AP_START,
+    AP_END,
+    AP_COUNT
+} AnimationPhase;
 
 typedef struct {
     ComponentHeader header;

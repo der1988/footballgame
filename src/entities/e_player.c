@@ -64,6 +64,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     // Initialise player
     ComponentPlayer *player = &entity->player;
     player->header.enabled = true;
+    player->side = config.side;
     player->team_formation_position_idx = config.team_formation_position_idx;
     // Sets initial max velocity to half of max run velocity
     player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
@@ -93,17 +94,17 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 
         prepare_goalie_gfx(player, &entity->goalie, game_state);
 
-        collider->num_colliders = 3;
+        collider->num_colliders = PCT_COUNT;
         collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
                                                 sizeof(Collider) * collider->num_colliders);
-        collider->colliders[1].shape = CS_CIRCLE;
-        collider->colliders[1].props_circle.offset = (v2){.y = 0};
-        collider->colliders[1].props_circle.radius = 6;
+        collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
+        collider->colliders[PCT_GOALIE].props_circle.offset = (v2){.y = 0};
+        collider->colliders[PCT_GOALIE].props_circle.radius = 6;
 
-        collider->colliders[2].shape = CS_RECTANGLE;
-        collider->colliders[2].props_rectangle.offset = (v2){.x = -10, .y = -5};
-        collider->colliders[2].props_rectangle.size.x = 22;
-        collider->colliders[2].props_rectangle.size.y = 10;
+        collider->colliders[PCT_DIVE].shape = CS_RECTANGLE;
+        collider->colliders[PCT_DIVE].props_rectangle.offset = (v2){.x = -10, .y = -5};
+        collider->colliders[PCT_DIVE].props_rectangle.size.x = 22;
+        collider->colliders[PCT_DIVE].props_rectangle.size.y = 10;
     } else {
         player_state_machine->current_state = PS_NORMAL;
 
@@ -114,8 +115,9 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
         collider->num_colliders = 1;
     }
 
-    collider->colliders[0].shape = CS_CIRCLE;
-    collider->colliders[0].props_circle.radius = game_state->constants.player_control_radius;
+    collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
+    collider->colliders[PCT_PLAYER].props_circle.radius =
+        game_state->constants.player_control_radius;
 
     entities_player_state_machine_on_enter(entity, game_state);
 
@@ -176,7 +178,9 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
     ComponentPlayer *player = &entity->player;
     StateMachinePlayer *state_machine = player->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES,
+                   entity->header.name,
+                   "entering state: %s",
                    StateMachinePlayerStateString[state_machine->current_state]);
 
     // Reset state data
@@ -197,7 +201,9 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
 void entities_player_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
     StateMachinePlayer *state_machine = entity->player.state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES,
+                   entity->header.name,
+                   "exiting state: %s",
                    StateMachinePlayerStateString[state_machine->previous_state]);
 
     switch (state_machine->previous_state) {
@@ -216,7 +222,9 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
 void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
     StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES,
+                   entity->header.name,
+                   "entering state: %s",
                    StateMachineGoalieStateString[state_machine->current_state]);
 
     // Reset state data
@@ -250,7 +258,9 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
 void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
     StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES,
+                   entity->header.name,
+                   "exiting state: %s",
                    StateMachineGoalieStateString[state_machine->previous_state]);
 
     switch (state_machine->previous_state) {
@@ -385,36 +395,36 @@ static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
     goalie->dive_animations_start[SS_UP][SD_LEFT][SH_HIGH] = entities_common_animation_id_from_name(
         "goalkeeper", "dive_front_high_left_start", game_state);
     goalie->dive_animations_start[SS_UP][SD_RIGHT][SH_HIGH] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_right_start",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_high_right_start", game_state);
     goalie->dive_animations_start[SS_UP][SD_LEFT][SH_LOW] = entities_common_animation_id_from_name(
         "goalkeeper", "dive_front_low_left_start", game_state);
     goalie->dive_animations_start[SS_UP][SD_RIGHT][SH_LOW] = entities_common_animation_id_from_name(
         "goalkeeper", "dive_front_low_right_start", game_state);
 
     goalie->dive_animations_end[SS_UP][SD_LEFT][SH_HIGH][ST_WITHOUT_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_left_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_high_left_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_HIGH][ST_WITHOUT_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_right_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_high_right_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_LEFT][SH_LOW][ST_WITHOUT_BALL] =
         entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_LOW][ST_WITHOUT_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_right_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_low_right_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_LEFT][SH_HIGH][ST_WITH_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_left_ball_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_high_left_ball_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_HIGH][ST_WITH_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_high_right_ball_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_high_right_ball_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_LEFT][SH_LOW][ST_WITH_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left_ball_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_low_left_ball_end", game_state);
     goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
-        entities_common_animation_id_from_name("goalkeeper", "dive_front_low_right_ball_end",
-                                               game_state);
+        entities_common_animation_id_from_name(
+            "goalkeeper", "dive_front_low_right_ball_end", game_state);
     // goalie->dive_animations[SS_DOWN][SD_LEFT] =
     //     entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
     // goalie->dive_animations[SS_DOWN][SD_RIGHT] =
