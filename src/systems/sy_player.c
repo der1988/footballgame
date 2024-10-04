@@ -117,14 +117,17 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
                 selected_entity_id = entity_id;
                 selected_distance = distance_from_player;
 
-                GLOGF_DEBUG(LS_GAME, "found valid pass target: %zu, %.2f, %.2f", entity_id,
-                            distance_from_player, angle);
+                GLOGF_DEBUG(LS_GAME,
+                            "found valid pass target: %zu, %.2f, %.2f",
+                            entity_id,
+                            distance_from_player,
+                            angle);
             }
         }
     }
     if (selected_entity_id != EID_NOT_VALID) {
-        GLOGF_DEBUG(LS_GAME, "selected pass target %zu at %.2f", selected_entity_id,
-                    selected_distance);
+        GLOGF_DEBUG(
+            LS_GAME, "selected pass target %zu at %.2f", selected_entity_id, selected_distance);
     }
     return selected_entity_id;
 }
@@ -142,17 +145,8 @@ void systems_player(GameState *game_state, Input *input) {
     player_on_the_ball.id = EID_NOT_VALID;
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
 
-    Entity *entity;
-    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        entity = entities_entity_get(game_state->entity_repository, entity_id);
-        ComponentTransform *transform = &entity->transform;
-        ComponentPhysics *physics = &entity->physics;
-        ComponentSprite *sprite = &entity->sprite;
-        ComponentPlayer *player = &entity->player;
-        ComponentCollider *collider = &entity->collider;
-        if (entity->header.alive && transform->header.enabled && physics->header.enabled &&
-            sprite->header.enabled && player->header.enabled && collider->header.enabled) {
-
+    for_each_entity(entity, game_state->entity_repository) {
+        check_is_player_and_declare_components(entity) {
             StateMachinePlayer *state_machine = player->state_machine;
 
             collider->colliders[0].props_circle.radius =
@@ -195,10 +189,12 @@ void systems_player(GameState *game_state, Input *input) {
                         // This player is the target of an automatic pass
                         // Let's move towards the ball
                         if (ball->pass_target_entity_id == entity_id) {
-                            player_controls->steering = steering_seek(
-                                transform->position, physics->velocity, physics->max_velocity,
-                                calculate_ball_position_to_aim_for(game_state, transform->position,
-                                                                   ball));
+                            player_controls->steering =
+                                steering_seek(transform->position,
+                                              physics->velocity,
+                                              physics->max_velocity,
+                                              calculate_ball_position_to_aim_for(
+                                                  game_state, transform->position, ball));
                         } else {
                             // Let's move based on the tactics of the team
                             TeamFormationPosition *team_formation_position =
@@ -207,9 +203,11 @@ void systems_player(GameState *game_state, Input *input) {
                             v2 target =
                                 pitch_pos_rel_to_abs(game_state->vars.pitch.field,
                                                      team_formation_position->position[TM_DEFAULT]);
-                            player_controls->steering =
-                                steering_arrive(transform->position, physics->velocity,
-                                                physics->max_velocity, target, 20);
+                            player_controls->steering = steering_arrive(transform->position,
+                                                                        physics->velocity,
+                                                                        physics->max_velocity,
+                                                                        target,
+                                                                        20);
                         }
                         layers_debug_queue_draw_text(game_state->layer_debug,
                                                      TextFormat("steering: %.2f, %.2f",
@@ -296,8 +294,8 @@ void systems_player(GameState *game_state, Input *input) {
                 }
 
                 // Calculate frame to display
-                entities_player_calculate_running_frame(entity_id, physics->velocity, 3,
-                                                        game_state);
+                entities_player_calculate_running_frame(
+                    entity_id, physics->velocity, 3, game_state);
 
                 break;
             }
@@ -308,7 +306,8 @@ void systems_player(GameState *game_state, Input *input) {
             }
             layers_debug_queue_draw_text(game_state->layer_debug,
                                          TextFormat("Player %02d pos: [%0.2f, %0.2f] vel: %.2f",
-                                                    entity_id, transform->position.x,
+                                                    entity_id,
+                                                    transform->position.x,
                                                     transform->position.y,
                                                     Vector2Length(physics->velocity)));
         }
@@ -355,8 +354,11 @@ void systems_player(GameState *game_state, Input *input) {
                 shot_direction =
                     Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, -max_angle));
             }
-            entities_ball_shoot(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                shot_direction, player_on_the_ball.controls->shot, game_state);
+            entities_ball_shoot(game_state->vars.ball_entity_id,
+                                player_on_the_ball.id,
+                                shot_direction,
+                                player_on_the_ball.controls->shot,
+                                game_state);
             kicked_ball = true;
         } else if (player_on_the_ball.controls->pass > 0 && steering_magnitude > 0.1f) {
             // Pass
@@ -380,8 +382,12 @@ void systems_player(GameState *game_state, Input *input) {
                 pass_direction =
                     Vector3Normalize(V2_TO_V3(player_on_the_ball.controls->steering, 0));
             }
-            entities_ball_short_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                     pass_direction, power, automatic_pass, game_state);
+            entities_ball_short_pass(game_state->vars.ball_entity_id,
+                                     player_on_the_ball.id,
+                                     pass_direction,
+                                     power,
+                                     automatic_pass,
+                                     game_state);
             kicked_ball = true;
         } else if (player_on_the_ball.controls->long_pass && steering_magnitude > 0.1f) {
             // Long pass
@@ -397,8 +403,10 @@ void systems_player(GameState *game_state, Input *input) {
                 long_pass_direction =
                     Vector2Normalize(Vector2Rotate(player_on_the_ball.velocity, -max_angle));
             }
-            entities_ball_long_pass(game_state->vars.ball_entity_id, player_on_the_ball.id,
-                                    long_pass_direction, player_on_the_ball.controls->long_pass,
+            entities_ball_long_pass(game_state->vars.ball_entity_id,
+                                    player_on_the_ball.id,
+                                    long_pass_direction,
+                                    player_on_the_ball.controls->long_pass,
                                     game_state);
             kicked_ball = true;
         } else if (!kicked_ball && steering_magnitude > 0.01f) {
@@ -426,9 +434,12 @@ void systems_player(GameState *game_state, Input *input) {
                                      1));
                 // TODO: this should depend on player technical abilities
                 if (player_on_the_ball.player->time_spent_in_precision_control < 1) {
-                    entities_ball_control_precision(
-                        game_state->vars.ball_entity_id, player_on_the_ball.id,
-                        player_on_the_ball.velocity, position_to_seek, 1, game_state);
+                    entities_ball_control_precision(game_state->vars.ball_entity_id,
+                                                    player_on_the_ball.id,
+                                                    player_on_the_ball.velocity,
+                                                    position_to_seek,
+                                                    1,
+                                                    game_state);
                 }
             } else {
                 // Run control
@@ -442,9 +453,12 @@ void systems_player(GameState *game_state, Input *input) {
                 // TODO: this should depend on player technical abilities
                 f32 control_ratio = 1 - powf(velocity_length, 4) /
                                             powf(game_state->constants.player_run_max_velocity, 4);
-                entities_ball_control_running(
-                    game_state->vars.ball_entity_id, player_on_the_ball.id, control_direction,
-                    player_on_the_ball.velocity, control_ratio, game_state);
+                entities_ball_control_running(game_state->vars.ball_entity_id,
+                                              player_on_the_ball.id,
+                                              control_direction,
+                                              player_on_the_ball.velocity,
+                                              control_ratio,
+                                              game_state);
             }
         }
 

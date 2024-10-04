@@ -19,11 +19,7 @@ void apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, De
 
 void systems_camera(GameState *game_state) {
 
-    EntityRepository *entity_repository = game_state->entity_repository;
-
-    Entity *entity;
-    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        entity = entities_entity_get(game_state->entity_repository, entity_id);
+    for_each_entity(entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentTarget *target = &entity->target;
         ComponentPhysics *physics = &entity->physics;
@@ -51,9 +47,11 @@ void systems_camera(GameState *game_state) {
 
                 layers_debug_queue_draw_text(game_state->layer_debug,
                                              TextFormat("Camera offset y: %.2f", props->offset.y));
-                steering = steering_arrive(
-                    transform->position, physics->velocity, physics->max_velocity,
-                    Vector2Add(target_transform->position, props->offset), props->slowing_distance);
+                steering = steering_arrive(transform->position,
+                                           physics->velocity,
+                                           physics->max_velocity,
+                                           Vector2Add(target_transform->position, props->offset),
+                                           props->slowing_distance);
             }
             steering = Vector2Scale(steering, physics->max_velocity * physics->max_force);
 

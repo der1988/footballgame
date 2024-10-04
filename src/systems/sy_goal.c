@@ -17,9 +17,7 @@ void systems_goal(GameState *game_state) {
     ComponentBall *ball = &ball_entity->ball;
 
     // First let's check if it's a goal
-    Entity *entity;
-    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        entity = entities_entity_get(game_state->entity_repository, entity_id);
+    for_each_entity(entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentSprite *sprite = &entity->sprite;
         ComponentGoal *goal = &entity->goal;
@@ -70,8 +68,8 @@ void systems_goal(GameState *game_state) {
 
                 Ray ray = (Ray){.position = current_pos,
                                 .direction = Vector3Negate(ball_physics_3d->velocity)};
-                RayCollision collision = GetRayCollisionQuad(ray, goal_line_p1, goal_line_p2,
-                                                             goal_line_p3, goal_line_p4);
+                RayCollision collision = GetRayCollisionQuad(
+                    ray, goal_line_p1, goal_line_p2, goal_line_p3, goal_line_p4);
                 // printf("original collision %.2f, %.2f, %.2f\n", collision.point.x,
                 //        collision.point.y, collision.point.z);
                 if (collision.hit &&
@@ -92,10 +90,12 @@ void systems_goal(GameState *game_state) {
                         // hit left post
                         f32 normalised_hit_point = Clamp(
                             (collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width,
-                            -1, 1);
+                            -1,
+                            1);
                         new_velocity.y *= -1;
                         new_velocity =
-                            Vector3RotateByAxisAngle(Vector3Negate(new_velocity), (v3){.y = 1},
+                            Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
+                                                     (v3){.y = 1},
                                                      120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_left_post_time = game_state->time;
@@ -113,10 +113,12 @@ void systems_goal(GameState *game_state) {
                             Clamp((collision.point.x - goal_rectangle.x - goal_rectangle.width +
                                    post_width * 0.5f) /
                                       post_width,
-                                  -1, 1);
+                                  -1,
+                                  1);
                         new_velocity.y *= -1;
                         new_velocity =
-                            Vector3RotateByAxisAngle(Vector3Negate(new_velocity), (v3){.y = 1},
+                            Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
+                                                     (v3){.y = 1},
                                                      120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_right_post_time = game_state->time;
@@ -131,11 +133,13 @@ void systems_goal(GameState *game_state) {
                         f32 normalised_hit_point =
                             Clamp((collision.point.y - goal_rectangle.height + post_width) /
                                       post_width,
-                                  -1, 1) *
+                                  -1,
+                                  1) *
                             -1;
                         new_velocity.x *= -1;
                         new_velocity =
-                            Vector3RotateByAxisAngle(Vector3Negate(new_velocity), (v3){.x = 1},
+                            Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
+                                                     (v3){.x = 1},
                                                      120 * normalised_hit_point * DEG2RAD);
                         collided_with_post = true;
                         goal->hit_crossbar_time = game_state->time;
@@ -152,10 +156,14 @@ void systems_goal(GameState *game_state) {
                             Vector3Add(collision.point, Vector3Scale(new_velocity, game_state->dt));
 
                         entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-                                                                new_position, new_velocity,
+                                                                new_position,
+                                                                new_velocity,
                                                                 game_state);
-                        GLOGF_INFO(LS_GAME, "hit post at %.2f, %.2f, %.2f", collision.point.x,
-                                   collision.point.y, collision.point.z);
+                        GLOGF_INFO(LS_GAME,
+                                   "hit post at %.2f, %.2f, %.2f",
+                                   collision.point.x,
+                                   collision.point.y,
+                                   collision.point.z);
                         if (scored) {
                             GLOG_INFO(LS_GAME, "goal off post!");
                         }
@@ -173,8 +181,11 @@ void systems_goal(GameState *game_state) {
                     if (scored) {
                         entities_ball_in_goal(game_state->vars.ball_entity_id, game_state);
                         football_match_change_state(game_state, MS_GOAL);
-                        GLOGF_INFO(LS_GAME, "goal at %.2f, %.2f, %.2f", collision.point.x,
-                                   collision.point.y, collision.point.z);
+                        GLOGF_INFO(LS_GAME,
+                                   "goal at %.2f, %.2f, %.2f",
+                                   collision.point.x,
+                                   collision.point.y,
+                                   collision.point.z);
                     }
                 }
             }

@@ -20,11 +20,7 @@ static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side) {
 }
 
 void systems_ball(GameState *game_state, Input *input) {
-    EntityRepository *entity_repository = game_state->entity_repository;
-
-    Entity *entity;
-    for (usize ball_id = 0; ball_id < entity_repository->max_slots; ++ball_id) {
-        entity = entities_entity_get(game_state->entity_repository, ball_id);
+    for_each_entity(entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentPhysics3d *physics_3d = &entity->physics_3d;
         ComponentSprite *sprite = &entity->sprite;
@@ -41,8 +37,10 @@ void systems_ball(GameState *game_state, Input *input) {
                                          game_state->vars.p1.player_entity_id)
                          ->transform;
                 entities_ball_set_position_and_velocity(
-                    ball_id, V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
-                    Vector3Zero(), game_state);
+                    entity_id,
+                    V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
+                    Vector3Zero(),
+                    game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
@@ -51,8 +49,10 @@ void systems_ball(GameState *game_state, Input *input) {
             // Test cross-bar
             if (input->buttons[IBT_BUTTON_SELECT].released) {
                 entities_ball_set_position_and_velocity(
-                    ball_id, (v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
-                    Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 413.5f), game_state);
+                    entity_id,
+                    (v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
+                    Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 413.5f),
+                    game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
@@ -61,8 +61,10 @@ void systems_ball(GameState *game_state, Input *input) {
             // Test cross
             if (input->buttons[IBT_BUTTON_UP].released) {
                 entities_ball_set_position_and_velocity(
-                    ball_id, (v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
-                    Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f), game_state);
+                    entity_id,
+                    (v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
+                    Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f),
+                    game_state);
                 football_match_change_state(game_state, MS_PLAY);
                 ball->last_player_on_the_ball_entity_id = -1;
                 return;
@@ -83,7 +85,8 @@ void systems_ball(GameState *game_state, Input *input) {
 
             layers_debug_queue_draw_text(game_state->layer_debug,
                                          TextFormat("Ball vel: %.2f, %.2f, %.2f",
-                                                    physics_3d->velocity.x, physics_3d->velocity.y,
+                                                    physics_3d->velocity.x,
+                                                    physics_3d->velocity.y,
                                                     physics_3d->velocity.z));
 
             layers_debug_queue_draw_text(
@@ -145,7 +148,8 @@ void systems_ball(GameState *game_state, Input *input) {
                                           powf((game_state->constants.ball_after_touch_max_time -
                                                 game_state->constants.ball_after_touch_delay_time),
                                                2),
-                                      0, 1);
+                                      0,
+                                      1);
 
                         // Apply it
                         accel = Vector3Add(
@@ -158,8 +162,14 @@ void systems_ball(GameState *game_state, Input *input) {
                 b32 on_the_ground;
                 b32 bounced;
                 f32 ball_radius = collider->colliders[0].props_circle.radius;
-                sim_ball_physics(&position, &velocity, accel, physics_3d->mass, ball_radius,
-                                 &on_the_ground, &bounced, game_state);
+                sim_ball_physics(&position,
+                                 &velocity,
+                                 accel,
+                                 physics_3d->mass,
+                                 ball_radius,
+                                 &on_the_ground,
+                                 &bounced,
+                                 game_state);
                 ball->is_on_the_ground = on_the_ground && !bounced;
                 if (bounced) {
                     ball->last_bounce_time = game_state->time;
@@ -180,9 +190,14 @@ void systems_ball(GameState *game_state, Input *input) {
                 for (u16 i = 0; i < lookaheads; ++i) {
                     // 10 dt steps (100 in slow motion)
                     for (u16 j = 0; j < lookahead_dts; ++j) {
-                        sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
-                                         physics_3d->mass, ball_radius, &lookahead_on_the_ground,
-                                         &lookahead_bounced, game_state);
+                        sim_ball_physics(&lookahead_position,
+                                         &lookahead_velocity,
+                                         Vector3Zero(),
+                                         physics_3d->mass,
+                                         ball_radius,
+                                         &lookahead_on_the_ground,
+                                         &lookahead_bounced,
+                                         game_state);
                     }
                     ball->lookahead_positions[i] = lookahead_position;
                 }
@@ -194,9 +209,14 @@ void systems_ball(GameState *game_state, Input *input) {
                 lookahead_bounced = false;
                 u16 dts = 0;
                 while (!lookahead_bounced && !lookahead_on_the_ground) {
-                    sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
-                                     physics_3d->mass, ball_radius, &lookahead_on_the_ground,
-                                     &lookahead_bounced, game_state);
+                    sim_ball_physics(&lookahead_position,
+                                     &lookahead_velocity,
+                                     Vector3Zero(),
+                                     physics_3d->mass,
+                                     ball_radius,
+                                     &lookahead_on_the_ground,
+                                     &lookahead_bounced,
+                                     game_state);
                     dts++;
                     if (lookahead_bounced) {
                         ball->future_bounce_position = V3_TO_V2(lookahead_position);

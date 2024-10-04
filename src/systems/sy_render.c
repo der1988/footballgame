@@ -54,9 +54,7 @@ void systems_render(GameState *game_state) {
 
     // Collect information about sprites to draw
     SpriteToDraw *current_idx = ordered_sprites_to_draw;
-    Entity *entity;
-    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        entity = entities_entity_get(game_state->entity_repository, entity_id);
+    for_each_entity(entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentSprite *sprite = &entity->sprite;
         if (entity->header.alive && transform->header.enabled && sprite->header.enabled) {
@@ -111,8 +109,11 @@ void systems_render(GameState *game_state) {
                          Vector2Add(sprite_to_draw->position, shadow_final_offset),
                          sprite_to_draw->rotation - 45,
                          Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
-                         sprite_to_draw->shadow_color, sprite_to_draw->flipX, true,
-                         sprite_to_draw->pivot_override, sprite_to_draw->texture);
+                         sprite_to_draw->shadow_color,
+                         sprite_to_draw->flipX,
+                         true,
+                         sprite_to_draw->pivot_override,
+                         sprite_to_draw->texture);
         }
     }
 
@@ -121,8 +122,12 @@ void systems_render(GameState *game_state) {
         SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
         sprites_draw(sprite_to_draw->sprite_frame,
                      Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
-                     sprite_to_draw->rotation, sprite_to_draw->scale, sprite_to_draw->color,
-                     sprite_to_draw->flipX, sprite_to_draw->flipY, sprite_to_draw->pivot_override,
+                     sprite_to_draw->rotation,
+                     sprite_to_draw->scale,
+                     sprite_to_draw->color,
+                     sprite_to_draw->flipX,
+                     sprite_to_draw->flipY,
+                     sprite_to_draw->pivot_override,
                      sprite_to_draw->texture);
     }
 }

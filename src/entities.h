@@ -16,9 +16,9 @@
 #define EntityTypeAllBitMask            0xFFFFFFFFFFFFFFFF
 #define EntityTypeCheckMask(type, mask) (EntityTypeToBitMask(type) & mask)
 
-#define EntityForEach(entity_repo, item, entity_id)                                                \
+#define for_each_entity(item, entity_repo)                                                         \
     Entity *item = entity_repo->entities;                                                          \
-    for (usize entity_id = 0; entity_id < entity_repo->max_slots; ++entity_id, item++)
+    for (usize item##_id = 0; entity_id < entity_repo->max_slots; ++item##_id, item++)
 
 // Shared State Data
 typedef struct {
@@ -167,6 +167,26 @@ typedef enum {
 
 DefineStateMachine(Goalie);
 DefineStateMachineFunctions(Goalie, goalie);
+
+#define check_is_player_and_declare_components(entity)                                             \
+    ComponentTransform *transform = &entity->transform;                                            \
+    ComponentPhysics *physics = &entity->physics;                                                  \
+    ComponentSprite *sprite = &entity->sprite;                                                     \
+    ComponentPlayer *player = &entity->player;                                                     \
+    ComponentCollider *collider = &entity->collider;                                               \
+    if (entity->header.alive && transform->header.enabled && physics->header.enabled &&            \
+        sprite->header.enabled && player->header.enabled && collider->header.enabled)
+
+#define check_is_goalie_and_declare_components(entity)                                             \
+    ComponentTransform *transform = &entity->transform;                                            \
+    ComponentPhysics *physics = &entity->physics;                                                  \
+    ComponentSprite *sprite = &entity->sprite;                                                     \
+    ComponentPlayer *player = &entity->player;                                                     \
+    ComponentGoalie *goalie = &entity->goalie;                                                     \
+    ComponentCollider *collider = &entity->collider;                                               \
+    if (entity->header.alive && transform->header.enabled && physics->header.enabled &&            \
+        sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
+        collider->header.enabled)
 
 struct Entity *entities_player_create(PlayerConfig config, GameState *game_state);
 void entities_player_apply_force(EntityId player_entity_id, Vector2 steering,

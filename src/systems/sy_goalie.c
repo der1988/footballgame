@@ -84,8 +84,6 @@ static bool should_dive(Entity *goalie_entity, Entity *ball_entity, SaveDirectio
 }
 
 void systems_goalie(GameState *game_state, Input *input) {
-    EntityRepository *entity_repository = game_state->entity_repository;
-
     Entity *ball_entity =
         entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     ComponentBall *ball = &ball_entity->ball;
@@ -93,19 +91,8 @@ void systems_goalie(GameState *game_state, Input *input) {
     ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
     ComponentCollider *ball_collider = &ball_entity->collider;
 
-    Entity *entity;
-    for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-        entity = entities_entity_get(game_state->entity_repository, entity_id);
-        ComponentTransform *transform = &entity->transform;
-        ComponentPhysics *physics = &entity->physics;
-        ComponentSprite *sprite = &entity->sprite;
-        ComponentPlayer *player = &entity->player;
-        ComponentGoalie *goalie = &entity->goalie;
-        ComponentCollider *collider = &entity->collider;
-        if (entity->header.alive && transform->header.enabled && physics->header.enabled &&
-            sprite->header.enabled && player->header.enabled && goalie->header.enabled &&
-            collider->header.enabled) {
-
+    for_each_entity(entity, game_state->entity_repository) {
+        check_is_goalie_and_declare_components(entity) {
             StateMachineGoalie *state_machine = goalie->state_machine;
 
             v2 goal_center = game_state->vars.pitch.goal[player->side].center;
