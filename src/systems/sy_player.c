@@ -149,7 +149,7 @@ void systems_player(GameState *game_state, Input *input) {
         check_is_player_and_declare_components(entity) {
             StateMachinePlayer *state_machine = player->state_machine;
 
-            collider->colliders[0].props_circle.radius =
+            collider->colliders[PCT_PLAYER].props_circle.radius =
                 game_state->constants.player_control_radius;
 
             switch (state_machine->current_state) {
