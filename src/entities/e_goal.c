@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "components.h"
 #include "entities.h"
+#include "football.h"
 #include "game.h"
 #include "render.h"
 #include "types.h"
@@ -21,7 +22,7 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
-    if (config.position == GP_NORTH) {
+    if (config.side == PSI_NORTH) {
         transform->position =
             (Vector2){game_state->vars.pitch.field.x + game_state->vars.pitch.field.width / 2.0f,
                       game_state->vars.pitch.field.y};

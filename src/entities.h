@@ -43,11 +43,11 @@ struct Entity *entities_camera_create(GameState *game_state);
 
 // START - Ball
 
-typedef struct {
+typedef struct BallConfig {
     v2 position;
 } BallConfig;
 
-typedef enum {
+typedef enum StateMachineBallState {
     BS_NONE,
     BS_IN_PLAY,
     BS_OUT_OF_PLAY,
@@ -60,7 +60,7 @@ static char const *StateMachineBallStateString[] = {
 
 DeclareStateMachineEnterAndExit(ball);
 
-typedef union {
+typedef union StateMachineBallStateData {
     StateMachineDefaultEmptyData in_play;
     StateMachineDefaultEmptyData out_of_play;
     StateMachineDefaultEmptyData gk_hands;
@@ -95,14 +95,14 @@ void entities_ball_in_goal(EntityId ball_entity_id, GameState *game_state);
 
 // START - Player
 
-typedef struct {
+typedef struct PlayerConfig {
     v2 position;
     b32 is_goalie;
     PitchSide side;
     u8 team_formation_position_idx;
 } PlayerConfig;
 
-typedef enum {
+typedef enum StateMachinePlayerState {
     PS_NONE,
     PS_NORMAL,
     PS_GOALIE,
@@ -113,11 +113,11 @@ static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie"
 
 DeclareStateMachineEnterAndExit(player);
 
-typedef struct {
+typedef struct StateMachinePlayerNormalData {
     Direction running_action_direction;
 } StateMachinePlayerNormalData;
 
-typedef union {
+typedef union StateMachinePlayerStateData {
     StateMachinePlayerNormalData normal;
     StateMachineDefaultEmptyData goalie;
 } StateMachinePlayerStateData;
@@ -125,7 +125,7 @@ typedef union {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum {
+typedef enum StateMachineGoalieState {
     GS_NONE,
     GS_PROTECT_GOAL,
     GS_DIVE,
@@ -137,11 +137,11 @@ static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "d
 
 DeclareStateMachineEnterAndExit(goalie);
 
-typedef struct {
+typedef struct StateMachineGoalieHoldBallData {
     Time hold_start_time;
 } StateMachineGoalieHoldBallData;
 
-typedef struct {
+typedef struct StateMachineGoalieDiveData {
     f64 animation_start_time;
     f64 animation_first_phase_end_time;
     f64 animation_end_time;
@@ -152,13 +152,13 @@ typedef struct {
     b32 ball_held;
 } StateMachineGoalieDiveData;
 
-typedef union {
+typedef union StateMachineGoalieStateData {
     StateMachineDefaultEmptyData protect_goal;
     StateMachineGoalieDiveData dive;
     StateMachineGoalieHoldBallData hold_ball;
 } StateMachineGoalieStateData;
 
-typedef enum {
+typedef enum PlayerColliderType {
     PCT_PLAYER,
     PCT_GOALIE,
     PCT_DIVE,
@@ -199,13 +199,8 @@ void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direc
 
 // START - Goal
 
-typedef enum {
-    GP_NORTH,
-    GP_SOUTH
-} GoalPosition;
-
-typedef struct {
-    GoalPosition position;
+typedef struct GoalConfig {
+    PitchSide side;
 } GoalConfig;
 
 struct Entity *entities_goal_create(GoalConfig config, GameState *game_state);

@@ -22,29 +22,27 @@ typedef enum MatchState {
 static const char *MatchStateToString[MS_COUNT] = {
     "kickoff", "play", "goal", "throw_in", "goal_kick", "corner_kick", "penalty_kick", "free_kick"};
 
-typedef struct MatchScore {
-    u16 home;
-    u16 away;
-} MatchScore;
-
 typedef struct Match {
     enum MatchState state;
-    MatchScore score;
+    struct {
+        u16 home;
+        u16 away;
+    } score;
 } Match;
 
-typedef enum {
+typedef enum PitchType {
     PT_NORMAL,
-    PT_MUD,
-    PT_SNOW
+    PT_MUDDY,
+    PT_SNOWY
 } PitchType;
 
-typedef enum {
+typedef enum PitchSide {
     PSI_NORTH,
     PSI_SOUTH,
     PSI_COUNT
 } PitchSide;
 
-typedef struct {
+typedef struct Goal {
     Rectangle area;
     v2 center;
 } Goal;
@@ -57,7 +55,7 @@ typedef struct Pitch {
 
 void football_match_change_state(struct GameState *game_state, MatchState new_state);
 
-typedef enum {
+typedef enum PlayerRole {
     PR_GK,  // Goalkeeper
     PR_SB,  // Side Back
     PR_CB,  // Centre Back
@@ -72,7 +70,7 @@ typedef enum {
     PR_COUNT
 } PlayerRole;
 
-typedef enum {
+typedef enum TeamFormation {
     TF_433,
     TF_442,
     TF_352,
@@ -83,20 +81,21 @@ typedef enum {
     TF_COUNT
 } TeamFormation;
 
-typedef enum {
+typedef enum StyleOfPlay {
     SOP_BALANCED,
     SOP_OFFENSIVE,
-    SOP_DEFENSIVE
+    SOP_DEFENSIVE,
+    SOP_COUNT
 } StyleOfPlay;
 
-typedef enum {
+typedef enum TeamMomentum {
     TM_DEFENDING,
     TM_DEFAULT,
     TM_ATTACKING,
     TM_COUNT
 } TeamMomentum;
 
-typedef struct {
+typedef struct TeamFormationPosition {
     const char *name;
     PlayerRole supported_roles[3];
     v2 position[TM_COUNT];

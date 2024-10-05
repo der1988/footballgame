@@ -164,7 +164,7 @@ GameState *game_init(GameConfig game_config) {
         game_state);
     game_state->vars.ball_entity_id = ball_entity->header.id;
 
-    entities_goal_create((GoalConfig){.position = GP_NORTH}, game_state);
+    entities_goal_create((GoalConfig){.side = PSI_NORTH}, game_state);
 
     Entity *camera_entity = entities_camera_create(game_state);
     ComponentCamera *camera = &camera_entity->camera;
