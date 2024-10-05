@@ -2,7 +2,7 @@
 #include "components.h"
 #include "entities.h"
 #include "football.h"
-#include "sprites.h"
+#include "render.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -24,7 +24,7 @@ void systems_render_debug(GameState *game_state) {
                 // TODO(marco): not great but I haven't found a better way to do it yet
                 position.y -= transform->virtual_height;
 
-                sprites_draw_debug_frame(
+                render_sprite_draw_debug_frame(
                     assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
                     position,
                     rotation,

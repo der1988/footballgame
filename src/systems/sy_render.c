@@ -2,7 +2,7 @@
 #include "components.h"
 #include "entities.h"
 #include "game.h"
-#include "sprites.h"
+#include "render.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
@@ -105,29 +105,29 @@ void systems_render(GameState *game_state) {
                 Vector2Multiply(sprite_to_draw->shadow_offset,
                                 sprite_to_draw->sprite_frame->source_size),
                 (v2){.x = -sprite_to_draw->height * 0.1f, .y = -sprite_to_draw->height * 0.1f});
-            sprites_draw(sprite_to_draw->sprite_frame,
-                         Vector2Add(sprite_to_draw->position, shadow_final_offset),
-                         sprite_to_draw->rotation - 45,
-                         Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
-                         sprite_to_draw->shadow_color,
-                         sprite_to_draw->flipX,
-                         true,
-                         sprite_to_draw->pivot_override,
-                         sprite_to_draw->texture);
+            render_sprite_draw(sprite_to_draw->sprite_frame,
+                               Vector2Add(sprite_to_draw->position, shadow_final_offset),
+                               sprite_to_draw->rotation - 45,
+                               Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
+                               sprite_to_draw->shadow_color,
+                               sprite_to_draw->flipX,
+                               true,
+                               sprite_to_draw->pivot_override,
+                               sprite_to_draw->texture);
         }
     }
 
     // Draw sprites
     for (usize i = 0; i < total_sprites; ++i) {
         SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
-        sprites_draw(sprite_to_draw->sprite_frame,
-                     Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
-                     sprite_to_draw->rotation,
-                     sprite_to_draw->scale,
-                     sprite_to_draw->color,
-                     sprite_to_draw->flipX,
-                     sprite_to_draw->flipY,
-                     sprite_to_draw->pivot_override,
-                     sprite_to_draw->texture);
+        render_sprite_draw(sprite_to_draw->sprite_frame,
+                           Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
+                           sprite_to_draw->rotation,
+                           sprite_to_draw->scale,
+                           sprite_to_draw->color,
+                           sprite_to_draw->flipX,
+                           sprite_to_draw->flipY,
+                           sprite_to_draw->pivot_override,
+                           sprite_to_draw->texture);
     }
 }

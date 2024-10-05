@@ -4,7 +4,7 @@
 #include "actions.h"
 #include "assets.h"
 #include "game.h"
-#include "sprites.h"
+#include "render.h"
 #include "types.h"
 #include <raylib.h>
 

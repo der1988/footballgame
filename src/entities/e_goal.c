@@ -2,7 +2,7 @@
 #include "components.h"
 #include "entities.h"
 #include "game.h"
-#include "sprites.h"
+#include "render.h"
 #include "types.h"
 #include "utils.h"
 #include <assert.h>

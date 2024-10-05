@@ -3,7 +3,7 @@
 #include "entities.h"
 #include "game.h"
 #include "memory.h"
-#include "sprites.h"
+#include "render.h"
 #include "types.h"
 #include "utils.h"
 #include <assert.h>
@@ -90,7 +90,9 @@ void entities_ball_state_machine_on_enter(struct Entity *entity, GameState *game
     ComponentBall *ball = &entity->ball;
     StateMachineBall *state_machine = ball->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES,
+                   entity->header.name,
+                   "entering state: %s",
                    StateMachineBallStateString[state_machine->current_state]);
 
     // Reset state data
@@ -119,7 +121,9 @@ void entities_ball_state_machine_on_exit(struct Entity *entity, GameState *game_
     ComponentBall *ball = &entity->ball;
     StateMachineBall *state_machine = ball->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
+    GLOGF_INFO_CTX(LS_ENTITIES,
+                   entity->header.name,
+                   "exiting state: %s",
                    StateMachineBallStateString[state_machine->previous_state]);
 
     switch (state_machine->previous_state) {
@@ -271,9 +275,10 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
     }
     physics_3d->accel =
         Vector3Add(physics_3d->accel,
-                   Vector3Scale(direction, (game_state->constants.ball_pass_force * 0.5f +
-                                            power * 0.5f * game_state->constants.ball_pass_force) /
-                                               game_state->dt));
+                   Vector3Scale(direction,
+                                (game_state->constants.ball_pass_force * 0.5f +
+                                 power * 0.5f * game_state->constants.ball_pass_force) /
+                                    game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;

@@ -3,8 +3,9 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void sprites_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale, Color color,
-                  b32 flipX, b32 flipY, v2 pivot_override, AssetsTexture *assets_texture) {
+void render_sprite_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
+                        Color color, b32 flipX, b32 flipY, v2 pivot_override,
+                        AssetsTexture *assets_texture) {
     Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw texture
@@ -15,7 +16,9 @@ void sprites_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2
                       sprite_frame->source_size.y * scale.y * pivot.y -
                           sprite_frame->sprite_source_size.y * scale.y};
 
-    Rectangle dst = {position.x, position.y, sprite_frame->sprite_source_size.width * scale.x,
+    Rectangle dst = {position.x,
+                     position.y,
+                     sprite_frame->sprite_source_size.width * scale.x,
                      sprite_frame->sprite_source_size.height * scale.y};
 
     if (flipX) {
@@ -36,8 +39,8 @@ void sprites_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2
     DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
 }
 
-void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
-                              v2 pivot_override) {
+void render_sprite_draw_debug_frame(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation,
+                                    v2 scale, v2 pivot_override) {
     Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw pivot
@@ -54,11 +57,15 @@ void sprites_draw_debug_frame(AssetsSpriteFrame *sprite_frame, v2 position, f32 
 
     // Draw debug frame
     DrawLineV(Vector2RotateAroundPivot(top_left, position, rotation),
-              Vector2RotateAroundPivot(top_right, position, rotation), GREEN);
+              Vector2RotateAroundPivot(top_right, position, rotation),
+              GREEN);
     DrawLineV(Vector2RotateAroundPivot(top_left, position, rotation),
-              Vector2RotateAroundPivot(bottom_left, position, rotation), GREEN);
+              Vector2RotateAroundPivot(bottom_left, position, rotation),
+              GREEN);
     DrawLineV(Vector2RotateAroundPivot(bottom_left, position, rotation),
-              Vector2RotateAroundPivot(bottom_right, position, rotation), GREEN);
+              Vector2RotateAroundPivot(bottom_right, position, rotation),
+              GREEN);
     DrawLineV(Vector2RotateAroundPivot(top_right, position, rotation),
-              Vector2RotateAroundPivot(bottom_right, position, rotation), GREEN);
+              Vector2RotateAroundPivot(bottom_right, position, rotation),
+              GREEN);
 }

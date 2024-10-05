@@ -3,7 +3,7 @@
 #include "entities.h"
 #include "game.h"
 #include "memory.h"
-#include "sprites.h"
+#include "render.h"
 #include "types.h"
 #include "utils.h"
 #include <assert.h>
