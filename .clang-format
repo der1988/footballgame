@@ -9,3 +9,4 @@ AllowShortEnumsOnASingleLine: false
 BinPackArguments: false
 ForEachMacros:
 - 'for_each_entity'
+SortIncludes: false
