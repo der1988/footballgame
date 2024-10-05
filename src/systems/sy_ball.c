@@ -19,20 +19,20 @@ static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side) {
     return false;
 }
 
-void systems_ball(GameState *game_state, Input *input) {
+void systems_ball(struct GameState *game_state, struct Input *input) {
     for_each_entity (entity, game_state->entity_repository) {
-        ComponentTransform *transform = &entity->transform;
-        ComponentPhysics3d *physics_3d = &entity->physics_3d;
-        ComponentSprite *sprite = &entity->sprite;
-        ComponentBall *ball = &entity->ball;
-        ComponentCollider *collider = &entity->collider;
+        struct ComponentTransform *transform = &entity->transform;
+        struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
+        struct ComponentSprite *sprite = &entity->sprite;
+        struct ComponentBall *ball = &entity->ball;
+        struct ComponentCollider *collider = &entity->collider;
         if (entity->header.alive && transform->header.enabled && physics_3d->header.enabled &&
             sprite->header.enabled && ball->header.enabled && collider->header.enabled) {
 
-            StateMachineBall *state_machine = ball->state_machine;
+            struct StateMachineBall *state_machine = ball->state_machine;
 
             if (input->buttons[IBT_BUTTON_START].released) {
-                ComponentTransform *p1_transform =
+                struct ComponentTransform *p1_transform =
                     &entities_entity_get(game_state->entity_repository,
                                          game_state->vars.p1.player_entity_id)
                          ->transform;
@@ -240,8 +240,8 @@ void systems_ball(GameState *game_state, Input *input) {
                 // Calculate frame to display
                 Vector2 ball_velocity = V3_TO_V2(physics_3d->velocity);
                 if (Vector2Length(ball_velocity) > 3) {
-                    Direction pd = entities_common_calculate_direction(ball_velocity);
-                    AssetsAnimation *animation = assets_animation_get_by_id(
+                    enum Direction pd = entities_common_calculate_direction(ball_velocity);
+                    struct AssetsAnimation *animation = assets_animation_get_by_id(
                         game_state->animation_cache, ball->roll_animations[pd]);
                     f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;
                     f32 delay =

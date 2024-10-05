@@ -5,9 +5,9 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_controls(GameState *game_state, Input *input) {
+void systems_controls(struct GameState *game_state, struct Input *input) {
     game_state->vars.p1.controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
-    ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
+    struct ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
     if (p1_charge->ready) {
         // Ready
         if (HAS_TIME_PASSED(
@@ -41,7 +41,7 @@ void systems_controls(GameState *game_state, Input *input) {
         }
     } else {
         b32 charging = false;
-        ActionChargeType charge_type;
+        enum ActionChargeType charge_type;
         if (input->buttons[IBT_BUTTON_LEFT].down) {
             charging = true;
             charge_type = ACT_SHOOT;

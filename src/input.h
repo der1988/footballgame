@@ -19,20 +19,21 @@ enum InputButtonType {
     IBT_BUTTON_COUNT
 };
 
-typedef struct InputButton {
+struct InputButton {
     b32 down;
     b32 up;
     b32 pressed;
     b32 released;
-} InputButton;
+};
 
-typedef struct Input {
+struct Input {
     Vector2 left_stick;
     Vector2 right_stick;
     f32 left_trigger;
     f32 right_trigger;
-    InputButton buttons[IBT_BUTTON_COUNT];
-} Input;
+    struct InputButton buttons[IBT_BUTTON_COUNT];
+};
 
-Input input_handle(struct GameState *game_state);
+struct Input input_handle(struct GameState *game_state);
+
 #endif // !INPUT_H

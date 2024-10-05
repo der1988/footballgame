@@ -22,13 +22,14 @@ int main() {
 
     void *memory = malloc(Megabytes(64));
 
-    GameConfig game_config = (GameConfig){.screen_width = GetScreenWidth(),
-                                          .screen_height = GetScreenHeight(),
-                                          .virtual_screen_width = virtual_screen_width,
-                                          .virtual_screen_height = virtual_screen_height,
-                                          .memory = memory};
+    struct GameConfig game_config =
+        (struct GameConfig){.screen_width = GetScreenWidth(),
+                            .screen_height = GetScreenHeight(),
+                            .virtual_screen_width = virtual_screen_width,
+                            .virtual_screen_height = virtual_screen_height,
+                            .memory = memory};
 
-    GameState *game_state = game_init(game_config);
+    struct GameState *game_state = game_init(game_config);
 
     f64 current_time = GetTime();
     f64 accumulator = 0.0;
@@ -57,7 +58,7 @@ int main() {
                 if (IsKeyReleased(KEY_P)) {
                     game_state->vars.is_tweakui_shown = true;
                 }
-                Input input = input_handle(game_state);
+                struct Input input = input_handle(game_state);
 
                 game_state->dt = dt;
 

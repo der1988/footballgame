@@ -5,10 +5,10 @@
 
 #define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 
-Input input_handle(GameState *game_state) {
+struct Input input_handle(struct GameState *game_state) {
     i32 gamepad = 0;
 
-    Input input = {0};
+    struct Input input = {0};
 
     if (IsGamepadAvailable(gamepad)) {
         input.left_stick.x = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_X),

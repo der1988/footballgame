@@ -21,7 +21,7 @@
 
 #define DT (0.1f)
 
-GameState *g_game_state = NULL;
+struct GameState *g_game_state = NULL;
 
 void setUp(void) {
     int width = 800;
@@ -32,8 +32,8 @@ void setUp(void) {
 
     void *memory = malloc(Megabytes(10));
 
-    GameConfig game_config =
-        (GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
+    struct GameConfig game_config =
+        (struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
 
     g_game_state = game_init(game_config);
 }
@@ -54,12 +54,12 @@ void test_action_change_color_from_to() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentSprite *component_sprite = &entity->sprite;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentSprite *component_sprite = &entity->sprite;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    ActionChangeColorFromTo *action = actions_change_color_from_to_create(
+    struct ActionChangeColorFromTo *action = actions_change_color_from_to_create(
         1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx running_idx =
@@ -87,15 +87,15 @@ void test_action_animation() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentSprite *component_sprite = &entity->sprite;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentSprite *component_sprite = &entity->sprite;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    AssetsAnimation *animation =
+    struct AssetsAnimation *animation =
         assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
 
-    ActionPlayAnimation *action = actions_play_animation_create(
+    struct ActionPlayAnimation *action = actions_play_animation_create(
         animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx running_idx =
@@ -113,13 +113,13 @@ void test_action_animation() {
     }
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
-    AssetsSpriteFrame *expected_sprite_frame =
+    struct AssetsSpriteFrame *expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     // Test half play speed
-    action = actions_play_animation_create(animation, false, 0.5f,
-                                           g_game_state->memory_by_lifetime[MAL_LEVEL]);
+    action = actions_play_animation_create(
+        animation, false, 0.5f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_idx = components_action_run(entity_id, (struct Action *)action, g_game_state);
 
@@ -140,8 +140,8 @@ void test_action_animation() {
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     // Test double play speed
-    action = actions_play_animation_create(animation, false, 2.0f,
-                                           g_game_state->memory_by_lifetime[MAL_LEVEL]);
+    action = actions_play_animation_create(
+        animation, false, 2.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_idx = components_action_run(entity_id, (struct Action *)action, g_game_state);
 
@@ -168,17 +168,17 @@ void test_action_sequence() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentSprite *component_sprite = &entity->sprite;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentSprite *component_sprite = &entity->sprite;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     MemoryArenaHandle *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
-    ActionChangeColorFromTo *action_1 =
+    struct ActionChangeColorFromTo *action_1 =
         actions_change_color_from_to_create(1, false, WHITE, BLACK, memory_arena_handle);
-    ActionChangeColorFromTo *action_2 =
+    struct ActionChangeColorFromTo *action_2 =
         actions_change_color_from_to_create(1, false, BLACK, RED, memory_arena_handle);
-    ActionSequence *action_sequence =
+    struct ActionSequence *action_sequence =
         actions_sequence_create(memory_arena_handle, 2, action_1, action_2);
 
     RunningActionIdx running_idx =
@@ -209,21 +209,21 @@ void test_action_spawn() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentSprite *component_sprite = &entity->sprite;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentSprite *component_sprite = &entity->sprite;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    AssetsAnimation *animation =
+    struct AssetsAnimation *animation =
         assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
 
-    ActionPlayAnimation *action_1 = actions_play_animation_create(
+    struct ActionPlayAnimation *action_1 = actions_play_animation_create(
         animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    ActionChangeColorFromTo *action_2 = actions_change_color_from_to_create(
+    struct ActionChangeColorFromTo *action_2 = actions_change_color_from_to_create(
         action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    ActionSpawn *action_spawn =
+    struct ActionSpawn *action_spawn =
         actions_spawn_create(g_game_state->memory_by_lifetime[MAL_LEVEL], 2, action_1, action_2);
 
     RunningActionIdx action_spawn_idx =
@@ -243,7 +243,7 @@ void test_action_spawn() {
 
     TEST_ASSERT(component_action->running_actions[action_spawn_idx].completed);
 
-    AssetsSpriteFrame *expected_sprite_frame =
+    struct AssetsSpriteFrame *expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
@@ -260,18 +260,18 @@ void test_multiple_parallel_actions() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentSprite *component_sprite = &entity->sprite;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentSprite *component_sprite = &entity->sprite;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    AssetsAnimation *animation =
+    struct AssetsAnimation *animation =
         assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
 
-    ActionPlayAnimation *action_1 = actions_play_animation_create(
+    struct ActionPlayAnimation *action_1 = actions_play_animation_create(
         animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    ActionChangeColorFromTo *action_2 = actions_change_color_from_to_create(
+    struct ActionChangeColorFromTo *action_2 = actions_change_color_from_to_create(
         action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx animation_idx =
@@ -295,7 +295,7 @@ void test_multiple_parallel_actions() {
     }
 
     TEST_ASSERT(component_action->running_actions[animation_idx].completed);
-    AssetsSpriteFrame *expected_sprite_frame =
+    struct AssetsSpriteFrame *expected_sprite_frame =
         assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
@@ -313,12 +313,12 @@ void test_action_pause() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentSprite *component_sprite = &entity->sprite;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentSprite *component_sprite = &entity->sprite;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    ActionChangeColorFromTo *action = actions_change_color_from_to_create(
+    struct ActionChangeColorFromTo *action = actions_change_color_from_to_create(
         1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx running_idx =
@@ -364,12 +364,12 @@ void test_action_tween_float_from_to() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action = &entity->action;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     f32 value = 0.0f;
-    ActionTweenFloatFromTo *action = actions_tween_float_from_to_create(
+    struct ActionTweenFloatFromTo *action = actions_tween_float_from_to_create(
         1, false, &value, 22.2f, 65.4f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx running_idx =
@@ -393,13 +393,13 @@ void test_action_rotate_to() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentTransform *transform = &entity->transform;
-    ComponentAction *component_action = &entity->action;
+    struct ComponentTransform *transform = &entity->transform;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     transform->rotation = 720.0f;
-    ActionRotateTo *action =
+    struct ActionRotateTo *action =
         actions_rotate_to_create(1, false, 74.3f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx running_idx =
@@ -423,12 +423,12 @@ void test_action_toggle_boolean() {
     TEST_ASSERT_NOT_NULL(entity);
     EntityId entity_id = entity->header.id;
 
-    ComponentAction *component_action = &entity->action;
+    struct ComponentAction *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     b32 value = false;
-    ActionToggleBoolean *action = actions_toggle_boolean_create(
+    struct ActionToggleBoolean *action = actions_toggle_boolean_create(
         1, false, &value, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     RunningActionIdx running_idx =

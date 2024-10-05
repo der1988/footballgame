@@ -5,17 +5,20 @@
 
 #define DEFAULT_MEMORY_ALIGNMENT 16
 
-typedef struct {
+#ifndef MEMORY_INTERNAL_H
+typedef void MemoryArenaHandle;
+typedef void MemoryFixedHandle;
+#endif // !MEMORY_INTERNAL_H
+
+struct MemoryArenaPushSettings {
     u16 alignment;
     b32 clear_memory;
-} MemoryArenaPushSettings;
+};
 
-typedef struct MemoryArenaHandle {
-    char *name;
-    void *base;
-    void *current;
-    usize total_size;
-} MemoryArenaHandle;
+struct MemoryFixedAllocation {
+    b32 used;
+    byte buffer[];
+};
 
 MemoryArenaHandle *memory_arena_create(char *name, void *buffer, usize size);
 void memory_arena_destroy(MemoryArenaHandle *handle);
@@ -23,21 +26,7 @@ void memory_arena_reset(MemoryArenaHandle *handle);
 void *memory_arena_push(MemoryArenaHandle *handle, usize size);
 void *memory_arena_push_string(MemoryArenaHandle *handle, char *string);
 void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize size,
-                                             MemoryArenaPushSettings settings);
-
-typedef struct MemoryFixedHandle {
-    char *name;
-    void *base;
-    void *current;
-    usize fixed_allocation_size;
-    usize allocations;
-    usize allocated;
-} MemoryFixedHandle;
-
-typedef struct MemoryFixedAllocation {
-    b32 used;
-    byte buffer[];
-} MemoryFixedAllocation;
+                                             struct MemoryArenaPushSettings settings);
 
 MemoryFixedHandle *memory_fixed_create(char *name, usize size, usize allocations, u16 alignment);
 void memory_fixed_destroy(MemoryFixedHandle *handle);

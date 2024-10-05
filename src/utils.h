@@ -95,16 +95,16 @@ inline __attribute__((always_inline)) Vector2 Vector2Down() {
 #define GLOGF_TRACE_CTX(SYSTEM, CTX, FORMAT, ...)                                                  \
     utils_log(__FILE__, __LINE__, LT_TRACE, SYSTEM, CTX, FORMAT, __VA_ARGS__)
 
-typedef enum ULogType {
+enum ULogType {
     LT_ERROR,
     LT_WARN,
     LT_INFO,
     LT_DEBUG,
     LT_TRACE,
     LT_COUNT,
-} ULogType;
+};
 
-typedef enum ULogSystem {
+enum ULogSystem {
     LS_GAME,
     LS_INPUT,
     LS_SOUND,
@@ -117,7 +117,7 @@ typedef enum ULogSystem {
     LS_LAYERS,
     LS_OTHER,
     LS_COUNT,
-} ULogSystem;
+};
 
 static char *utils_log_systems_desc[11] = {
     "GAME",
@@ -133,7 +133,7 @@ static char *utils_log_systems_desc[11] = {
     "OTHER",
 };
 
-void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const char *ctx,
+void utils_log(char *file, u16 line, enum ULogType type, enum ULogSystem system, const char *ctx,
                const char *format, ...);
 
 usize utils_memory_align(usize to_align, u16 alignment);

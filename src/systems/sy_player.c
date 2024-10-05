@@ -13,28 +13,28 @@
 #include <raymath.h>
 #include <stdio.h>
 
-typedef struct {
-    v2 steering;
-    f32 shot;
-    f32 pass;
-    b32 automatic_pass;
-    f32 long_pass;
-} PlayerControls;
+;
 
-typedef struct {
+struct PlayerOnTheBall {
     b32 exists;
     EntityId id;
     f32 distance_from_the_ball;
-    ComponentPlayer *player;
+    struct ComponentPlayer *player;
     v2 position;
     v2 velocity;
-    PlayerControls *controls;
-    ComponentCollider *collider;
-} PlayerOnTheBall;
+    struct PlayerControls {
+        v2 steering;
+        f32 shot;
+        f32 pass;
+        b32 automatic_pass;
+        f32 long_pass;
+    } *controls;
+    struct ComponentCollider *collider;
+};
 
 // TODO: generalise this function
-v2 calculate_ball_position_to_aim_for(GameState *game_state, v2 player_position,
-                                      ComponentBall *ball) {
+v2 calculate_ball_position_to_aim_for(struct GameState *game_state, v2 player_position,
+                                      struct ComponentBall *ball) {
     const int steps_per_lookahead =
         (game_state->vars.slow_motion ? 10 : 1) * game_state->constants.ball_lookahead_dts;
     const int lookaheads = game_state->constants.ball_lookaheads;
@@ -57,21 +57,21 @@ v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos) {
     return pos;
 }
 
-EntityId find_nearest_teammate(GameState *game_state, EntityId player_to_not_select_entity_id,
-                               v2 position) {
-    Entity *ball_entity =
+EntityId find_nearest_teammate(struct GameState *game_state,
+                               EntityId player_to_not_select_entity_id, v2 position) {
+    struct Entity *ball_entity =
         entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    ComponentBall *ball = &ball_entity->ball;
+    struct ComponentBall *ball = &ball_entity->ball;
 
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
-    Entity *entity;
+    struct Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
         if (entity->header.alive && entity->header.type == ET_PLAYER) {
-            ComponentTransform *transform = &entity->transform;
-            ComponentGoalie *goalie = &entity->goalie;
+            struct ComponentTransform *transform = &entity->transform;
+            struct ComponentGoalie *goalie = &entity->goalie;
 
             if (player_to_not_select_entity_id == entity_id ||
                 (goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
@@ -91,17 +91,17 @@ EntityId find_nearest_teammate(GameState *game_state, EntityId player_to_not_sel
     return selected_entity_id;
 }
 
-EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_ball,
+EntityId find_pass_target(struct GameState *game_state, struct PlayerOnTheBall *player_on_the_ball,
                           f32 detection_angle, f32 max_distance) {
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
-    Entity *entity;
+    struct Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
         entity = entities_entity_get(game_state->entity_repository, entity_id);
         if (entity->header.alive && entity->header.type == ET_PLAYER) {
 
-            ComponentTransform *transform = &entity->transform;
+            struct ComponentTransform *transform = &entity->transform;
 
             if (player_on_the_ball->id == entity_id) {
                 // We don't want to pass to ourselves, right?
@@ -132,22 +132,20 @@ EntityId find_pass_target(GameState *game_state, PlayerOnTheBall *player_on_the_
     return selected_entity_id;
 }
 
-void systems_player(GameState *game_state, Input *input) {
-    EntityRepository *entity_repository = game_state->entity_repository;
-
-    Entity *ball_entity =
+void systems_player(struct GameState *game_state, struct Input *input) {
+    struct Entity *ball_entity =
         entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    ComponentBall *ball = &ball_entity->ball;
-    ComponentTransform *ball_transform = &ball_entity->transform;
-    ComponentCollider *ball_collider = &ball_entity->collider;
+    struct ComponentBall *ball = &ball_entity->ball;
+    struct ComponentTransform *ball_transform = &ball_entity->transform;
+    struct ComponentCollider *ball_collider = &ball_entity->collider;
 
-    PlayerOnTheBall player_on_the_ball = {0};
+    struct PlayerOnTheBall player_on_the_ball = {0};
     player_on_the_ball.id = EID_NOT_VALID;
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
 
     for_each_entity (entity, game_state->entity_repository) {
         check_is_player_and_declare_components(entity) {
-            StateMachinePlayer *state_machine = player->state_machine;
+            struct StateMachinePlayer *state_machine = player->state_machine;
 
             collider->colliders[PCT_PLAYER].props.circle.radius =
                 game_state->constants.player_control_radius;
@@ -156,8 +154,8 @@ void systems_player(GameState *game_state, Input *input) {
             case PS_NONE:
                 break;
             case PS_NORMAL: {
-                PlayerControls *player_controls = memory_arena_push(
-                    game_state->memory_by_lifetime[MAL_UPDATE], sizeof(PlayerControls));
+                struct PlayerControls *player_controls = memory_arena_push(
+                    game_state->memory_by_lifetime[MAL_UPDATE], sizeof(*player_controls));
 
                 if (game_state->vars.p1.player_entity_id == entity_id) {
                     // Player is human controlled
@@ -370,7 +368,7 @@ void systems_player(GameState *game_state, Input *input) {
             b32 automatic_pass =
                 teammate_entity_id != EID_NOT_VALID && player_on_the_ball.controls->automatic_pass;
             if (automatic_pass) {
-                ComponentTransform *teammate_transform =
+                struct ComponentTransform *teammate_transform =
                     &entities_entity_get(game_state->entity_repository, teammate_entity_id)
                          ->transform;
                 v2 to_teammate =

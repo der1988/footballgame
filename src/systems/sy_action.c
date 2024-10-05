@@ -2,12 +2,12 @@
 #include "components.h"
 #include "entities.h"
 
-void systems_action(GameState *game_state) {
-    for_each_entity(entity, game_state->entity_repository) {
-        ComponentAction *action = &entity->action;
+void systems_action(struct GameState *game_state) {
+    for_each_entity (entity, game_state->entity_repository) {
+        struct ComponentAction *action = &entity->action;
         if (entity->header.alive && action->header.enabled) {
             for (usize j = 0; j < MaxConcurrentActions; ++j) {
-                ActionRunner *action_runner = &action->running_actions[j];
+                struct ActionRunner *action_runner = &action->running_actions[j];
                 if (action_runner && action_runner->action) {
                     if (action_runner->completed) {
                         // If action is completed remove from running actions

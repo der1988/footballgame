@@ -2,15 +2,13 @@
 #define TWEAKUI_H
 
 #include "game.h"
-#include "memory.h"
-#include "types.h"
 
-typedef struct TweakUI {
-    b32 initialised;
-    v2 window_size;
-} TweakUI;
+#ifndef TWEAKUI_INTERNAL_H
+typedef void TweakUI;
+#endif // !TWEAKUI_INTERNAL_H
 
 TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle);
 void tweakui_destroy(TweakUI *handle);
-void tweakui_draw(TweakUI *handle, GameState *game_state);
+void tweakui_draw(TweakUI *handle, struct GameState *game_state);
+
 #endif // !TWEAKUI_H

@@ -1,3 +1,4 @@
+#include "memory_internal.h"
 #include "memory.h"
 #include "types.h"
 #include "unity/unity.h"

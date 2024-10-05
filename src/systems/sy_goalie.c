@@ -14,9 +14,9 @@
 #define LOOKAHEAD_MS                     150.0f
 #define SLOW_MOTION_LOOKAHEAD_MULTIPLIER 10
 
-static bool is_goalie_colliding_with_ball(Entity *goalie_entity, v3 ball_position, f32 ball_radius,
-                                          f32 max_height) {
-    Collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
+static bool is_goalie_colliding_with_ball(struct Entity *goalie_entity, v3 ball_position,
+                                          f32 ball_radius, f32 max_height) {
+    struct Collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
     b32 is_colliding_with_ball =
         CheckCollisionCircles(
             V3_TO_V2(ball_position),
@@ -28,9 +28,9 @@ static bool is_goalie_colliding_with_ball(Entity *goalie_entity, v3 ball_positio
     return is_colliding_with_ball;
 }
 
-static bool should_dive(Entity *goalie_entity, Entity *ball_entity, SaveDirection *dive_direction,
-                        SaveHeight *dive_height, f32 *dive_speed, f32 *dive_distance,
-                        GameState *game_state) {
+static bool should_dive(struct Entity *goalie_entity, struct Entity *ball_entity,
+                        enum SaveDirection *dive_direction, enum SaveHeight *dive_height,
+                        f32 *dive_speed, f32 *dive_distance, struct GameState *game_state) {
     bool should_dive = false;
 
     const int steps_per_lookahead =
@@ -83,17 +83,17 @@ static bool should_dive(Entity *goalie_entity, Entity *ball_entity, SaveDirectio
     return should_dive;
 }
 
-void systems_goalie(GameState *game_state, Input *input) {
-    Entity *ball_entity =
+void systems_goalie(struct GameState *game_state, struct Input *input) {
+    struct Entity *ball_entity =
         entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    ComponentBall *ball = &ball_entity->ball;
-    ComponentTransform *ball_transform = &ball_entity->transform;
-    ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
-    ComponentCollider *ball_collider = &ball_entity->collider;
+    struct ComponentBall *ball = &ball_entity->ball;
+    struct ComponentTransform *ball_transform = &ball_entity->transform;
+    struct ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
+    struct ComponentCollider *ball_collider = &ball_entity->collider;
 
     for_each_entity (entity, game_state->entity_repository) {
         check_is_goalie_and_declare_components(entity) {
-            StateMachineGoalie *state_machine = goalie->state_machine;
+            struct StateMachineGoalie *state_machine = goalie->state_machine;
 
             v2 goal_center = game_state->vars.pitch.goal[player->side].center;
 
@@ -109,8 +109,8 @@ void systems_goalie(GameState *game_state, Input *input) {
 
             collider->colliders[PCT_PLAYER].props.circle.radius =
                 game_state->constants.player_control_radius;
-            Collider *goalie_collider = &collider->colliders[PCT_GOALIE];
-            Collider *dive_collider = &collider->colliders[PCT_DIVE];
+            struct Collider *goalie_collider = &collider->colliders[PCT_GOALIE];
+            struct Collider *dive_collider = &collider->colliders[PCT_DIVE];
 
             if (player->state_machine->current_state == PS_GOALIE) {
                 switch (state_machine->current_state) {
@@ -264,13 +264,13 @@ void systems_goalie(GameState *game_state, Input *input) {
                     break;
                 }
                 case GS_DIVE: {
-                    SaveDirection direction = goalie->dive_direction;
+                    enum SaveDirection direction = goalie->dive_direction;
 
                     StateMachineGoalieDiveData *dive_state_data =
                         &goalie->state_machine->state_data.dive;
 
                     if (!dive_state_data->animation_first_phase_completed) {
-                        AssetsAnimation *animation = assets_animation_get_by_id(
+                        struct AssetsAnimation *animation = assets_animation_get_by_id(
                             game_state->animation_cache,
                             goalie->dive_animations_start[SS_UP][direction][goalie->dive_height]);
                         f32 animation_completion =
@@ -295,7 +295,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                             dive_state_data->animation_second_phase_started = true;
                             dive_state_data->animation_start_time = game_state->time;
                         }
-                        AssetsAnimation *animation = assets_animation_get_by_id(
+                        struct AssetsAnimation *animation = assets_animation_get_by_id(
                             game_state->animation_cache,
                             goalie->dive_animations_end[SS_UP][direction][goalie->dive_height]
                                                        [dive_state_data->ball_held]);

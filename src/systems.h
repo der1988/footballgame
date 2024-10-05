@@ -3,15 +3,15 @@
 
 #include "game.h"
 
-void systems_controls(GameState *game_state, struct Input *input);
-void systems_ball(GameState *game_state, struct Input *input);
-void systems_player(GameState *game_state, struct Input *input);
-void systems_goal(GameState *game_state);
-void systems_goalie(GameState *game_state);
-void systems_action(GameState *game_state);
-void systems_camera(GameState *game_state);
-void systems_render(GameState *game_state);
-void systems_render_hud(GameState *game_state);
-void systems_render_debug(GameState *game_state);
+void systems_controls(struct GameState *game_state, struct Input *input);
+void systems_ball(struct GameState *game_state, struct Input *input);
+void systems_player(struct GameState *game_state, struct Input *input);
+void systems_goal(struct GameState *game_state);
+void systems_goalie(struct GameState *game_state);
+void systems_action(struct GameState *game_state);
+void systems_camera(struct GameState *game_state);
+void systems_render(struct GameState *game_state);
+void systems_render_hud(struct GameState *game_state);
+void systems_render_debug(struct GameState *game_state);
 
 #endif // !SYSTEMS_H

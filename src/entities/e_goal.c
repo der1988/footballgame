@@ -13,11 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
-    Entity *entity = entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
+struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_state) {
+    struct Entity *entity =
+        entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
     // Initialise transform
-    ComponentTransform *transform = &entity->transform;
+    struct ComponentTransform *transform = &entity->transform;
     transform->header.enabled = true;
     transform->rotation = 0;
     transform->virtual_height = 0;
@@ -32,16 +33,16 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     }
 
     // Create goal net
-    Entity *goal_net_entity = entities_goal_net_create(game_state);
-    ComponentTransform *goal_net_transform = &goal_net_entity->transform;
+    struct Entity *goal_net_entity = entities_goal_net_create(game_state);
+    struct ComponentTransform *goal_net_transform = &goal_net_entity->transform;
     goal_net_transform->parent = transform;
     goal_net_transform->position = Vector2Zero();
 
     // Initialise sprite
-    ComponentSprite *sprite = &entity->sprite;
+    struct ComponentSprite *sprite = &entity->sprite;
     sprite->header.enabled = true;
     char *posts_frame_name = "posts_0";
-    AssetsSpriteFrame *sprite_frame =
+    struct AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
     assert(sprite_frame != NULL);
     sprite->frame_id = sprite_frame->id;
@@ -57,10 +58,10 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
     sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
-    ComponentCollider *collider = &entity->collider;
+    struct ComponentCollider *collider = &entity->collider;
     collider->header.enabled = true;
     collider->colliders =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_RECTANGLE;
     collider->colliders[0].props.rectangle.size = (v2){.x = 79, .y = 27};
@@ -69,7 +70,7 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
              .y = -collider->colliders[0].props.rectangle.size.y};
 
     // Initialise goal
-    ComponentGoal *goal = &entity->goal;
+    struct ComponentGoal *goal = &entity->goal;
     goal->header.enabled = true;
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "goal created");

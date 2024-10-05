@@ -1,7 +1,7 @@
+#include "memory_internal.h"
 #include "memory.h"
 #include "types.h"
 #include "utils.h"
-#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +39,7 @@ void memory_arena_reset(MemoryArenaHandle *handle) {
 
 // Allocate some memory inside the arena
 void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize size,
-                                             MemoryArenaPushSettings settings) {
+                                             struct MemoryArenaPushSettings settings) {
     if (handle) {
         size = utils_memory_align(size, settings.alignment);
         u64 remaining = handle->total_size - (handle->current - handle->base);
@@ -49,12 +49,15 @@ void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize si
                 memset(buffer, 0, size);
             }
             handle->current += size;
-            GLOGF_TRACE_CTX(LS_MEMORY, handle->name,
-                            "allocated %lu bytes from memory arena, remaining %lu bytes", size,
+            GLOGF_TRACE_CTX(LS_MEMORY,
+                            handle->name,
+                            "allocated %lu bytes from memory arena, remaining %lu bytes",
+                            size,
                             remaining - size);
             return buffer;
         } else {
-            GLOGF_ERROR_CTX(LS_MEMORY, handle->name,
+            GLOGF_ERROR_CTX(LS_MEMORY,
+                            handle->name,
                             "not enough memory left in memory arena, allocation of %lu "
                             "bytes "
                             "failed",
@@ -68,8 +71,8 @@ void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize si
 
 // Allocate some memory inside the arena
 void *memory_arena_push(MemoryArenaHandle *handle, usize size) {
-    MemoryArenaPushSettings settings =
-        (MemoryArenaPushSettings){.alignment = DEFAULT_MEMORY_ALIGNMENT, .clear_memory = true};
+    struct MemoryArenaPushSettings settings = (struct MemoryArenaPushSettings){
+        .alignment = DEFAULT_MEMORY_ALIGNMENT, .clear_memory = true};
     return memory_arena_push_with_custom_settings(handle, size, settings);
 }
 

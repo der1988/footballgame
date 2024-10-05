@@ -12,11 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_net_create(GameState *game_state) {
-    Entity *entity = entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");
+struct Entity *entities_goal_net_create(struct GameState *game_state) {
+    struct Entity *entity =
+        entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");
 
     // Initialise transform
-    ComponentTransform *transform = &entity->transform;
+    struct ComponentTransform *transform = &entity->transform;
     transform->header.enabled = true;
     transform->position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     transform->rotation = 0;
@@ -24,10 +25,10 @@ struct Entity *entities_goal_net_create(GameState *game_state) {
     transform->scale = (v2){.x = 1, .y = 1};
 
     // Initialise sprite
-    ComponentSprite *sprite = &entity->sprite;
+    struct ComponentSprite *sprite = &entity->sprite;
     sprite->header.enabled = true;
     char *posts_frame_name = "net_0";
-    AssetsSpriteFrame *sprite_frame =
+    struct AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
     assert(sprite_frame != NULL);
     sprite->frame_id = sprite_frame->id;

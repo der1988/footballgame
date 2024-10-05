@@ -6,31 +6,32 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void apply_force(Vector2 force_to_apply, ComponentPhysics *physics, DeltaTime dt) {
+void apply_force(Vector2 force_to_apply, struct ComponentPhysics *physics, DeltaTime dt) {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
     // Calculate velocity
     physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
 }
 
-void apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, DeltaTime dt) {
+void apply_velocity(struct ComponentTransform *transform, struct ComponentPhysics *physics,
+                    DeltaTime dt) {
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
 }
 
-void systems_camera(GameState *game_state) {
+void systems_camera(struct GameState *game_state) {
 
     for_each_entity (entity, game_state->entity_repository) {
-        ComponentTransform *transform = &entity->transform;
-        ComponentTarget *target = &entity->target;
-        ComponentPhysics *physics = &entity->physics;
-        ComponentCamera *props = &entity->camera;
+        struct ComponentTransform *transform = &entity->transform;
+        struct ComponentTarget *target = &entity->target;
+        struct ComponentPhysics *physics = &entity->physics;
+        struct ComponentCamera *props = &entity->camera;
         if (entity->header.alive && transform->header.enabled && physics->header.enabled &&
             target->header.enabled && props->header.enabled) {
 
-            Entity *target_entity =
+            struct Entity *target_entity =
                 entities_entity_get(game_state->entity_repository, target->entity_id);
-            ComponentTransform *target_transform = &target_entity->transform;
-            ComponentPhysics3d *target_physics = &target_entity->physics_3d;
+            struct ComponentTransform *target_transform = &target_entity->transform;
+            struct ComponentPhysics3d *target_physics = &target_entity->physics_3d;
 
             v2 steering = Vector2Zero();
             if (target_transform && target_physics) {

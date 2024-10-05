@@ -6,22 +6,20 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_goal(GameState *game_state) {
-    EntityRepository *entity_repository = game_state->entity_repository;
-
-    Entity *ball_entity =
+void systems_goal(struct GameState *game_state) {
+    struct Entity *ball_entity =
         entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    ComponentTransform *ball_transform = &ball_entity->transform;
-    ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
-    ComponentCollider *ball_collider = &ball_entity->collider;
-    ComponentBall *ball = &ball_entity->ball;
+    struct ComponentTransform *ball_transform = &ball_entity->transform;
+    struct ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
+    struct ComponentCollider *ball_collider = &ball_entity->collider;
+    struct ComponentBall *ball = &ball_entity->ball;
 
     // First let's check if it's a goal
     for_each_entity (entity, game_state->entity_repository) {
-        ComponentTransform *transform = &entity->transform;
-        ComponentSprite *sprite = &entity->sprite;
-        ComponentGoal *goal = &entity->goal;
-        ComponentCollider *collider = &entity->collider;
+        struct ComponentTransform *transform = &entity->transform;
+        struct ComponentSprite *sprite = &entity->sprite;
+        struct ComponentGoal *goal = &entity->goal;
+        struct ComponentCollider *collider = &entity->collider;
         if (entity->header.alive && transform->header.enabled && sprite->header.enabled &&
             goal->header.enabled && collider->header.enabled) {
 

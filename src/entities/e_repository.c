@@ -1,4 +1,3 @@
-#include "components.h"
 #include "entities.h"
 #include "memory.h"
 #include "types.h"
@@ -46,7 +45,8 @@ EntityRepository *entities_repository_init(MemoryArenaHandle *memory_arena_handl
     assert(handle);
 
     handle->arena_handle = memory_arena_handle;
-    handle->entities = memory_arena_push(handle->arena_handle, sizeof(Entity) * MAX_ENTITIES);
+    handle->entities =
+        memory_arena_push(handle->arena_handle, sizeof(struct Entity) * MAX_ENTITIES);
     handle->max_slots = handle->available_slots = MAX_ENTITIES;
     handle->last_used_slot = 0;
     handle->initialised = true;
@@ -60,7 +60,7 @@ void entities_repository_destroy(EntityRepository *handle) {
     GLOG_INFO(LS_ENTITIES, "entities repository destroyed");
 }
 
-Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *name_format) {
+struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *name_format) {
     assert(handle->initialised && handle->available_slots > 0);
 
     EntityId id = find_empty_slot(handle);
@@ -68,7 +68,7 @@ Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *na
         return NULL;
     }
 
-    Entity *entity = &handle->entities[id];
+    struct Entity *entity = &handle->entities[id];
 
     // Entity header
     entity->header.type = type;
@@ -85,7 +85,7 @@ void entities_entity_destroy(EntityRepository *handle, EntityId id) {
     GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].header.name, "entity destroyed");
 }
 
-Entity *entities_entity_get(EntityRepository *handle, EntityId id) {
+struct Entity *entities_entity_get(EntityRepository *handle, EntityId id) {
     assert(handle->initialised);
     return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;
 }

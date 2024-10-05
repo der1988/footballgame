@@ -6,14 +6,14 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_render_debug(GameState *game_state) {
+void systems_render_debug(struct GameState *game_state) {
     if (game_state->constants.render_debug) {
         EntityRepository *entity_repository = game_state->entity_repository;
 
         for_each_entity (entity, game_state->entity_repository) {
-            ComponentTransform *transform = &entity->transform;
-            ComponentSprite *sprite = &entity->sprite;
-            ComponentCollider *collider = &entity->collider;
+            struct ComponentTransform *transform = &entity->transform;
+            struct ComponentSprite *sprite = &entity->sprite;
+            struct ComponentCollider *collider = &entity->collider;
             if (entity->header.alive && transform->header.enabled && sprite->header.enabled) {
 
                 Vector2 position = transform->position;
@@ -59,7 +59,7 @@ void systems_render_debug(GameState *game_state) {
         }
 
         // Ball debug
-        ComponentBall *ball =
+        struct ComponentBall *ball =
             &entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id)
                  ->ball;
         for (u8 i = 0; i < 25; ++i) {

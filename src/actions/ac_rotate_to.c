@@ -4,10 +4,11 @@
 #include <math.h>
 #include <raylib.h>
 
-void actions_rotate_to_update(ActionRunner *action_runner, EntityId id, GameState *game_state) {
-    ActionRotateTo *action = (ActionRotateTo *)action_runner->action;
+void actions_rotate_to_update(struct ActionRunner *action_runner, EntityId id,
+                              struct GameState *game_state) {
+    struct ActionRotateTo *action = (struct ActionRotateTo *)action_runner->action;
 
-    Entity *entity = entities_entity_get(game_state->entity_repository, id);
+    struct Entity *entity = entities_entity_get(game_state->entity_repository, id);
 
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
     if (h >= 1) {
@@ -18,10 +19,11 @@ void actions_rotate_to_update(ActionRunner *action_runner, EntityId id, GameStat
     entity->transform.rotation = action->from + action->diff * h;
 }
 
-void actions_rotate_to_start(ActionRunner *action_runner, EntityId id, GameState *game_state) {
-    ActionRotateTo *action = (ActionRotateTo *)action_runner->action;
+void actions_rotate_to_start(struct ActionRunner *action_runner, EntityId id,
+                             struct GameState *game_state) {
+    struct ActionRotateTo *action = (struct ActionRotateTo *)action_runner->action;
 
-    Entity *entity = entities_entity_get(game_state->entity_repository, id);
+    struct Entity *entity = entities_entity_get(game_state->entity_repository, id);
 
     f32 start_angle = entity->transform.rotation;
     if (start_angle > 0)
@@ -40,15 +42,15 @@ void actions_rotate_to_start(ActionRunner *action_runner, EntityId id, GameState
     action->diff = diff_angle;
 }
 
-ActionRotateTo *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
-                                         MemoryArenaHandle *memory_arena_handle) {
-    ActionRotateTo *action = memory_arena_push(memory_arena_handle, sizeof(ActionRotateTo));
+struct ActionRotateTo *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
+                                                MemoryArenaHandle *memory_arena_handle) {
+    struct ActionRotateTo *action = memory_arena_push(memory_arena_handle, sizeof(*action));
 
-    *action = (ActionRotateTo){.base = (struct Action){.type = AT_ROTATE_TO,
-                                                       .duration = duration,
-                                                       .loop = loop,
-                                                       .start = actions_rotate_to_start,
-                                                       .update = actions_rotate_to_update},
-                               .to = to};
+    *action = (struct ActionRotateTo){.base = (struct Action){.type = AT_ROTATE_TO,
+                                                              .duration = duration,
+                                                              .loop = loop,
+                                                              .start = actions_rotate_to_start,
+                                                              .update = actions_rotate_to_update},
+                                      .to = to};
     return action;
 }

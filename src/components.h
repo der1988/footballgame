@@ -14,43 +14,43 @@
 struct StateMachineBall;
 struct StateMachinePlayer;
 
-typedef struct {
+struct ComponentHeader {
     b32 enabled;
-} ComponentHeader;
+};
 
-typedef struct ComponentTransform {
-    ComponentHeader header;
+struct ComponentTransform {
+    struct ComponentHeader header;
     struct ComponentTransform *parent;
     v2 position;
     f32 rotation;
     v2 scale;
     f32 virtual_height;
-} ComponentTransform;
+};
 
-typedef struct ComponentPhysics {
-    ComponentHeader header;
+struct ComponentPhysics {
+    struct ComponentHeader header;
     f32 mass;
     v2 accel;
     v2 velocity;
     f32 max_velocity;
     f32 max_force;
-} ComponentPhysics;
+};
 
-typedef struct ComponentPhysics3d {
-    ComponentHeader header;
+struct ComponentPhysics3d {
+    struct ComponentHeader header;
     f32 mass;
     v3 accel;
     v3 velocity;
     f32 max_velocity;
     f32 max_force;
-} ComponentPhysics3d;
+};
 
-typedef struct ComponentSprite {
-    ComponentHeader header;
+struct ComponentSprite {
+    struct ComponentHeader header;
     Color color;
     b32 flipX;
     b32 flipY;
-    SpriteLayer layer;
+    enum SpriteLayer layer;
     i16 order_in_layer;
     v2 pivot_override;
     AssetsSpriteFrameId frame_id;
@@ -58,19 +58,19 @@ typedef struct ComponentSprite {
     Color shadow_color;
     v2 shadow_offset;
     v2 shadow_scale;
-} ComponentSprite;
+};
 
-typedef struct ComponentAction {
-    ComponentHeader header;
-    ActionRunner running_actions[MaxConcurrentActions];
-} ComponentAction;
+struct ComponentAction {
+    struct ComponentHeader header;
+    struct ActionRunner running_actions[MaxConcurrentActions];
+};
 
-typedef struct ComponentTarget {
-    ComponentHeader header;
+struct ComponentTarget {
+    struct ComponentHeader header;
     EntityId entity_id;
-} ComponentTarget;
+};
 
-typedef struct {
+struct Collider {
     enum {
         CS_CIRCLE,
         CS_RECTANGLE
@@ -85,22 +85,22 @@ typedef struct {
             v2 offset;
         } rectangle;
     } props;
-} Collider;
+};
 
-typedef struct ComponentCollider {
-    ComponentHeader header;
-    Collider *colliders;
+struct ComponentCollider {
+    struct ComponentHeader header;
+    struct Collider *colliders;
     u16 num_colliders;
-} ComponentCollider;
+};
 
-typedef struct ComponentCamera {
-    ComponentHeader header;
-    CameraType camera;
+struct ComponentCamera {
+    struct ComponentHeader header;
+    enum CameraType camera;
     f32 slowing_distance;
     v2 offset;
-} ComponentCamera;
+};
 
-typedef enum Direction {
+enum Direction {
     D_UP,
     D_DOWN,
     D_LEFT,
@@ -110,11 +110,11 @@ typedef enum Direction {
     D_DOWN_LEFT,
     D_DOWN_RIGHT,
     D_COUNT
-} Direction;
+};
 
-typedef struct ComponentPlayer {
-    ComponentHeader header;
-    PitchSide side;
+struct ComponentPlayer {
+    struct ComponentHeader header;
+    enum PitchSide side;
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
     Time time_spent_in_precision_control;
@@ -122,15 +122,15 @@ typedef struct ComponentPlayer {
     f32 current_max_velocity;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
-    Direction last_direction;
+    enum Direction last_direction;
     f32 last_kick_time;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
     u8 team_formation_position_idx;
-} ComponentPlayer;
+};
 
-typedef struct ComponentBall {
-    ComponentHeader header;
+struct ComponentBall {
+    struct ComponentHeader header;
     struct StateMachineBall *state_machine;
     b32 is_on_the_ground;
     EntityId last_player_on_the_ball_entity_id;
@@ -141,57 +141,57 @@ typedef struct ComponentBall {
     Time last_kick_time;
     Time last_bounce_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
-    Direction last_direction;
+    enum Direction last_direction;
     v2 future_bounce_position;
     u32 dts_to_future_bounce;
     v3 lookahead_positions[10];
     Time last_frame_update_time;
     u16 last_running_frame_idx;
-} ComponentBall;
+};
 
-typedef struct ComponentGoal {
-    ComponentHeader header;
+struct ComponentGoal {
+    struct ComponentHeader header;
     Time hit_left_post_time;
     Time hit_right_post_time;
     Time hit_crossbar_time;
     b32 scored;
-} ComponentGoal;
+};
 
-typedef enum SaveSide {
+enum SaveSide {
     SS_UP,
     SS_DOWN,
     SS_COUNT
-} SaveSide;
+};
 
-typedef enum SaveDirection {
+enum SaveDirection {
     SD_LEFT,
     SD_RIGHT,
     SD_COUNT
-} SaveDirection;
+};
 
-typedef enum SaveHeight {
+enum SaveHeight {
     SH_HIGH,
     SH_LOW,
     SH_COUNT
-} SaveHeight;
+};
 
-typedef enum SaveType {
+enum SaveType {
     ST_WITHOUT_BALL,
     ST_WITH_BALL,
     ST_COUNT
-} SaveType;
+};
 
-typedef enum AnimationPhase {
+enum AnimationPhase {
     AP_START,
     AP_END,
     AP_COUNT
-} AnimationPhase;
+};
 
-typedef struct ComponentGoalie {
-    ComponentHeader header;
+struct ComponentGoalie {
+    struct ComponentHeader header;
     struct StateMachineGoalie *state_machine;
-    SaveDirection dive_direction;
-    SaveHeight dive_height;
+    enum SaveDirection dive_direction;
+    enum SaveHeight dive_height;
     f32 dive_distance;
     f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
@@ -200,13 +200,14 @@ typedef struct ComponentGoalie {
     AssetsAnimationId dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
     Time last_frame_update_time;
     Time last_save_time;
-} ComponentGoalie;
+};
 
-RunningActionIdx components_action_run(EntityId id, struct Action *action, GameState *game_state);
+RunningActionIdx components_action_run(EntityId id, struct Action *action,
+                                       struct GameState *game_state);
 void components_action_stop(EntityId id, RunningActionIdx running_action_idx,
-                            GameState *game_state);
+                            struct GameState *game_state);
 
-void components_transform_calculate_absolute(ComponentTransform *transform, Vector2 *position,
-                                             f32 *rotation, Vector2 *scale);
+void components_transform_calculate_absolute(struct ComponentTransform *transform,
+                                             Vector2 *position, f32 *rotation, Vector2 *scale);
 
 #endif // !COMPONENTS

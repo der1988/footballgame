@@ -63,13 +63,13 @@ v implement passing
 v refactor entity system
 v move header files in project root directory
 v after touch direction cannot be changed once selected
+v improve codebase quality
 * long distance shots should be catched by goalie without a sweat
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - use r1 to make the player stop the ball?
 - if shot is too fast goalie should just bounce the ball back
-- improve codebase quality
 - shot height should depend on starting height of the ball
 - implement header
 - fix broken after touch

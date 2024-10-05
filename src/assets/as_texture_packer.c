@@ -6,9 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename, const u32 texture_id,
-                                                        const usize initial_sprite_frame_id,
-                                                        usize *count) {
+struct AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename,
+                                                               const u32 texture_id,
+                                                               const usize initial_sprite_frame_id,
+                                                               usize *count) {
     AssetsSpriteFrameId current_sprite_frame_id = initial_sprite_frame_id;
     *count = 0;
 
@@ -43,8 +44,8 @@ AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename, co
     }
 
     *count = cJSON_GetArraySize(frames);
-    AssetsSpriteFrame *sprite_frames = malloc(sizeof(AssetsSpriteFrame) * *count);
-    AssetsSpriteFrame *current_sprite_frame = sprite_frames;
+    struct AssetsSpriteFrame *sprite_frames = malloc(sizeof(struct AssetsSpriteFrame) * *count);
+    struct AssetsSpriteFrame *current_sprite_frame = sprite_frames;
 
     const cJSON *sprite_frame = NULL;
     cJSON_ArrayForEach(sprite_frame, frames) {
@@ -78,14 +79,14 @@ AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename, co
             pivot_y = JSON_GET_DOUBLE(pivot, "y");
         }
 
-        AssetsSpriteFrame *sprite_frame = current_sprite_frame++;
+        struct AssetsSpriteFrame *sprite_frame = current_sprite_frame++;
         sprite_frame->id = current_sprite_frame_id++;
         strncpy(sprite_frame->name, name, MaxStringSize);
         sprite_frame->frame = (Rectangle){frame_x, frame_y, frame_w, frame_h};
         sprite_frame->trimmed = trimmed;
         sprite_frame->rotated = rotated;
-        sprite_frame->sprite_source_size = (Rectangle){sprite_source_size_x, sprite_source_size_y,
-                                                       sprite_source_size_w, sprite_source_size_h};
+        sprite_frame->sprite_source_size = (Rectangle){
+            sprite_source_size_x, sprite_source_size_y, sprite_source_size_w, sprite_source_size_h};
         sprite_frame->source_size = (Vector2){source_size_w, source_size_h};
         sprite_frame->pivot = (Vector2){pivot_x, pivot_y};
         sprite_frame->texture_id = texture_id;

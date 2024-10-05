@@ -16,22 +16,23 @@
 ImplementStateMachineFunctions(Player, player);
 ImplementStateMachineFunctions(Goalie, goalie);
 
-static void prepare_gfx(ComponentPlayer *player, GameState *game_state);
-static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
-                               GameState *game_state);
+static void prepare_gfx(struct ComponentPlayer *player, struct GameState *game_state);
+static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentGoalie *goalie,
+                               struct GameState *game_state);
 
-struct Entity *entities_player_create(PlayerConfig config, GameState *game_state) {
-    Entity *entity = entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
+struct Entity *entities_player_create(PlayerConfig config, struct GameState *game_state) {
+    struct Entity *entity =
+        entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
     // Initialise transform
-    ComponentTransform *transform = &entity->transform;
+    struct ComponentTransform *transform = &entity->transform;
     transform->header.enabled = true;
     transform->position = config.position;
     transform->rotation = 0;
     transform->scale = (v2){.x = 1, .y = 1};
 
     // Initialise physics
-    ComponentPhysics *physics = &entity->physics;
+    struct ComponentPhysics *physics = &entity->physics;
     physics->header.enabled = true;
     physics->mass = 75.0f;
     physics->velocity = (Vector2){0};
@@ -39,15 +40,15 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     physics->max_velocity = game_state->constants.player_control_max_velocity;
 
     // Initialise collider
-    ComponentCollider *collider = &entity->collider;
+    struct ComponentCollider *collider = &entity->collider;
     collider->header.enabled = true;
 
     // Initialise sprite
     char *player_frame_name = "player_front_0";
-    AssetsSpriteFrame *sprite_frame =
+    struct AssetsSpriteFrame *sprite_frame =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_frame_name);
     assert(sprite_frame != NULL);
-    ComponentSprite *sprite = &entity->sprite;
+    struct ComponentSprite *sprite = &entity->sprite;
     sprite->header.enabled = true;
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;
@@ -62,28 +63,28 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     // sprite->shadow_scale = (v2){.x = 0.6, .y = 1};
 
     // Initialise player
-    ComponentPlayer *player = &entity->player;
+    struct ComponentPlayer *player = &entity->player;
     player->header.enabled = true;
     player->side = config.side;
     player->team_formation_position_idx = config.team_formation_position_idx;
     // Sets initial max velocity to half of max run velocity
     player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
-    StateMachinePlayer *player_state_machine =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachinePlayer));
+    struct StateMachinePlayer *player_state_machine =
+        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*player_state_machine));
     player_state_machine->owner_entity = entity->header.id;
     player_state_machine->previous_state = PS_NONE;
     player->state_machine = player_state_machine;
 
     // Initialise action
-    ComponentAction *action = &entity->action;
+    struct ComponentAction *action = &entity->action;
     action->header.enabled = true;
 
     if (config.is_goalie) {
         // Initialise goalie
-        ComponentGoalie *goalie = &entity->goalie;
+        struct ComponentGoalie *goalie = &entity->goalie;
         goalie->header.enabled = true;
-        StateMachineGoalie *state_machine = memory_arena_push(
-            game_state->memory_by_lifetime[MAL_LEVEL], sizeof(StateMachineGoalie));
+        struct StateMachineGoalie *state_machine =
+            memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
         state_machine->owner_entity = entity->header.id;
         state_machine->previous_state = GS_NONE;
         state_machine->current_state = GS_PROTECT_GOAL;
@@ -96,7 +97,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 
         collider->num_colliders = PCT_COUNT;
         collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
-                                                sizeof(Collider) * collider->num_colliders);
+                                                sizeof(struct Collider) * collider->num_colliders);
         collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
         collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
         collider->colliders[PCT_GOALIE].props.circle.radius = 6;
@@ -111,7 +112,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
         prepare_gfx(&entity->player, game_state);
 
         collider->colliders =
-            memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
+            memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
         collider->num_colliders = 1;
     }
 
@@ -127,8 +128,8 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
 }
 
 void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_apply,
-                                 GameState *game_state) {
-    ComponentPhysics *physics =
+                                 struct GameState *game_state) {
+    struct ComponentPhysics *physics =
         &entities_entity_get(game_state->entity_repository, player_entity_id)->physics;
 
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
@@ -141,24 +142,24 @@ void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_app
     }
 }
 
-void entities_player_apply_velocity(EntityId player_entity_id, GameState *game_state) {
-    Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-    ComponentPhysics *physics = &entity->physics;
-    ComponentTransform *transform = &entity->transform;
+void entities_player_apply_velocity(EntityId player_entity_id, struct GameState *game_state) {
+    struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    struct ComponentPhysics *physics = &entity->physics;
+    struct ComponentTransform *transform = &entity->transform;
     transform->position =
         Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
 }
 
 void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
-                                             f32 velocity_threshold, GameState *game_state) {
-    Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-    ComponentPhysics *physics = &entity->physics;
-    ComponentPlayer *player = &entity->player;
-    ComponentSprite *sprite = &entity->sprite;
+                                             f32 velocity_threshold, struct GameState *game_state) {
+    struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    struct ComponentPhysics *physics = &entity->physics;
+    struct ComponentPlayer *player = &entity->player;
+    struct ComponentSprite *sprite = &entity->sprite;
 
     if (Vector2Length(physics->velocity) > velocity_threshold) {
-        Direction pd = entities_common_calculate_direction(direction);
-        AssetsAnimation *animation =
+        enum Direction pd = entities_common_calculate_direction(direction);
+        struct AssetsAnimation *animation =
             assets_animation_get_by_id(game_state->animation_cache, player->run_animations[pd]);
         f32 max_player_velocity = game_state->constants.player_run_max_velocity;
         if ((game_state->time - player->last_frame_update_time) >
@@ -174,9 +175,9 @@ void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direc
     }
 }
 
-void entities_player_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    ComponentPlayer *player = &entity->player;
-    StateMachinePlayer *state_machine = player->state_machine;
+void entities_player_state_machine_on_enter(struct Entity *entity, struct GameState *game_state) {
+    struct ComponentPlayer *player = &entity->player;
+    struct StateMachinePlayer *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES,
                    entity->header.name,
@@ -184,7 +185,7 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
                    StateMachinePlayerStateString[state_machine->current_state]);
 
     // Reset state data
-    memset(&state_machine->state_data, 0, sizeof(StateMachinePlayerStateData));
+    memset(&state_machine->state_data, 0, sizeof(union StateMachinePlayerStateData));
 
     switch (state_machine->current_state) {
     case PS_NONE:
@@ -198,8 +199,8 @@ void entities_player_state_machine_on_enter(struct Entity *entity, GameState *ga
     }
 }
 
-void entities_player_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    StateMachinePlayer *state_machine = entity->player.state_machine;
+void entities_player_state_machine_on_exit(struct Entity *entity, struct GameState *game_state) {
+    struct StateMachinePlayer *state_machine = entity->player.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES,
                    entity->header.name,
@@ -219,8 +220,8 @@ void entities_player_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
 }
 
-void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *game_state) {
-    StateMachineGoalie *state_machine = entity->goalie.state_machine;
+void entities_goalie_state_machine_on_enter(struct Entity *entity, struct GameState *game_state) {
+    struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES,
                    entity->header.name,
@@ -255,8 +256,8 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, GameState *ga
     }
 }
 
-void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *game_state) {
-    StateMachineGoalie *state_machine = entity->goalie.state_machine;
+void entities_goalie_state_machine_on_exit(struct Entity *entity, struct GameState *game_state) {
+    struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES,
                    entity->header.name,
@@ -281,7 +282,7 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, GameState *gam
     }
 }
 
-static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
+static void prepare_gfx(struct ComponentPlayer *player, struct GameState *game_state) {
     // Stand frames
     player->stand_frames[D_DOWN] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
@@ -319,8 +320,8 @@ static void prepare_gfx(ComponentPlayer *player, GameState *game_state) {
         entities_common_animation_id_from_name("player", "run_back_right", game_state);
 }
 
-static void prepare_goalie_gfx(ComponentPlayer *player, ComponentGoalie *goalie,
-                               GameState *game_state) {
+static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentGoalie *goalie,
+                               struct GameState *game_state) {
     // Stand frames
     player->stand_frames[D_DOWN] =
         assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_0")->id;

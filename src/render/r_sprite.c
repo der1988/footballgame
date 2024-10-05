@@ -3,9 +3,9 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void render_sprite_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
+void render_sprite_draw(struct AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
                         Color color, b32 flipX, b32 flipY, v2 pivot_override,
-                        AssetsTexture *assets_texture) {
+                        struct AssetsTexture *assets_texture) {
     Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw texture
@@ -39,8 +39,8 @@ void render_sprite_draw(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotati
     DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
 }
 
-void render_sprite_draw_debug_frame(AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation,
-                                    v2 scale, v2 pivot_override) {
+void render_sprite_draw_debug_frame(struct AssetsSpriteFrame *sprite_frame, v2 position,
+                                    f32 rotation, v2 scale, v2 pivot_override) {
     Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
     // Draw pivot

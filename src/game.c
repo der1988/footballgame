@@ -15,12 +15,13 @@
 #include <raylib.h>
 #include <raymath.h>
 
-GameState *game_init(GameConfig game_config) {
-    GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(Entity));
+struct GameState *game_init(struct GameConfig game_config) {
+    GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct Entity));
     MemoryArenaHandle *memory_arena_lifetime_game =
         memory_arena_create("game", game_config.memory, Megabytes(1));
 
-    GameState *game_state = memory_arena_push(memory_arena_lifetime_game, sizeof(GameState));
+    struct GameState *game_state =
+        memory_arena_push(memory_arena_lifetime_game, sizeof(struct GameState));
     game_state->config = game_config;
     game_state->config.players_count = 1;
 
@@ -28,52 +29,53 @@ GameState *game_init(GameConfig game_config) {
     // pitch in game is 1080 pixels long
     // 1m is ~10 pixels in game
     // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
-    game_state->constants = (GameConstants){.fixed_timestep = 1 / 480.0,
-                                            .render_debug = false,
-                                            .input_stick_dead_zone = 0.05f,
-                                            // Coefficient of restitution
-                                            .ball_cr = 0.5f,
-                                            .ball_cr_against_post = 0.7f,
-                                            .pixels_per_meter = PIXELS_PER_METER,
-                                            .air_density = 1.21f,
-                                            .ball_cross_sectional_area = 0.038f,
-                                            .ball_drag_coefficient = 0.25f,
-                                            .gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-                                            .ball_friction_on_pitch = 0.5f,
-                                            .ball_run_force = 20,
-                                            .ball_control_force = 13,
-                                            // This will translate to instant velocity, so 119km/h
-                                            // We want max ball speed to be ~129km/h, and we get
-                                            // there with some modifiers due to hit position
-                                            .ball_shot_force = 33 * PIXELS_PER_METER,
-                                            .ball_shot_height = 0.35f,
-                                            .ball_pass_force = 30 * PIXELS_PER_METER,
-                                            .ball_long_pass_force = 26 * PIXELS_PER_METER,
-                                            .ball_long_pass_height = 1.0f,
-                                            .ball_after_touch_delay_time = 0.1f,
-                                            .ball_after_touch_max_time = 0.75f,
-                                            .ball_after_touch_force = 300.0f,
-                                            // 36m/s seems fair, that would be 129km/h
-                                            .ball_max_velocity = 50 * PIXELS_PER_METER,
-                                            .ball_lookaheads = 5,
-                                            .ball_lookahead_dts = 30,
-                                            .crossbar_height = 27,
-                                            .player_movement_force = 25000,
-                                            .player_movement_drag = 4166,
-                                            .player_control_max_velocity = 6.6f * PIXELS_PER_METER,
-                                            // Fastest player should reach ~10.5m/s, slowest 7.8m/s
-                                            .player_run_max_velocity = 10.5f * PIXELS_PER_METER,
-                                            .player_control_radius = 6,
-                                            .player_control_height = 19,
-                                            .player_run_control_max_angle = 45,
-                                            // Elite goalie has 150ms reaction time
-                                            .goalie_dive_reaction_time = 0.150f,
-                                            .goalie_dive_force = 8500,
-                                            .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
-                                            .ai_enabled = true,
-                                            .shoot_aid_enabled = true,
-                                            .shoot_aid_no_inertia = true,
-                                            .kick_charge_reset_time = 1.5f};
+    game_state->constants =
+        (struct GameConstants){.fixed_timestep = 1 / 480.0,
+                               .render_debug = false,
+                               .input_stick_dead_zone = 0.05f,
+                               // Coefficient of restitution
+                               .ball_cr = 0.5f,
+                               .ball_cr_against_post = 0.7f,
+                               .pixels_per_meter = PIXELS_PER_METER,
+                               .air_density = 1.21f,
+                               .ball_cross_sectional_area = 0.038f,
+                               .ball_drag_coefficient = 0.25f,
+                               .gravity_force = {.y = -9.81f * PIXELS_PER_METER},
+                               .ball_friction_on_pitch = 0.5f,
+                               .ball_run_force = 20,
+                               .ball_control_force = 13,
+                               // This will translate to instant velocity, so 119km/h
+                               // We want max ball speed to be ~129km/h, and we get
+                               // there with some modifiers due to hit position
+                               .ball_shot_force = 33 * PIXELS_PER_METER,
+                               .ball_shot_height = 0.35f,
+                               .ball_pass_force = 30 * PIXELS_PER_METER,
+                               .ball_long_pass_force = 26 * PIXELS_PER_METER,
+                               .ball_long_pass_height = 1.0f,
+                               .ball_after_touch_delay_time = 0.1f,
+                               .ball_after_touch_max_time = 0.75f,
+                               .ball_after_touch_force = 300.0f,
+                               // 36m/s seems fair, that would be 129km/h
+                               .ball_max_velocity = 50 * PIXELS_PER_METER,
+                               .ball_lookaheads = 5,
+                               .ball_lookahead_dts = 30,
+                               .crossbar_height = 27,
+                               .player_movement_force = 25000,
+                               .player_movement_drag = 4166,
+                               .player_control_max_velocity = 6.6f * PIXELS_PER_METER,
+                               // Fastest player should reach ~10.5m/s, slowest 7.8m/s
+                               .player_run_max_velocity = 10.5f * PIXELS_PER_METER,
+                               .player_control_radius = 6,
+                               .player_control_height = 19,
+                               .player_run_control_max_angle = 45,
+                               // Elite goalie has 150ms reaction time
+                               .goalie_dive_reaction_time = 0.150f,
+                               .goalie_dive_force = 8500,
+                               .goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
+                               .ai_enabled = true,
+                               .shoot_aid_enabled = true,
+                               .shoot_aid_no_inertia = true,
+                               .kick_charge_reset_time = 1.5f};
 
     // Partition game memory
     game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
@@ -97,7 +99,7 @@ GameState *game_init(GameConfig game_config) {
         assets_animation_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
 
     // Load pitch
-    AssetsTexture *texture = assets_texture_load(game_state->texture_cache, "res/pitch.png");
+    struct AssetsTexture *texture = assets_texture_load(game_state->texture_cache, "res/pitch.png");
     assert(texture);
     game_state->pitch_texture_id = texture->id;
 
@@ -139,7 +141,7 @@ GameState *game_init(GameConfig game_config) {
                               .y = 77 + 360 * 3},
                .area = (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167}};
 
-    Entity *player_entity = entities_player_create(
+    struct Entity *player_entity = entities_player_create(
         (PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
                        .side = PSI_SOUTH},
         game_state);
@@ -159,16 +161,16 @@ GameState *game_init(GameConfig game_config) {
                        .side = PSI_NORTH},
         game_state);
 
-    Entity *ball_entity = entities_ball_create(
-        (BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
+    struct Entity *ball_entity = entities_ball_create(
+        (struct BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
         game_state);
     game_state->vars.ball_entity_id = ball_entity->header.id;
 
     entities_goal_create((GoalConfig){.side = PSI_NORTH}, game_state);
 
-    Entity *camera_entity = entities_camera_create(game_state);
-    ComponentCamera *camera = &camera_entity->camera;
-    ComponentTarget *camera_target = &camera_entity->target;
+    struct Entity *camera_entity = entities_camera_create(game_state);
+    struct ComponentCamera *camera = &camera_entity->camera;
+    struct ComponentTarget *camera_target = &camera_entity->target;
     camera->camera = CAM_MAIN;
     camera_target->entity_id = ball_entity->header.id;
     game_state->vars.camera_entity_id = camera_entity->header.id;
@@ -184,7 +186,7 @@ GameState *game_init(GameConfig game_config) {
                   (f32)game_state->config.virtual_screen_height / 2};
 
     football_match_change_state(game_state, MS_PLAY);
-    game_state->vars.p1 = (HumanPlayer){.player_entity_id = player_entity->header.id};
+    game_state->vars.p1 = (struct HumanPlayer){.player_entity_id = player_entity->header.id};
 #endif
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
@@ -196,7 +198,7 @@ GameState *game_init(GameConfig game_config) {
     return game_state;
 }
 
-void game_destroy(GameState *game_state) {
+void game_destroy(struct GameState *game_state) {
     assert(game_state->initialised);
 
     UnloadRenderTexture(game_state->render_texture);
@@ -219,7 +221,7 @@ void game_destroy(GameState *game_state) {
     GLOG_INFO(LS_GAME, "game destruction complete");
 }
 
-void game_update(GameState *game_state, Input *input) {
+void game_update(struct GameState *game_state, struct Input *input) {
     assert(game_state->initialised);
 
     // These should be reset every update
@@ -244,12 +246,12 @@ void game_update(GameState *game_state, Input *input) {
     systems_camera(game_state);
 }
 
-void game_draw(GameState *game_state) {
+void game_draw(struct GameState *game_state) {
     assert(game_state->initialised);
 
     memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 
-    ComponentTransform *camera_transform =
+    struct ComponentTransform *camera_transform =
         &entities_entity_get(game_state->entity_repository, game_state->vars.camera_entity_id)
              ->transform;
 

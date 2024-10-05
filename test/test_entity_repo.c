@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-GameState *g_game_state = NULL;
+struct GameState *g_game_state = NULL;
 
 void setUp(void) {
     int width = 800;
@@ -22,8 +22,8 @@ void setUp(void) {
 
     void *memory = malloc(Megabytes(10));
 
-    GameConfig game_config =
-        (GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
+    struct GameConfig game_config =
+        (struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
 
     g_game_state = game_init(game_config);
 }

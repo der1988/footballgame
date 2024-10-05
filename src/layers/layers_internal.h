@@ -1,0 +1,24 @@
+#ifndef LAYERS_INTERNAL_H
+#define LAYERS_INTERNAL_H
+
+#include "memory.h"
+#include "types.h"
+
+#define MAX_QUEUED_DRAW_REQUESTS 50
+
+struct DrawTextRequest {
+    char text[80];
+};
+
+typedef struct LayersDebug LayersDebug;
+struct LayersDebug {
+    b32 initialised;
+    MemoryArenaHandle *frame_memory_arena;
+    u16 queued_requests;
+    struct DrawTextRequest *draw_text_requests[MAX_QUEUED_DRAW_REQUESTS];
+    Color color;
+    u16 space_between_rows;
+    u16 font_size;
+};
+
+#endif

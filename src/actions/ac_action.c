@@ -3,7 +3,8 @@
 #include "entities.h"
 #include <raylib.h>
 
-void actions_action_run(ActionRunner *action_runner, EntityId id, GameState *game_state) {
+void actions_action_run(struct ActionRunner *action_runner, EntityId id,
+                        struct GameState *game_state) {
     if (!action_runner->started) {
         action_runner->started = true;
         action_runner->paused = action_runner->completed = false;
@@ -27,7 +28,8 @@ void actions_action_run(ActionRunner *action_runner, EntityId id, GameState *gam
     }
 }
 
-void actions_action_stop(RunningActionIdx running_action_idx, EntityId id, GameState *game_state) {
+void actions_action_stop(RunningActionIdx running_action_idx, EntityId id,
+                         struct GameState *game_state) {
     entities_entity_get(game_state->entity_repository, id)
         ->action.running_actions[running_action_idx]
         .action = NULL;

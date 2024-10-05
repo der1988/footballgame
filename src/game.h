@@ -6,6 +6,7 @@
 #include "raygui/raygui.h"
 #include "types.h"
 #include <raylib.h>
+#include "layers.h"
 
 #define PIXELS_PER_METER (1080.0f / 108.0f)
 
@@ -15,32 +16,31 @@ struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
 struct TweakUI;
-struct LayersDebug;
 struct Input;
 
-typedef enum MemoryArenaLifetime {
+enum MemoryArenaLifetime {
     MAL_GAME,
     MAL_LEVEL,
     MAL_UPDATE,
     MAL_DRAW,
     MAL_COUNT
-} MemoryArenaLifetime;
+};
 
-typedef enum CameraType {
+enum CameraType {
     CAM_MAIN,
     CAM_COUNT
-} CameraType;
+};
 
-typedef struct GameConfig {
+struct GameConfig {
     u32 virtual_screen_width;
     u32 virtual_screen_height;
     u32 screen_width;
     u32 screen_height;
     void *memory;
     u32 players_count;
-} GameConfig;
+};
 
-typedef struct GameConstants {
+struct GameConstants {
     f64 fixed_timestep;
     b32 render_debug;
     b32 ai_enabled;
@@ -84,67 +84,63 @@ typedef struct GameConstants {
     f32 goalie_dive_max_velocity;
     f32 kick_charge_reset_time;
     u32 crossbar_height;
-} GameConstants;
+};
 
-typedef enum ActionChargeType {
-    ACT_SHOOT,
-    ACT_PASS,
-    ACT_LONG_PASS
-} ActionChargeType;
-
-typedef struct ActionCharge {
-    ActionChargeType type;
-    v2 direction;
-    Time started;
-    Time ended;
-    f32 power;
-    b32 charging;
-    b32 ready;
-} ActionCharge;
-
-typedef struct Controls {
+struct Controls {
     v2 steering;
-    ActionCharge charge;
-} Controls;
+    struct ActionCharge {
+        enum ActionChargeType {
+            ACT_SHOOT,
+            ACT_PASS,
+            ACT_LONG_PASS
+        } type;
+        v2 direction;
+        Time started;
+        Time ended;
+        f32 power;
+        b32 charging;
+        b32 ready;
+    } charge;
+};
 
-typedef struct HumanPlayer {
-    Controls controls;
+struct HumanPlayer {
+    struct Controls controls;
     EntityId player_entity_id;
-} HumanPlayer;
+};
 
-typedef struct GameVariables {
+struct GameVariables {
     Match match;
     Pitch pitch;
     EntityId camera_entity_id;
     EntityId ball_entity_id;
-    HumanPlayer p1;
+    struct HumanPlayer p1;
     b32 slow_motion;
     b32 is_tweakui_shown;
-} GameVariables;
+};
 
-typedef struct GameState {
+struct GameState {
     b32 initialised;
-    GameConfig config;
-    GameConstants constants;
-    GameVariables vars;
+    struct GameConfig config;
+    struct GameConstants constants;
+    struct GameVariables vars;
     MemoryArenaHandle *memory_by_lifetime[MAL_COUNT];
     struct EntityRepository *entity_repository;
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
     struct TweakUI *tweakui;
-    struct LayersDebug *layer_debug;
+    LayersDebug *layer_debug;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;
     Camera2D virtual_camera;
     Time time;
     DeltaTime dt;
-} GameState;
+};
 
-GameState *game_init(GameConfig gameConfig);
-void game_destroy(GameState *game_state);
-void game_update(GameState *game_state, struct Input *input);
-void game_draw(GameState *game_state);
+struct GameState *game_init(struct GameConfig gameConfig);
+void game_destroy(struct GameState *game_state);
+void game_update(struct GameState *game_state, struct Input *input);
+void game_draw(struct GameState *game_state);
 
 #endif // !GAME_H

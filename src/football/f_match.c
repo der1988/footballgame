@@ -14,11 +14,12 @@ void football_match_change_state(struct GameState *game_state, MatchState new_st
     case MS_THROW_IN:
     case MS_CORNER_KICK: {
         // TODO: quick hack to put the ball back in play
-        Entity *entity = entities_entity_get(game_state->entity_repository,
-                                             game_state->vars.p1.player_entity_id);
-        ComponentTransform *transform = &entity->transform;
+        struct Entity *entity = entities_entity_get(game_state->entity_repository,
+                                                    game_state->vars.p1.player_entity_id);
+        struct ComponentTransform *transform = &entity->transform;
         entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-                                                V2_TO_V3(transform->position, 30), Vector3Zero(),
+                                                V2_TO_V3(transform->position, 30),
+                                                Vector3Zero(),
                                                 game_state);
         game_state->vars.match.state = MS_PLAY;
         break;

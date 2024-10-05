@@ -5,18 +5,19 @@
 #include <raylib.h>
 #include <raymath.h>
 
-Entity *entities_camera_create(GameState *game_state) {
-    Entity *entity = entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
+struct Entity *entities_camera_create(struct GameState *game_state) {
+    struct Entity *entity =
+        entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
 
     // Initialise transform
-    ComponentTransform *transform = &entity->transform;
+    struct ComponentTransform *transform = &entity->transform;
     transform->header.enabled = true;
     transform->position = (Vector2){(f32)GetScreenWidth() / 2, -10};
     transform->rotation = 0;
     transform->scale = Vector2One();
 
     // Initialise physics
-    ComponentPhysics *physics = &entity->physics;
+    struct ComponentPhysics *physics = &entity->physics;
     physics->header.enabled = true;
     physics->mass = 1;
     physics->velocity = (Vector2){0};
@@ -26,12 +27,12 @@ Entity *entities_camera_create(GameState *game_state) {
     physics->max_force = 50.0f;
 
     // Initialise props
-    ComponentCamera *camera = &entity->camera;
+    struct ComponentCamera *camera = &entity->camera;
     camera->header.enabled = true;
     camera->slowing_distance = 300.0f;
 
     // Initialise target
-    ComponentTarget *target = &entity->target;
+    struct ComponentTarget *target = &entity->target;
     target->header.enabled = true;
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "camera created");
