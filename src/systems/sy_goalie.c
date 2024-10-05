@@ -21,8 +21,8 @@ static bool is_goalie_colliding_with_ball(Entity *goalie_entity, v3 ball_positio
         CheckCollisionCircles(
             V3_TO_V2(ball_position),
             ball_radius,
-            Vector2Add(goalie_entity->transform.position, goalie_collider->props_circle.offset),
-            goalie_collider->props_circle.radius) &&
+            Vector2Add(goalie_entity->transform.position, goalie_collider->props.circle.offset),
+            goalie_collider->props.circle.radius) &&
         ball_position.y < max_height;
 
     return is_colliding_with_ball;
@@ -45,7 +45,7 @@ static bool should_dive(Entity *goalie_entity, Entity *ball_entity, SaveDirectio
         b32 is_colliding_with_ball =
             is_goalie_colliding_with_ball(goalie_entity,
                                           pos_to_check,
-                                          ball_entity->collider.colliders[0].props_circle.radius,
+                                          ball_entity->collider.colliders[0].props.circle.radius,
                                           game_state->constants.crossbar_height);
         if (is_colliding_with_ball) {
             // Ball is coming our direction, let's wait
@@ -107,7 +107,7 @@ void systems_goalie(GameState *game_state, Input *input) {
 
             f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
 
-            collider->colliders[PCT_PLAYER].props_circle.radius =
+            collider->colliders[PCT_PLAYER].props.circle.radius =
                 game_state->constants.player_control_radius;
             Collider *goalie_collider = &collider->colliders[PCT_GOALIE];
             Collider *dive_collider = &collider->colliders[PCT_DIVE];
@@ -120,7 +120,7 @@ void systems_goalie(GameState *game_state, Input *input) {
                     if (is_goalie_colliding_with_ball(
                             entity,
                             V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-                            ball_collider->colliders[0].props_circle.radius,
+                            ball_collider->colliders[0].props.circle.radius,
                             game_state->constants.crossbar_height)) {
                         // hold ball in hands
                         entities_ball_held_by_goalie(
@@ -246,9 +246,9 @@ void systems_goalie(GameState *game_state, Input *input) {
                         v2 new_ball_position = Vector2Add(
                             transform->position,
                             Vector2Scale((v2){.y = 1},
-                                         goalie_collider->props_circle.offset.y +
-                                             goalie_collider->props_circle.radius +
-                                             ball_collider->colliders[0].props_circle.radius + 7));
+                                         goalie_collider->props.circle.offset.y +
+                                             goalie_collider->props.circle.radius +
+                                             ball_collider->colliders[0].props.circle.radius + 7));
                         entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
                                                                 V2_TO_V3(new_ball_position, 10),
                                                                 Vector3Zero(),
@@ -327,11 +327,11 @@ void systems_goalie(GameState *game_state, Input *input) {
                     entities_player_apply_velocity(entity_id, game_state);
 
                     Rectangle dive_rectangle = (Rectangle){
-                        .x = transform->position.x + dive_collider->props_rectangle.offset.x,
-                        .y = transform->position.y + dive_collider->props_rectangle.offset.y,
-                        .width = dive_collider->props_rectangle.size.x,
-                        .height = dive_collider->props_rectangle.size.y};
-                    f32 ball_radius = ball_collider->colliders[0].props_circle.radius;
+                        .x = transform->position.x + dive_collider->props.rectangle.offset.x,
+                        .y = transform->position.y + dive_collider->props.rectangle.offset.y,
+                        .width = dive_collider->props.rectangle.size.x,
+                        .height = dive_collider->props.rectangle.size.y};
+                    f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
                     b32 is_colliding_with_ball =
                         CheckCollisionCircleRec(
                             ball_transform->position, ball_radius, dive_rectangle) &&

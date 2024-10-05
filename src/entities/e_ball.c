@@ -62,7 +62,7 @@ struct Entity *entities_ball_create(BallConfig config, GameState *game_state) {
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_CIRCLE;
-    collider->colliders[0].props_circle.radius = 2.5f;
+    collider->colliders[0].props.circle.radius = 2.5f;
 
     // Initialise action
     entity->action.header.enabled = true;
@@ -226,7 +226,7 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     }
     // Calculate shot force
     f32 shot_force = game_state->constants.ball_shot_force;
-    f32 ball_radius = collider->colliders[0].props_circle.radius;
+    f32 ball_radius = collider->colliders[0].props.circle.radius;
     // if (!ball->is_on_the_ground) {
     //     if (transform->virtual_height > (ball_radius + 12)) {
     //         // TODO: this needs to handle headers

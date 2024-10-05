@@ -63,10 +63,10 @@ struct Entity *entities_goal_create(GoalConfig config, GameState *game_state) {
         memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(Collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_RECTANGLE;
-    collider->colliders[0].props_rectangle.size = (v2){.x = 79, .y = 27};
-    collider->colliders[0].props_rectangle.offset =
-        (v2){.x = -collider->colliders[0].props_rectangle.size.x / 2.0f,
-             .y = -collider->colliders[0].props_rectangle.size.y};
+    collider->colliders[0].props.rectangle.size = (v2){.x = 79, .y = 27};
+    collider->colliders[0].props.rectangle.offset =
+        (v2){.x = -collider->colliders[0].props.rectangle.size.x / 2.0f,
+             .y = -collider->colliders[0].props.rectangle.size.y};
 
     // Initialise goal
     ComponentGoal *goal = &entity->goal;

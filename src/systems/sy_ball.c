@@ -161,7 +161,7 @@ void systems_ball(GameState *game_state, Input *input) {
 
                 b32 on_the_ground;
                 b32 bounced;
-                f32 ball_radius = collider->colliders[0].props_circle.radius;
+                f32 ball_radius = collider->colliders[0].props.circle.radius;
                 sim_ball_physics(&position,
                                  &velocity,
                                  accel,

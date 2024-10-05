@@ -98,13 +98,13 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
         collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
                                                 sizeof(Collider) * collider->num_colliders);
         collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
-        collider->colliders[PCT_GOALIE].props_circle.offset = (v2){.y = 0};
-        collider->colliders[PCT_GOALIE].props_circle.radius = 6;
+        collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
+        collider->colliders[PCT_GOALIE].props.circle.radius = 6;
 
         collider->colliders[PCT_DIVE].shape = CS_RECTANGLE;
-        collider->colliders[PCT_DIVE].props_rectangle.offset = (v2){.x = -10, .y = -5};
-        collider->colliders[PCT_DIVE].props_rectangle.size.x = 22;
-        collider->colliders[PCT_DIVE].props_rectangle.size.y = 10;
+        collider->colliders[PCT_DIVE].props.rectangle.offset = (v2){.x = -10, .y = -5};
+        collider->colliders[PCT_DIVE].props.rectangle.size.x = 22;
+        collider->colliders[PCT_DIVE].props.rectangle.size.y = 10;
     } else {
         player_state_machine->current_state = PS_NORMAL;
 
@@ -116,7 +116,7 @@ struct Entity *entities_player_create(PlayerConfig config, GameState *game_state
     }
 
     collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
-    collider->colliders[PCT_PLAYER].props_circle.radius =
+    collider->colliders[PCT_PLAYER].props.circle.radius =
         game_state->constants.player_control_radius;
 
     entities_player_state_machine_on_enter(entity, game_state);

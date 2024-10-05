@@ -27,7 +27,7 @@ typedef struct ComponentTransform {
     f32 virtual_height;
 } ComponentTransform;
 
-typedef struct {
+typedef struct ComponentPhysics {
     ComponentHeader header;
     f32 mass;
     v2 accel;
@@ -36,7 +36,7 @@ typedef struct {
     f32 max_force;
 } ComponentPhysics;
 
-typedef struct {
+typedef struct ComponentPhysics3d {
     ComponentHeader header;
     f32 mass;
     v3 accel;
@@ -45,7 +45,7 @@ typedef struct {
     f32 max_force;
 } ComponentPhysics3d;
 
-typedef struct {
+typedef struct ComponentSprite {
     ComponentHeader header;
     Color color;
     b32 flipX;
@@ -60,53 +60,47 @@ typedef struct {
     v2 shadow_scale;
 } ComponentSprite;
 
-typedef struct {
+typedef struct ComponentAction {
     ComponentHeader header;
     ActionRunner running_actions[MaxConcurrentActions];
 } ComponentAction;
 
-typedef struct {
+typedef struct ComponentTarget {
     ComponentHeader header;
     EntityId entity_id;
 } ComponentTarget;
 
-typedef enum {
-    CS_CIRCLE,
-    CS_RECTANGLE
-} ColliderShape;
-
 typedef struct {
-    f32 radius;
-    v2 offset;
-} ColliderPropsCircle;
-
-typedef struct {
-    v2 size;
-    v2 offset;
-} ColliderPropsRectangle;
-
-typedef struct {
-    ColliderShape shape;
+    enum {
+        CS_CIRCLE,
+        CS_RECTANGLE
+    } shape;
     union {
-        ColliderPropsCircle props_circle;
-        ColliderPropsRectangle props_rectangle;
-    };
+        struct {
+            f32 radius;
+            v2 offset;
+        } circle;
+        struct {
+            v2 size;
+            v2 offset;
+        } rectangle;
+    } props;
 } Collider;
 
-typedef struct {
+typedef struct ComponentCollider {
     ComponentHeader header;
     Collider *colliders;
     u16 num_colliders;
 } ComponentCollider;
 
-typedef struct {
+typedef struct ComponentCamera {
     ComponentHeader header;
     CameraType camera;
     f32 slowing_distance;
     v2 offset;
 } ComponentCamera;
 
-typedef enum {
+typedef enum Direction {
     D_UP,
     D_DOWN,
     D_LEFT,
@@ -118,7 +112,7 @@ typedef enum {
     D_COUNT
 } Direction;
 
-typedef struct {
+typedef struct ComponentPlayer {
     ComponentHeader header;
     PitchSide side;
     struct StateMachinePlayer *state_machine;
@@ -135,7 +129,7 @@ typedef struct {
     u8 team_formation_position_idx;
 } ComponentPlayer;
 
-typedef struct {
+typedef struct ComponentBall {
     ComponentHeader header;
     struct StateMachineBall *state_machine;
     b32 is_on_the_ground;
@@ -155,7 +149,7 @@ typedef struct {
     u16 last_running_frame_idx;
 } ComponentBall;
 
-typedef struct {
+typedef struct ComponentGoal {
     ComponentHeader header;
     Time hit_left_post_time;
     Time hit_right_post_time;
@@ -163,33 +157,37 @@ typedef struct {
     b32 scored;
 } ComponentGoal;
 
-typedef enum {
+typedef enum SaveSide {
     SS_UP,
     SS_DOWN,
     SS_COUNT
 } SaveSide;
-typedef enum {
+
+typedef enum SaveDirection {
     SD_LEFT,
     SD_RIGHT,
     SD_COUNT
 } SaveDirection;
-typedef enum {
+
+typedef enum SaveHeight {
     SH_HIGH,
     SH_LOW,
     SH_COUNT
 } SaveHeight;
-typedef enum {
+
+typedef enum SaveType {
     ST_WITHOUT_BALL,
     ST_WITH_BALL,
     ST_COUNT
 } SaveType;
-typedef enum {
+
+typedef enum AnimationPhase {
     AP_START,
     AP_END,
     AP_COUNT
 } AnimationPhase;
 
-typedef struct {
+typedef struct ComponentGoalie {
     ComponentHeader header;
     struct StateMachineGoalie *state_machine;
     SaveDirection dive_direction;

@@ -40,17 +40,17 @@ void systems_render_debug(GameState *game_state) {
                     for (u16 i = 0; i < collider->num_colliders; ++i) {
                         if (collider->colliders[i].shape == CS_CIRCLE) {
                             v2 pos = Vector2Add(transform->position,
-                                                collider->colliders[i].props_circle.offset);
+                                                collider->colliders[i].props.circle.offset);
                             DrawCircleLinesV(pos,
-                                             collider->colliders[i].props_circle.radius,
+                                             collider->colliders[i].props.circle.radius,
                                              colliders_colors[i]);
                         } else if (collider->colliders[i].shape == CS_RECTANGLE) {
                             v2 pos = Vector2Add(transform->position,
-                                                collider->colliders[i].props_rectangle.offset);
+                                                collider->colliders[i].props.rectangle.offset);
                             DrawRectangleLines(pos.x,
                                                pos.y,
-                                               collider->colliders[i].props_rectangle.size.x,
-                                               collider->colliders[i].props_rectangle.size.y,
+                                               collider->colliders[i].props.rectangle.size.x,
+                                               collider->colliders[i].props.rectangle.size.y,
                                                colliders_colors[i]);
                         }
                     }

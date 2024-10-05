@@ -26,10 +26,10 @@ void systems_goal(GameState *game_state) {
             goal->header.enabled && collider->header.enabled) {
 
             Rectangle goal_rectangle = {
-                .x = transform->position.x + collider->colliders[0].props_rectangle.offset.x,
-                .y = transform->position.y + collider->colliders[0].props_rectangle.offset.y,
-                .width = collider->colliders[0].props_rectangle.size.x,
-                .height = collider->colliders[0].props_rectangle.size.y};
+                .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,
+                .y = transform->position.y + collider->colliders[0].props.rectangle.offset.y,
+                .width = collider->colliders[0].props.rectangle.size.x,
+                .height = collider->colliders[0].props.rectangle.size.y};
 
             v3 goal_line_p1 = (v3){
                 .x = game_state->vars.pitch.field.x, .y = 0, .z = game_state->vars.pitch.field.y};
@@ -60,7 +60,7 @@ void systems_goal(GameState *game_state) {
                 }
             } else if (game_state->vars.match.state == MS_PLAY &&
                        CheckCollisionCircleRec(ball_transform->position,
-                                               ball_collider->colliders[0].props_circle.radius,
+                                               ball_collider->colliders[0].props.circle.radius,
                                                goal_rectangle) &&
                        ball_transform->position.y < game_state->vars.pitch.field.y) {
 
@@ -74,11 +74,11 @@ void systems_goal(GameState *game_state) {
                 //        collision.point.y, collision.point.z);
                 if (collision.hit &&
                     collision.point.x >
-                        (goal_rectangle.x - ball_collider->colliders[0].props_circle.radius) &&
+                        (goal_rectangle.x - ball_collider->colliders[0].props.circle.radius) &&
                     collision.point.x < (goal_rectangle.x + goal_rectangle.width +
-                                         ball_collider->colliders[0].props_circle.radius) &&
+                                         ball_collider->colliders[0].props.circle.radius) &&
                     collision.point.y <
-                        (goal_rectangle.height + ball_collider->colliders[0].props_circle.radius)) {
+                        (goal_rectangle.height + ball_collider->colliders[0].props.circle.radius)) {
 
                     b32 collided_with_post = false;
                     b32 scored = false;
@@ -86,7 +86,7 @@ void systems_goal(GameState *game_state) {
 
                     if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
                         collision.point.x < (goal_rectangle.x + post_width +
-                                             ball_collider->colliders[0].props_circle.radius)) {
+                                             ball_collider->colliders[0].props.circle.radius)) {
                         // hit left post
                         f32 normalised_hit_point = Clamp(
                             (collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width,
@@ -107,7 +107,7 @@ void systems_goal(GameState *game_state) {
                     } else if (HAS_TIME_PASSED(game_state->time, goal->hit_right_post_time, 0.1f) &&
                                collision.point.x >
                                    (goal_rectangle.x + goal_rectangle.width - post_width -
-                                    ball_collider->colliders[0].props_circle.radius)) {
+                                    ball_collider->colliders[0].props.circle.radius)) {
                         // hit right post
                         f32 normalised_hit_point =
                             Clamp((collision.point.x - goal_rectangle.x - goal_rectangle.width +
@@ -128,7 +128,7 @@ void systems_goal(GameState *game_state) {
                     } else if (HAS_TIME_PASSED(game_state->time, goal->hit_crossbar_time, 0.1f) &&
                                collision.point.y >
                                    (goal_rectangle.height - post_width -
-                                    ball_collider->colliders[0].props_circle.radius)) {
+                                    ball_collider->colliders[0].props.circle.radius)) {
                         // hit cross bar
                         f32 normalised_hit_point =
                             Clamp((collision.point.y - goal_rectangle.height + post_width) /
@@ -169,13 +169,13 @@ void systems_goal(GameState *game_state) {
                         }
                     } else if (collision.point.x >
                                    (goal_rectangle.x + post_width +
-                                    ball_collider->colliders[0].props_circle.radius) &&
+                                    ball_collider->colliders[0].props.circle.radius) &&
                                collision.point.x <
                                    (goal_rectangle.x + goal_rectangle.width - post_width -
-                                    ball_collider->colliders[0].props_circle.radius) &&
+                                    ball_collider->colliders[0].props.circle.radius) &&
                                collision.point.y <
                                    (goal_rectangle.height - post_width -
-                                    ball_collider->colliders[0].props_circle.radius)) {
+                                    ball_collider->colliders[0].props.circle.radius)) {
                         scored = true;
                     }
                     if (scored) {
