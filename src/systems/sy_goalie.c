@@ -91,7 +91,7 @@ void systems_goalie(GameState *game_state, Input *input) {
     ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
     ComponentCollider *ball_collider = &ball_entity->collider;
 
-    for_each_entity(entity, game_state->entity_repository) {
+    for_each_entity (entity, game_state->entity_repository) {
         check_is_goalie_and_declare_components(entity) {
             StateMachineGoalie *state_machine = goalie->state_machine;
 

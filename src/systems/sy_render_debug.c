@@ -10,7 +10,7 @@ void systems_render_debug(GameState *game_state) {
     if (game_state->constants.render_debug) {
         EntityRepository *entity_repository = game_state->entity_repository;
 
-        for_each_entity(entity, game_state->entity_repository) {
+        for_each_entity (entity, game_state->entity_repository) {
             ComponentTransform *transform = &entity->transform;
             ComponentSprite *sprite = &entity->sprite;
             ComponentCollider *collider = &entity->collider;

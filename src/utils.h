@@ -32,7 +32,7 @@
 #define IS_TIME_PASSED_IN_RANGE(current_time, saved_time, min, max)                                \
     ((current_time - saved_time) > min && (current_time - saved_time) < max)
 
-#define JSON_GET_INT(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
+#define JSON_GET_INT(J, K)    cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
@@ -57,14 +57,14 @@ inline __attribute__((always_inline)) Vector2 Vector2Down() {
 }
 
 #define GLOG(TYPE, SYSTEM, TEXT) utils_log(__FILE__, __LINE__, TYPE, SYSTEM, NULL, TEXT)
-#define GLOG_INFO(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_INFO, SYSTEM, NULL, TEXT)
-#define GLOG_WARN(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_WARN, SYSTEM, NULL, TEXT)
+#define GLOG_INFO(SYSTEM, TEXT)  utils_log(__FILE__, __LINE__, LT_INFO, SYSTEM, NULL, TEXT)
+#define GLOG_WARN(SYSTEM, TEXT)  utils_log(__FILE__, __LINE__, LT_WARN, SYSTEM, NULL, TEXT)
 #define GLOG_ERROR(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_ERROR, SYSTEM, NULL, TEXT)
 #define GLOG_DEBUG(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_DEBUG, SYSTEM, NULL, TEXT)
 #define GLOG_TRACE(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_TRACE, SYSTEM, NULL, TEXT)
 
-#define GLOG_INFO_CTX(SYSTEM, CTX, TEXT) utils_log(__FILE__, __LINE__, LT_INFO, SYSTEM, CTX, TEXT)
-#define GLOG_WARN_CTX(SYSTEM, CTX, TEXT) utils_log(__FILE__, __LINE__, LT_WARN, SYSTEM, CTX, TEXT)
+#define GLOG_INFO_CTX(SYSTEM, CTX, TEXT)  utils_log(__FILE__, __LINE__, LT_INFO, SYSTEM, CTX, TEXT)
+#define GLOG_WARN_CTX(SYSTEM, CTX, TEXT)  utils_log(__FILE__, __LINE__, LT_WARN, SYSTEM, CTX, TEXT)
 #define GLOG_ERROR_CTX(SYSTEM, CTX, TEXT) utils_log(__FILE__, __LINE__, LT_ERROR, SYSTEM, CTX, TEXT)
 #define GLOG_DEBUG_CTX(SYSTEM, CTX, TEXT) utils_log(__FILE__, __LINE__, LT_DEBUG, SYSTEM, CTX, TEXT)
 #define GLOG_TRACE_CTX(SYSTEM, CTX, TEXT) utils_log(__FILE__, __LINE__, LT_TRACE, SYSTEM, CTX, TEXT)
@@ -95,7 +95,7 @@ inline __attribute__((always_inline)) Vector2 Vector2Down() {
 #define GLOGF_TRACE_CTX(SYSTEM, CTX, FORMAT, ...)                                                  \
     utils_log(__FILE__, __LINE__, LT_TRACE, SYSTEM, CTX, FORMAT, __VA_ARGS__)
 
-typedef enum {
+typedef enum ULogType {
     LT_ERROR,
     LT_WARN,
     LT_INFO,
@@ -104,7 +104,7 @@ typedef enum {
     LT_COUNT,
 } ULogType;
 
-typedef enum {
+typedef enum ULogSystem {
     LS_GAME,
     LS_INPUT,
     LS_SOUND,
@@ -120,8 +120,17 @@ typedef enum {
 } ULogSystem;
 
 static char *utils_log_systems_desc[11] = {
-    "GAME",  "INPUT", "SOUND",   "ASSETS", "ENTITIES", "MEMORY",
-    "UTILS", "TESTS", "TWEAKUI", "LAYERS", "OTHER",
+    "GAME",
+    "INPUT",
+    "SOUND",
+    "ASSETS",
+    "ENTITIES",
+    "MEMORY",
+    "UTILS",
+    "TESTS",
+    "TWEAKUI",
+    "LAYERS",
+    "OTHER",
 };
 
 void utils_log(char *file, u16 line, ULogType type, ULogSystem system, const char *ctx,

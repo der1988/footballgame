@@ -20,7 +20,7 @@ static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side) {
 }
 
 void systems_ball(GameState *game_state, Input *input) {
-    for_each_entity(entity, game_state->entity_repository) {
+    for_each_entity (entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentPhysics3d *physics_3d = &entity->physics_3d;
         ComponentSprite *sprite = &entity->sprite;

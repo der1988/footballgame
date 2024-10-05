@@ -145,11 +145,11 @@ void systems_player(GameState *game_state, Input *input) {
     player_on_the_ball.id = EID_NOT_VALID;
     player_on_the_ball.distance_from_the_ball = 9999999.0f;
 
-    for_each_entity(entity, game_state->entity_repository) {
+    for_each_entity (entity, game_state->entity_repository) {
         check_is_player_and_declare_components(entity) {
             StateMachinePlayer *state_machine = player->state_machine;
 
-            collider->colliders[PCT_PLAYER].props_circle.radius =
+            collider->colliders[PCT_PLAYER].props.circle.radius =
                 game_state->constants.player_control_radius;
 
             switch (state_machine->current_state) {
@@ -267,9 +267,9 @@ void systems_player(GameState *game_state, Input *input) {
 
                 b32 is_colliding_with_ball =
                     CheckCollisionCircles(transform->position,
-                                          collider->colliders[0].props_circle.radius,
+                                          collider->colliders[0].props.circle.radius,
                                           ball_transform->position,
-                                          ball_collider->colliders[0].props_circle.radius) &&
+                                          ball_collider->colliders[0].props.circle.radius) &&
                     // Player height
                     ball_transform->virtual_height < game_state->constants.player_control_height;
 
@@ -430,7 +430,7 @@ void systems_player(GameState *game_state, Input *input) {
                 v2 position_to_seek = Vector2Add(
                     player_on_the_ball.position,
                     Vector2Scale(normalized_velocity,
-                                 player_on_the_ball.collider->colliders[0].props_circle.radius *
+                                 player_on_the_ball.collider->colliders[0].props.circle.radius *
                                      1));
                 // TODO: this should depend on player technical abilities
                 if (player_on_the_ball.player->time_spent_in_precision_control < 1) {

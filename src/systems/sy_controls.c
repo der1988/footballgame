@@ -10,8 +10,8 @@ void systems_controls(GameState *game_state, Input *input) {
     ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
     if (p1_charge->ready) {
         // Ready
-        if (HAS_TIME_PASSED(game_state->time, p1_charge->ended,
-                            game_state->constants.kick_charge_reset_time)) {
+        if (HAS_TIME_PASSED(
+                game_state->time, p1_charge->ended, game_state->constants.kick_charge_reset_time)) {
             p1_charge->ready = p1_charge->charging = false;
         }
     } else if (p1_charge->charging) {

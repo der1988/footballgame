@@ -54,7 +54,7 @@ void systems_render(GameState *game_state) {
 
     // Collect information about sprites to draw
     SpriteToDraw *current_idx = ordered_sprites_to_draw;
-    for_each_entity(entity, game_state->entity_repository) {
+    for_each_entity (entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentSprite *sprite = &entity->sprite;
         if (entity->header.alive && transform->header.enabled && sprite->header.enabled) {

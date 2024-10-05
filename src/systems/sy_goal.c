@@ -17,7 +17,7 @@ void systems_goal(GameState *game_state) {
     ComponentBall *ball = &ball_entity->ball;
 
     // First let's check if it's a goal
-    for_each_entity(entity, game_state->entity_repository) {
+    for_each_entity (entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentSprite *sprite = &entity->sprite;
         ComponentGoal *goal = &entity->goal;

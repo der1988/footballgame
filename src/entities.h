@@ -213,7 +213,7 @@ struct Entity *entities_goal_net_create(GameState *game_state);
 
 // END - Goal net
 
-typedef enum {
+typedef enum EntityType {
     ET_CAMERA,
     ET_BALL,
     ET_PLAYER,

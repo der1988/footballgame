@@ -19,7 +19,7 @@ void apply_velocity(ComponentTransform *transform, ComponentPhysics *physics, De
 
 void systems_camera(GameState *game_state) {
 
-    for_each_entity(entity, game_state->entity_repository) {
+    for_each_entity (entity, game_state->entity_repository) {
         ComponentTransform *transform = &entity->transform;
         ComponentTarget *target = &entity->target;
         ComponentPhysics *physics = &entity->physics;
