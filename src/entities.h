@@ -12,16 +12,44 @@
 
 #define MAX_ENTITIES 100
 
-#define EntityTypeToBitMask(TYPE)       (1 << TYPE)
-#define EntityTypeAllBitMask            0xFFFFFFFFFFFFFFFF
+#define EntityTypeToBitMask(TYPE)	(1 << TYPE)
+#define EntityTypeAllBitMask		0xFFFFFFFFFFFFFFFF
 #define EntityTypeCheckMask(type, mask) (EntityTypeToBitMask(type) & mask)
 
 #define for_each_entity(item, entity_repo)                                                         \
     struct Entity *item = entity_repo->entities;                                                   \
     for (usize item##_id = 0; entity_id < entity_repo->max_slots; ++item##_id, item++)
 
+#define C_TRANSFORM  offsetof(struct Entity, transform)
+#define C_PHYSICS    offsetof(struct Entity, physics)
+#define C_SPRITE     offsetof(struct Entity, sprite)
+#define C_PLAYER     offsetof(struct Entity, player)
+#define C_GOALIE     offsetof(struct Entity, goalie)
+#define C_COLLIDER   offsetof(struct Entity, collider)
+#define C_CAMERA     offsetof(struct Entity, camera)
+#define C_PHYSICS_3D offsetof(struct Entity, physics_3d)
+#define C_ACTION     offsetof(struct Entity, action)
+#define C_TARGET     offsetof(struct Entity, target)
+#define C_BALL	     offsetof(struct Entity, ball)
+#define C_GOAL	     offsetof(struct Entity, goal)
+
+#define declare_entity_components(entity)                                                          \
+    struct ComponentTransform *transform = &entity->transform;                                     \
+    struct ComponentPhysics *physics = &entity->physics;                                           \
+    struct ComponentPhysics3d *physics_3d = &entity->physics_3d;                                   \
+    struct ComponentSprite *sprite = &entity->sprite;                                              \
+    struct ComponentPlayer *player = &entity->player;                                              \
+    struct ComponentGoalie *goalie = &entity->goalie;                                              \
+    struct ComponentCamera *camera = &entity->camera;                                              \
+    struct ComponentAction *action = &entity->action;                                              \
+    struct ComponentTarget *target = &entity->target;                                              \
+    struct ComponentBall *ball = &entity->ball;                                                    \
+    struct ComponentGoal *goal = &entity->goal;                                                    \
+    struct ComponentCollider *collider = &entity->collider
+
 // Shared State Data
-struct StateMachineRunningActionState {
+struct StateMachineRunningActionState
+{
     RunningActionIdx running_action_idx;
 };
 
@@ -30,7 +58,7 @@ struct Entity;
 // START - Common
 
 AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
-                                                         struct GameState *game_state);
+							 struct GameState *game_state);
 enum Direction entities_common_calculate_direction(Vector2 direction);
 
 // END
@@ -43,11 +71,13 @@ struct Entity *entities_camera_create(struct GameState *game_state);
 
 // START - Ball
 
-struct BallConfig {
+struct BallConfig
+{
     v2 position;
 };
 
-enum StateMachineBallState {
+enum StateMachineBallState
+{
     BS_NONE,
     BS_IN_PLAY,
     BS_OUT_OF_PLAY,
@@ -55,12 +85,13 @@ enum StateMachineBallState {
     BS_COUNT
 };
 
-static char const *StateMachineBallStateString[] = {
-    "none", "in_play", "out_of_play", "gk_hands", "count"};
+static char const *StateMachineBallStateString[] = {"none", "in_play", "out_of_play", "gk_hands",
+						    "count"};
 
 DeclareStateMachineEnterAndExit(ball);
 
-union StateMachineBallStateData {
+union StateMachineBallStateData
+{
     struct StateMachineDefaultEmptyData in_play;
     struct StateMachineDefaultEmptyData out_of_play;
     struct StateMachineDefaultEmptyData gk_hands;
@@ -71,23 +102,23 @@ DefineStateMachineFunctions(Ball, ball);
 
 struct Entity *entities_ball_create(struct BallConfig config, struct GameState *game_state);
 void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
-                                             struct GameState *game_state);
+					     struct GameState *game_state);
 void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
-                                     v2 player_velocity, v2 position_to_seek, f32 control_quality,
-                                     struct GameState *game_state);
+				     v2 player_velocity, v2 position_to_seek, f32 control_quality,
+				     struct GameState *game_state);
 void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
-                                   v2 control_direction, v2 player_velocity, f32 control_quality,
-                                   struct GameState *game_state);
+				   v2 control_direction, v2 player_velocity, f32 control_quality,
+				   struct GameState *game_state);
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
-                         f32 power, struct GameState *game_state);
+			 f32 power, struct GameState *game_state);
 void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
-                              f32 power, b32 auto_pass, struct GameState *game_state);
+			      f32 power, b32 auto_pass, struct GameState *game_state);
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
-                             f32 power, struct GameState *game_state);
+			     f32 power, struct GameState *game_state);
 void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
-                                  struct GameState *game_state);
+				  struct GameState *game_state);
 void entities_ball_saved_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
-                                   struct GameState *game_state);
+				   struct GameState *game_state);
 void entities_ball_back_in_play(EntityId ball_entity_id, struct GameState *game_state);
 void entities_ball_in_goal(EntityId ball_entity_id, struct GameState *game_state);
 
@@ -95,14 +126,16 @@ void entities_ball_in_goal(EntityId ball_entity_id, struct GameState *game_state
 
 // START - Player
 
-typedef struct PlayerConfig {
+typedef struct PlayerConfig
+{
     v2 position;
     b32 is_goalie;
     PitchSide side;
     u8 team_formation_position_idx;
 } PlayerConfig;
 
-typedef enum StateMachinePlayerState {
+typedef enum StateMachinePlayerState
+{
     PS_NONE,
     PS_NORMAL,
     PS_GOALIE,
@@ -113,11 +146,13 @@ static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie"
 
 DeclareStateMachineEnterAndExit(player);
 
-struct StateMachinePlayerNormalData {
+struct StateMachinePlayerNormalData
+{
     enum Direction running_action_direction;
 };
 
-union StateMachinePlayerStateData {
+union StateMachinePlayerStateData
+{
     struct StateMachinePlayerNormalData normal;
     struct StateMachineDefaultEmptyData goalie;
 };
@@ -125,7 +160,8 @@ union StateMachinePlayerStateData {
 DefineStateMachine(Player);
 DefineStateMachineFunctions(Player, player);
 
-typedef enum StateMachineGoalieState {
+typedef enum StateMachineGoalieState
+{
     GS_NONE,
     GS_PROTECT_GOAL,
     GS_DIVE,
@@ -137,11 +173,13 @@ static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "d
 
 DeclareStateMachineEnterAndExit(goalie);
 
-typedef struct StateMachineGoalieHoldBallData {
+typedef struct StateMachineGoalieHoldBallData
+{
     Time hold_start_time;
 } StateMachineGoalieHoldBallData;
 
-typedef struct StateMachineGoalieDiveData {
+typedef struct StateMachineGoalieDiveData
+{
     f64 animation_start_time;
     f64 animation_first_phase_end_time;
     f64 animation_end_time;
@@ -152,13 +190,15 @@ typedef struct StateMachineGoalieDiveData {
     b32 ball_held;
 } StateMachineGoalieDiveData;
 
-typedef union StateMachineGoalieStateData {
+typedef union StateMachineGoalieStateData
+{
     struct StateMachineDefaultEmptyData protect_goal;
     struct StateMachineGoalieDiveData dive;
     struct StateMachineGoalieHoldBallData hold_ball;
 } StateMachineGoalieStateData;
 
-typedef enum PlayerColliderType {
+typedef enum PlayerColliderType
+{
     PCT_PLAYER,
     PCT_GOALIE,
     PCT_DIVE,
@@ -175,7 +215,7 @@ DefineStateMachineFunctions(Goalie, goalie);
     struct ComponentPlayer *player = &entity->player;                                              \
     struct ComponentCollider *collider = &entity->collider;                                        \
     if (entity->header.alive && transform->header.enabled && physics->header.enabled &&            \
-        sprite->header.enabled && player->header.enabled && collider->header.enabled)
+	sprite->header.enabled && player->header.enabled && collider->header.enabled)
 
 #define check_is_goalie_and_declare_components(entity)                                             \
     struct ComponentTransform *transform = &entity->transform;                                     \
@@ -185,21 +225,22 @@ DefineStateMachineFunctions(Goalie, goalie);
     struct ComponentGoalie *goalie = &entity->goalie;                                              \
     struct ComponentCollider *collider = &entity->collider;                                        \
     if (entity->header.alive && transform->header.enabled && physics->header.enabled &&            \
-        sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
-        collider->header.enabled)
+	sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
+	collider->header.enabled)
 
 struct Entity *entities_player_create(PlayerConfig config, struct GameState *game_state);
 void entities_player_apply_force(EntityId player_entity_id, Vector2 steering,
-                                 struct GameState *game_state);
+				 struct GameState *game_state);
 void entities_player_apply_velocity(EntityId player_entity_id, struct GameState *game_state);
 void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
-                                             f32 velocity_threshold, struct GameState *game_state);
+					     f32 velocity_threshold, struct GameState *game_state);
 
 // END - Player
 
 // START - Goal
 
-typedef struct GoalConfig {
+typedef struct GoalConfig
+{
     PitchSide side;
 } GoalConfig;
 
@@ -213,7 +254,8 @@ struct Entity *entities_goal_net_create(struct GameState *game_state);
 
 // END - Goal net
 
-typedef enum EntityType {
+typedef enum EntityType
+{
     ET_CAMERA,
     ET_BALL,
     ET_PLAYER,
@@ -223,14 +265,16 @@ typedef enum EntityType {
 } EntityType;
 static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "goal", "goal_net"};
 
-typedef struct EntityHeader {
+typedef struct EntityHeader
+{
     b32 alive;
     EntityId id;
     char name[MaxStringSize];
     EntityType type;
 } EntityHeader;
 
-struct Entity {
+struct Entity
+{
     EntityHeader header;
     struct ComponentCamera camera;
     struct ComponentTransform transform;
@@ -246,7 +290,8 @@ struct Entity {
     struct ComponentGoalie goalie;
 };
 
-typedef struct EntityRepository {
+typedef struct EntityRepository
+{
     b32 initialised;
     MemoryArenaHandle *arena_handle;
     struct Entity *entities;
@@ -261,6 +306,6 @@ void entities_repository_destroy(EntityRepository *handle);
 struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *name_format);
 void entities_entity_destroy(EntityRepository *handle, EntityId id);
 struct Entity *entities_entity_get(EntityRepository *handle, EntityId id);
-void entities_entity_update(struct Entity *, struct GameState *game_state, struct Input *input);
+bool entities_is_entity_alive_and_has_components(struct Entity *entity, u32 count, ...);
 
 #endif
