@@ -1,13 +1,14 @@
 #include "components.h"
 #include "entities.h"
 #include "game.h"
-#include "utils.h"
+#include "log.h"
 #include <raylib.h>
 #include <raymath.h>
 
-struct Entity *entities_camera_create(struct GameState *game_state) {
+struct Entity *entities_camera_create(struct GameState *game_state)
+{
     struct Entity *entity =
-        entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
+	entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
 
     // Initialise transform
     struct ComponentTransform *transform = &entity->transform;

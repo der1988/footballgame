@@ -9,6 +9,7 @@
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
+#include "math_ext.h"
 
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 {

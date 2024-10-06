@@ -4,7 +4,7 @@
 #include "game.h"
 #include "render.h"
 #include "types.h"
-#include "utils.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -12,9 +12,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_net_create(struct GameState *game_state) {
+struct Entity *entities_goal_net_create(struct GameState *game_state)
+{
     struct Entity *entity =
-        entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");
+	entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");
 
     // Initialise transform
     struct ComponentTransform *transform = &entity->transform;
@@ -29,7 +30,7 @@ struct Entity *entities_goal_net_create(struct GameState *game_state) {
     sprite->header.enabled = true;
     char *posts_frame_name = "net_0";
     struct AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
     assert(sprite_frame != NULL);
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;

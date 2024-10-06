@@ -3,6 +3,8 @@
 #include "football.h"
 #include "game.h"
 #include "utils.h"
+#include "log.h"
+#include "math_ext.h"
 #include <raylib.h>
 #include <raymath.h>
 

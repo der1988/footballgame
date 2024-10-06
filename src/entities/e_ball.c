@@ -6,7 +6,8 @@
 #include "render.h"
 #include "state_machine.h"
 #include "types.h"
-#include "utils.h"
+#include "math_ext.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>

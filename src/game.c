@@ -10,10 +10,11 @@
 #include "systems.h"
 #include "tweakui.h"
 #include "types.h"
-#include "utils.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
+#include "constants.h"
 
 struct GameState *game_init(struct GameConfig game_config)
 {

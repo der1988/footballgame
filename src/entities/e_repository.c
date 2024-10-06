@@ -1,7 +1,7 @@
 #include "entities.h"
 #include "memory.h"
 #include "types.h"
-#include "utils.h"
+#include "log.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>

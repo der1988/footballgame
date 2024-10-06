@@ -8,8 +8,6 @@
 #include <raylib.h>
 #include "layers.h"
 
-#define PIXELS_PER_METER (1080.0f / 108.0f)
-
 // Forward declarations
 struct EntityRepository;
 struct AssetsTextureCache;

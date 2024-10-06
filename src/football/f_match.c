@@ -2,7 +2,8 @@
 #include "entities.h"
 #include "football.h"
 #include "game.h"
-#include "utils.h"
+#include "math_ext.h"
+#include "log.h"
 #include <raylib.h>
 #include <raymath.h>
 

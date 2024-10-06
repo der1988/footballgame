@@ -1,42 +1,80 @@
 #include "assets.h"
 #include "components.h"
 #include "game.h"
-#include "utils.h"
+#include "math_ext.h"
 #include <assert.h>
 #include <raylib.h>
+#include <raymath.h>
+#include "constants.h"
+#include "entities.h"
 #include <stdio.h>
 
 AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
-                                                         struct GameState *game_state) {
+							 struct GameState *game_state)
+{
     // Scratch buffer
     char *final_animation =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], MaxStringSize);
+	memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], MaxStringSize);
 
     snprintf(final_animation, MaxStringSize, "%s_%s", entity_name, animation_name);
     struct AssetsAnimation *animation =
-        assets_animation_get_by_name(game_state->animation_cache, final_animation);
+	assets_animation_get_by_name(game_state->animation_cache, final_animation);
     assert(animation);
 
     return animation->id;
 }
 
-enum Direction entities_common_calculate_direction(Vector2 direction) {
-    static Vector2 direction_vectors[] = {{.x = 0, .y = -1},
-                                          {.x = 0, .y = 1},
-                                          {.x = -1, .y = 0},
-                                          {.x = 1, .y = 0},
-                                          {.x = -1, .y = -1},
-                                          {.x = 1, .y = -1},
-                                          {.x = -1, .y = 1},
-                                          {.x = 1, .y = 1}};
+enum Direction entities_common_calculate_direction(Vector2 direction)
+{
+    static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},	 {.x = -1, .y = 0},
+					  {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
+					  {.x = -1, .y = 1}, {.x = 1, .y = 1}};
     f32 max_value = 0;
     enum Direction selected_direction = D_DOWN;
-    for (u16 i = 0; i < 8; ++i) {
-        f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
-        if (tmp_value > max_value) {
-            max_value = tmp_value;
-            selected_direction = i;
-        }
+    for (u16 i = 0; i < 8; ++i)
+    {
+	f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
+	if (tmp_value > max_value)
+	{
+	    max_value = tmp_value;
+	    selected_direction = i;
+	}
     }
     return selected_direction;
+}
+
+bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach, f32 time,
+						f32 max_speed)
+{
+    f32 distance_to_cover = Vector2Distance(position_to_reach, current_position);
+
+    return (distance_to_cover < (max_speed * time));
+}
+
+bool entities_common_can_reach_future_ball_position(
+    struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
+    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
+    v3 *future_pos, f32 *future_time, struct GameState *game_state)
+{
+    const int steps_per_lookahead =
+	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
+	game_state->constants.ball_lookahead_dts;
+    const int lookaheads = game_state->constants.ball_lookaheads;
+    for (u16 i = 0; i < lookaheads; ++i)
+    {
+	v3 pos_to_check = future_ball_positions[i];
+	if (predicate(pos_to_check, seeker_entity, game_state))
+	{
+	    f32 lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
+	    if (entities_common_can_reach_position_in_time(seeker_entity->transform.position,
+							   V3_TO_V2(pos_to_check), lookahead_time,
+							   seeker_max_speed))
+	    {
+		*future_pos = pos_to_check;
+		*future_time = lookahead_time;
+		return true;
+	    }
+	}
+    }
+    return false;
 }

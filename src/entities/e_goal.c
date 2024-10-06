@@ -5,7 +5,7 @@
 #include "game.h"
 #include "render.h"
 #include "types.h"
-#include "utils.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -13,9 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_state) {
+struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_state)
+{
     struct Entity *entity =
-        entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
+	entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
     // Initialise transform
     struct ComponentTransform *transform = &entity->transform;
@@ -23,13 +24,16 @@ struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_st
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
-    if (config.side == PSI_NORTH) {
-        transform->position =
-            (Vector2){game_state->vars.pitch.field.x + game_state->vars.pitch.field.width / 2.0f,
-                      game_state->vars.pitch.field.y};
-    } else {
-        // Not implemented
-        assert(false);
+    if (config.side == PSI_NORTH)
+    {
+	transform->position =
+	    (Vector2){game_state->vars.pitch.field.x + game_state->vars.pitch.field.width / 2.0f,
+		      game_state->vars.pitch.field.y};
+    }
+    else
+    {
+	// Not implemented
+	assert(false);
     }
 
     // Create goal net
@@ -43,7 +47,7 @@ struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_st
     sprite->header.enabled = true;
     char *posts_frame_name = "posts_0";
     struct AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, posts_frame_name);
     assert(sprite_frame != NULL);
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;
@@ -61,13 +65,13 @@ struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_st
     struct ComponentCollider *collider = &entity->collider;
     collider->header.enabled = true;
     collider->colliders =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
+	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_RECTANGLE;
     collider->colliders[0].props.rectangle.size = (v2){.x = 79, .y = 27};
     collider->colliders[0].props.rectangle.offset =
-        (v2){.x = -collider->colliders[0].props.rectangle.size.x / 2.0f,
-             .y = -collider->colliders[0].props.rectangle.size.y};
+	(v2){.x = -collider->colliders[0].props.rectangle.size.x / 2.0f,
+	     .y = -collider->colliders[0].props.rectangle.size.y};
 
     // Initialise goal
     struct ComponentGoal *goal = &entity->goal;

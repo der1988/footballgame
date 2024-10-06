@@ -8,7 +8,9 @@
 #include "steering.h"
 #include "types.h"
 #include "utils.h"
+#include "log.h"
 #include <math.h>
+#include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
@@ -232,7 +234,7 @@ void systems_player(struct GameState *game_state, struct Input *input)
 		    {
 			// Let's move based on the tactics of the team
 			struct TeamFormationPosition *team_formation_position =
-			    football_get_team_formation_position(
+			    football_tactics_get_team_formation_position(
 				TF_433, player->team_formation_position_idx);
 			v2 target =
 			    pitch_pos_rel_to_abs(game_state->vars.pitch.field,

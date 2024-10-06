@@ -56,6 +56,14 @@ AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char
 							 struct GameState *game_state);
 enum Direction entities_common_calculate_direction(Vector2 direction);
 
+bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach, f32 time,
+						f32 max_speed);
+
+bool entities_common_can_reach_future_ball_position(
+    struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
+    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
+    v3 *future_pos, f32 *future_time, struct GameState *game_state);
+
 // END
 
 // START - Camera
@@ -229,6 +237,17 @@ void entities_player_apply_force(EntityId player_entity_id, Vector2 steering,
 void entities_player_apply_velocity(EntityId player_entity_id, struct GameState *game_state);
 void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
 					     f32 velocity_threshold, struct GameState *game_state);
+Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos,
+							     struct Collider *dive_collider);
+bool entities_player_is_diving_goalie_colliding_with_ball(struct Entity *goalie_entity,
+							  v3 ball_position, f32 ball_radius,
+							  f32 max_height);
+bool entities_player_is_standing_goalie_colliding_with_ball(struct Entity *goalie_entity,
+							    v3 ball_position, f32 ball_radius,
+							    f32 max_height);
+bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ball_entity,
+				 enum SaveDirection *dive_direction, enum SaveHeight *dive_height,
+				 f32 *dive_speed, f32 *dive_distance, struct GameState *game_state);
 
 // END - Player
 
