@@ -5,6 +5,7 @@
 #include "input.h"
 #include "simulation.h"
 #include "steering.h"
+#include "types.h"
 #include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
@@ -14,22 +15,72 @@
 #define LOOKAHEAD_MS			 150.0f
 #define SLOW_MOTION_LOOKAHEAD_MULTIPLIER 10
 
+static bool can_reach_position_in_time(v2 current_position, v2 position_to_reach, f32 time,
+				       f32 max_speed)
+{
+    f32 distance_to_cover = Vector2Distance(position_to_reach, current_position);
+
+    return (distance_to_cover < (max_speed * time));
+}
+
+static bool can_reach_future_ball_position(
+    struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
+    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
+    v3 *future_pos, f32 *future_time, struct GameState *game_state)
+{
+    const int steps_per_lookahead =
+	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
+	game_state->constants.ball_lookahead_dts;
+    const int lookaheads = game_state->constants.ball_lookaheads;
+    for (u16 i = 0; i < lookaheads; ++i)
+    {
+	v3 pos_to_check = future_ball_positions[i];
+	if (predicate(pos_to_check, seeker_entity, game_state))
+	{
+	    f32 lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
+	    if (can_reach_position_in_time(seeker_entity->transform.position,
+					   V3_TO_V2(pos_to_check), lookahead_time,
+					   seeker_max_speed))
+	    {
+		*future_pos = pos_to_check;
+		*future_time = lookahead_time;
+		return true;
+	    }
+	}
+    }
+    return false;
+}
+
+static Rectangle calculate_dive_collision_rectangle(v2 pos, struct Collider *dive_collider)
+{
+    return (Rectangle){.x = pos.x + dive_collider->props.rectangle.offset.x,
+		       .y = pos.y + dive_collider->props.rectangle.offset.y,
+		       .width = dive_collider->props.rectangle.size.x,
+		       .height = dive_collider->props.rectangle.size.y};
+}
+
 static bool is_position_inside_penalty_area(v2 pos, enum PitchSide side,
 					    struct GameState *game_state)
 {
     return (CheckCollisionPointRec(pos, game_state->vars.pitch.goal[side].area));
 }
 
-static bool can_reach_position_in_time(v2 current_position, v2 position_to_reach, f32 time,
-				       f32 max_speed)
+static bool is_diving_goalie_colliding_with_ball(struct Entity *goalie_entity, v3 ball_position,
+						 f32 ball_radius, f32 max_height)
 {
-    f32 distance_to_cover_to_bounce_pos = Vector2Distance(position_to_reach, current_position);
+    struct Collider *dive_collider = &goalie_entity->collider.colliders[PCT_DIVE];
 
-    return (distance_to_cover_to_bounce_pos < (max_speed * time));
+    b32 is_colliding_with_ball =
+	CheckCollisionCircleRec(
+	    V3_TO_V2(ball_position), ball_radius,
+	    calculate_dive_collision_rectangle(goalie_entity->transform.position, dive_collider)) &&
+	ball_position.y < max_height;
+
+    return is_colliding_with_ball;
 }
 
-static bool is_goalie_colliding_with_ball(struct Entity *goalie_entity, v3 ball_position,
-					  f32 ball_radius, f32 max_height)
+static bool is_standing_goalie_colliding_with_ball(struct Entity *goalie_entity, v3 ball_position,
+						   f32 ball_radius, f32 max_height)
 {
     struct Collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
     b32 is_colliding_with_ball =
@@ -57,7 +108,7 @@ static bool should_dive(struct Entity *goalie_entity, struct Entity *ball_entity
     for (u16 i = 0; i < lookaheads; ++i)
     {
 	v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
-	b32 is_colliding_with_ball = is_goalie_colliding_with_ball(
+	b32 is_colliding_with_ball = is_standing_goalie_colliding_with_ball(
 	    goalie_entity, pos_to_check, ball_entity->collider.colliders[0].props.circle.radius,
 	    game_state->constants.crossbar_height);
 	if (is_colliding_with_ball)
@@ -95,6 +146,17 @@ static bool should_dive(struct Entity *goalie_entity, struct Entity *ball_entity
     return should_dive;
 }
 
+bool protect_goal_predicate(v3 pos_to_check, struct Entity *seeker_entity,
+			    struct GameState *game_state)
+{
+    f32 ball_distance_from_goal = Vector3Distance(
+	pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[seeker_entity->player.side].center, 0));
+    return (is_position_inside_penalty_area(V3_TO_V2(pos_to_check), seeker_entity->player.side,
+					    game_state) &&
+	    ball_distance_from_goal < 125 &&
+	    pos_to_check.y < (game_state->constants.crossbar_height - 7));
+}
+
 void systems_goalie(struct GameState *game_state, struct Input *input)
 {
     struct Entity *ball_entity =
@@ -109,34 +171,24 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    continue;
 	}
 
+	declare_entity_component(entity, Player, player);
+	if (player->state_machine->current_state != PS_GOALIE)
+	    continue;
 	declare_entity_component(entity, Transform, transform);
 	declare_entity_component(entity, Physics, physics);
 	declare_entity_component(entity, Sprite, sprite);
-	declare_entity_component(entity, Player, player);
 	declare_entity_component(entity, Goalie, goalie);
 	declare_entity_component(entity, Collider, collider);
 
 	struct StateMachineGoalie *state_machine = goalie->state_machine;
 
-	v2 goal_center = game_state->vars.pitch.goal[player->side].center;
+	const v2 goal_center = game_state->vars.pitch.goal[player->side].center;
 
-	f32 goalie_distance_from_ball =
-	    Vector3Distance(V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-			    V2_TO_V3(transform->position, 0));
-
-	f32 ball_distance_from_goal =
-	    Vector3Distance(V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-			    V2_TO_V3(goal_center, 0));
-
-	f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
+	const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
 
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 	    game_state->constants.player_control_radius;
 	struct Collider *goalie_collider = &collider->colliders[PCT_GOALIE];
-	struct Collider *dive_collider = &collider->colliders[PCT_DIVE];
-
-	if (player->state_machine->current_state != PS_GOALIE)
-	    break;
 
 	switch (state_machine->current_state)
 	{
@@ -144,7 +196,7 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    break;
 	case GS_PROTECT_GOAL:
 	{
-	    if (is_goalie_colliding_with_ball(
+	    if (is_standing_goalie_colliding_with_ball(
 		    entity, V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 		    ball_collider->colliders[0].props.circle.radius,
 		    game_state->constants.crossbar_height))
@@ -162,17 +214,17 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    v2 steering;
 	    f32 force;
 
-	    f32 exit_max_speed = game_state->constants.player_run_max_velocity * 1.5f;
+	    const f32 exit_max_speed = game_state->constants.player_run_max_velocity * 1.5f;
 
 	    // Calculate whether goalie can reach the ball at its next bounce position
-	    b32 can_reach_ball_at_bounce_pos =
+	    const b32 should_seek_ball_at_bounce_pos =
 		can_reach_position_in_time(transform->position, ball->future_bounce_position,
 					   game_state->dt * ball->dts_to_future_bounce,
 					   exit_max_speed) &&
 		is_position_inside_penalty_area(ball->future_bounce_position, player->side,
 						game_state);
 
-	    if (can_reach_ball_at_bounce_pos)
+	    if (should_seek_ball_at_bounce_pos)
 	    {
 		// seek ball future bounce position
 		physics->max_velocity = exit_max_speed;
@@ -185,42 +237,19 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    }
 	    else
 	    {
-		// Calculate whether goalie can reach the ball using predicted
-		bool can_reach_ball = false;
-		const int steps_per_lookahead =
-		    (game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
-		    game_state->constants.ball_lookahead_dts;
-		const int lookaheads = game_state->constants.ball_lookaheads;
-		for (u16 i = 0; i < lookaheads; ++i)
-		{
-		    v3 pos_to_check = ball->lookahead_positions[i];
-		    f32 ball_distance_from_goal =
-			Vector3Distance(pos_to_check, V2_TO_V3(goal_center, 0));
-		    if (is_position_inside_penalty_area(V3_TO_V2(pos_to_check), player->side,
-							game_state) &&
-			ball_distance_from_goal < 125 &&
-			pos_to_check.y < (game_state->constants.crossbar_height - 7))
-		    {
-			f32 lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
-			f32 distance_to_cover =
-			    Vector2Distance(V3_TO_V2(pos_to_check), transform->position);
+		// Calculate whether goalie can reach the ball using predicted positions
+		v3 future_pos;
+		f32 future_time;
+		const bool can_reach_ball = can_reach_future_ball_position(
+		    entity, exit_max_speed, ball->lookahead_positions, protect_goal_predicate,
+		    &future_pos, &future_time, game_state);
 
-			if (distance_to_cover < (exit_max_speed * lookahead_time))
-			{
-			    destination = V3_TO_V2(pos_to_check);
-			    can_reach_ball = true;
-			    break;
-			}
-			// } else if (i == (lookaheads - 1)) {
-			//     destination = V3_TO_V2(pos_to_check);
-			// }
-		    }
-		}
 		if (can_reach_ball)
 		{
 		    physics->max_velocity = exit_max_speed;
 		    force = game_state->constants.player_movement_force * 1;
 
+		    destination = V3_TO_V2(future_pos);
 		    direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
 		    steering = steering_seek(transform->position, physics->velocity,
 					     physics->max_velocity, destination);
@@ -239,7 +268,7 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    }
 
 	    // Run force
-	    v2 force_to_apply = Vector2Scale(steering, force);
+	    const v2 force_to_apply = Vector2Scale(steering, force);
 
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
@@ -259,24 +288,25 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	}
 	case GS_HOLD_BALL:
 	{
-	    if (HAS_TIME_PASSED(game_state->time,
-				goalie->state_machine->state_data.hold_ball.hold_start_time, 1))
+	    if (!HAS_TIME_PASSED(game_state->time,
+				 goalie->state_machine->state_data.hold_ball.hold_start_time, 1))
 	    {
-		entities_ball_back_in_play(game_state->vars.ball_entity_id, game_state);
-		v2 new_ball_position = Vector2Add(
-		    transform->position,
-		    Vector2Scale((v2){.y = 1}, goalie_collider->props.circle.offset.y +
-						   goalie_collider->props.circle.radius +
-						   ball_collider->colliders[0].props.circle.radius +
-						   7));
-		entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-							V2_TO_V3(new_ball_position, 10),
-							Vector3Zero(), game_state);
-		entities_ball_long_pass(game_state->vars.ball_entity_id, entity_id, (v2){.y = 1},
-					0.7f, game_state);
-		entities_goalie_state_machine_change_state_to(goalie->state_machine,
-							      GS_PROTECT_GOAL, game_state);
+		break;
 	    }
+	    entities_ball_back_in_play(game_state->vars.ball_entity_id, game_state);
+	    const v2 new_ball_position =
+		Vector2Add(transform->position,
+			   Vector2Scale((v2){.y = 1},
+					goalie_collider->props.circle.offset.y +
+					    goalie_collider->props.circle.radius +
+					    ball_collider->colliders[0].props.circle.radius + 7));
+	    entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+						    V2_TO_V3(new_ball_position, 10), Vector3Zero(),
+						    game_state);
+	    entities_ball_long_pass(game_state->vars.ball_entity_id, entity_id, (v2){.y = 1}, 0.7f,
+				    game_state);
+	    entities_goalie_state_machine_change_state_to(goalie->state_machine, GS_PROTECT_GOAL,
+							  game_state);
 	    break;
 	}
 	case GS_DIVE:
@@ -294,7 +324,8 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),
 			  0, 1);
-		u16 new_frame_id = floorf(animation_completion * (animation->frames_count - 1));
+		const u16 new_frame_id =
+		    floorf(animation_completion * (animation->frames_count - 1));
 		if (animation_completion >= 1)
 		{
 		    animation_completion = 1;
@@ -322,7 +353,8 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),
 			  0, 1);
-		u16 new_frame_id = floorf(animation_completion * (animation->frames_count - 1));
+		const u16 new_frame_id =
+		    floorf(animation_completion * (animation->frames_count - 1));
 		if (animation_completion >= 1)
 		{
 		    animation_completion = 1;
@@ -347,16 +379,10 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
 
-	    Rectangle dive_rectangle =
-		(Rectangle){.x = transform->position.x + dive_collider->props.rectangle.offset.x,
-			    .y = transform->position.y + dive_collider->props.rectangle.offset.y,
-			    .width = dive_collider->props.rectangle.size.x,
-			    .height = dive_collider->props.rectangle.size.y};
-	    f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
-	    b32 is_colliding_with_ball =
-		CheckCollisionCircleRec(ball_transform->position, ball_radius, dive_rectangle) &&
-		ball_transform->virtual_height <
-		    (game_state->constants.crossbar_height - ball_radius);
+	    const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
+	    const b32 is_colliding_with_ball = is_diving_goalie_colliding_with_ball(
+		entity, V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+		ball_radius, game_state->constants.crossbar_height - ball_radius);
 
 	    if (!dive_state_data->ball_saved &&
 		HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&

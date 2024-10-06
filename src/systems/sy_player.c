@@ -13,8 +13,6 @@
 #include <raymath.h>
 #include <stdio.h>
 
-;
-
 struct PlayerOnTheBall
 {
     b32 exists;
