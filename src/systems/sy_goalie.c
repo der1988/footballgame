@@ -65,6 +65,11 @@ static bool is_position_inside_penalty_area(v2 pos, enum PitchSide side,
     return (CheckCollisionPointRec(pos, game_state->vars.pitch.goal[side].area));
 }
 
+static bool is_position_inside_pitch(v2 pos, struct GameState *game_state)
+{
+    return (CheckCollisionPointRec(pos, game_state->vars.pitch.field));
+}
+
 static bool is_diving_goalie_colliding_with_ball(struct Entity *goalie_entity, v3 ball_position,
 						 f32 ball_radius, f32 max_height)
 {
