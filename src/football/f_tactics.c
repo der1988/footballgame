@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-static TeamFormationPosition TeamFormations[TF_COUNT][10] = {
+static struct TeamFormationPosition TeamFormations[TF_COUNT][10] = {
     // TF_433
     {{.name = "LB",
       .style_of_play = SOP_BALANCED,
@@ -45,11 +45,13 @@ static TeamFormationPosition TeamFormations[TF_COUNT][10] = {
       .supported_roles = {PR_CF},
       .position = {{.x = 0, .y = 0.5f}, {.x = 0, .y = 0.7f}, {.x = 0, .y = 0.9f}}}}};
 
-TeamFormationPosition *football_get_team_formation(TeamFormation formation) {
+struct TeamFormationPosition *football_get_team_formation(enum TeamFormation formation)
+{
     return TeamFormations[formation];
 }
 
-TeamFormationPosition *football_get_team_formation_position(TeamFormation formation,
-                                                            u32 position_idx) {
+struct TeamFormationPosition *football_get_team_formation_position(enum TeamFormation formation,
+								   u32 position_idx)
+{
     return &TeamFormations[formation][position_idx];
 }

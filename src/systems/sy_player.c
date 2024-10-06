@@ -233,7 +233,7 @@ void systems_player(struct GameState *game_state, struct Input *input)
 		    else
 		    {
 			// Let's move based on the tactics of the team
-			TeamFormationPosition *team_formation_position =
+			struct TeamFormationPosition *team_formation_position =
 			    football_get_team_formation_position(
 				TF_433, player->team_formation_position_idx);
 			v2 target =

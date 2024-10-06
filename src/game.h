@@ -18,7 +18,8 @@ struct AssetsAnimationCache;
 struct TweakUI;
 struct Input;
 
-enum MemoryArenaLifetime {
+enum MemoryArenaLifetime
+{
     MAL_GAME,
     MAL_LEVEL,
     MAL_UPDATE,
@@ -26,12 +27,14 @@ enum MemoryArenaLifetime {
     MAL_COUNT
 };
 
-enum CameraType {
+enum CameraType
+{
     CAM_MAIN,
     CAM_COUNT
 };
 
-struct GameConfig {
+struct GameConfig
+{
     u32 virtual_screen_width;
     u32 virtual_screen_height;
     u32 screen_width;
@@ -40,7 +43,8 @@ struct GameConfig {
     u32 players_count;
 };
 
-struct GameConstants {
+struct GameConstants
+{
     f64 fixed_timestep;
     b32 render_debug;
     b32 ai_enabled;
@@ -86,31 +90,36 @@ struct GameConstants {
     u32 crossbar_height;
 };
 
-struct Controls {
+struct Controls
+{
     v2 steering;
-    struct ActionCharge {
-        enum ActionChargeType {
-            ACT_SHOOT,
-            ACT_PASS,
-            ACT_LONG_PASS
-        } type;
-        v2 direction;
-        Time started;
-        Time ended;
-        f32 power;
-        b32 charging;
-        b32 ready;
+    struct ActionCharge
+    {
+	enum ActionChargeType
+	{
+	    ACT_SHOOT,
+	    ACT_PASS,
+	    ACT_LONG_PASS
+	} type;
+	v2 direction;
+	Time started;
+	Time ended;
+	f32 power;
+	b32 charging;
+	b32 ready;
     } charge;
 };
 
-struct HumanPlayer {
+struct HumanPlayer
+{
     struct Controls controls;
     EntityId player_entity_id;
 };
 
-struct GameVariables {
-    Match match;
-    Pitch pitch;
+struct GameVariables
+{
+    struct Match match;
+    struct Pitch pitch;
     EntityId camera_entity_id;
     EntityId ball_entity_id;
     struct HumanPlayer p1;
@@ -118,7 +127,8 @@ struct GameVariables {
     b32 is_tweakui_shown;
 };
 
-struct GameState {
+struct GameState
+{
     b32 initialised;
     struct GameConfig config;
     struct GameConstants constants;

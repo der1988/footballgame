@@ -130,7 +130,7 @@ typedef struct PlayerConfig
 {
     v2 position;
     b32 is_goalie;
-    PitchSide side;
+    enum PitchSide side;
     u8 team_formation_position_idx;
 } PlayerConfig;
 
@@ -241,7 +241,7 @@ void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direc
 
 typedef struct GoalConfig
 {
-    PitchSide side;
+    enum PitchSide side;
 } GoalConfig;
 
 struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_state);
