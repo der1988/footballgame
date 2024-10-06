@@ -76,3 +76,4 @@ v improve codebase quality
 - implement goalie high catch/bounce
 - improve player selection system
 - implement pitch radar
+- move utility functions from goalie system
