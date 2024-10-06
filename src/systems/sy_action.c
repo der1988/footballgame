@@ -11,7 +11,8 @@ void systems_action(struct GameState *game_state)
 	    continue;
 	}
 
-	struct ComponentAction *action = &entity->action;
+	declare_entity_component(entity, Action, action);
+
 	for (usize j = 0; j < MaxConcurrentActions; ++j)
 	{
 	    struct ActionRunner *action_runner = &action->running_actions[j];

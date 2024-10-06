@@ -150,9 +150,7 @@ void systems_player(struct GameState *game_state, struct Input *input)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    struct ComponentBall *ball = &ball_entity->ball;
-    struct ComponentTransform *ball_transform = &ball_entity->transform;
-    struct ComponentCollider *ball_collider = &ball_entity->collider;
+    declare_ball_entity_components(ball_entity);
 
     struct PlayerOnTheBall player_on_the_ball = {0};
     player_on_the_ball.id = EID_NOT_VALID;
@@ -166,10 +164,11 @@ void systems_player(struct GameState *game_state, struct Input *input)
 	    continue;
 	}
 
-	struct ComponentTransform *transform = &entity->transform;
-	struct ComponentPhysics *physics = &entity->physics;
-	struct ComponentPlayer *player = &entity->player;
-	struct ComponentCollider *collider = &entity->collider;
+	declare_entity_component(entity, Transform, transform);
+	declare_entity_component(entity, Physics, physics);
+	declare_entity_component(entity, Player, player);
+	declare_entity_component(entity, Collider, collider);
+
 	struct StateMachinePlayer *state_machine = player->state_machine;
 
 	collider->colliders[PCT_PLAYER].props.circle.radius =

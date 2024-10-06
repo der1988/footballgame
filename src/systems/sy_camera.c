@@ -31,10 +31,10 @@ void systems_camera(struct GameState *game_state)
 	    continue;
 	}
 
-	struct ComponentTransform *transform = &entity->transform;
-	struct ComponentTarget *target = &entity->target;
-	struct ComponentPhysics *physics = &entity->physics;
-	struct ComponentCamera *props = &entity->camera;
+	declare_entity_component(entity, Transform, transform);
+	declare_entity_component(entity, Target, target);
+	declare_entity_component(entity, Physics, physics);
+	declare_entity_component(entity, Camera, camera);
 
 	struct Entity *target_entity =
 	    entities_entity_get(game_state->entity_repository, target->entity_id);
@@ -48,24 +48,24 @@ void systems_camera(struct GameState *game_state)
 	    {
 		if (target_physics->velocity.z < 0)
 		{
-		    props->offset.y -= 70 * game_state->dt;
+		    camera->offset.y -= 70 * game_state->dt;
 		}
 		else
 		{
-		    props->offset.y += 70 * game_state->dt;
+		    camera->offset.y += 70 * game_state->dt;
 		}
-		props->offset.y = Clamp(props->offset.y, -50, 50);
+		camera->offset.y = Clamp(camera->offset.y, -50, 50);
 	    }
 	    else
 	    {
-		props->offset.y *= 0.997f;
+		camera->offset.y *= 0.997f;
 	    }
 
 	    layers_debug_queue_draw_text(game_state->layer_debug,
-					 TextFormat("Camera offset y: %.2f", props->offset.y));
+					 TextFormat("Camera offset y: %.2f", camera->offset.y));
 	    steering = steering_arrive(
 		transform->position, physics->velocity, physics->max_velocity,
-		Vector2Add(target_transform->position, props->offset), props->slowing_distance);
+		Vector2Add(target_transform->position, camera->offset), camera->slowing_distance);
 	}
 	steering = Vector2Scale(steering, physics->max_velocity * physics->max_force);
 

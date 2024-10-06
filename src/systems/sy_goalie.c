@@ -99,10 +99,7 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    struct ComponentBall *ball = &ball_entity->ball;
-    struct ComponentTransform *ball_transform = &ball_entity->transform;
-    struct ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
-    struct ComponentCollider *ball_collider = &ball_entity->collider;
+    declare_ball_entity_components(ball_entity);
 
     for_each_entity(entity, game_state->entity_repository)
     {
@@ -112,12 +109,13 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    continue;
 	}
 
-	struct ComponentTransform *transform = &entity->transform;
-	struct ComponentPhysics *physics = &entity->physics;
-	struct ComponentSprite *sprite = &entity->sprite;
-	struct ComponentPlayer *player = &entity->player;
-	struct ComponentGoalie *goalie = &entity->goalie;
-	struct ComponentCollider *collider = &entity->collider;
+	declare_entity_component(entity, Transform, transform);
+	declare_entity_component(entity, Physics, physics);
+	declare_entity_component(entity, Sprite, sprite);
+	declare_entity_component(entity, Player, player);
+	declare_entity_component(entity, Goalie, goalie);
+	declare_entity_component(entity, Collider, collider);
+
 	struct StateMachineGoalie *state_machine = goalie->state_machine;
 
 	v2 goal_center = game_state->vars.pitch.goal[player->side].center;

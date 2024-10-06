@@ -19,9 +19,9 @@ void systems_render_debug(struct GameState *game_state)
 		continue;
 	    }
 
-	    struct ComponentTransform *transform = &entity->transform;
-	    struct ComponentSprite *sprite = &entity->sprite;
-	    struct ComponentCollider *collider = &entity->collider;
+	    declare_entity_component(entity, Transform, transform);
+	    declare_entity_component(entity, Sprite, sprite);
+	    declare_entity_component(entity, Collider, collider);
 
 	    Vector2 position = transform->position;
 	    f32 rotation = transform->rotation;

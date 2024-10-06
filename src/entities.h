@@ -33,21 +33,18 @@
 #define C_BALL	     offsetof(struct Entity, ball)
 #define C_GOAL	     offsetof(struct Entity, goal)
 
-#define declare_entity_components(entity)                                                          \
-    struct ComponentTransform *transform = &entity->transform;                                     \
-    struct ComponentPhysics *physics = &entity->physics;                                           \
-    struct ComponentPhysics3d *physics_3d = &entity->physics_3d;                                   \
-    struct ComponentSprite *sprite = &entity->sprite;                                              \
-    struct ComponentPlayer *player = &entity->player;                                              \
-    struct ComponentGoalie *goalie = &entity->goalie;                                              \
-    struct ComponentCamera *camera = &entity->camera;                                              \
-    struct ComponentAction *action = &entity->action;                                              \
-    struct ComponentTarget *target = &entity->target;                                              \
-    struct ComponentBall *ball = &entity->ball;                                                    \
-    struct ComponentGoal *goal = &entity->goal;                                                    \
-    struct ComponentCollider *collider = &entity->collider
+#define declare_entity_component_ext(entity, type, member, name)                                   \
+    struct Component##type *name = &entity->member
 
-// Shared State Data
+#define declare_entity_component(entity, type, member)                                             \
+    declare_entity_component_ext(entity, type, member, member)
+
+#define declare_ball_entity_components(entity)                                                     \
+    declare_entity_component_ext(entity, Transform, transform, ball_transform);                    \
+    declare_entity_component_ext(entity, Physics3d, physics_3d, ball_physics_3d);                  \
+    declare_entity_component_ext(entity, Collider, collider, ball_collider);                       \
+    declare_entity_component_ext(entity, Ball, ball, ball)
+
 struct StateMachineRunningActionState
 {
     RunningActionIdx running_action_idx;

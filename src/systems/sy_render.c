@@ -67,8 +67,8 @@ void systems_render(struct GameState *game_state)
 	    continue;
 	}
 
-	struct ComponentTransform *transform = &entity->transform;
-	struct ComponentSprite *sprite = &entity->sprite;
+	declare_entity_component(entity, Transform, transform);
+	declare_entity_component(entity, Sprite, sprite);
 
 	struct AssetsSpriteFrame *sprite_frame =
 	    assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);

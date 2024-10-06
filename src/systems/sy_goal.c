@@ -10,10 +10,8 @@ void systems_goal(struct GameState *game_state)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    struct ComponentTransform *ball_transform = &ball_entity->transform;
-    struct ComponentPhysics3d *ball_physics_3d = &ball_entity->physics_3d;
-    struct ComponentCollider *ball_collider = &ball_entity->collider;
-    struct ComponentBall *ball = &ball_entity->ball;
+
+    declare_ball_entity_components(ball_entity);
 
     // First let's check if it's a goal
     for_each_entity(entity, game_state->entity_repository)
@@ -24,10 +22,9 @@ void systems_goal(struct GameState *game_state)
 	    continue;
 	}
 
-	struct ComponentTransform *transform = &entity->transform;
-	struct ComponentSprite *sprite = &entity->sprite;
-	struct ComponentGoal *goal = &entity->goal;
-	struct ComponentCollider *collider = &entity->collider;
+	declare_entity_component(entity, Transform, transform);
+	declare_entity_component(entity, Goal, goal);
+	declare_entity_component(entity, Collider, collider);
 
 	Rectangle goal_rectangle = {
 	    .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,

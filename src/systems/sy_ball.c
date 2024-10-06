@@ -31,11 +31,11 @@ void systems_ball(struct GameState *game_state, struct Input *input)
 	    continue;
 	}
 
-	struct ComponentTransform *transform = &entity->transform;
-	struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
-	struct ComponentSprite *sprite = &entity->sprite;
-	struct ComponentBall *ball = &entity->ball;
-	struct ComponentCollider *collider = &entity->collider;
+	declare_entity_component(entity, Transform, transform);
+	declare_entity_component(entity, Physics3d, physics_3d);
+	declare_entity_component(entity, Sprite, sprite);
+	declare_entity_component(entity, Ball, ball);
+	declare_entity_component(entity, Collider, collider);
 
 	struct StateMachineBall *state_machine = ball->state_machine;
 
