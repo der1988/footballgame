@@ -151,6 +151,7 @@ void systems_player(struct GameState *game_state, struct Input *input)
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     declare_ball_entity_components(ball_entity);
+    UNUSED(ball_physics_3d);
 
     struct PlayerOnTheBall player_on_the_ball = {0};
     player_on_the_ball.id = EID_NOT_VALID;

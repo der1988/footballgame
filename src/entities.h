@@ -12,26 +12,24 @@
 
 #define MAX_ENTITIES 100
 
-#define EntityTypeToBitMask(TYPE)	(1 << TYPE)
-#define EntityTypeAllBitMask		0xFFFFFFFFFFFFFFFF
-#define EntityTypeCheckMask(type, mask) (EntityTypeToBitMask(type) & mask)
+#define ENTITY_TYPE_TO_BIT_MASK(TYPE) (1 << TYPE)
+#define ENTITY_TYPE_ALL_BIT_MASK      0xFFFFFFFFFFFFFFFF
+#define C_TRANSFORM		      offsetof(struct Entity, transform)
+#define C_PHYSICS		      offsetof(struct Entity, physics)
+#define C_SPRITE		      offsetof(struct Entity, sprite)
+#define C_PLAYER		      offsetof(struct Entity, player)
+#define C_GOALIE		      offsetof(struct Entity, goalie)
+#define C_COLLIDER		      offsetof(struct Entity, collider)
+#define C_CAMERA		      offsetof(struct Entity, camera)
+#define C_PHYSICS_3D		      offsetof(struct Entity, physics_3d)
+#define C_ACTION		      offsetof(struct Entity, action)
+#define C_TARGET		      offsetof(struct Entity, target)
+#define C_BALL			      offsetof(struct Entity, ball)
+#define C_GOAL			      offsetof(struct Entity, goal)
 
 #define for_each_entity(item, entity_repo)                                                         \
     struct Entity *item = entity_repo->entities;                                                   \
     for (usize item##_id = 0; entity_id < entity_repo->max_slots; ++item##_id, item++)
-
-#define C_TRANSFORM  offsetof(struct Entity, transform)
-#define C_PHYSICS    offsetof(struct Entity, physics)
-#define C_SPRITE     offsetof(struct Entity, sprite)
-#define C_PLAYER     offsetof(struct Entity, player)
-#define C_GOALIE     offsetof(struct Entity, goalie)
-#define C_COLLIDER   offsetof(struct Entity, collider)
-#define C_CAMERA     offsetof(struct Entity, camera)
-#define C_PHYSICS_3D offsetof(struct Entity, physics_3d)
-#define C_ACTION     offsetof(struct Entity, action)
-#define C_TARGET     offsetof(struct Entity, target)
-#define C_BALL	     offsetof(struct Entity, ball)
-#define C_GOAL	     offsetof(struct Entity, goal)
 
 #define declare_entity_component_ext(entity, type, member, name)                                   \
     struct Component##type *name = &entity->member
@@ -85,7 +83,7 @@ enum StateMachineBallState
 static char const *StateMachineBallStateString[] = {"none", "in_play", "out_of_play", "gk_hands",
 						    "count"};
 
-DeclareStateMachineEnterAndExit(ball);
+declare_state_machine_enter_and_exit(ball);
 
 union StateMachineBallStateData
 {
@@ -94,8 +92,8 @@ union StateMachineBallStateData
     struct StateMachineDefaultEmptyData gk_hands;
 };
 
-DefineStateMachine(Ball);
-DefineStateMachineFunctions(Ball, ball);
+define_state_machine(Ball);
+define_state_machine_functions(Ball, ball);
 
 struct Entity *entities_ball_create(struct BallConfig config, struct GameState *game_state);
 void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
@@ -141,7 +139,7 @@ typedef enum StateMachinePlayerState
 
 static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie"};
 
-DeclareStateMachineEnterAndExit(player);
+declare_state_machine_enter_and_exit(player);
 
 struct StateMachinePlayerNormalData
 {
@@ -154,8 +152,8 @@ union StateMachinePlayerStateData
     struct StateMachineDefaultEmptyData goalie;
 };
 
-DefineStateMachine(Player);
-DefineStateMachineFunctions(Player, player);
+define_state_machine(Player);
+define_state_machine_functions(Player, player);
 
 typedef enum StateMachineGoalieState
 {
@@ -168,7 +166,7 @@ typedef enum StateMachineGoalieState
 
 static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "dive", "hold_ball"};
 
-DeclareStateMachineEnterAndExit(goalie);
+declare_state_machine_enter_and_exit(goalie);
 
 typedef struct StateMachineGoalieHoldBallData
 {
@@ -202,8 +200,8 @@ typedef enum PlayerColliderType
     PCT_COUNT
 } PlayerColliderType;
 
-DefineStateMachine(Goalie);
-DefineStateMachineFunctions(Goalie, goalie);
+define_state_machine(Goalie);
+define_state_machine_functions(Goalie, goalie);
 
 #define check_is_player_and_declare_components(entity)                                             \
     struct ComponentTransform *transform = &entity->transform;                                     \

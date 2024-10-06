@@ -4,18 +4,20 @@
 #include "../types.h"
 #include <raylib.h>
 
+#define UNUSED(x) (void)(x)
+
 #define MAX(a, b)                                                                                  \
     ({                                                                                             \
-        __typeof__(a) _a = (a);                                                                    \
-        __typeof__(b) _b = (b);                                                                    \
-        _a > _b ? _a : _b;                                                                         \
+	__typeof__(a) _a = (a);                                                                    \
+	__typeof__(b) _b = (b);                                                                    \
+	_a > _b ? _a : _b;                                                                         \
     })
 
 #define MIN(a, b)                                                                                  \
     ({                                                                                             \
-        __typeof__(a) _a = (a);                                                                    \
-        __typeof__(b) _b = (b);                                                                    \
-        _a < _b ? _a : _b;                                                                         \
+	__typeof__(a) _a = (a);                                                                    \
+	__typeof__(b) _b = (b);                                                                    \
+	_a < _b ? _a : _b;                                                                         \
     })
 
 #define ARRAY_LEN(A) sizeof(A) / sizeof(A[0])
@@ -36,29 +38,33 @@
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
-inline __attribute__((always_inline)) Vector2 Vector2Left() {
+inline __attribute__((always_inline)) Vector2 Vector2Left()
+{
     Vector2 v = {.x = -1, .y = 0};
     return v;
 }
 
-inline __attribute__((always_inline)) Vector2 Vector2Right() {
+inline __attribute__((always_inline)) Vector2 Vector2Right()
+{
     Vector2 v = {.x = 1, .y = 0};
     return v;
 }
 
-inline __attribute__((always_inline)) Vector2 Vector2Up() {
+inline __attribute__((always_inline)) Vector2 Vector2Up()
+{
     Vector2 v = {.x = 0, .y = -1};
     return v;
 }
 
-inline __attribute__((always_inline)) Vector2 Vector2Down() {
+inline __attribute__((always_inline)) Vector2 Vector2Down()
+{
     Vector2 v = {.x = 0, .y = 1};
     return v;
 }
 
 #define GLOG(TYPE, SYSTEM, TEXT) utils_log(__FILE__, __LINE__, TYPE, SYSTEM, NULL, TEXT)
-#define GLOG_INFO(SYSTEM, TEXT)  utils_log(__FILE__, __LINE__, LT_INFO, SYSTEM, NULL, TEXT)
-#define GLOG_WARN(SYSTEM, TEXT)  utils_log(__FILE__, __LINE__, LT_WARN, SYSTEM, NULL, TEXT)
+#define GLOG_INFO(SYSTEM, TEXT)	 utils_log(__FILE__, __LINE__, LT_INFO, SYSTEM, NULL, TEXT)
+#define GLOG_WARN(SYSTEM, TEXT)	 utils_log(__FILE__, __LINE__, LT_WARN, SYSTEM, NULL, TEXT)
 #define GLOG_ERROR(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_ERROR, SYSTEM, NULL, TEXT)
 #define GLOG_DEBUG(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_DEBUG, SYSTEM, NULL, TEXT)
 #define GLOG_TRACE(SYSTEM, TEXT) utils_log(__FILE__, __LINE__, LT_TRACE, SYSTEM, NULL, TEXT)
@@ -95,7 +101,8 @@ inline __attribute__((always_inline)) Vector2 Vector2Down() {
 #define GLOGF_TRACE_CTX(SYSTEM, CTX, FORMAT, ...)                                                  \
     utils_log(__FILE__, __LINE__, LT_TRACE, SYSTEM, CTX, FORMAT, __VA_ARGS__)
 
-enum ULogType {
+enum ULogType
+{
     LT_ERROR,
     LT_WARN,
     LT_INFO,
@@ -104,7 +111,8 @@ enum ULogType {
     LT_COUNT,
 };
 
-enum ULogSystem {
+enum ULogSystem
+{
     LS_GAME,
     LS_INPUT,
     LS_SOUND,
@@ -120,21 +128,12 @@ enum ULogSystem {
 };
 
 static char *utils_log_systems_desc[11] = {
-    "GAME",
-    "INPUT",
-    "SOUND",
-    "ASSETS",
-    "ENTITIES",
-    "MEMORY",
-    "UTILS",
-    "TESTS",
-    "TWEAKUI",
-    "LAYERS",
-    "OTHER",
+    "GAME",  "INPUT", "SOUND",	 "ASSETS", "ENTITIES", "MEMORY",
+    "UTILS", "TESTS", "TWEAKUI", "LAYERS", "OTHER",
 };
 
 void utils_log(char *file, u16 line, enum ULogType type, enum ULogSystem system, const char *ctx,
-               const char *format, ...);
+	       const char *format, ...);
 
 usize utils_memory_align(usize to_align, u16 alignment);
 

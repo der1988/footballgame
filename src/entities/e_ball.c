@@ -4,6 +4,7 @@
 #include "game.h"
 #include "memory.h"
 #include "render.h"
+#include "state_machine.h"
 #include "types.h"
 #include "utils.h"
 #include <assert.h>
@@ -13,13 +14,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-ImplementStateMachineFunctions(Ball, ball);
+implement_state_machine_functions(Ball, ball);
 
 static void ball_prepare_gfx(struct ComponentBall *ball, struct GameState *game_state);
 
-struct Entity *entities_ball_create(struct BallConfig config, struct GameState *game_state) {
+struct Entity *entities_ball_create(struct BallConfig config, struct GameState *game_state)
+{
     struct Entity *entity =
-        entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
+	entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");
 
     // Initialise transform
     struct ComponentTransform *transform = &entity->transform;
@@ -41,7 +43,7 @@ struct Entity *entities_ball_create(struct BallConfig config, struct GameState *
     struct ComponentSprite *sprite = &entity->sprite;
     char *ball_frame_name = "ball_left_0";
     struct AssetsSpriteFrame *sprite_frame =
-        assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball_frame_name);
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball_frame_name);
     assert(sprite_frame != NULL);
     sprite->header.enabled = true;
     sprite->frame_id = sprite_frame->id;
@@ -60,7 +62,7 @@ struct Entity *entities_ball_create(struct BallConfig config, struct GameState *
     struct ComponentCollider *collider = &entity->collider;
     collider->header.enabled = true;
     collider->colliders =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
+	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_CIRCLE;
     collider->colliders[0].props.circle.radius = 2.5f;
@@ -72,7 +74,7 @@ struct Entity *entities_ball_create(struct BallConfig config, struct GameState *
     struct ComponentBall *ball = &entity->ball;
     ball->header.enabled = true;
     struct StateMachineBall *state_machine =
-        memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
+	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
     state_machine->owner_entity = entity->header.id;
     state_machine->previous_state = BS_NONE;
     state_machine->current_state = BS_IN_PLAY;
@@ -87,85 +89,93 @@ struct Entity *entities_ball_create(struct BallConfig config, struct GameState *
     return entity;
 }
 
-void entities_ball_state_machine_on_enter(struct Entity *entity, struct GameState *game_state) {
+void entities_ball_state_machine_on_enter(struct Entity *entity, struct GameState *game_state)
+{
     struct ComponentBall *ball = &entity->ball;
     struct StateMachineBall *state_machine = ball->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES,
-                   entity->header.name,
-                   "entering state: %s",
-                   StateMachineBallStateString[state_machine->current_state]);
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
+		   StateMachineBallStateString[state_machine->current_state]);
 
     // Reset state data
     memset(&state_machine->state_data, 0, sizeof(union StateMachineBallStateData));
 
-    switch (state_machine->current_state) {
+    switch (state_machine->current_state)
+    {
     case BS_NONE:
-        break;
-    case BS_IN_PLAY: {
-        break;
+	break;
+    case BS_IN_PLAY:
+    {
+	break;
     }
-    case BS_OUT_OF_PLAY: {
-        break;
+    case BS_OUT_OF_PLAY:
+    {
+	break;
     }
-    case BS_GK_HANDS: {
-        struct ComponentSprite *sprite = &entity->sprite;
-        sprite->header.enabled = false;
+    case BS_GK_HANDS:
+    {
+	struct ComponentSprite *sprite = &entity->sprite;
+	sprite->header.enabled = false;
     }
     case BS_COUNT:
-        break;
+	break;
     }
 }
 
-void entities_ball_state_machine_on_exit(struct Entity *entity, struct GameState *game_state) {
+void entities_ball_state_machine_on_exit(struct Entity *entity, struct GameState *game_state)
+{
     struct ComponentSprite *sprite = &entity->sprite;
     struct ComponentBall *ball = &entity->ball;
     struct StateMachineBall *state_machine = ball->state_machine;
 
-    GLOGF_INFO_CTX(LS_ENTITIES,
-                   entity->header.name,
-                   "exiting state: %s",
-                   StateMachineBallStateString[state_machine->previous_state]);
+    GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
+		   StateMachineBallStateString[state_machine->previous_state]);
 
-    switch (state_machine->previous_state) {
+    switch (state_machine->previous_state)
+    {
     case BS_NONE:
-        break;
-    case BS_IN_PLAY: {
-        break;
+	break;
+    case BS_IN_PLAY:
+    {
+	break;
     }
-    case BS_OUT_OF_PLAY: {
-        break;
+    case BS_OUT_OF_PLAY:
+    {
+	break;
     }
-    case BS_GK_HANDS: {
-        sprite->header.enabled = true;
-        break;
+    case BS_GK_HANDS:
+    {
+	sprite->header.enabled = true;
+	break;
     }
     case BS_COUNT:
-        break;
+	break;
     }
 }
 
-static void ball_prepare_gfx(struct ComponentBall *ball, struct GameState *game_state) {
+static void ball_prepare_gfx(struct ComponentBall *ball, struct GameState *game_state)
+{
     // Roll frames
     ball->roll_animations[D_UP] = entities_common_animation_id_from_name("ball", "up", game_state);
     ball->roll_animations[D_DOWN] =
-        entities_common_animation_id_from_name("ball", "down", game_state);
+	entities_common_animation_id_from_name("ball", "down", game_state);
     ball->roll_animations[D_LEFT] =
-        entities_common_animation_id_from_name("ball", "left", game_state);
+	entities_common_animation_id_from_name("ball", "left", game_state);
     ball->roll_animations[D_RIGHT] =
-        entities_common_animation_id_from_name("ball", "right", game_state);
+	entities_common_animation_id_from_name("ball", "right", game_state);
     ball->roll_animations[D_UP_LEFT] =
-        entities_common_animation_id_from_name("ball", "up_left", game_state);
+	entities_common_animation_id_from_name("ball", "up_left", game_state);
     ball->roll_animations[D_UP_RIGHT] =
-        entities_common_animation_id_from_name("ball", "up_right", game_state);
+	entities_common_animation_id_from_name("ball", "up_right", game_state);
     ball->roll_animations[D_DOWN_LEFT] =
-        entities_common_animation_id_from_name("ball", "down_left", game_state);
+	entities_common_animation_id_from_name("ball", "down_left", game_state);
     ball->roll_animations[D_DOWN_RIGHT] =
-        entities_common_animation_id_from_name("ball", "down_right", game_state);
+	entities_common_animation_id_from_name("ball", "down_right", game_state);
 }
 
 void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
-                                             struct GameState *game_state) {
+					     struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentTransform *transform = &entity->transform;
     transform->position = V3_TO_V2(pos);
@@ -176,25 +186,27 @@ void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3
 }
 
 void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
-                                     v2 player_velocity, v2 position_to_seek, f32 control_quality,
-                                     struct GameState *game_state) {
+				     v2 player_velocity, v2 position_to_seek, f32 control_quality,
+				     struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentTransform *transform = &entity->transform;
     struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
     struct ComponentBall *ball = &entity->ball;
 
     physics_3d->velocity =
-        Vector3Add(V2_TO_V3(player_velocity, 0),
-                   Vector3Scale(Vector3Normalize(Vector3Subtract(
-                                    V2_TO_V3(position_to_seek, 0),
-                                    V2_TO_V3(transform->position, transform->virtual_height))),
-                                game_state->constants.ball_control_force * control_quality));
+	Vector3Add(V2_TO_V3(player_velocity, 0),
+		   Vector3Scale(Vector3Normalize(Vector3Subtract(
+				    V2_TO_V3(position_to_seek, 0),
+				    V2_TO_V3(transform->position, transform->virtual_height))),
+				game_state->constants.ball_control_force * control_quality));
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }
 
 void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
-                                   v2 control_direction, v2 player_velocity, f32 control_quality,
-                                   struct GameState *game_state) {
+				   v2 control_direction, v2 player_velocity, f32 control_quality,
+				   struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentTransform *transform = &entity->transform;
     struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
@@ -202,15 +214,16 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
 
     f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
     v3 velocity_to_add = Vector3Scale(
-        Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
-        game_state->constants.ball_run_force * 0.5f +
-            game_state->constants.ball_run_force * 0.5f * (1 - control_quality));
+	Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
+	game_state->constants.ball_run_force * 0.5f +
+	    game_state->constants.ball_run_force * 0.5f * (1 - control_quality));
     physics_3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }
 
 void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
-                         f32 power, struct GameState *game_state) {
+			 f32 power, struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentTransform *transform = &entity->transform;
     struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
@@ -218,12 +231,13 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     struct ComponentCollider *collider = &entity->collider;
 
     v3 shot_direction =
-        Vector3Add(V2_TO_V3(direction, 0),
-                   (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
-    if (game_state->constants.shoot_aid_no_inertia) {
-        // reset velocity to avoid existing inertia affecting the trajectory: not sure this is
-        // better though, need to test
-        physics_3d->velocity = Vector3Zero();
+	Vector3Add(V2_TO_V3(direction, 0),
+		   (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
+    if (game_state->constants.shoot_aid_no_inertia)
+    {
+	// reset velocity to avoid existing inertia affecting the trajectory: not sure this is
+	// better though, need to test
+	physics_3d->velocity = Vector3Zero();
     }
     // Calculate shot force
     f32 shot_force = game_state->constants.ball_shot_force;
@@ -256,7 +270,7 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     // }
 
     physics_3d->accel =
-        Vector3Add(physics_3d->accel, Vector3Scale(shot_direction, (shot_force) / game_state->dt));
+	Vector3Add(physics_3d->accel, Vector3Scale(shot_direction, (shot_force) / game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
@@ -265,41 +279,43 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
 }
 
 void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
-                              f32 power, b32 auto_pass, struct GameState *game_state) {
+			      f32 power, b32 auto_pass, struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
     struct ComponentBall *ball = &entity->ball;
 
-    if (auto_pass) {
-        // reset velocity to avoid existing inertia affecting the trajectory
-        physics_3d->velocity = Vector3Zero();
+    if (auto_pass)
+    {
+	// reset velocity to avoid existing inertia affecting the trajectory
+	physics_3d->velocity = Vector3Zero();
     }
     physics_3d->accel =
-        Vector3Add(physics_3d->accel,
-                   Vector3Scale(direction,
-                                (game_state->constants.ball_pass_force * 0.5f +
-                                 power * 0.5f * game_state->constants.ball_pass_force) /
-                                    game_state->dt));
+	Vector3Add(physics_3d->accel,
+		   Vector3Scale(direction, (game_state->constants.ball_pass_force * 0.5f +
+					    power * 0.5f * game_state->constants.ball_pass_force) /
+					       game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
 }
 
 void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
-                             f32 power, struct GameState *game_state) {
+			     f32 power, struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
     struct ComponentBall *ball = &entity->ball;
 
     v3 long_pass_direction = Vector3Add(
-        Vector3Normalize(V2_TO_V3(direction, 0)),
-        (Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
+	Vector3Normalize(V2_TO_V3(direction, 0)),
+	(Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
     physics_3d->accel =
-        Vector3Add(physics_3d->accel,
-                   Vector3Scale(long_pass_direction,
-                                (game_state->constants.ball_long_pass_force * 0.75f +
-                                 power * 0.25f * game_state->constants.ball_long_pass_force) /
-                                    game_state->dt));
+	Vector3Add(physics_3d->accel,
+		   Vector3Scale(long_pass_direction,
+				(game_state->constants.ball_long_pass_force * 0.75f +
+				 power * 0.25f * game_state->constants.ball_long_pass_force) /
+				    game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
@@ -308,7 +324,8 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
 }
 
 void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
-                                  struct GameState *game_state) {
+				  struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentBall *ball = &entity->ball;
 
@@ -317,21 +334,24 @@ void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entit
 }
 
 void entities_ball_saved_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
-                                   struct GameState *game_state) {
+				   struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentBall *ball = &entity->ball;
 
     ball->last_player_on_the_ball_entity_id = goalie_entity_id;
 }
 
-void entities_ball_back_in_play(EntityId ball_entity_id, struct GameState *game_state) {
+void entities_ball_back_in_play(EntityId ball_entity_id, struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentBall *ball = &entity->ball;
 
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }
 
-void entities_ball_in_goal(EntityId ball_entity_id, struct GameState *game_state) {
+void entities_ball_in_goal(EntityId ball_entity_id, struct GameState *game_state)
+{
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentBall *ball = &entity->ball;
 
