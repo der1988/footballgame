@@ -56,13 +56,13 @@ AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char
 							 struct GameState *game_state);
 enum Direction entities_common_calculate_direction(Vector2 direction);
 
-bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach, f32 time,
-						f32 max_speed);
+bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
+						time time, f32 max_speed);
 
 bool entities_common_can_reach_future_ball_position(
     struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
     bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
-    v3 *future_pos, f32 *future_time, struct GameState *game_state);
+    v3 *future_pos, time *future_time, struct GameState *game_state);
 
 // END
 
@@ -178,7 +178,7 @@ declare_state_machine_enter_and_exit(goalie);
 
 typedef struct StateMachineGoalieHoldBallData
 {
-    Time hold_start_time;
+    time hold_start_time;
 } StateMachineGoalieHoldBallData;
 
 typedef struct StateMachineGoalieDiveData

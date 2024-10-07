@@ -13,6 +13,7 @@
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
+#include "ai.h"
 #include <stdio.h>
 
 struct PlayerOnTheBall
@@ -34,37 +35,8 @@ struct PlayerOnTheBall
     struct ComponentCollider *collider;
 };
 
-// TODO: generalise this function
-v2 calculate_ball_position_to_aim_for(struct GameState *game_state, v2 player_position,
-				      struct ComponentBall *ball)
-{
-    const int steps_per_lookahead =
-	(game_state->vars.slow_motion ? 10 : 1) * game_state->constants.ball_lookahead_dts;
-    const int lookaheads = game_state->constants.ball_lookaheads;
-    for (u16 i = 0; i < lookaheads; ++i)
-    {
-	v2 pos_to_check = V3_TO_V2(ball->lookahead_positions[i]);
-	f32 distance_to_cover = Vector2Distance(player_position, pos_to_check);
-	f32 time = (i + 1) * game_state->dt * steps_per_lookahead;
-	f32 max_distance_we_can_cover_in_available_time =
-	    game_state->constants.player_run_max_velocity * time / 1.0f;
-	if (distance_to_cover < max_distance_we_can_cover_in_available_time)
-	{
-	    return pos_to_check;
-	}
-    }
-    return V3_TO_V2(ball->lookahead_positions[0]);
-}
-
-v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos)
-{
-    pos.x = pitch.x + pitch.width * 0.5f + pitch.width * 0.5f * pos.x;
-    pos.y = pitch.y + pitch.height * (1 - pos.y);
-    return pos;
-}
-
-EntityId find_nearest_teammate(struct GameState *game_state,
-			       EntityId player_to_not_select_entity_id, v2 position)
+static EntityId find_nearest_teammate(struct GameState *game_state,
+				      EntityId player_to_not_select_entity_id, v2 position)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
@@ -102,8 +74,9 @@ EntityId find_nearest_teammate(struct GameState *game_state,
     return selected_entity_id;
 }
 
-EntityId find_pass_target(struct GameState *game_state, struct PlayerOnTheBall *player_on_the_ball,
-			  f32 detection_angle, f32 max_distance)
+static EntityId find_pass_target(struct GameState *game_state,
+				 struct PlayerOnTheBall *player_on_the_ball, f32 detection_angle,
+				 f32 max_distance)
 {
     EntityRepository *entity_repository = game_state->entity_repository;
     EntityId selected_entity_id = EID_NOT_VALID;
@@ -221,28 +194,33 @@ void systems_player(struct GameState *game_state, struct Input *input)
 		// Player is AI controlled
 		if (game_state->constants.ai_enabled)
 		{
-		    // This player is the target of an automatic pass
-		    // Let's move towards the ball
-		    if (ball->pass_target_entity_id == entity_id)
+
+		    v2 target_pos;
+		    enum PlayerAIKickDecision kick_decision;
+		    enum PlayerAIState ai_state =
+			ai_player_think(entity, &target_pos, &kick_decision, game_state);
+
+		    switch (ai_state)
 		    {
-			player_controls->steering = steering_seek(
-			    transform->position, physics->velocity, physics->max_velocity,
-			    calculate_ball_position_to_aim_for(game_state, transform->position,
-							       ball));
+		    case PAS_KEEP_POSITION:
+			player_controls->steering = Vector2Zero();
+			break;
+		    case PAS_SEEK_POSITION:
+		    {
+			player_controls->steering =
+			    steering_seek(transform->position, physics->velocity,
+					  physics->max_velocity, target_pos);
+			break;
 		    }
-		    else
+		    case PAS_ARRIVE_TO_POSITION:
 		    {
-			// Let's move based on the tactics of the team
-			struct TeamFormationPosition *team_formation_position =
-			    football_tactics_get_team_formation_position(
-				TF_433, player->team_formation_position_idx);
-			v2 target =
-			    pitch_pos_rel_to_abs(game_state->vars.pitch.field,
-						 team_formation_position->position[TM_DEFAULT]);
 			player_controls->steering =
 			    steering_arrive(transform->position, physics->velocity,
-					    physics->max_velocity, target, 20);
+					    physics->max_velocity, target_pos, 20);
+			break;
 		    }
+		    }
+
 		    layers_debug_queue_draw_text(game_state->layer_debug,
 						 TextFormat("steering: %.2f, %.2f",
 							    player_controls->steering.x,

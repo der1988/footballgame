@@ -100,8 +100,8 @@ struct Controls
 	    ACT_LONG_PASS
 	} type;
 	v2 direction;
-	Time started;
-	Time ended;
+	time started;
+	time ended;
 	f32 power;
 	b32 charging;
 	b32 ready;
@@ -142,7 +142,7 @@ struct GameState
     RenderTexture2D render_texture;
     Camera2D camera;
     Camera2D virtual_camera;
-    Time time;
+    time time;
     DeltaTime dt;
 };
 

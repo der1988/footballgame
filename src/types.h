@@ -6,9 +6,9 @@
 #include <stdint.h>
 
 // General
-#define Kilobytes(S) (S * 1024)
-#define Megabytes(S) (S * 1024 * 1024)
-#define Gigabytes(S) ((u64)S * 1024 * 1024 * 1024)
+#define Kilobytes(S)  (S * 1024)
+#define Megabytes(S)  (S * 1024 * 1024)
+#define Gigabytes(S)  ((u64)S * 1024 * 1024 * 1024)
 #define EID_NOT_VALID 0xffffffff
 
 typedef uint8_t u8;
@@ -31,8 +31,8 @@ typedef Vector3 v3;
 
 // Game
 typedef u32 EntityId;
-typedef f64 Time;
-typedef f32 DeltaTime;
+typedef f64 time;
+typedef time DeltaTime;
 typedef i16 RunningActionIdx;
 
 #endif // !TYPES_H
