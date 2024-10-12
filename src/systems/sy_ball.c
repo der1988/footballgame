@@ -6,7 +6,6 @@
 #include "layers.h"
 #include "render.h"
 #include "simulation.h"
-#include "utils.h"
 #include <raylib.h>
 #include <raymath.h>
 #include "math_ext.h"
@@ -71,6 +70,17 @@ void systems_ball(struct GameState *game_state, struct Input *input)
 	    entities_ball_set_position_and_velocity(
 		entity_id, (v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
 		Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f), game_state);
+	    football_match_change_state(game_state, MS_PLAY);
+	    ball->last_player_on_the_ball_entity_id = -1;
+	    return;
+	}
+
+	// Test goalie
+	if (input->buttons[IBT_BUTTON_TRIGGER_RIGHT].released)
+	{
+	    entities_ball_set_position_and_velocity(
+		entity_id, (v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
+		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 75.0f), game_state);
 	    football_match_change_state(game_state, MS_PLAY);
 	    ball->last_player_on_the_ball_entity_id = -1;
 	    return;
@@ -187,7 +197,7 @@ void systems_ball(struct GameState *game_state, struct Input *input)
 		ball->dts_to_future_bounce = 0;
 	    }
 
-	    // Calculate next 10 look ahead positions, 10 dts apart from each other
+	    // Calculate next 'ball_lookaheads' look ahead positions, ball_lookahead_dts dts apart from each other
 	    b32 lookahead_on_the_ground;
 	    b32 lookahead_bounced;
 	    v3 lookahead_position = position;
@@ -195,6 +205,7 @@ void systems_ball(struct GameState *game_state, struct Input *input)
 	    u16 lookaheads = game_state->constants.ball_lookaheads;
 	    u32 lookahead_dts =
 		(game_state->vars.slow_motion ? 10 : 1) * game_state->constants.ball_lookahead_dts;
+	    b32 found_first_bounce = false;
 	    for (u16 i = 0; i < lookaheads; ++i)
 	    {
 		// 10 dt steps (100 in slow motion)
@@ -203,28 +214,15 @@ void systems_ball(struct GameState *game_state, struct Input *input)
 		    sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
 				     physics_3d->mass, ball_radius, &lookahead_on_the_ground,
 				     &lookahead_bounced, game_state);
+		    if (!found_first_bounce && lookahead_bounced)
+		    {
+			ball->future_bounce_position = V3_TO_V2(lookahead_position);
+			ball->dts_to_future_bounce =
+			    i * game_state->constants.ball_lookaheads + j + 1;
+			found_first_bounce = true;
+		    }
 		}
 		ball->lookahead_positions[i] = lookahead_position;
-	    }
-
-	    // Calculate bounce position
-	    lookahead_position = position;
-	    lookahead_velocity = velocity;
-	    lookahead_on_the_ground = false;
-	    lookahead_bounced = false;
-	    u16 dts = 0;
-	    while (!lookahead_bounced && !lookahead_on_the_ground)
-	    {
-		sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
-				 physics_3d->mass, ball_radius, &lookahead_on_the_ground,
-				 &lookahead_bounced, game_state);
-		dts++;
-		if (lookahead_bounced)
-		{
-		    ball->future_bounce_position = V3_TO_V2(lookahead_position);
-		    ball->dts_to_future_bounce = dts;
-		    break;
-		}
 	    }
 
 	    // Project position to 2D
