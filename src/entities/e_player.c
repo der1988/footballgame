@@ -512,8 +512,9 @@ bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ba
 	game_state->constants.ball_lookahead_dts;
     // We want a lookahead of 150ms for our goalie
     const int lookaheads =
-	floor(Clamp(GOALIE_LOOKAHEAD_MS / game_state->constants.ball_lookahead_dts, 1,
-		    game_state->constants.ball_lookaheads));
+	floor(Clamp((GOALIE_LOOKAHEAD_MS / game_state->constants.fixed_timestep) /
+			game_state->constants.ball_lookahead_dts,
+		    1, game_state->constants.ball_lookaheads));
     for (u16 i = 0; i < lookaheads; ++i)
     {
 	v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
