@@ -317,7 +317,7 @@ void game_draw(struct GameState *game_state)
 
     layers_hud_draw(game_state);
 
-    if (game_state->vars.is_log_shown)
+    if (game_state->vars.is_debug_log_shown)
     {
 	layers_debug_draw(game_state->layer_debug);
     }

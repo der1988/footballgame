@@ -70,7 +70,7 @@ int main()
 		}
 		if (IsKeyReleased(KEY_C))
 		{
-		    game_state->vars.is_log_shown = !game_state->vars.is_log_shown;
+		    game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 		}
 
 		struct Input input = input_handle(game_state);
