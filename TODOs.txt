@@ -77,3 +77,5 @@ v improve codebase quality
 - improve player selection system
 - implement pitch radar
 - move utility functions from goalie system
+- rename structs and enums to be snake case (I know, I know...)
+- Fix that horror with conditional debug logging in player system
