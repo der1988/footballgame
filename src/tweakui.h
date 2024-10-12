@@ -3,9 +3,7 @@
 
 #include "game.h"
 
-#ifndef TWEAKUI_INTERNAL_H
-typedef void TweakUI;
-#endif // !TWEAKUI_INTERNAL_H
+typedef struct TweakUI TweakUI;
 
 TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle);
 void tweakui_destroy(TweakUI *handle);
