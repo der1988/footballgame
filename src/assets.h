@@ -10,11 +10,10 @@
 // Texture Cache
 typedef u32 AssetsTextureId;
 
-#ifndef ASSETS_INTERNAL_H
-typedef void AssetsTextureCache;
-#endif
+typedef struct AssetsTextureCache AssetsTextureCache;
 
-struct AssetsTexture {
+struct AssetsTexture
+{
     AssetsTextureId id;
     char name[MaxStringSize];
     struct Texture texture;
@@ -25,16 +24,15 @@ void assets_texture_cache_destroy(struct AssetsTextureCache *handle);
 struct AssetsTexture *assets_texture_load(struct AssetsTextureCache *handle, const char *filename);
 struct AssetsTexture *assets_texture_get_by_id(struct AssetsTextureCache *handle, const u32 id);
 struct AssetsTexture *assets_texture_get_by_name(struct AssetsTextureCache *handle,
-                                                 const char *filename);
+						 const char *filename);
 
 // Sprite Frame Cache
 typedef u32 AssetsSpriteFrameId;
 
-#ifndef ASSETS_INTERNAL_H
-typedef void AssetsSpriteFrameCache;
-#endif
+typedef struct AssetsSpriteFrameCache AssetsSpriteFrameCache;
 
-struct AssetsSpriteFrame {
+struct AssetsSpriteFrame
+{
     AssetsSpriteFrameId id;
     char name[MaxStringSize];
     Rectangle frame;
@@ -49,22 +47,23 @@ struct AssetsSpriteFrame {
 AssetsSpriteFrameCache *assets_sprite_frame_cache_create(MemoryArenaHandle *memory_arena_handle);
 void assets_sprite_frame_cache_destroy(AssetsSpriteFrameCache *handle);
 i32 assets_sprite_frames_load_from_json(AssetsSpriteFrameCache *handle, const u32 texture_id,
-                                        const char *filename);
+					const char *filename);
 struct AssetsSpriteFrame *assets_sprite_frame_get_by_name(AssetsSpriteFrameCache *handle,
-                                                          const char *name);
+							  const char *name);
 struct AssetsSpriteFrame *assets_sprite_frame_get_by_id(AssetsSpriteFrameCache *handle,
-                                                        const AssetsSpriteFrameId id);
+							const AssetsSpriteFrameId id);
 
 // Texture Packer Helper
 struct AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filename,
-                                                               const u32 texture_id,
-                                                               const usize initial_sprite_frame_id,
-                                                               usize *count);
+							       const u32 texture_id,
+							       const usize initial_sprite_frame_id,
+							       usize *count);
 
 // Animation Cache
 typedef u32 AssetsAnimationId;
 
-struct AssetsAnimation {
+struct AssetsAnimation
+{
     AssetsAnimationId id;
     char name[MaxStringSize];
     f32 delay;
@@ -72,18 +71,16 @@ struct AssetsAnimation {
     u16 frames_count;
 };
 
-#ifndef ASSETS_INTERNAL_H
-typedef void AssetsAnimationCache;
-#endif
+typedef struct AssetsAnimationCache AssetsAnimationCache;
 
 AssetsAnimationCache *assets_animation_cache_create(MemoryArenaHandle *memory_arena_handle);
 void assets_animation_cache_destroy(AssetsAnimationCache *handle);
 i32 assets_animations_load_from_json(AssetsAnimationCache *handle,
-                                     AssetsSpriteFrameCache *sprite_frame_cache,
-                                     const char *filename);
+				     AssetsSpriteFrameCache *sprite_frame_cache,
+				     const char *filename);
 struct AssetsAnimation *assets_animation_get_by_name(AssetsAnimationCache *handle,
-                                                     const char *name);
+						     const char *name);
 struct AssetsAnimation *assets_animation_get_by_id(AssetsAnimationCache *handle,
-                                                   const AssetsAnimationId id);
+						   const AssetsAnimationId id);
 
 #endif

@@ -1,9 +1,7 @@
 #ifndef LAYERS_H
 #define LAYERS_H
 
-#ifndef LAYERS_INTERNAL_H
-typedef void LayersDebug;
-#endif // !LAYERS_INTERNAL_H
+typedef struct LayersDebug LayersDebug;
 
 struct GameState;
 

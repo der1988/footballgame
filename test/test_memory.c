@@ -3,7 +3,7 @@
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
-#include "utils.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <stdio.h>
@@ -14,7 +14,8 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_memory_arena() {
+void test_memory_arena()
+{
     GLOG_INFO(LS_TESTS, "memory arena test - start");
 
     void *buffer = malloc(Megabytes(1));
@@ -56,7 +57,8 @@ void test_memory_arena() {
     GLOG_INFO(LS_TESTS, "memory arena test - end");
 }
 
-void test_memory_fixed() {
+void test_memory_fixed()
+{
     GLOG_INFO(LS_TESTS, "fixed size linear allocator test - start");
 
     // valid creation
@@ -107,7 +109,8 @@ void test_memory_fixed() {
     GLOG_INFO(LS_TESTS, "fixed size linear allocator test - end");
 }
 
-int main() {
+int main()
+{
     UNITY_BEGIN();
 
     RUN_TEST(test_memory_arena);

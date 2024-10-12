@@ -33,7 +33,7 @@ struct GameState *game_init(struct GameConfig game_config)
     // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
     game_state->constants =
 	(struct GameConstants){.fixed_timestep = 1 / 480.0,
-			       .render_debug = false,
+			       .render_debug = true,
 			       .input_stick_dead_zone = 0.05f,
 			       // Coefficient of restitution
 			       .ball_cr = 0.5f,
@@ -49,8 +49,8 @@ struct GameState *game_init(struct GameConfig game_config)
 			       // This will translate to instant velocity, so 119km/h
 			       // We want max ball speed to be ~129km/h, and we get
 			       // there with some modifiers due to hit position
-			       .ball_shot_force = 33 * PIXELS_PER_METER,
-			       .ball_shot_height = 0.35f,
+			       .ball_shot_force = 40 * PIXELS_PER_METER,
+			       .ball_shot_height = 0.25f,
 			       .ball_pass_force = 30 * PIXELS_PER_METER,
 			       .ball_long_pass_force = 26 * PIXELS_PER_METER,
 			       .ball_long_pass_height = 1.0f,

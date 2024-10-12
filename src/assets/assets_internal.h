@@ -4,23 +4,23 @@
 #include "memory.h"
 #include "types.h"
 
-typedef struct AssetsTextureCache AssetsTextureCache;
-struct AssetsTextureCache {
+struct AssetsTextureCache
+{
     b32 initialised;
     struct AssetsTexture *cache;
     u32 count;
 };
 
-typedef struct AssetsSpriteFrameCache AssetsSpriteFrameCache;
-struct AssetsSpriteFrameCache {
+struct AssetsSpriteFrameCache
+{
     b32 initialised;
     MemoryArenaHandle *memory_arena_handle;
     struct AssetsSpriteFrame *cache;
     u32 count;
 };
 
-typedef struct AssetsAnimationCache AssetsAnimationCache;
-struct AssetsAnimationCache {
+struct AssetsAnimationCache
+{
     b32 initialised;
     MemoryArenaHandle *memory_arena_handle;
     struct AssetsAnimation *cache;

@@ -11,7 +11,6 @@ struct DrawTextRequest
     char text[100];
 };
 
-typedef struct LayersDebug LayersDebug;
 struct LayersDebug
 {
     b32 initialised;
