@@ -125,7 +125,7 @@ void tweakui_draw(TweakUI *handle, struct GameState *game_state)
 	       10, false);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSpinner(slider_bounds, "Ball lookahead dts",
-	       (int *)&game_state->constants.ball_lookahead_dts, 10, 50, false);
+	       (int *)&game_state->constants.ball_lookahead_dts, 10, 200, false);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds, "Player movement force",
 	      TextFormat("%.2f", game_state->constants.player_movement_force),
