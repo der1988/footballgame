@@ -7,6 +7,7 @@
 #include "render.h"
 #include "types.h"
 #include <raylib.h>
+#include "constants.h"
 
 #define MaxConcurrentActions 5
 
@@ -161,7 +162,7 @@ struct ComponentBall
     enum Direction last_direction;
     v2 future_bounce_position;
     u32 dts_to_future_bounce;
-    v3 lookahead_positions[10];
+    v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
     time last_frame_update_time;
     u16 last_running_frame_idx;
 };
