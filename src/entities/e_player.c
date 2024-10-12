@@ -511,8 +511,9 @@ bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ba
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
 	game_state->constants.ball_lookahead_dts;
     // We want a lookahead of 150ms for our goalie
-    const int lookaheads = floor(Clamp(LOOKAHEAD_MS / game_state->constants.ball_lookahead_dts, 1,
-				       game_state->constants.ball_lookaheads));
+    const int lookaheads =
+	floor(Clamp(GOALIE_LOOKAHEAD_MS / game_state->constants.ball_lookahead_dts, 1,
+		    game_state->constants.ball_lookaheads));
     for (u16 i = 0; i < lookaheads; ++i)
     {
 	v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
@@ -537,7 +538,7 @@ bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ba
 	    f32 max_distance_we_can_cover_in_available_time =
 		game_state->constants.goalie_dive_max_velocity * time_to_unsaveable / 1.0f;
 	    *dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
-	    *dive_height = pos_to_check.y < DIVE_HEIGHT_THRESHOLD ? SH_LOW : SH_HIGH;
+	    *dive_height = pos_to_check.y < GOALIE_DIVE_HEIGHT_THRESHOLD ? SH_LOW : SH_HIGH;
 	    *dive_speed =
 		Clamp(distance_to_cover / max_distance_we_can_cover_in_available_time, 0, 1);
 	    *dive_distance = distance_to_cover;
