@@ -93,19 +93,12 @@ void systems_ball(struct GameState *game_state, struct Input *input)
 
 	layers_debug_queue_draw_text(
 	    game_state->layer_debug,
-	    TextFormat("Ball pos: %.2f, %.2f", transform->position.x, transform->position.y));
-
-	layers_debug_queue_draw_text(game_state->layer_debug,
-				     TextFormat("Ball height: %.2f", transform->virtual_height));
-
-	layers_debug_queue_draw_text(game_state->layer_debug,
-				     TextFormat("Ball vel: %.2f, %.2f, %.2f",
-						physics_3d->velocity.x, physics_3d->velocity.y,
-						physics_3d->velocity.z));
-
-	layers_debug_queue_draw_text(
-	    game_state->layer_debug,
-	    TextFormat("Ball speed: %.2f", Vector3Length(physics_3d->velocity)));
+	    TextFormat(
+		"%-8s %02d pos: [%7.2f, %7.2f, %7.2f] vel: [%6.2f, %6.2f, %6.2f] speed: %6.2f",
+		"Ball", game_state->vars.ball_entity_id, transform->position.x,
+		transform->virtual_height, transform->position.y, physics_3d->velocity.x,
+		physics_3d->velocity.y, physics_3d->velocity.z,
+		Vector3Length(physics_3d->velocity)));
 
 	switch (state_machine->current_state)
 	{

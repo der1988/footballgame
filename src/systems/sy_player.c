@@ -141,6 +141,7 @@ void systems_player(struct GameState *game_state, struct Input *input)
 	declare_entity_component(entity, Transform, transform);
 	declare_entity_component(entity, Physics, physics);
 	declare_entity_component(entity, Player, player);
+	declare_entity_component(entity, Goalie, goalie);
 	declare_entity_component(entity, Collider, collider);
 
 	struct StateMachinePlayer *state_machine = player->state_machine;
@@ -220,11 +221,6 @@ void systems_player(struct GameState *game_state, struct Input *input)
 			break;
 		    }
 		    }
-
-		    layers_debug_queue_draw_text(game_state->layer_debug,
-						 TextFormat("steering: %.2f, %.2f",
-							    player_controls->steering.x,
-							    player_controls->steering.y));
 		}
 	    }
 
@@ -322,15 +318,25 @@ void systems_player(struct GameState *game_state, struct Input *input)
 	    break;
 	}
 	case PS_GOALIE:
+	    layers_debug_queue_draw_text(
+		game_state->layer_debug,
+		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Goalie",
+			   entity_id, transform->position.x, transform->position.y,
+			   Vector2Length(physics->velocity),
+			   StateMachineGoalieStateString[goalie->state_machine->current_state]));
 	    break;
 	case PS_COUNT:
 	    break;
 	}
-	layers_debug_queue_draw_text(game_state->layer_debug,
-				     TextFormat("Player %02d pos: [%0.2f, %0.2f] vel: %.2f",
-						entity_id, transform->position.x,
-						transform->position.y,
-						Vector2Length(physics->velocity)));
+	if (state_machine->current_state != PS_GOALIE)
+	{
+	    layers_debug_queue_draw_text(
+		game_state->layer_debug,
+		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Player",
+			   entity_id, transform->position.x, transform->position.y,
+			   Vector2Length(physics->velocity),
+			   StateMachinePlayerStateString[state_machine->current_state]));
+	}
     }
 
     b32 kicked_ball = false;

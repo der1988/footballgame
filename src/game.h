@@ -122,6 +122,7 @@ struct GameVariables
     EntityId ball_entity_id;
     struct HumanPlayer p1;
     b32 slow_motion;
+    b32 is_log_shown;
     b32 is_tweakui_shown;
 };
 

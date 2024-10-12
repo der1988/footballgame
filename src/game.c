@@ -59,8 +59,8 @@ struct GameState *game_init(struct GameConfig game_config)
 			       .ball_after_touch_force = 300.0f,
 			       // 36m/s seems fair, that would be 129km/h
 			       .ball_max_velocity = 50 * PIXELS_PER_METER,
-			       .ball_lookaheads = 5,
-			       .ball_lookahead_dts = 30,
+			       .ball_lookaheads = 10,
+			       .ball_lookahead_dts = 96,
 			       .crossbar_height = 27,
 			       .player_movement_force = 25000,
 			       .player_movement_drag = 4166,
@@ -316,7 +316,11 @@ void game_draw(struct GameState *game_state)
     EndMode2D();
 
     layers_hud_draw(game_state);
-    layers_debug_draw(game_state->layer_debug);
+
+    if (game_state->vars.is_log_shown)
+    {
+	layers_debug_draw(game_state->layer_debug);
+    }
 
     // Tweak UI
     if (game_state->vars.is_tweakui_shown)

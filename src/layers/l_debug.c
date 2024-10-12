@@ -7,6 +7,8 @@
 #include <raylib.h>
 #include <string.h>
 
+#define MAX_FONTS 8
+
 LayersDebug *layers_debug_create(struct GameState *game_state)
 {
     LayersDebug *handle =
@@ -16,7 +18,9 @@ LayersDebug *layers_debug_create(struct GameState *game_state)
     handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_UPDATE];
     handle->color = WHITE;
     handle->font_size = 20;
-    handle->space_between_rows = 20;
+    handle->spacing = 0;
+    handle->space_between_rows = 16;
+    handle->font = LoadFontEx("res/fonts/0xProtoNerdFontMono-Regular.ttf", 32, 0, 250);
 
     GLOG_INFO(LS_LAYERS, "layer debug initialised");
 
@@ -26,7 +30,11 @@ LayersDebug *layers_debug_create(struct GameState *game_state)
 void layers_debug_destroy(LayersDebug *handle)
 {
     assert(handle->initialised);
+
+    UnloadFont(handle->font);
+
     handle->initialised = false;
+
     GLOG_INFO(LS_LAYERS, "layer debug destroyed");
 }
 
@@ -58,7 +66,7 @@ void layers_debug_draw(LayersDebug *handle)
     for (usize i = 0; i < handle->queued_requests; ++i)
     {
 	dtr = handle->draw_text_requests[i];
-	DrawText(dtr->text, 50, 10 + i * handle->space_between_rows, handle->font_size,
-		 handle->color);
+	DrawTextEx(handle->font, dtr->text, (v2){10, 10 + i * handle->space_between_rows},
+		   handle->font_size, handle->spacing, handle->color);
     }
 }
