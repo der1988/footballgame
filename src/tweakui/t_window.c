@@ -12,9 +12,9 @@
 #define ROW_SIZE		  20
 #define MOVE_DOWN_ONE_ROW(bounds) bounds.y += ROW_SIZE
 
-TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle)
+tweakui_t *tweakui_create(MemoryArenaHandle *memory_arena_handle)
 {
-    TweakUI *handle = memory_arena_push(memory_arena_handle, sizeof(TweakUI));
+    tweakui_t *handle = memory_arena_push(memory_arena_handle, sizeof(struct tweakui));
     handle->initialised = true;
 
     handle->window_size.x = 800;
@@ -25,14 +25,14 @@ TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle)
     return handle;
 }
 
-void tweakui_destroy(TweakUI *handle)
+void tweakui_destroy(tweakui_t *handle)
 {
     assert(handle->initialised);
     handle->initialised = false;
     GLOG_INFO(LS_TWEAKUI, "tweakui destroyed");
 }
 
-void tweakui_draw(TweakUI *handle, struct GameState *game_state)
+void tweakui_draw(tweakui_t *handle, struct GameState *game_state)
 {
     assert(handle->initialised);
 

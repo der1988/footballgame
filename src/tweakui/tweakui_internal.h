@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct TweakUI
+struct tweakui
 {
     b32 initialised;
     v2 window_size;

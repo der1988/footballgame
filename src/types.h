@@ -28,6 +28,7 @@ typedef size_t usize;
 // Raylib
 typedef Vector2 v2;
 typedef Vector3 v3;
+typedef Color color_t;
 
 // Game
 typedef u32 entity_id_t;

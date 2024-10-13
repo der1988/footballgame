@@ -19,6 +19,6 @@
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
-Color utils_color_lerp(Color from, Color to, f32 t);
+color_t utils_color_lerp(color_t from, color_t to, f32 t);
 
 #endif // !UTILS_H

@@ -3,10 +3,10 @@
 
 #include "game.h"
 
-typedef struct TweakUI TweakUI;
+typedef struct tweakui tweakui_t;
 
-TweakUI *tweakui_create(MemoryArenaHandle *memory_arena_handle);
-void tweakui_destroy(TweakUI *handle);
-void tweakui_draw(TweakUI *handle, struct GameState *game_state);
+tweakui_t *tweakui_create(MemoryArenaHandle *memory_arena_handle);
+void tweakui_destroy(tweakui_t *handle);
+void tweakui_draw(tweakui_t *handle, struct GameState *game_state);
 
 #endif // !TWEAKUI_H

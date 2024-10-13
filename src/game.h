@@ -13,7 +13,7 @@ struct EntityRepository;
 struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
-struct TweakUI;
+struct tweakui;
 struct Input;
 
 enum MemoryArenaLifetime
@@ -137,7 +137,7 @@ struct GameState
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
-    struct TweakUI *tweakui;
+    struct tweakui *tweakui;
     LayersDebug *layer_debug;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
