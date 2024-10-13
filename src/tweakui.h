@@ -1,7 +1,10 @@
 #ifndef TWEAKUI_H
 #define TWEAKUI_H
 
-#include "game.h"
+#include "memory.h"
+
+// Forward declaration
+struct game_state;
 
 typedef struct tweakui tweakui_t;
 

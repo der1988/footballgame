@@ -7,13 +7,10 @@
 #include "types.h"
 #include <raylib.h>
 #include "layers.h"
+#include "tweakui.h"
 
 // Forward declarations
 struct entity_repository;
-struct assets_texture_cache;
-struct assets_sprite_frame_cache;
-struct assets_animation_cache;
-struct tweakui;
 struct input;
 
 enum memory_arena_lifetime
@@ -134,13 +131,13 @@ struct game_state
     struct game_vars vars;
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
     struct entity_repository *entity_repository;
-    struct assets_texture_cache *texture_cache;
-    struct assets_sprite_frame_cache *sprite_frame_cache;
-    struct assets_animation_cache *animation_cache;
-    struct tweakui *tweakui;
+    assets_texture_cache_t *texture_cache;
+    assets_sprite_frame_cache_t *sprite_frame_cache;
+    assets_animation_cache_t *animation_cache;
+    tweakui_t *tweakui;
     layers_debug_t *layer_debug;
     assets_texture_id_t pitch_texture_id;
-    RenderTexture2D render_texture;
+    render_texture_t render_texture;
     camera2d_t camera;
     camera2d_t virtual_camera;
     time_t time;
