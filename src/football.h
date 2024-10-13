@@ -20,7 +20,7 @@ enum match_state
     MS_COUNT
 };
 
-static const char *MatchStateToString[MS_COUNT] = {
+static const char *match_state_to_string[MS_COUNT] = {
     "kickoff", "play", "goal", "throw_in", "goal_kick", "corner_kick", "penalty_kick", "free_kick"};
 
 struct match

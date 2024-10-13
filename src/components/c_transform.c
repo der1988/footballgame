@@ -1,16 +1,16 @@
 #include "components.h"
 #include <raymath.h>
 
-void components_transform_calculate_absolute(struct component_transform *transform,
-					     Vector2 *position, f32 *rotation, Vector2 *scale)
+void components_transform_calculate_absolute(struct component_transform *transform, v2 *position,
+					     f32 *rotation, v2 *scale)
 {
     if (!transform->parent)
     {
 	return;
     }
-    Vector2 parent_position = transform->parent->position;
+    v2 parent_position = transform->parent->position;
     f32 parent_rotation = transform->parent->rotation;
-    Vector2 parent_scale = transform->parent->scale;
+    v2 parent_scale = transform->parent->scale;
 
     components_transform_calculate_absolute(transform->parent, &parent_position, &parent_rotation,
 					    &parent_scale);
