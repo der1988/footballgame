@@ -9,8 +9,9 @@
 #include "entities.h"
 #include <stdio.h>
 
-AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
-							 struct game_state *game_state)
+assets_animation_id_t entities_common_animation_id_from_name(char *entity_name,
+							     char *animation_name,
+							     struct game_state *game_state)
 {
     // Scratch buffer
     char *final_animation =

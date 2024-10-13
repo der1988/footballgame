@@ -143,14 +143,14 @@ struct game_state *game_init(struct game_config game_config)
 	.area = (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167}};
 
     struct entity *player_entity = entities_player_create(
-	(PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
-		       .side = PSI_SOUTH},
+	(struct player_config){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
+			       .side = PSI_SOUTH},
 	game_state);
 
     for (usize i = 1; i < 10; ++i)
     {
 	entities_player_create(
-	    (PlayerConfig){
+	    (struct player_config){
 		.position = {game_state->config.virtual_screen_width / 2.0f + 100 * i, 300.0f},
 		.side = PSI_SOUTH,
 		.team_formation_position_idx = i},
@@ -158,17 +158,17 @@ struct game_state *game_init(struct game_config game_config)
     }
 
     entities_player_create(
-	(PlayerConfig){.is_goalie = true,
-		       .position = {game_state->config.virtual_screen_width / 2.0f, 100.0f},
-		       .side = PSI_NORTH},
+	(struct player_config){.is_goalie = true,
+			       .position = {game_state->config.virtual_screen_width / 2.0f, 100.0f},
+			       .side = PSI_NORTH},
 	game_state);
 
     struct entity *ball_entity = entities_ball_create(
-	(struct BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
+	(struct ball_config){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
 	game_state);
     game_state->vars.ball_entity_id = ball_entity->header.id;
 
-    entities_goal_create((GoalConfig){.side = PSI_NORTH}, game_state);
+    entities_goal_create((struct goal_config){.side = PSI_NORTH}, game_state);
 
     struct entity *camera_entity = entities_camera_create(game_state);
     struct component_camera *camera = &camera_entity->camera;

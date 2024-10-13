@@ -61,11 +61,11 @@ struct AssetsSpriteFrame *assets_texture_packer_load_from_json(const char *filen
 							       usize *count);
 
 // Animation Cache
-typedef u32 AssetsAnimationId;
+typedef u32 assets_animation_id_t;
 
 struct AssetsAnimation
 {
-    AssetsAnimationId id;
+    assets_animation_id_t id;
     char name[MaxStringSize];
     f32 delay;
     AssetsSpriteFrameId *frames;
@@ -82,6 +82,6 @@ i32 assets_animations_load_from_json(AssetsAnimationCache *handle,
 struct AssetsAnimation *assets_animation_get_by_name(AssetsAnimationCache *handle,
 						     const char *name);
 struct AssetsAnimation *assets_animation_get_by_id(AssetsAnimationCache *handle,
-						   const AssetsAnimationId id);
+						   const assets_animation_id_t id);
 
 #endif

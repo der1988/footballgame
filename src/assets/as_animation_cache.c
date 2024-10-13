@@ -52,7 +52,7 @@ static struct AssetsAnimation *load_from_json(const char *filename,
 					      AssetsSpriteFrameCache *sprite_frame_cache,
 					      memory_arena_handle_t *memory_arena_handle)
 {
-    AssetsAnimationId current_animation_id = initial_animation_id;
+    assets_animation_id_t current_animation_id = initial_animation_id;
     *count = 0;
 
     char *content;
@@ -210,7 +210,7 @@ struct AssetsAnimation *assets_animation_get_by_name(AssetsAnimationCache *handl
 }
 
 struct AssetsAnimation *assets_animation_get_by_id(AssetsAnimationCache *handle,
-						   const AssetsAnimationId id)
+						   const assets_animation_id_t id)
 {
     assert(handle->initialised);
     return &handle->cache[id];

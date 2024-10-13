@@ -138,7 +138,7 @@ struct component_player
     time_t time_spent_in_run_control;
     f32 current_max_velocity;
     AssetsSpriteFrameId stand_frames[D_COUNT];
-    AssetsAnimationId run_animations[D_COUNT];
+    assets_animation_id_t run_animations[D_COUNT];
     enum direction last_direction;
     f32 last_kick_time;
     f32 last_frame_update_time;
@@ -221,8 +221,8 @@ struct component_goalie
     f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
     AssetsSpriteFrameId dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
-    AssetsAnimationId dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
-    AssetsAnimationId dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
+    assets_animation_id_t dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
+    assets_animation_id_t dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
     time_t last_frame_update_time;
     time_t last_save_time;
 };

@@ -51,8 +51,9 @@ struct entity;
 
 // START - Common
 
-AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
-							 struct game_state *game_state);
+assets_animation_id_t entities_common_animation_id_from_name(char *entity_name,
+							     char *animation_name,
+							     struct game_state *game_state);
 enum direction entities_common_calculate_direction(Vector2 direction);
 
 bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
@@ -73,7 +74,7 @@ struct entity *entities_camera_create(struct game_state *game_state);
 
 // START - Ball
 
-struct BallConfig
+struct ball_config
 {
     v2 position;
 };
@@ -102,7 +103,7 @@ union StateMachineBallStateData
 define_state_machine(Ball);
 define_state_machine_functions(Ball, ball);
 
-struct entity *entities_ball_create(struct BallConfig config, struct game_state *game_state);
+struct entity *entities_ball_create(struct ball_config config, struct game_state *game_state);
 void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id, v3 pos, v3 velocity,
 					     struct game_state *game_state);
 void entities_ball_control_precision(entity_id_t ball_entity_id,
@@ -131,13 +132,13 @@ void entities_ball_in_goal(entity_id_t ball_entity_id, struct game_state *game_s
 
 // START - Player
 
-typedef struct PlayerConfig
+struct player_config
 {
     v2 position;
     b32 is_goalie;
     enum pitch_side side;
     u8 team_formation_position_idx;
-} PlayerConfig;
+};
 
 typedef enum StateMachinePlayerState
 {
@@ -233,7 +234,7 @@ define_state_machine_functions(Goalie, goalie);
 	sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
 	collider->header.enabled)
 
-struct entity *entities_player_create(PlayerConfig config, struct game_state *game_state);
+struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
 void entities_player_apply_force(entity_id_t player_entity_id, Vector2 steering,
 				 struct game_state *game_state);
 void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state);
@@ -256,12 +257,12 @@ bool entities_player_should_dive(struct entity *goalie_entity, struct entity *ba
 
 // START - Goal
 
-typedef struct GoalConfig
+struct goal_config
 {
     enum pitch_side side;
-} GoalConfig;
+};
 
-struct entity *entities_goal_create(GoalConfig config, struct game_state *game_state);
+struct entity *entities_goal_create(struct goal_config config, struct game_state *game_state);
 
 // END - Goal
 
@@ -271,7 +272,7 @@ struct entity *entities_goal_net_create(struct game_state *game_state);
 
 // END - Goal net
 
-enum EntityType
+enum entity_type
 {
     ET_CAMERA,
     ET_BALL,
@@ -287,7 +288,7 @@ struct entity_header
     b32 alive;
     entity_id_t id;
     char name[MaxStringSize];
-    enum EntityType type;
+    enum entity_type type;
 };
 
 struct entity
@@ -320,7 +321,7 @@ struct entity_repository
 struct entity_repository *entities_repository_init(memory_arena_handle_t *memory_arena_handle);
 void entities_repository_destroy(struct entity_repository *handle);
 
-struct entity *entities_entity_init(struct entity_repository *handle, enum EntityType type,
+struct entity *entities_entity_init(struct entity_repository *handle, enum entity_type type,
 				    char *name_format);
 void entities_entity_destroy(struct entity_repository *handle, entity_id_t id);
 struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t id);

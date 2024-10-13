@@ -19,7 +19,7 @@ implement_state_machine_functions(Ball, ball);
 
 static void ball_prepare_gfx(struct component_ball *ball, struct game_state *game_state);
 
-struct entity *entities_ball_create(struct BallConfig config, struct game_state *game_state)
+struct entity *entities_ball_create(struct ball_config config, struct game_state *game_state)
 {
     struct entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_BALL, "ball_%02d");

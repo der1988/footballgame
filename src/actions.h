@@ -52,7 +52,7 @@ struct ActionChangeColorFromTo
 struct ActionPlayAnimation
 {
     struct Action base;
-    AssetsAnimationId animation_id;
+    assets_animation_id_t animation_id;
     f32 speed;
 };
 

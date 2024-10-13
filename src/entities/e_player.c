@@ -24,7 +24,7 @@ static void prepare_gfx(struct component_player *player, struct game_state *game
 static void prepare_goalie_gfx(struct component_player *player, struct component_goalie *goalie,
 			       struct game_state *game_state);
 
-struct entity *entities_player_create(PlayerConfig config, struct game_state *game_state)
+struct entity *entities_player_create(struct player_config config, struct game_state *game_state)
 {
     struct entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");

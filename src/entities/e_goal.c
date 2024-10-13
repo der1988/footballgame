@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct entity *entities_goal_create(GoalConfig config, struct game_state *game_state)
+struct entity *entities_goal_create(struct goal_config config, struct game_state *game_state)
 {
     struct entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
