@@ -224,7 +224,7 @@ void game_destroy(struct GameState *game_state)
     GLOG_INFO(LS_GAME, "game destruction complete");
 }
 
-void game_update(struct GameState *game_state, struct Input *input)
+void game_update(struct GameState *game_state, struct input *input)
 {
     assert(game_state->initialised);
 

@@ -14,7 +14,7 @@ struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
 struct tweakui;
-struct Input;
+struct input;
 
 enum MemoryArenaLifetime
 {
@@ -149,7 +149,7 @@ struct GameState
 
 struct GameState *game_init(struct GameConfig gameConfig);
 void game_destroy(struct GameState *game_state);
-void game_update(struct GameState *game_state, struct Input *input);
+void game_update(struct GameState *game_state, struct input *input);
 void game_draw(struct GameState *game_state);
 
 #endif // !GAME_H

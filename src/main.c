@@ -73,7 +73,7 @@ int main()
 		    game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 		}
 
-		struct Input input = input_handle(game_state);
+		struct input input = input_handle(game_state);
 
 		game_state->dt = dt;
 
