@@ -7,7 +7,7 @@
 #include "state_machine.h"
 #include "types.h"
 #include "log.h"
-#include "utils.h"
+#include "macro.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>

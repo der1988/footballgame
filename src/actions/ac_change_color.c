@@ -1,6 +1,6 @@
 #include "actions.h"
 #include "entities.h"
-#include "utils.h"
+#include "gfx.h"
 #include <raylib.h>
 
 void actions_change_color_from_to_update(struct action_runner *action_runner, entity_id_t id,
@@ -16,7 +16,7 @@ void actions_change_color_from_to_update(struct action_runner *action_runner, en
     }
     struct component_sprite *sprite =
 	&entities_entity_get(game_state->entity_repository, id)->sprite;
-    sprite->color = utils_color_lerp(action->from, action->to, h);
+    sprite->color = gfx_color_lerp(action->from, action->to, h);
 }
 
 struct action_change_color_from_to *

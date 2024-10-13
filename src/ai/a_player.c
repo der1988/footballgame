@@ -1,7 +1,7 @@
 #include "ai.h"
 #include "entities.h"
 #include "math_ext.h"
-#include "utils.h"
+#include "macro.h"
 #include <raymath.h>
 
 #define STAY_THERE_RADIUS 10.0f

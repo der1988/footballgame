@@ -1,7 +1,5 @@
-// clang-format off
 #include "memory.h"
 #include "assets.h"
-// clang-format on
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"

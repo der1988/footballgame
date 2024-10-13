@@ -1,7 +1,6 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef MACRO_H
+#define MACRO_H
 
-#include "../types.h"
 #include <raylib.h>
 
 #define UNUSED(x) (void)(x)
@@ -19,6 +18,4 @@
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
-color_t utils_color_lerp(color_t from, color_t to, f32 t);
-
-#endif // !UTILS_H
+#endif // !MACRO_H

@@ -77,4 +77,4 @@ static const char *utils_log_systems_desc[11] = {
 void log_line(char *file, u16 line, enum log_type type, enum log_system system, const char *ctx,
 	      const char *format, ...);
 
-#endif // !UTILS_H
+#endif // !LOG_H

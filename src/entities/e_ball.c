@@ -8,7 +8,7 @@
 #include "types.h"
 #include "math_ext.h"
 #include "log.h"
-#include "utils.h"
+#include "macro.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>

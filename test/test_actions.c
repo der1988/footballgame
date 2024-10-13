@@ -1,7 +1,5 @@
-// clang-format off
 #include "memory.h"
 #include "assets.h"
-// clang-format on
 #include "actions.h"
 #include "components.h"
 #include "entities.h"
