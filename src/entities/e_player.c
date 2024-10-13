@@ -50,7 +50,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 
     // Initialise sprite
     char *player_frame_name = "player_front_0";
-    struct AssetsSpriteFrame *sprite_frame =
+    struct assets_sprite_frame *sprite_frame =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_frame_name);
     assert(sprite_frame != NULL);
     struct component_sprite *sprite = &entity->sprite;
@@ -172,7 +172,7 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 di
     if (Vector2Length(physics->velocity) > velocity_threshold)
     {
 	enum direction pd = entities_common_calculate_direction(direction);
-	struct AssetsAnimation *animation =
+	struct assets_animation *animation =
 	    assets_animation_get_by_id(game_state->animation_cache, player->run_animations[pd]);
 	f32 max_player_velocity = game_state->constants.player_run_max_velocity;
 	if ((game_state->time - player->last_frame_update_time) >

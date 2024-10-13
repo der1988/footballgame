@@ -4,10 +4,10 @@
 #include <math.h>
 #include <raylib.h>
 
-void actions_rotate_to_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_rotate_to_update(struct action_runner *action_runner, entity_id_t id,
 			      struct game_state *game_state)
 {
-    struct ActionRotateTo *action = (struct ActionRotateTo *)action_runner->action;
+    struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
 
     struct entity *entity = entities_entity_get(game_state->entity_repository, id);
 
@@ -21,10 +21,10 @@ void actions_rotate_to_update(struct ActionRunner *action_runner, entity_id_t id
     entity->transform.rotation = action->from + action->diff * h;
 }
 
-void actions_rotate_to_start(struct ActionRunner *action_runner, entity_id_t id,
+void actions_rotate_to_start(struct action_runner *action_runner, entity_id_t id,
 			     struct game_state *game_state)
 {
-    struct ActionRotateTo *action = (struct ActionRotateTo *)action_runner->action;
+    struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
 
     struct entity *entity = entities_entity_get(game_state->entity_repository, id);
 
@@ -45,16 +45,16 @@ void actions_rotate_to_start(struct ActionRunner *action_runner, entity_id_t id,
     action->diff = diff_angle;
 }
 
-struct ActionRotateTo *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
-						memory_arena_handle_t *memory_arena_handle)
+struct action_rotate_to *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
+						  memory_arena_handle_t *memory_arena_handle)
 {
-    struct ActionRotateTo *action = memory_arena_push(memory_arena_handle, sizeof(*action));
+    struct action_rotate_to *action = memory_arena_push(memory_arena_handle, sizeof(*action));
 
-    *action = (struct ActionRotateTo){.base = (struct Action){.type = AT_ROTATE_TO,
-							      .duration = duration,
-							      .loop = loop,
-							      .start = actions_rotate_to_start,
-							      .update = actions_rotate_to_update},
-				      .to = to};
+    *action = (struct action_rotate_to){.base = (struct action){.type = AT_ROTATE_TO,
+								.duration = duration,
+								.loop = loop,
+								.start = actions_rotate_to_start,
+								.update = actions_rotate_to_update},
+					.to = to};
     return action;
 }

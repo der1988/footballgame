@@ -2,10 +2,10 @@
 #include <raylib.h>
 #include <stdarg.h>
 
-void actions_spawn_start(struct ActionRunner *action_runner, entity_id_t id,
+void actions_spawn_start(struct action_runner *action_runner, entity_id_t id,
 			 struct game_state *game_state)
 {
-    struct ActionSpawn *action_spawn = (struct ActionSpawn *)action_runner->action;
+    struct action_spawn *action_spawn = (struct action_spawn *)action_runner->action;
 
     // Reset all children actions
     for (usize i = 0; i < action_spawn->count; ++i)
@@ -14,10 +14,10 @@ void actions_spawn_start(struct ActionRunner *action_runner, entity_id_t id,
     }
 }
 
-void actions_spawn_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_spawn_update(struct action_runner *action_runner, entity_id_t id,
 			  struct game_state *game_state)
 {
-    struct ActionSpawn *action_spawn = (struct ActionSpawn *)action_runner->action;
+    struct action_spawn *action_spawn = (struct action_spawn *)action_runner->action;
 
     usize i = 0;
     usize total_completed = 0;
@@ -36,12 +36,13 @@ void actions_spawn_update(struct ActionRunner *action_runner, entity_id_t id,
     }
 }
 
-struct ActionSpawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count, ...)
+struct action_spawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count,
+					  ...)
 {
-    struct ActionSpawn *action_spawn = memory_arena_push(
-	memory_arena_handle, sizeof(struct ActionSpawn) + sizeof(struct ActionRunner) * count);
-    *action_spawn = (struct ActionSpawn){
-	.base = (struct Action){.type = AT_SPAWN,
+    struct action_spawn *action_spawn = memory_arena_push(
+	memory_arena_handle, sizeof(struct action_spawn) + sizeof(struct action_runner) * count);
+    *action_spawn = (struct action_spawn){
+	.base = (struct action){.type = AT_SPAWN,
 				.loop = false,
 				.start = actions_spawn_start,
 				.update = actions_spawn_update},
@@ -52,7 +53,7 @@ struct ActionSpawn *actions_spawn_create(memory_arena_handle_t *memory_arena_han
     va_start(ap, count);
     for (usize i = 0; i < count; ++i)
     {
-	action_spawn->actions[i] = (struct ActionRunner){.action = va_arg(ap, struct Action *)};
+	action_spawn->actions[i] = (struct action_runner){.action = va_arg(ap, struct Action *)};
 	f32 tmp_duration = 0;
 	if ((tmp_duration = action_spawn->actions[i].action->duration) > max_duration)
 	    max_duration = tmp_duration;

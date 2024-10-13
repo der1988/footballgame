@@ -197,8 +197,8 @@ void systems_player(struct game_state *game_state, struct Input *input)
 		{
 
 		    v2 target_pos;
-		    enum PlayerAIKickDecision kick_decision;
-		    enum PlayerAIState ai_state =
+		    enum player_ai_kick_decision kick_decision;
+		    enum player_ai_state ai_state =
 			ai_player_think(entity, &target_pos, &kick_decision, game_state);
 
 		    switch (ai_state)

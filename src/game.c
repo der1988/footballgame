@@ -101,7 +101,8 @@ struct game_state *game_init(struct game_config game_config)
 	assets_animation_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
 
     // Load pitch
-    struct AssetsTexture *texture = assets_texture_load(game_state->texture_cache, "res/pitch.png");
+    struct assets_texture *texture =
+	assets_texture_load(game_state->texture_cache, "res/pitch.png");
     assert(texture);
     game_state->pitch_texture_id = texture->id;
 

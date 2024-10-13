@@ -12,11 +12,11 @@ enum sprite_layer
     SL_SOUTH_GOAL = 20
 };
 
-void render_sprite_draw(struct AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
-			Color color, b32 flipX, b32 flipY, v2 pivot_override,
-			struct AssetsTexture *assets_texture);
+void render_sprite_draw(struct assets_sprite_frame *sprite_frame, v2 position, f32 rotation,
+			v2 scale, Color color, b32 flipX, b32 flipY, v2 pivot_override,
+			struct assets_texture *assets_texture);
 
-void render_sprite_draw_debug_frame(struct AssetsSpriteFrame *sprite_frame, v2 position,
+void render_sprite_draw_debug_frame(struct assets_sprite_frame *sprite_frame, v2 position,
 				    f32 rotation, v2 scale, v2 pivot_override);
 
 #endif // !SPRITES_H

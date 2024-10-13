@@ -1,6 +1,6 @@
 #include "ai.h"
 
-enum GoalieAIState ai_goalie_think(enum PlayerAIKickDecision *kick_decision,
-				   struct game_state *game_state)
+enum goalie_ai_state ai_goalie_think(enum player_ai_kick_decision *kick_decision,
+				     struct game_state *game_state)
 {
 }

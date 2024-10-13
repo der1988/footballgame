@@ -9,8 +9,8 @@
 
 struct SpriteToDraw
 {
-    struct AssetsSpriteFrame *sprite_frame;
-    struct AssetsTexture *texture;
+    struct assets_sprite_frame *sprite_frame;
+    struct assets_texture *texture;
     enum sprite_layer layer;
     i16 order_in_layer;
     Color color;
@@ -70,14 +70,14 @@ void systems_render(struct game_state *game_state)
 	declare_entity_component(entity, transform);
 	declare_entity_component(entity, sprite);
 
-	struct AssetsSpriteFrame *sprite_frame =
+	struct assets_sprite_frame *sprite_frame =
 	    assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);
 
 	Vector2 position = transform->position;
 	f32 rotation = transform->rotation;
 	Vector2 scale = transform->scale;
 	components_transform_calculate_absolute(transform, &position, &rotation, &scale);
-	struct AssetsTexture *texture =
+	struct assets_texture *texture =
 	    assets_texture_get_by_id(game_state->texture_cache, sprite_frame->texture_id);
 
 	// Shadow

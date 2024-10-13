@@ -5,7 +5,7 @@
 #include "game.h"
 #include "types.h"
 
-enum ActionType
+enum action_type
 {
     AT_CHANGE_COLOR_FROM_TO,
     AT_PLAY_ANIMATION,
@@ -21,9 +21,9 @@ static const char *ActionTypeToString[AT_COUNT] = {
     "tween_float_from_to",  "rotate_to",      "toggle_boolean"};
 
 // Wrapper around an action to keep track of its state while being run
-struct ActionRunner
+struct action_runner
 {
-    struct Action *action;
+    struct action *action;
     b32 started;
     f32 start_time;
     b32 completed;
@@ -31,119 +31,113 @@ struct ActionRunner
 };
 
 // Defines of an action
-struct Action
+struct action
 {
-    enum ActionType type;
+    enum action_type type;
     f32 duration;
     b32 loop;
-    void (*start)(struct ActionRunner *, entity_id_t, struct game_state *game_state);
-    void (*update)(struct ActionRunner *, entity_id_t, struct game_state *game_state);
+    void (*start)(struct action_runner *, entity_id_t, struct game_state *game_state);
+    void (*update)(struct action_runner *, entity_id_t, struct game_state *game_state);
 };
 
 // Changes the sprite color from one color to another
-struct ActionChangeColorFromTo
+struct action_change_color_from_to
 {
-    struct Action base;
+    struct action base;
     Color from;
     Color to;
 };
 
 // Plays an animation at a specific speed
-struct ActionPlayAnimation
+struct action_play_animation
 {
-    struct Action base;
+    struct action base;
     assets_animation_id_t animation_id;
     f32 speed;
 };
 
 // Concatenates multiple actions to run them in series
-struct ActionSequence
+struct action_sequence
 {
-    struct Action base;
+    struct action base;
     u16 count;
-    struct ActionRunner actions[];
+    struct action_runner actions[];
 };
 
 // Spawn multiple actions to run them in parallel
-struct ActionSpawn
+struct action_spawn
 {
-    struct Action base;
+    struct action base;
     u16 count;
-    struct ActionRunner actions[];
+    struct action_runner actions[];
 };
 
 // Tween a float from one value to another
-struct ActionTweenFloatFromTo
+struct action_tween_float_from_to
 {
-    struct Action base;
+    struct action base;
     f32 *value;
     f32 from;
     f32 to;
 };
 
 // Rotate a float to an angle
-struct ActionRotateTo
+struct action_rotate_to
 {
-    struct Action base;
+    struct action base;
     f32 from;
     f32 to;
     f32 diff;
 };
 
-// Rotate an aircraft to match its velocity direction
-struct ActionAircraftRotateToVelocity
-{
-    struct Action base;
-};
-
 // Toggle boolean
-struct ActionToggleBoolean
+struct action_toggle_boolean
 {
-    struct Action base;
+    struct action base;
     b32 *value;
 };
 
-void actions_action_run(struct ActionRunner *action_runner, entity_id_t id,
+void actions_action_run(struct action_runner *action_runner, entity_id_t id,
 			struct game_state *game_state);
 void actions_action_stop(running_action_idx_t running_action_idx, entity_id_t id,
 			 struct game_state *game_state);
 
-struct ActionChangeColorFromTo *
+struct action_change_color_from_to *
 actions_change_color_from_to_create(f32 duration, b32 loop, Color from, Color to,
 				    memory_arena_handle_t *memory_arena_handle);
-void actions_change_color_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_change_color_from_to_update(struct action_runner *action_runner, entity_id_t id,
 					 struct game_state *game_state);
 
-struct ActionPlayAnimation *
-actions_play_animation_create(struct AssetsAnimation *animation, b32 loop, float speed,
+struct action_play_animation *
+actions_play_animation_create(struct assets_animation *animation, b32 loop, float speed,
 			      memory_arena_handle_t *memory_arena_handle);
-void actions_play_animation_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_play_animation_update(struct action_runner *action_runner, entity_id_t id,
 				   struct game_state *game_state);
 
-struct ActionSequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
-					       u32 count, ...);
-void actions_sequence_update(struct ActionRunner *action_runner, entity_id_t id,
+struct action_sequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
+						u32 count, ...);
+void actions_sequence_update(struct action_runner *action_runner, entity_id_t id,
 			     struct game_state *game_state);
 
-struct ActionSpawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count,
-					 ...);
-void actions_spawn_update(struct ActionRunner *action_runner, entity_id_t id,
+struct action_spawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count,
+					  ...);
+void actions_spawn_update(struct action_runner *action_runner, entity_id_t id,
 			  struct game_state *game_state);
 
-struct ActionTweenFloatFromTo *
+struct action_tween_float_from_to *
 actions_tween_float_from_to_create(f32 duration, b32 loop, f32 *value, f32 from, f32 to,
 				   memory_arena_handle_t *memory_arena_handle);
-void actions_tween_float_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_tween_float_from_to_update(struct action_runner *action_runner, entity_id_t id,
 					struct game_state *game_state);
 
-struct ActionRotateTo *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
-						memory_arena_handle_t *memory_arena_handle);
-void actions_rotate_to_update(struct ActionRunner *action_runner, entity_id_t id,
+struct action_rotate_to *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
+						  memory_arena_handle_t *memory_arena_handle);
+void actions_rotate_to_update(struct action_runner *action_runner, entity_id_t id,
 			      struct game_state *game_state);
 
-void actions_toggle_boolean_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_toggle_boolean_update(struct action_runner *action_runner, entity_id_t id,
 				   struct game_state *game_state);
-struct ActionToggleBoolean *
+struct action_toggle_boolean *
 actions_toggle_boolean_create(f32 duration, b32 loop, b32 *value,
 			      memory_arena_handle_t *memory_arena_handle);
 #endif // !ACTIONS_H

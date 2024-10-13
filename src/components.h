@@ -59,7 +59,7 @@ struct component_sprite
     enum sprite_layer layer;
     i16 order_in_layer;
     v2 pivot_override;
-    AssetsSpriteFrameId frame_id;
+    assets_sprite_frame_id_t frame_id;
     b32 draw_shadow;
     Color shadow_color;
     v2 shadow_offset;
@@ -69,7 +69,7 @@ struct component_sprite
 struct component_action
 {
     struct component_header header;
-    struct ActionRunner running_actions[MaxConcurrentActions];
+    struct action_runner running_actions[MaxConcurrentActions];
 };
 
 struct component_target
@@ -137,7 +137,7 @@ struct component_player
     time_t time_spent_in_precision_control;
     time_t time_spent_in_run_control;
     f32 current_max_velocity;
-    AssetsSpriteFrameId stand_frames[D_COUNT];
+    assets_sprite_frame_id_t stand_frames[D_COUNT];
     assets_animation_id_t run_animations[D_COUNT];
     enum direction last_direction;
     f32 last_kick_time;
@@ -158,7 +158,7 @@ struct component_ball
     v2 selected_after_touch_side;
     time_t last_kick_time;
     time_t last_bounce_time;
-    AssetsSpriteFrameId roll_animations[D_COUNT];
+    assets_sprite_frame_id_t roll_animations[D_COUNT];
     enum direction last_direction;
     v2 future_bounce_position;
     u32 dts_to_future_bounce;
@@ -219,15 +219,15 @@ struct component_goalie
     enum save_height dive_height;
     f32 dive_distance;
     f32 dive_speed;
-    AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
-    AssetsSpriteFrameId dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
+    assets_sprite_frame_id_t save_frames[SS_COUNT][ST_COUNT];
+    assets_sprite_frame_id_t dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
     assets_animation_id_t dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
     assets_animation_id_t dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
     time_t last_frame_update_time;
     time_t last_save_time;
 };
 
-running_action_idx_t components_action_run(entity_id_t id, struct Action *action,
+running_action_idx_t components_action_run(entity_id_t id, struct action *action,
 					   struct game_state *game_state);
 void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
 			    struct game_state *game_state);

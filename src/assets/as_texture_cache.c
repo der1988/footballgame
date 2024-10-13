@@ -13,13 +13,14 @@
 
 static u32 const MAX_TEXTURES = 10;
 
-AssetsTextureCache *assets_texture_cache_create(memory_arena_handle_t *memory_arena_handle)
+assets_texture_cache_t *assets_texture_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
-    AssetsTextureCache *handle = memory_arena_push(memory_arena_handle, sizeof(AssetsTextureCache));
+    assets_texture_cache_t *handle =
+	memory_arena_push(memory_arena_handle, sizeof(assets_texture_cache_t));
     assert(handle);
 
     handle->cache =
-	memory_arena_push(memory_arena_handle, sizeof(struct AssetsTexture) * MAX_TEXTURES);
+	memory_arena_push(memory_arena_handle, sizeof(struct assets_texture) * MAX_TEXTURES);
     if (handle->cache == NULL)
     {
 	GLOG_ERROR(LS_ASSETS, "texture cache initialisation failed");
@@ -30,9 +31,9 @@ AssetsTextureCache *assets_texture_cache_create(memory_arena_handle_t *memory_ar
     return handle;
 }
 
-struct AssetsTexture *assets_texture_load(AssetsTextureCache *handle, const char *filename)
+struct assets_texture *assets_texture_load(assets_texture_cache_t *handle, const char *filename)
 {
-    struct AssetsTexture *assets_texture = NULL;
+    struct assets_texture *assets_texture = NULL;
     assert(handle->initialised && handle->count < MAX_TEXTURES);
     Texture texture = {0};
     if ((texture = LoadTexture(filename)).id == 0)
@@ -52,7 +53,7 @@ struct AssetsTexture *assets_texture_load(AssetsTextureCache *handle, const char
     return assets_texture;
 }
 
-void assets_texture_cache_destroy(AssetsTextureCache *handle)
+void assets_texture_cache_destroy(assets_texture_cache_t *handle)
 {
     assert(handle->initialised);
     handle->cache = NULL;
@@ -61,20 +62,21 @@ void assets_texture_cache_destroy(AssetsTextureCache *handle)
     GLOG_INFO(LS_ASSETS, "texture cache destroyed");
 }
 
-struct AssetsTexture *assets_texture_get_by_id(AssetsTextureCache *handle, u32 id)
+struct assets_texture *assets_texture_get_by_id(assets_texture_cache_t *handle, u32 id)
 {
     assert(handle->initialised);
-    struct AssetsTexture *assets_texture = &handle->cache[id];
+    struct assets_texture *assets_texture = &handle->cache[id];
     GLOGF_TRACE_CTX(LS_ASSETS, assets_texture->name,
 		    "retrieved texture with id %d and texture_id %d", assets_texture->id,
 		    assets_texture->texture.id);
     return assets_texture;
 }
 
-struct AssetsTexture *assets_texture_get_by_name(AssetsTextureCache *handle, const char *filename)
+struct assets_texture *assets_texture_get_by_name(assets_texture_cache_t *handle,
+						  const char *filename)
 {
     assert(handle->initialised);
-    struct AssetsTexture *assets_texture = NULL;
+    struct assets_texture *assets_texture = NULL;
     for (usize i = 0; i < handle->count; ++i)
     {
 	assets_texture = &handle->cache[i];

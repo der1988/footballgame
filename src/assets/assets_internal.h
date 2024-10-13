@@ -4,26 +4,26 @@
 #include "memory.h"
 #include "types.h"
 
-struct AssetsTextureCache
+struct assets_texture_cache
 {
     b32 initialised;
-    struct AssetsTexture *cache;
+    struct assets_texture *cache;
     u32 count;
 };
 
-struct AssetsSpriteFrameCache
+struct assets_sprite_frame_cache
 {
     b32 initialised;
     memory_arena_handle_t *memory_arena_handle;
-    struct AssetsSpriteFrame *cache;
+    struct assets_sprite_frame *cache;
     u32 count;
 };
 
-struct AssetsAnimationCache
+struct assets_animation_cache
 {
     b32 initialised;
     memory_arena_handle_t *memory_arena_handle;
-    struct AssetsAnimation *cache;
+    struct assets_animation *cache;
     u32 count;
 };
 

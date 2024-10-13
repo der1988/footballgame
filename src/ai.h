@@ -1,7 +1,7 @@
 #include "game.h"
 #include "entities.h"
 
-enum PlayerAIKickDecision
+enum player_ai_kick_decision
 {
     PAKD_NO_KICK,
     PAKD_SHOOT,
@@ -9,23 +9,23 @@ enum PlayerAIKickDecision
     PAKD_LONG_PASS,
 };
 
-enum PlayerAIState
+enum player_ai_state
 {
     PAS_KEEP_POSITION,
     PAS_SEEK_POSITION,
     PAS_ARRIVE_TO_POSITION,
 };
 
-enum GoalieAIState
+enum goalie_ai_state
 {
     GAS_PROTECT_GOAL,
     GAS_HOLD_BALL,
     GAS_DIVE
 };
 
-enum PlayerAIState ai_player_think(struct entity *entity, v2 *target_position,
-				   enum PlayerAIKickDecision *kick_decision,
-				   struct game_state *game_state);
+enum player_ai_state ai_player_think(struct entity *entity, v2 *target_position,
+				     enum player_ai_kick_decision *kick_decision,
+				     struct game_state *game_state);
 
-enum GoalieAIState ai_goalie_think(enum PlayerAIKickDecision *kick_decision,
-				   struct game_state *game_state);
+enum goalie_ai_state ai_goalie_think(enum player_ai_kick_decision *kick_decision,
+				     struct game_state *game_state);

@@ -18,7 +18,7 @@ assets_animation_id_t entities_common_animation_id_from_name(char *entity_name,
 	memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], MaxStringSize);
 
     snprintf(final_animation, MaxStringSize, "%s_%s", entity_name, animation_name);
-    struct AssetsAnimation *animation =
+    struct assets_animation *animation =
 	assets_animation_get_by_name(game_state->animation_cache, final_animation);
     assert(animation);
 

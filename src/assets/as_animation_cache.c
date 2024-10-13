@@ -16,15 +16,15 @@
 static u16 const MAX_ANIMATIONS = 100;
 static u16 const MAX_FRAMES_PER_ANIMATION = 100;
 
-AssetsAnimationCache *assets_animation_cache_create(memory_arena_handle_t *memory_arena_handle)
+assets_animation_cache_t *assets_animation_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
-    AssetsAnimationCache *handle =
-	memory_arena_push(memory_arena_handle, sizeof(AssetsAnimationCache));
+    assets_animation_cache_t *handle =
+	memory_arena_push(memory_arena_handle, sizeof(assets_animation_cache_t));
     assert(handle);
 
     handle->memory_arena_handle = memory_arena_handle;
     handle->cache =
-	memory_arena_push(memory_arena_handle, sizeof(struct AssetsAnimation) * MAX_ANIMATIONS);
+	memory_arena_push(memory_arena_handle, sizeof(struct assets_animation) * MAX_ANIMATIONS);
     handle->count = 0;
     if (handle->cache == NULL)
     {
@@ -38,7 +38,7 @@ AssetsAnimationCache *assets_animation_cache_create(memory_arena_handle_t *memor
     return handle;
 }
 
-void assets_animation_cache_destroy(AssetsAnimationCache *handle)
+void assets_animation_cache_destroy(assets_animation_cache_t *handle)
 {
     assert(handle->initialised);
     handle->cache = NULL;
@@ -47,10 +47,10 @@ void assets_animation_cache_destroy(AssetsAnimationCache *handle)
     GLOG_INFO(LS_ASSETS, "animation cache destroyed");
 }
 
-static struct AssetsAnimation *load_from_json(const char *filename,
-					      const usize initial_animation_id, usize *count,
-					      AssetsSpriteFrameCache *sprite_frame_cache,
-					      memory_arena_handle_t *memory_arena_handle)
+static struct assets_animation *load_from_json(const char *filename,
+					       const usize initial_animation_id, usize *count,
+					       assets_sprite_frame_cache_t *sprite_frame_cache,
+					       memory_arena_handle_t *memory_arena_handle)
 {
     assets_animation_id_t current_animation_id = initial_animation_id;
     *count = 0;
@@ -88,10 +88,10 @@ static struct AssetsAnimation *load_from_json(const char *filename,
     }
     GLOGF_INFO_CTX(LS_ASSETS, filename, "%zu animations to load", *count);
 
-    struct AssetsAnimation *animations = malloc(sizeof(struct AssetsAnimation) * *count);
-    struct AssetsAnimation *current_animation = animations;
+    struct assets_animation *animations = malloc(sizeof(struct assets_animation) * *count);
+    struct assets_animation *current_animation = animations;
 
-    AssetsSpriteFrameId sprite_frames_buffer[MAX_FRAMES_PER_ANIMATION];
+    assets_sprite_frame_id_t sprite_frames_buffer[MAX_FRAMES_PER_ANIMATION];
     entity = NULL;
     cJSON_ArrayForEach(entity, root)
     {
@@ -102,7 +102,7 @@ static struct AssetsAnimation *load_from_json(const char *filename,
 	    char *animation_frames = JSON_GET_STRING(animation, "frames");
 	    char *animation_prefix = JSON_GET_STRING(animation, "prefix");
 
-	    struct AssetsAnimation *assets_animation = current_animation++;
+	    struct assets_animation *assets_animation = current_animation++;
 	    assets_animation->id = current_animation_id++;
 	    assets_animation->delay = animation_delay;
 	    strncpy(assets_animation->name, entity->string, sizeof(assets_animation->name) - 1);
@@ -130,7 +130,7 @@ static struct AssetsAnimation *load_from_json(const char *filename,
 		strcat(frame_name_format + strlen(frame_name_format), "%d");
 		snprintf(frame_name, sizeof(frame_name) - 1, frame_name_format, frame_as_number);
 
-		struct AssetsSpriteFrame *sprite_frame =
+		struct assets_sprite_frame *sprite_frame =
 		    assets_sprite_frame_get_by_name(sprite_frame_cache, frame_name);
 		if (!sprite_frame)
 		{
@@ -148,7 +148,8 @@ static struct AssetsAnimation *load_from_json(const char *filename,
 		assert(frames_count < MAX_FRAMES_PER_ANIMATION);
 	    }
 	    assets_animation->frames_count = frames_count;
-	    usize size_to_allocate_for_frames_list = sizeof(AssetsSpriteFrameId) * frames_count;
+	    usize size_to_allocate_for_frames_list =
+		sizeof(assets_sprite_frame_id_t) * frames_count;
 	    assets_animation->frames =
 		memory_arena_push(memory_arena_handle, size_to_allocate_for_frames_list);
 	    memcpy(assets_animation->frames, sprite_frames_buffer,
@@ -164,14 +165,14 @@ static struct AssetsAnimation *load_from_json(const char *filename,
     return animations;
 }
 
-i32 assets_animations_load_from_json(AssetsAnimationCache *handle,
-				     AssetsSpriteFrameCache *sprite_frame_cache,
+i32 assets_animations_load_from_json(assets_animation_cache_t *handle,
+				     assets_sprite_frame_cache_t *sprite_frame_cache,
 				     const char *filename)
 {
     assert(handle->initialised);
 
     usize loaded = 0;
-    struct AssetsAnimation *animations = load_from_json(
+    struct assets_animation *animations = load_from_json(
 	filename, handle->count, &loaded, sprite_frame_cache, handle->memory_arena_handle);
     if (loaded > (MAX_ANIMATIONS - handle->count))
     {
@@ -179,7 +180,7 @@ i32 assets_animations_load_from_json(AssetsAnimationCache *handle,
     }
     else if (animations)
     {
-	memcpy(&handle->cache[handle->count], animations, sizeof(struct AssetsAnimation) * loaded);
+	memcpy(&handle->cache[handle->count], animations, sizeof(struct assets_animation) * loaded);
 	free(animations);
 	handle->count += loaded;
 	GLOGF_INFO_CTX(LS_ASSETS, filename, "loaded %zu animations into cache", loaded);
@@ -193,11 +194,12 @@ i32 assets_animations_load_from_json(AssetsAnimationCache *handle,
     return -1;
 }
 
-struct AssetsAnimation *assets_animation_get_by_name(AssetsAnimationCache *handle, const char *name)
+struct assets_animation *assets_animation_get_by_name(assets_animation_cache_t *handle,
+						      const char *name)
 {
     assert(handle->initialised);
 
-    struct AssetsAnimation *animation = NULL;
+    struct assets_animation *animation = NULL;
     for (usize i = 0; i < handle->count; ++i)
     {
 	animation = &handle->cache[i];
@@ -209,8 +211,8 @@ struct AssetsAnimation *assets_animation_get_by_name(AssetsAnimationCache *handl
     return animation;
 }
 
-struct AssetsAnimation *assets_animation_get_by_id(AssetsAnimationCache *handle,
-						   const assets_animation_id_t id)
+struct assets_animation *assets_animation_get_by_id(assets_animation_cache_t *handle,
+						    const assets_animation_id_t id)
 {
     assert(handle->initialised);
     return &handle->cache[id];

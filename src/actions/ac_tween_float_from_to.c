@@ -1,10 +1,11 @@
 #include "actions.h"
 #include <raylib.h>
 
-void actions_tween_float_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
+void actions_tween_float_from_to_update(struct action_runner *action_runner, entity_id_t id,
 					struct game_state *game_state)
 {
-    struct ActionTweenFloatFromTo *action = (struct ActionTweenFloatFromTo *)action_runner->action;
+    struct action_tween_float_from_to *action =
+	(struct action_tween_float_from_to *)action_runner->action;
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
     if (h >= 1)
     {
@@ -15,13 +16,14 @@ void actions_tween_float_from_to_update(struct ActionRunner *action_runner, enti
     *action->value = action->from + (action->to - action->from) * h;
 }
 
-struct ActionTweenFloatFromTo *
+struct action_tween_float_from_to *
 actions_tween_float_from_to_create(f32 duration, b32 loop, f32 *value, f32 from, f32 to,
 				   memory_arena_handle_t *memory_arena_handle)
 {
-    struct ActionTweenFloatFromTo *action = memory_arena_push(memory_arena_handle, sizeof(*action));
-    *action = (struct ActionTweenFloatFromTo){
-	.base = (struct Action){.type = AT_TWEEN_FLOAT_FROM_TO,
+    struct action_tween_float_from_to *action =
+	memory_arena_push(memory_arena_handle, sizeof(*action));
+    *action = (struct action_tween_float_from_to){
+	.base = (struct action){.type = AT_TWEEN_FLOAT_FROM_TO,
 				.duration = duration,
 				.loop = loop,
 				.update = actions_tween_float_from_to_update},

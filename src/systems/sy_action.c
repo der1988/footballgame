@@ -15,7 +15,7 @@ void systems_action(struct game_state *game_state)
 
 	for (usize j = 0; j < MaxConcurrentActions; ++j)
 	{
-	    struct ActionRunner *action_runner = &action->running_actions[j];
+	    struct action_runner *action_runner = &action->running_actions[j];
 	    if (action_runner && action_runner->action)
 	    {
 		if (action_runner->completed)

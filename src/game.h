@@ -10,9 +10,9 @@
 
 // Forward declarations
 struct entity_repository;
-struct AssetsTextureCache;
-struct AssetsSpriteFrameCache;
-struct AssetsAnimationCache;
+struct assets_texture_cache;
+struct assets_sprite_frame_cache;
+struct assets_animation_cache;
 struct tweakui;
 struct input;
 
@@ -134,12 +134,12 @@ struct game_state
     struct game_vars vars;
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
     struct entity_repository *entity_repository;
-    struct AssetsTextureCache *texture_cache;
-    struct AssetsSpriteFrameCache *sprite_frame_cache;
-    struct AssetsAnimationCache *animation_cache;
+    struct assets_texture_cache *texture_cache;
+    struct assets_sprite_frame_cache *sprite_frame_cache;
+    struct assets_animation_cache *animation_cache;
     struct tweakui *tweakui;
     layers_debug_t *layer_debug;
-    AssetsTextureId pitch_texture_id;
+    assets_texture_id_t pitch_texture_id;
     RenderTexture2D render_texture;
     camera2d_t camera;
     camera2d_t virtual_camera;

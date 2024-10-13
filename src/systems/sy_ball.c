@@ -235,7 +235,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    if (Vector2Length(ball_velocity) > 3)
 	    {
 		enum direction pd = entities_common_calculate_direction(ball_velocity);
-		struct AssetsAnimation *animation = assets_animation_get_by_id(
+		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->animation_cache, ball->roll_animations[pd]);
 		f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;
 		f32 delay =

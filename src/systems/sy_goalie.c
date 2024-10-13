@@ -185,7 +185,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	    if (!dive_state_data->animation_first_phase_completed)
 	    {
-		struct AssetsAnimation *animation = assets_animation_get_by_id(
+		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->animation_cache,
 		    goalie->dive_animations_start[SS_UP][direction][goalie->dive_height]);
 		f32 animation_completion =
@@ -213,7 +213,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    dive_state_data->animation_second_phase_started = true;
 		    dive_state_data->animation_start_time = game_state->time;
 		}
-		struct AssetsAnimation *animation = assets_animation_get_by_id(
+		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->animation_cache,
 		    goalie->dive_animations_end[SS_UP][direction][goalie->dive_height]
 					       [dive_state_data->ball_held]);
