@@ -17,8 +17,8 @@
 #include "constants.h"
 #include "math_ext.h"
 
-implement_state_machine_functions(Player, player);
-implement_state_machine_functions(Goalie, goalie);
+implement_state_machine_functions(player);
+implement_state_machine_functions(goalie);
 
 static void prepare_gfx(struct component_player *player, struct game_state *game_state);
 static void prepare_goalie_gfx(struct component_player *player, struct component_goalie *goalie,
@@ -74,7 +74,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
     player->team_formation_position_idx = config.team_formation_position_idx;
     // Sets initial max velocity to half of max run velocity
     player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
-    struct StateMachinePlayer *player_state_machine =
+    struct state_machine_player *player_state_machine =
 	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*player_state_machine));
     player_state_machine->owner_entity = entity->header.id;
     player_state_machine->previous_state = PS_NONE;
@@ -89,7 +89,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	// Initialise goalie
 	struct component_goalie *goalie = &entity->goalie;
 	goalie->header.enabled = true;
-	struct StateMachineGoalie *state_machine =
+	struct state_machine_goalie *state_machine =
 	    memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
 	state_machine->owner_entity = entity->header.id;
 	state_machine->previous_state = GS_NONE;
@@ -194,13 +194,13 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 di
 void entities_player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
     struct component_player *player = &entity->player;
-    struct StateMachinePlayer *state_machine = player->state_machine;
+    struct state_machine_player *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
-		   StateMachinePlayerStateString[state_machine->current_state]);
+		   state_machine_player_state_string[state_machine->current_state]);
 
     // Reset state data
-    memset(&state_machine->state_data, 0, sizeof(union StateMachinePlayerStateData));
+    memset(&state_machine->state_data, 0, sizeof(union state_machine_player_state_data));
 
     switch (state_machine->current_state)
     {
@@ -221,10 +221,10 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 
 void entities_player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
-    struct StateMachinePlayer *state_machine = entity->player.state_machine;
+    struct state_machine_player *state_machine = entity->player.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
-		   StateMachinePlayerStateString[state_machine->previous_state]);
+		   state_machine_player_state_string[state_machine->previous_state]);
 
     switch (state_machine->previous_state)
     {
@@ -245,13 +245,13 @@ void entities_player_state_machine_on_exit(struct entity *entity, struct game_st
 
 void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
-    struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
+    struct state_machine_goalie *state_machine = entity->goalie.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
-		   StateMachineGoalieStateString[state_machine->current_state]);
+		   state_machine_goalie_state_string[state_machine->current_state]);
 
     // Reset state data
-    memset(&state_machine->state_data, 0, sizeof(StateMachineGoalieStateData));
+    memset(&state_machine->state_data, 0, sizeof(union state_machine_goalie_state_data));
 
     switch (state_machine->current_state)
     {
@@ -284,10 +284,10 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 
 void entities_goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
-    struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
+    struct state_machine_goalie *state_machine = entity->goalie.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
-		   StateMachineGoalieStateString[state_machine->previous_state]);
+		   state_machine_goalie_state_string[state_machine->previous_state]);
 
     switch (state_machine->previous_state)
     {

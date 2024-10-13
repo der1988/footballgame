@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-implement_state_machine_functions(Ball, ball);
+implement_state_machine_functions(ball);
 
 static void ball_prepare_gfx(struct component_ball *ball, struct game_state *game_state);
 
@@ -74,7 +74,7 @@ struct entity *entities_ball_create(struct ball_config config, struct game_state
     // Initialise ball
     struct component_ball *ball = &entity->ball;
     ball->header.enabled = true;
-    struct StateMachineBall *state_machine =
+    struct state_machine_ball *state_machine =
 	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
     state_machine->owner_entity = entity->header.id;
     state_machine->previous_state = BS_NONE;
@@ -93,13 +93,13 @@ struct entity *entities_ball_create(struct ball_config config, struct game_state
 void entities_ball_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
     struct component_ball *ball = &entity->ball;
-    struct StateMachineBall *state_machine = ball->state_machine;
+    struct state_machine_ball *state_machine = ball->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
-		   StateMachineBallStateString[state_machine->current_state]);
+		   state_machine_ball_state_string[state_machine->current_state]);
 
     // Reset state data
-    memset(&state_machine->state_data, 0, sizeof(union StateMachineBallStateData));
+    memset(&state_machine->state_data, 0, sizeof(union state_machine_ball_state_data));
 
     switch (state_machine->current_state)
     {
@@ -127,10 +127,10 @@ void entities_ball_state_machine_on_exit(struct entity *entity, struct game_stat
 {
     struct component_sprite *sprite = &entity->sprite;
     struct component_ball *ball = &entity->ball;
-    struct StateMachineBall *state_machine = ball->state_machine;
+    struct state_machine_ball *state_machine = ball->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",
-		   StateMachineBallStateString[state_machine->previous_state]);
+		   state_machine_ball_state_string[state_machine->previous_state]);
 
     switch (state_machine->previous_state)
     {

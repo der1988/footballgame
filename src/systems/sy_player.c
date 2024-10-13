@@ -144,7 +144,7 @@ void systems_player(struct game_state *game_state, struct Input *input)
 	declare_entity_component(entity, goalie);
 	declare_entity_component(entity, collider);
 
-	struct StateMachinePlayer *state_machine = player->state_machine;
+	struct state_machine_player *state_machine = player->state_machine;
 
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 	    game_state->constants.player_control_radius;
@@ -320,10 +320,10 @@ void systems_player(struct game_state *game_state, struct Input *input)
 	case PS_GOALIE:
 	    layers_debug_queue_draw_text(
 		game_state->layer_debug,
-		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Goalie",
-			   entity_id, transform->position.x, transform->position.y,
-			   Vector2Length(physics->velocity),
-			   StateMachineGoalieStateString[goalie->state_machine->current_state]));
+		TextFormat(
+		    "%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Goalie", entity_id,
+		    transform->position.x, transform->position.y, Vector2Length(physics->velocity),
+		    state_machine_goalie_state_string[goalie->state_machine->current_state]));
 	    break;
 	case PS_COUNT:
 	    break;
@@ -335,7 +335,7 @@ void systems_player(struct game_state *game_state, struct Input *input)
 		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Player",
 			   entity_id, transform->position.x, transform->position.y,
 			   Vector2Length(physics->velocity),
-			   StateMachinePlayerStateString[state_machine->current_state]));
+			   state_machine_player_state_string[state_machine->current_state]));
 	}
     }
 

@@ -12,8 +12,8 @@
 #define MaxConcurrentActions 5
 
 // Forward declarations
-struct StateMachineBall;
-struct StateMachinePlayer;
+struct state_machine_ball;
+struct state_machine_player;
 
 struct component_header
 {
@@ -132,7 +132,7 @@ struct component_player
 {
     struct component_header header;
     enum pitch_side side;
-    struct StateMachinePlayer *state_machine;
+    struct state_machine_player *state_machine;
     b32 control_ball;
     time_t time_spent_in_precision_control;
     time_t time_spent_in_run_control;
@@ -149,7 +149,7 @@ struct component_player
 struct component_ball
 {
     struct component_header header;
-    struct StateMachineBall *state_machine;
+    struct state_machine_ball *state_machine;
     b32 is_on_the_ground;
     entity_id_t last_player_on_the_ball_entity_id;
     entity_id_t last_kicker_entity_id;
@@ -214,7 +214,7 @@ enum animation_phase
 struct component_goalie
 {
     struct component_header header;
-    struct StateMachineGoalie *state_machine;
+    struct state_machine_goalie *state_machine;
     enum save_direction dive_direction;
     enum save_height dive_height;
     f32 dive_distance;

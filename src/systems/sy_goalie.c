@@ -47,7 +47,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	declare_entity_component(entity, goalie);
 	declare_entity_component(entity, collider);
 
-	struct StateMachineGoalie *state_machine = goalie->state_machine;
+	struct state_machine_goalie *state_machine = goalie->state_machine;
 
 	const v2 goal_center = game_state->vars.pitch.goal[player->side].center;
 
@@ -181,7 +181,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	{
 	    enum save_direction direction = goalie->dive_direction;
 
-	    StateMachineGoalieDiveData *dive_state_data = &goalie->state_machine->state_data.dive;
+	    struct state_machine_goalie_dive_data *dive_state_data =
+		&goalie->state_machine->state_data.dive;
 
 	    if (!dive_state_data->animation_first_phase_completed)
 	    {

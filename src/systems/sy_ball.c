@@ -37,7 +37,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	declare_entity_component(entity, ball);
 	declare_entity_component(entity, collider);
 
-	struct StateMachineBall *state_machine = ball->state_machine;
+	struct state_machine_ball *state_machine = ball->state_machine;
 
 	if (input->buttons[IBT_BUTTON_START].released)
 	{

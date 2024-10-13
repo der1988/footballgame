@@ -42,14 +42,15 @@
     declare_entity_component_ext(entity, collider, ball_collider);                                 \
     declare_entity_component_ext(entity, ball, ball)
 
+// Forward declaration
+struct entity;
+
+// START - Common
+
 struct StateMachineRunningActionState
 {
     running_action_idx_t running_action_idx;
 };
-
-struct entity;
-
-// START - Common
 
 assets_animation_id_t entities_common_animation_id_from_name(char *entity_name,
 							     char *animation_name,
@@ -79,7 +80,7 @@ struct ball_config
     v2 position;
 };
 
-enum StateMachineBallState
+enum state_machine_ball_state
 {
     BS_NONE,
     BS_IN_PLAY,
@@ -88,20 +89,20 @@ enum StateMachineBallState
     BS_COUNT
 };
 
-static char const *StateMachineBallStateString[] = {"none", "in_play", "out_of_play", "gk_hands",
-						    "count"};
+static const char *state_machine_ball_state_string[] = {"none", "in_play", "out_of_play",
+							"gk_hands", "count"};
 
 declare_state_machine_enter_and_exit(ball);
 
-union StateMachineBallStateData
+union state_machine_ball_state_data
 {
-    struct StateMachineDefaultEmptyData in_play;
-    struct StateMachineDefaultEmptyData out_of_play;
-    struct StateMachineDefaultEmptyData gk_hands;
+    struct state_machine_default_empty_data in_play;
+    struct state_machine_default_empty_data out_of_play;
+    struct state_machine_default_empty_data gk_hands;
 };
 
-define_state_machine(Ball);
-define_state_machine_functions(Ball, ball);
+define_state_machine(ball);
+define_state_machine_functions(ball);
 
 struct entity *entities_ball_create(struct ball_config config, struct game_state *game_state);
 void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id, v3 pos, v3 velocity,
@@ -140,51 +141,52 @@ struct player_config
     u8 team_formation_position_idx;
 };
 
-typedef enum StateMachinePlayerState
+enum state_machine_player_state
 {
     PS_NONE,
     PS_NORMAL,
     PS_GOALIE,
     PS_COUNT
-} StateMachinePlayerState;
+};
 
-static char const *StateMachinePlayerStateString[] = {"none", "normal", "goalie"};
+static const char *state_machine_player_state_string[] = {"none", "normal", "goalie"};
 
 declare_state_machine_enter_and_exit(player);
 
-struct StateMachinePlayerNormalData
+struct state_machine_player_normal_data
 {
     enum direction running_action_direction;
 };
 
-union StateMachinePlayerStateData
+union state_machine_player_state_data
 {
-    struct StateMachinePlayerNormalData normal;
-    struct StateMachineDefaultEmptyData goalie;
+    struct state_machine_player_normal_data normal;
+    struct state_machine_default_empty_data goalie;
 };
 
-define_state_machine(Player);
-define_state_machine_functions(Player, player);
+define_state_machine(player);
+define_state_machine_functions(player);
 
-typedef enum StateMachineGoalieState
+enum state_machine_goalie_state
 {
     GS_NONE,
     GS_PROTECT_GOAL,
     GS_DIVE,
     GS_HOLD_BALL,
     GS_COUNT
-} StateMachineGoalieState;
+};
 
-static char const *StateMachineGoalieStateString[] = {"none", "protect_goal", "dive", "hold_ball"};
+static const char *state_machine_goalie_state_string[] = {"none", "protect_goal", "dive",
+							  "hold_ball"};
 
 declare_state_machine_enter_and_exit(goalie);
 
-typedef struct StateMachineGoalieHoldBallData
+struct state_machine_goalie_hold_ball_data
 {
     time_t hold_start_time;
-} StateMachineGoalieHoldBallData;
+};
 
-typedef struct StateMachineGoalieDiveData
+struct state_machine_goalie_dive_data
 {
     f64 animation_start_time;
     f64 animation_first_phase_end_time;
@@ -194,25 +196,25 @@ typedef struct StateMachineGoalieDiveData
     b32 animation_completed;
     b32 ball_saved;
     b32 ball_held;
-} StateMachineGoalieDiveData;
+};
 
-typedef union StateMachineGoalieStateData
+union state_machine_goalie_state_data
 {
-    struct StateMachineDefaultEmptyData protect_goal;
-    struct StateMachineGoalieDiveData dive;
-    struct StateMachineGoalieHoldBallData hold_ball;
-} StateMachineGoalieStateData;
+    struct state_machine_default_empty_data protect_goal;
+    struct state_machine_goalie_dive_data dive;
+    struct state_machine_goalie_hold_ball_data hold_ball;
+};
 
-typedef enum PlayerColliderType
+enum player_collider_type
 {
     PCT_PLAYER,
     PCT_GOALIE,
     PCT_DIVE,
     PCT_COUNT
-} PlayerColliderType;
+};
 
-define_state_machine(Goalie);
-define_state_machine_functions(Goalie, goalie);
+define_state_machine(goalie);
+define_state_machine_functions(goalie);
 
 #define check_is_player_and_declare_components(entity)                                             \
     struct component_transform *transform = &entity->transform;                                    \
@@ -281,7 +283,8 @@ enum entity_type
     ET_GOAL_NET,
     ET_COUNT
 };
-static const char *EntityTypeToString[ET_COUNT] = {"camera", "ball", "player", "goal", "goal_net"};
+static const char *entity_type_to_string[ET_COUNT] = {"camera", "ball", "player", "goal",
+						      "goal_net"};
 
 struct entity_header
 {
