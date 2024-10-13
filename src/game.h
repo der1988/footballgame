@@ -138,7 +138,7 @@ struct GameState
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;
     struct tweakui *tweakui;
-    LayersDebug *layer_debug;
+    layers_debug_t *layer_debug;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
     Camera2D camera;

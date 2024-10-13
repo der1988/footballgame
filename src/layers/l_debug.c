@@ -9,10 +9,10 @@
 
 #define MAX_FONTS 8
 
-LayersDebug *layers_debug_create(struct GameState *game_state)
+layers_debug_t *layers_debug_create(struct GameState *game_state)
 {
-    LayersDebug *handle =
-	memory_arena_push(game_state->memory_by_lifetime[MAL_GAME], sizeof(LayersDebug));
+    layers_debug_t *handle =
+	memory_arena_push(game_state->memory_by_lifetime[MAL_GAME], sizeof(layers_debug_t));
     handle->initialised = true;
 
     handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_UPDATE];
@@ -27,7 +27,7 @@ LayersDebug *layers_debug_create(struct GameState *game_state)
     return handle;
 }
 
-void layers_debug_destroy(LayersDebug *handle)
+void layers_debug_destroy(layers_debug_t *handle)
 {
     assert(handle->initialised);
 
@@ -38,19 +38,19 @@ void layers_debug_destroy(LayersDebug *handle)
     GLOG_INFO(LS_LAYERS, "layer debug destroyed");
 }
 
-void layers_debug_reset(LayersDebug *handle)
+void layers_debug_reset(layers_debug_t *handle)
 {
     assert(handle->initialised);
     handle->queued_requests = 0;
     GLOG_TRACE(LS_LAYERS, "layer debug destroyed");
 }
 
-void layers_debug_queue_draw_text(LayersDebug *handle, const char *text)
+void layers_debug_queue_draw_text(layers_debug_t *handle, const char *text)
 {
     if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS)
     {
-	struct DrawTextRequest *dtr =
-	    memory_arena_push(handle->frame_memory_arena, sizeof(struct DrawTextRequest));
+	struct draw_text_request *dtr =
+	    memory_arena_push(handle->frame_memory_arena, sizeof(struct draw_text_request));
 	strncpy(dtr->text, text, ARRAY_LEN(dtr->text));
 	handle->draw_text_requests[handle->queued_requests++] = dtr;
     }
@@ -60,9 +60,9 @@ void layers_debug_queue_draw_text(LayersDebug *handle, const char *text)
     }
 }
 
-void layers_debug_draw(LayersDebug *handle)
+void layers_debug_draw(layers_debug_t *handle)
 {
-    struct DrawTextRequest *dtr;
+    struct draw_text_request *dtr;
     for (usize i = 0; i < handle->queued_requests; ++i)
     {
 	dtr = handle->draw_text_requests[i];

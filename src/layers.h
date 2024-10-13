@@ -1,15 +1,15 @@
 #ifndef LAYERS_H
 #define LAYERS_H
 
-typedef struct LayersDebug LayersDebug;
+typedef struct layers_debug layers_debug_t;
 
 struct GameState;
 
-LayersDebug *layers_debug_create(struct GameState *game_state);
-void layers_debug_destroy(LayersDebug *handle);
-void layers_debug_reset(LayersDebug *handle);
-void layers_debug_queue_draw_text(LayersDebug *handle, const char *text);
-void layers_debug_draw(LayersDebug *handle);
+layers_debug_t *layers_debug_create(struct GameState *game_state);
+void layers_debug_destroy(layers_debug_t *handle);
+void layers_debug_reset(layers_debug_t *handle);
+void layers_debug_queue_draw_text(layers_debug_t *handle, const char *text);
+void layers_debug_draw(layers_debug_t *handle);
 
 void layers_hud_draw(struct GameState *game_state);
 #endif // !LAYERS_H
