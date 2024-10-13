@@ -116,7 +116,7 @@ struct human_player
 
 struct game_vars
 {
-    struct Match match;
+    struct match match;
     struct Pitch pitch;
     entity_id_t camera_entity_id;
     entity_id_t ball_entity_id;

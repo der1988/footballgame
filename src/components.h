@@ -131,7 +131,7 @@ enum Direction
 struct ComponentPlayer
 {
     struct ComponentHeader header;
-    enum PitchSide side;
+    enum pitch_side side;
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
     time_t time_spent_in_precision_control;

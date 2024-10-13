@@ -7,7 +7,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void football_match_change_state(struct game_state *game_state, enum MatchState new_state)
+void football_match_change_state(struct game_state *game_state, enum match_state new_state)
 {
     game_state->vars.match.state = new_state;
     GLOGF_INFO(LS_GAME, "match state changed to: %s", MatchStateToString[new_state]);

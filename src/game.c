@@ -132,11 +132,11 @@ struct game_state *game_init(struct game_config game_config)
     game_state->config.players_count = 1;
     game_state->vars.pitch.field = (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
     game_state->vars.pitch.goal[PSI_NORTH] =
-	(struct Goal){.center = (v2){.x = game_state->vars.pitch.field.x +
+	(struct goal){.center = (v2){.x = game_state->vars.pitch.field.x +
 					  game_state->vars.pitch.field.width * 0.5f,
 				     .y = 77},
 		      .area = (Rectangle){.x = 165, .y = 77, .width = 374, .height = 167}};
-    game_state->vars.pitch.goal[PSI_SOUTH] = (struct Goal){
+    game_state->vars.pitch.goal[PSI_SOUTH] = (struct goal){
 	.center =
 	    (v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
 		 .y = 77 + 360 * 3},

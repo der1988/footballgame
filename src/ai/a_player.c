@@ -42,7 +42,7 @@ enum PlayerAIState ai_player_think(struct Entity *entity, v2 *target_position,
     else
     {
 	// Let's move based on the tactics of the team
-	struct TeamFormationPosition *team_formation_position =
+	struct team_formation_position *team_formation_position =
 	    football_tactics_get_team_formation_position(
 		TF_433, entity->player.team_formation_position_idx);
 	*target_position = pitch_pos_rel_to_abs(game_state->vars.pitch.field,

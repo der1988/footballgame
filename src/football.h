@@ -7,7 +7,7 @@
 // Forward declaration
 struct game_state;
 
-enum MatchState
+enum match_state
 {
     MS_KICKOFF,
     MS_PLAY,
@@ -23,9 +23,9 @@ enum MatchState
 static const char *MatchStateToString[MS_COUNT] = {
     "kickoff", "play", "goal", "throw_in", "goal_kick", "corner_kick", "penalty_kick", "free_kick"};
 
-struct Match
+struct match
 {
-    enum MatchState state;
+    enum match_state state;
     struct
     {
 	u16 home;
@@ -33,21 +33,21 @@ struct Match
     } score;
 };
 
-enum PitchType
+enum pitch_type
 {
     PT_NORMAL,
     PT_MUDDY,
     PT_SNOWY
 };
 
-enum PitchSide
+enum pitch_side
 {
     PSI_NORTH,
     PSI_SOUTH,
     PSI_COUNT
 };
 
-struct Goal
+struct goal
 {
     Rectangle area;
     v2 center;
@@ -55,14 +55,14 @@ struct Goal
 
 struct Pitch
 {
-    Rectangle field;
-    struct Goal goal[PSI_COUNT];
-    enum PitchType type;
+    rect_t field;
+    struct goal goal[PSI_COUNT];
+    enum pitch_type type;
 };
 
-void football_match_change_state(struct game_state *game_state, enum MatchState new_state);
+void football_match_change_state(struct game_state *game_state, enum match_state new_state);
 
-enum PlayerRole
+enum player_role
 {
     PR_GK,  // Goalkeeper
     PR_SB,  // Side Back
@@ -78,7 +78,7 @@ enum PlayerRole
     PR_COUNT
 };
 
-enum TeamFormation
+enum team_formation
 {
     TF_433,
     TF_442,
@@ -90,7 +90,7 @@ enum TeamFormation
     TF_COUNT
 };
 
-enum StyleOfPlay
+enum style_of_play
 {
     SOP_BALANCED,
     SOP_OFFENSIVE,
@@ -98,7 +98,7 @@ enum StyleOfPlay
     SOP_COUNT
 };
 
-enum TeamMomentum
+enum team_momentum
 {
     TM_DEFENDING,
     TM_DEFAULT,
@@ -106,15 +106,15 @@ enum TeamMomentum
     TM_COUNT
 };
 
-struct TeamFormationPosition
+struct team_formation_position
 {
     const char *name;
-    enum PlayerRole supported_roles[3];
+    enum player_role supported_roles[3];
     v2 position[TM_COUNT];
-    enum StyleOfPlay style_of_play;
+    enum style_of_play style_of_play;
 };
 
-static struct TeamFormationPosition TeamFormations[TF_COUNT][10] = {
+static struct team_formation_position TeamFormations[TF_COUNT][10] = {
     // TF_433
     {{.name = "LB",
       .style_of_play = SOP_BALANCED,
@@ -157,12 +157,12 @@ static struct TeamFormationPosition TeamFormations[TF_COUNT][10] = {
       .supported_roles = {PR_CF},
       .position = {{.x = 0, .y = 0.5f}, {.x = 0, .y = 0.7f}, {.x = 0, .y = 0.9f}}}}};
 
-struct TeamFormationPosition *football_tactics_get_team_formation(enum TeamFormation formation);
+struct team_formation_position *football_tactics_get_team_formation(enum team_formation formation);
 
-struct TeamFormationPosition *
-football_tactics_get_team_formation_position(enum TeamFormation formation, u32 position_idx);
+struct team_formation_position *
+football_tactics_get_team_formation_position(enum team_formation formation, u32 position_idx);
 
-bool football_pitch_is_position_inside_penalty_area(v2 pos, enum PitchSide side,
+bool football_pitch_is_position_inside_penalty_area(v2 pos, enum pitch_side side,
 						    struct game_state *game_state);
 bool football_pitch_is_position_inside(v2 pos, struct game_state *game_state);
 

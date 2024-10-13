@@ -136,7 +136,7 @@ typedef struct PlayerConfig
 {
     v2 position;
     b32 is_goalie;
-    enum PitchSide side;
+    enum pitch_side side;
     u8 team_formation_position_idx;
 } PlayerConfig;
 
@@ -259,7 +259,7 @@ bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ba
 
 typedef struct GoalConfig
 {
-    enum PitchSide side;
+    enum pitch_side side;
 } GoalConfig;
 
 struct Entity *entities_goal_create(GoalConfig config, struct game_state *game_state);
