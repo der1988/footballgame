@@ -6,10 +6,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-static EntityId find_empty_slot(EntityRepository *entity_repo)
+static entity_id_t find_empty_slot(EntityRepository *entity_repo)
 {
     // TODO(marco): is a linear search enough here?
-    EntityId id = 0;
+    entity_id_t id = 0;
     if (entity_repo->available_slots == entity_repo->max_slots)
     {
 	entity_repo->available_slots--;
@@ -45,7 +45,7 @@ static EntityId find_empty_slot(EntityRepository *entity_repo)
     return id;
 }
 
-static void empty_slot(EntityRepository *entity_repo, EntityId id)
+static void empty_slot(EntityRepository *entity_repo, entity_id_t id)
 {
     entity_repo->entities[id].header.alive = false;
     entity_repo->available_slots++;
@@ -77,7 +77,7 @@ struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, c
 {
     assert(handle->initialised && handle->available_slots > 0);
 
-    EntityId id = find_empty_slot(handle);
+    entity_id_t id = find_empty_slot(handle);
     if (id == EID_NOT_VALID)
     {
 	return NULL;
@@ -94,14 +94,14 @@ struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, c
     return entity;
 }
 
-void entities_entity_destroy(EntityRepository *handle, EntityId id)
+void entities_entity_destroy(EntityRepository *handle, entity_id_t id)
 {
     empty_slot(handle, id);
 
     GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].header.name, "entity destroyed");
 }
 
-struct Entity *entities_entity_get(EntityRepository *handle, EntityId id)
+struct Entity *entities_entity_get(EntityRepository *handle, entity_id_t id)
 {
     assert(handle->initialised);
     return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;

@@ -13,7 +13,8 @@
 
 struct GameState *g_game_state = NULL;
 
-void setUp(void) {
+void setUp(void)
+{
     int width = 800;
     int height = 600;
     InitWindow(width, height, "Test Entity Repos");
@@ -23,12 +24,13 @@ void setUp(void) {
     void *memory = malloc(Megabytes(10));
 
     struct GameConfig game_config =
-        (struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
+	(struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
 
     g_game_state = game_init(game_config);
 }
 
-void tearDown(void) {
+void tearDown(void)
+{
     void *memory = g_game_state->config.memory;
 
     game_destroy(g_game_state);
@@ -38,12 +40,13 @@ void tearDown(void) {
     CloseWindow();
 }
 
-void test_entity() {
+void test_entity()
+{
     struct EntityRepository *entity_repo = g_game_state->entity_repository;
     struct Entity *entity =
-        entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
-    EntityId entity_id = entity->header.id;
+    entity_id_t entity_id = entity->header.id;
 
     entity = entities_entity_get(entity_repo, entity_id);
     TEST_ASSERT_NOT_NULL(entity);
@@ -58,7 +61,8 @@ void test_entity() {
     TEST_ASSERT(!entity->header.alive);
 }
 
-int main() {
+int main()
+{
     UNITY_BEGIN();
 
     RUN_TEST(test_entity);

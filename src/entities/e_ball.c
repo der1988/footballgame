@@ -174,7 +174,7 @@ static void ball_prepare_gfx(struct ComponentBall *ball, struct GameState *game_
 	entities_common_animation_id_from_name("ball", "down_right", game_state);
 }
 
-void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3 velocity,
+void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id, v3 pos, v3 velocity,
 					     struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -186,8 +186,9 @@ void entities_ball_set_position_and_velocity(EntityId ball_entity_id, v3 pos, v3
     entity->ball.selected_after_touch_side = Vector2Zero();
 }
 
-void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
-				     v2 player_velocity, v2 position_to_seek, f32 control_quality,
+void entities_ball_control_precision(entity_id_t ball_entity_id,
+				     entity_id_t player_on_the_ball_entity_id, v2 player_velocity,
+				     v2 position_to_seek, f32 control_quality,
 				     struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -204,8 +205,9 @@ void entities_ball_control_precision(EntityId ball_entity_id, EntityId player_on
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }
 
-void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_the_ball_entity_id,
-				   v2 control_direction, v2 player_velocity, f32 control_quality,
+void entities_ball_control_running(entity_id_t ball_entity_id,
+				   entity_id_t player_on_the_ball_entity_id, v2 control_direction,
+				   v2 player_velocity, f32 control_quality,
 				   struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -222,7 +224,7 @@ void entities_ball_control_running(EntityId ball_entity_id, EntityId player_on_t
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }
 
-void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
+void entities_ball_shoot(entity_id_t ball_entity_id, entity_id_t kicker_entity_id, v2 direction,
 			 f32 power, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -279,8 +281,8 @@ void entities_ball_shoot(EntityId ball_entity_id, EntityId kicker_entity_id, v2 
     ball->selected_after_touch_side = Vector2Zero();
 }
 
-void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v3 direction,
-			      f32 power, b32 auto_pass, struct GameState *game_state)
+void entities_ball_short_pass(entity_id_t ball_entity_id, entity_id_t kicker_entity_id,
+			      v3 direction, f32 power, b32 auto_pass, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentPhysics3d *physics_3d = &entity->physics_3d;
@@ -301,7 +303,7 @@ void entities_ball_short_pass(EntityId ball_entity_id, EntityId kicker_entity_id
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
 }
 
-void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id, v2 direction,
+void entities_ball_long_pass(entity_id_t ball_entity_id, entity_id_t kicker_entity_id, v2 direction,
 			     f32 power, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -324,7 +326,7 @@ void entities_ball_long_pass(EntityId ball_entity_id, EntityId kicker_entity_id,
     ball->selected_after_touch_side = Vector2Zero();
 }
 
-void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
+void entities_ball_held_by_goalie(entity_id_t ball_entity_id, entity_id_t goalie_entity_id,
 				  struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -334,7 +336,7 @@ void entities_ball_held_by_goalie(EntityId ball_entity_id, EntityId goalie_entit
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
 }
 
-void entities_ball_saved_by_goalie(EntityId ball_entity_id, EntityId goalie_entity_id,
+void entities_ball_saved_by_goalie(entity_id_t ball_entity_id, entity_id_t goalie_entity_id,
 				   struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -343,7 +345,7 @@ void entities_ball_saved_by_goalie(EntityId ball_entity_id, EntityId goalie_enti
     ball->last_player_on_the_ball_entity_id = goalie_entity_id;
 }
 
-void entities_ball_back_in_play(EntityId ball_entity_id, struct GameState *game_state)
+void entities_ball_back_in_play(entity_id_t ball_entity_id, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentBall *ball = &entity->ball;
@@ -351,7 +353,7 @@ void entities_ball_back_in_play(EntityId ball_entity_id, struct GameState *game_
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }
 
-void entities_ball_in_goal(EntityId ball_entity_id, struct GameState *game_state)
+void entities_ball_in_goal(entity_id_t ball_entity_id, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct ComponentBall *ball = &entity->ball;

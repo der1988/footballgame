@@ -6,8 +6,8 @@
 #include "log.h"
 #include <assert.h>
 
-RunningActionIdx components_action_run(EntityId id, struct Action *action,
-				       struct GameState *game_state)
+running_action_idx_t components_action_run(entity_id_t id, struct Action *action,
+					   struct GameState *game_state)
 {
     assert(action);
 
@@ -16,7 +16,7 @@ RunningActionIdx components_action_run(EntityId id, struct Action *action,
     assert(entity->action.header.enabled);
     struct ActionRunner *action_runner = NULL;
 
-    RunningActionIdx idx = 0;
+    running_action_idx_t idx = 0;
     for (idx = 0; idx < MaxConcurrentActions; ++idx)
     {
 	action_runner = &entity->action.running_actions[idx];
@@ -40,7 +40,7 @@ RunningActionIdx components_action_run(EntityId id, struct Action *action,
     return idx;
 }
 
-void components_action_stop(EntityId id, RunningActionIdx running_action_idx,
+void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
 			    struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, id);

@@ -4,7 +4,7 @@
 #define define_state_machine(ENTITY_TYPE)                                                          \
     struct StateMachine##ENTITY_TYPE                                                               \
     {                                                                                              \
-	EntityId owner_entity;                                                                     \
+	entity_id_t owner_entity;                                                                  \
 	enum StateMachine##ENTITY_TYPE##State current_state;                                       \
 	enum StateMachine##ENTITY_TYPE##State previous_state;                                      \
 	union StateMachine##ENTITY_TYPE##StateData state_data;                                     \

@@ -44,7 +44,7 @@ enum Direction entities_common_calculate_direction(Vector2 direction)
 }
 
 bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
-						time time, f32 max_speed)
+						time_t time, f32 max_speed)
 {
     f32 distance_to_cover = Vector2Distance(position_to_reach, current_position);
 
@@ -54,7 +54,7 @@ bool entities_common_can_reach_position_in_time(v2 current_position, v2 position
 bool entities_common_can_reach_future_ball_position(
     struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
     bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
-    v3 *future_pos, time *future_time, struct GameState *game_state)
+    v3 *future_pos, time_t *future_time, struct GameState *game_state)
 {
     const int steps_per_lookahead =
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
@@ -65,7 +65,7 @@ bool entities_common_can_reach_future_ball_position(
 	v3 pos_to_check = future_ball_positions[i];
 	if (!predicate || predicate(pos_to_check, seeker_entity, game_state))
 	{
-	    time lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
+	    time_t lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
 	    if (entities_common_can_reach_position_in_time(seeker_entity->transform.position,
 							   V3_TO_V2(pos_to_check), lookahead_time,
 							   seeker_max_speed))

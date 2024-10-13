@@ -100,8 +100,8 @@ struct Controls
 	    ACT_LONG_PASS
 	} type;
 	v2 direction;
-	time started;
-	time ended;
+	time_t started;
+	time_t ended;
 	f32 power;
 	b32 charging;
 	b32 ready;
@@ -111,15 +111,15 @@ struct Controls
 struct HumanPlayer
 {
     struct Controls controls;
-    EntityId player_entity_id;
+    entity_id_t player_entity_id;
 };
 
 struct GameVariables
 {
     struct Match match;
     struct Pitch pitch;
-    EntityId camera_entity_id;
-    EntityId ball_entity_id;
+    entity_id_t camera_entity_id;
+    entity_id_t ball_entity_id;
     struct HumanPlayer p1;
     b32 slow_motion;
     b32 is_debug_log_shown;
@@ -143,8 +143,8 @@ struct GameState
     RenderTexture2D render_texture;
     Camera2D camera;
     Camera2D virtual_camera;
-    time time;
-    DeltaTime dt;
+    time_t time;
+    delta_time_t dt;
 };
 
 struct GameState *game_init(struct GameConfig gameConfig);

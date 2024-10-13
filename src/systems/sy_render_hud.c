@@ -6,7 +6,7 @@
 
 void systems_render_hud(struct GameState *game_state)
 {
-    EntityId selected_player_entity_id = game_state->vars.p1.player_entity_id;
+    entity_id_t selected_player_entity_id = game_state->vars.p1.player_entity_id;
     struct Entity *entity =
 	entities_entity_get(game_state->entity_repository, selected_player_entity_id);
     declare_entity_component(entity, Transform, transform);

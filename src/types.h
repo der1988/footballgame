@@ -30,9 +30,9 @@ typedef Vector2 v2;
 typedef Vector3 v3;
 
 // Game
-typedef u32 EntityId;
-typedef f64 time;
-typedef time DeltaTime;
-typedef i16 RunningActionIdx;
+typedef u32 entity_id_t;
+typedef f64 time_t;
+typedef time_t delta_time_t;
+typedef i16 running_action_idx_t;
 
 #endif // !TYPES_H

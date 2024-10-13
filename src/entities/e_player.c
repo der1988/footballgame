@@ -135,7 +135,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct GameState *gam
     return entity;
 }
 
-void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_apply,
+void entities_player_apply_force(entity_id_t player_entity_id, Vector2 force_to_apply,
 				 struct GameState *game_state)
 {
     struct ComponentPhysics *physics =
@@ -152,7 +152,7 @@ void entities_player_apply_force(EntityId player_entity_id, Vector2 force_to_app
     }
 }
 
-void entities_player_apply_velocity(EntityId player_entity_id, struct GameState *game_state)
+void entities_player_apply_velocity(entity_id_t player_entity_id, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
     struct ComponentPhysics *physics = &entity->physics;
@@ -161,7 +161,7 @@ void entities_player_apply_velocity(EntityId player_entity_id, struct GameState 
 	Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
 }
 
-void entities_player_calculate_running_frame(EntityId player_entity_id, v2 direction,
+void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 direction,
 					     f32 velocity_threshold, struct GameState *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);

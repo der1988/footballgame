@@ -106,7 +106,7 @@ void systems_goalie(struct GameState *game_state, struct Input *input)
 	    {
 		// Calculate whether goalie can reach the ball using predicted positions
 		v3 future_pos;
-		time future_time;
+		time_t future_time;
 		const bool can_reach_ball = entities_common_can_reach_future_ball_position(
 		    entity, exit_max_speed, ball->lookahead_positions, protect_goal_predicate,
 		    &future_pos, &future_time, game_state);

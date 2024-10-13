@@ -19,7 +19,7 @@
 struct PlayerOnTheBall
 {
     b32 exists;
-    EntityId id;
+    entity_id_t id;
     f32 distance_from_the_ball;
     struct ComponentPlayer *player;
     v2 position;
@@ -35,15 +35,15 @@ struct PlayerOnTheBall
     struct ComponentCollider *collider;
 };
 
-static EntityId find_nearest_teammate(struct GameState *game_state,
-				      EntityId player_to_not_select_entity_id, v2 position)
+static entity_id_t find_nearest_teammate(struct GameState *game_state,
+					 entity_id_t player_to_not_select_entity_id, v2 position)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     struct ComponentBall *ball = &ball_entity->ball;
 
     EntityRepository *entity_repository = game_state->entity_repository;
-    EntityId selected_entity_id = EID_NOT_VALID;
+    entity_id_t selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
     struct Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id)
@@ -74,12 +74,12 @@ static EntityId find_nearest_teammate(struct GameState *game_state,
     return selected_entity_id;
 }
 
-static EntityId find_pass_target(struct GameState *game_state,
-				 struct PlayerOnTheBall *player_on_the_ball, f32 detection_angle,
-				 f32 max_distance)
+static entity_id_t find_pass_target(struct GameState *game_state,
+				    struct PlayerOnTheBall *player_on_the_ball, f32 detection_angle,
+				    f32 max_distance)
 {
     EntityRepository *entity_repository = game_state->entity_repository;
-    EntityId selected_entity_id = EID_NOT_VALID;
+    entity_id_t selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
     struct Entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id)
@@ -397,7 +397,7 @@ void systems_player(struct GameState *game_state, struct Input *input)
 	    // Pass
 	    player_on_the_ball.player->last_kick_time = game_state->time;
 	    v3 pass_direction;
-	    EntityId teammate_entity_id =
+	    entity_id_t teammate_entity_id =
 		find_pass_target(game_state, &player_on_the_ball, 30, 300);
 	    f32 power = player_on_the_ball.controls->pass;
 	    b32 automatic_pass =
@@ -510,8 +510,8 @@ void systems_player(struct GameState *game_state, struct Input *input)
     }
 
     // Select human controlled player
-    EntityId nearest_teammate_entity_id = player_on_the_ball.id;
-    EntityId player_to_avoid_entity_id = EID_NOT_VALID;
+    entity_id_t nearest_teammate_entity_id = player_on_the_ball.id;
+    entity_id_t player_to_avoid_entity_id = EID_NOT_VALID;
     if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f))
     {
 	player_to_avoid_entity_id = ball->last_kicker_entity_id;

@@ -75,7 +75,7 @@ struct ComponentAction
 struct ComponentTarget
 {
     struct ComponentHeader header;
-    EntityId entity_id;
+    entity_id_t entity_id;
 };
 
 struct Collider
@@ -134,8 +134,8 @@ struct ComponentPlayer
     enum PitchSide side;
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
-    time time_spent_in_precision_control;
-    time time_spent_in_run_control;
+    time_t time_spent_in_precision_control;
+    time_t time_spent_in_run_control;
     f32 current_max_velocity;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
@@ -151,28 +151,28 @@ struct ComponentBall
     struct ComponentHeader header;
     struct StateMachineBall *state_machine;
     b32 is_on_the_ground;
-    EntityId last_player_on_the_ball_entity_id;
-    EntityId last_kicker_entity_id;
-    EntityId pass_target_entity_id;
+    entity_id_t last_player_on_the_ball_entity_id;
+    entity_id_t last_kicker_entity_id;
+    entity_id_t pass_target_entity_id;
     b32 subject_to_after_touch;
     v2 selected_after_touch_side;
-    time last_kick_time;
-    time last_bounce_time;
+    time_t last_kick_time;
+    time_t last_bounce_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
     enum Direction last_direction;
     v2 future_bounce_position;
     u32 dts_to_future_bounce;
     v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
-    time last_frame_update_time;
+    time_t last_frame_update_time;
     u16 last_running_frame_idx;
 };
 
 struct ComponentGoal
 {
     struct ComponentHeader header;
-    time hit_left_post_time;
-    time hit_right_post_time;
-    time hit_crossbar_time;
+    time_t hit_left_post_time;
+    time_t hit_right_post_time;
+    time_t hit_crossbar_time;
     b32 scored;
 };
 
@@ -223,13 +223,13 @@ struct ComponentGoalie
     AssetsSpriteFrameId dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
     AssetsAnimationId dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
     AssetsAnimationId dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
-    time last_frame_update_time;
-    time last_save_time;
+    time_t last_frame_update_time;
+    time_t last_save_time;
 };
 
-RunningActionIdx components_action_run(EntityId id, struct Action *action,
-				       struct GameState *game_state);
-void components_action_stop(EntityId id, RunningActionIdx running_action_idx,
+running_action_idx_t components_action_run(entity_id_t id, struct Action *action,
+					   struct GameState *game_state);
+void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
 			    struct GameState *game_state);
 
 void components_transform_calculate_absolute(struct ComponentTransform *transform,

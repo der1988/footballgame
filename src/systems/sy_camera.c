@@ -6,7 +6,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void apply_force(Vector2 force_to_apply, struct ComponentPhysics *physics, DeltaTime dt)
+void apply_force(Vector2 force_to_apply, struct ComponentPhysics *physics, delta_time_t dt)
 {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
@@ -15,7 +15,7 @@ void apply_force(Vector2 force_to_apply, struct ComponentPhysics *physics, Delta
 }
 
 void apply_velocity(struct ComponentTransform *transform, struct ComponentPhysics *physics,
-		    DeltaTime dt)
+		    delta_time_t dt)
 {
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
 }
