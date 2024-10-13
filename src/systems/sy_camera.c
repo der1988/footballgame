@@ -20,7 +20,7 @@ void apply_velocity(struct ComponentTransform *transform, struct ComponentPhysic
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
 }
 
-void systems_camera(struct GameState *game_state)
+void systems_camera(struct game_state *game_state)
 {
 
     for_each_entity(entity, game_state->entity_repository)

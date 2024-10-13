@@ -2,7 +2,7 @@
 #include <raylib.h>
 
 void actions_tween_float_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
-					struct GameState *game_state)
+					struct game_state *game_state)
 {
     struct ActionTweenFloatFromTo *action = (struct ActionTweenFloatFromTo *)action_runner->action;
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;

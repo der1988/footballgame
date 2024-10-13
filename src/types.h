@@ -30,6 +30,7 @@ typedef struct Vector2 v2;
 typedef struct Vector3 v3;
 typedef struct Color color_t;
 typedef struct Font font_t;
+typedef struct Camera2D camera2d_t;
 
 // Game
 typedef u32 entity_id_t;

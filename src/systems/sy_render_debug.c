@@ -6,7 +6,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_render_debug(struct GameState *game_state)
+void systems_render_debug(struct game_state *game_state)
 {
     if (game_state->constants.render_debug)
     {

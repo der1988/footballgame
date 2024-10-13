@@ -5,7 +5,7 @@
 #include <raylib.h>
 
 void actions_rotate_to_update(struct ActionRunner *action_runner, entity_id_t id,
-			      struct GameState *game_state)
+			      struct game_state *game_state)
 {
     struct ActionRotateTo *action = (struct ActionRotateTo *)action_runner->action;
 
@@ -22,7 +22,7 @@ void actions_rotate_to_update(struct ActionRunner *action_runner, entity_id_t id
 }
 
 void actions_rotate_to_start(struct ActionRunner *action_runner, entity_id_t id,
-			     struct GameState *game_state)
+			     struct game_state *game_state)
 {
     struct ActionRotateTo *action = (struct ActionRotateTo *)action_runner->action;
 

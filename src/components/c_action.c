@@ -7,7 +7,7 @@
 #include <assert.h>
 
 running_action_idx_t components_action_run(entity_id_t id, struct Action *action,
-					   struct GameState *game_state)
+					   struct game_state *game_state)
 {
     assert(action);
 
@@ -41,7 +41,7 @@ running_action_idx_t components_action_run(entity_id_t id, struct Action *action
 }
 
 void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
-			    struct GameState *game_state)
+			    struct game_state *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, id);
 

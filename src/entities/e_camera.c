@@ -5,7 +5,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-struct Entity *entities_camera_create(struct GameState *game_state)
+struct Entity *entities_camera_create(struct game_state *game_state)
 {
     struct Entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");

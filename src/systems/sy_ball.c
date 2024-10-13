@@ -21,7 +21,7 @@ static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
     return false;
 }
 
-void systems_ball(struct GameState *game_state, struct input *input)
+void systems_ball(struct game_state *game_state, struct input *input)
 {
     for_each_entity(entity, game_state->entity_repository)
     {

@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 static bool protect_goal_predicate(v3 pos_to_check, struct Entity *seeker_entity,
-				   struct GameState *game_state)
+				   struct game_state *game_state)
 {
     f32 ball_distance_from_goal = Vector3Distance(
 	pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[seeker_entity->player.side].center, 0));
@@ -24,7 +24,7 @@ static bool protect_goal_predicate(v3 pos_to_check, struct Entity *seeker_entity
 	    pos_to_check.y < (game_state->constants.crossbar_height - 7));
 }
 
-void systems_goalie(struct GameState *game_state, struct Input *input)
+void systems_goalie(struct game_state *game_state, struct Input *input)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);

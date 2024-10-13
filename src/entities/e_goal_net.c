@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_net_create(struct GameState *game_state)
+struct Entity *entities_goal_net_create(struct game_state *game_state)
 {
     struct Entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");

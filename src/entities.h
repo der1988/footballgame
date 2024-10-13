@@ -53,7 +53,7 @@ struct Entity;
 // START - Common
 
 AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
-							 struct GameState *game_state);
+							 struct game_state *game_state);
 enum Direction entities_common_calculate_direction(Vector2 direction);
 
 bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
@@ -61,14 +61,14 @@ bool entities_common_can_reach_position_in_time(v2 current_position, v2 position
 
 bool entities_common_can_reach_future_ball_position(
     struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
-    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
-    v3 *future_pos, time_t *future_time, struct GameState *game_state);
+    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct game_state *game_state),
+    v3 *future_pos, time_t *future_time, struct game_state *game_state);
 
 // END
 
 // START - Camera
 
-struct Entity *entities_camera_create(struct GameState *game_state);
+struct Entity *entities_camera_create(struct game_state *game_state);
 
 // END - Camera
 
@@ -103,29 +103,30 @@ union StateMachineBallStateData
 define_state_machine(Ball);
 define_state_machine_functions(Ball, ball);
 
-struct Entity *entities_ball_create(struct BallConfig config, struct GameState *game_state);
+struct Entity *entities_ball_create(struct BallConfig config, struct game_state *game_state);
 void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id, v3 pos, v3 velocity,
-					     struct GameState *game_state);
+					     struct game_state *game_state);
 void entities_ball_control_precision(entity_id_t ball_entity_id,
 				     entity_id_t player_on_the_ball_entity_id, v2 player_velocity,
 				     v2 position_to_seek, f32 control_quality,
-				     struct GameState *game_state);
+				     struct game_state *game_state);
 void entities_ball_control_running(entity_id_t ball_entity_id,
 				   entity_id_t player_on_the_ball_entity_id, v2 control_direction,
 				   v2 player_velocity, f32 control_quality,
-				   struct GameState *game_state);
+				   struct game_state *game_state);
 void entities_ball_shoot(entity_id_t ball_entity_id, entity_id_t kicker_entity_id, v2 direction,
-			 f32 power, struct GameState *game_state);
+			 f32 power, struct game_state *game_state);
 void entities_ball_short_pass(entity_id_t ball_entity_id, entity_id_t kicker_entity_id,
-			      v3 direction, f32 power, b32 auto_pass, struct GameState *game_state);
+			      v3 direction, f32 power, b32 auto_pass,
+			      struct game_state *game_state);
 void entities_ball_long_pass(entity_id_t ball_entity_id, entity_id_t kicker_entity_id, v2 direction,
-			     f32 power, struct GameState *game_state);
+			     f32 power, struct game_state *game_state);
 void entities_ball_held_by_goalie(entity_id_t ball_entity_id, entity_id_t goalie_entity_id,
-				  struct GameState *game_state);
+				  struct game_state *game_state);
 void entities_ball_saved_by_goalie(entity_id_t ball_entity_id, entity_id_t goalie_entity_id,
-				   struct GameState *game_state);
-void entities_ball_back_in_play(entity_id_t ball_entity_id, struct GameState *game_state);
-void entities_ball_in_goal(entity_id_t ball_entity_id, struct GameState *game_state);
+				   struct game_state *game_state);
+void entities_ball_back_in_play(entity_id_t ball_entity_id, struct game_state *game_state);
+void entities_ball_in_goal(entity_id_t ball_entity_id, struct game_state *game_state);
 
 // END - Ball
 
@@ -233,12 +234,12 @@ define_state_machine_functions(Goalie, goalie);
 	sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
 	collider->header.enabled)
 
-struct Entity *entities_player_create(PlayerConfig config, struct GameState *game_state);
+struct Entity *entities_player_create(PlayerConfig config, struct game_state *game_state);
 void entities_player_apply_force(entity_id_t player_entity_id, Vector2 steering,
-				 struct GameState *game_state);
-void entities_player_apply_velocity(entity_id_t player_entity_id, struct GameState *game_state);
+				 struct game_state *game_state);
+void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state);
 void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 direction,
-					     f32 velocity_threshold, struct GameState *game_state);
+					     f32 velocity_threshold, struct game_state *game_state);
 Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos,
 							     struct Collider *dive_collider);
 bool entities_player_is_diving_goalie_colliding_with_ball(struct Entity *goalie_entity,
@@ -249,7 +250,8 @@ bool entities_player_is_standing_goalie_colliding_with_ball(struct Entity *goali
 							    f32 max_height);
 bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ball_entity,
 				 enum SaveDirection *dive_direction, enum SaveHeight *dive_height,
-				 f32 *dive_speed, f32 *dive_distance, struct GameState *game_state);
+				 f32 *dive_speed, f32 *dive_distance,
+				 struct game_state *game_state);
 
 // END - Player
 
@@ -260,13 +262,13 @@ typedef struct GoalConfig
     enum PitchSide side;
 } GoalConfig;
 
-struct Entity *entities_goal_create(GoalConfig config, struct GameState *game_state);
+struct Entity *entities_goal_create(GoalConfig config, struct game_state *game_state);
 
 // END - Goal
 
 // START - Goal net
 
-struct Entity *entities_goal_net_create(struct GameState *game_state);
+struct Entity *entities_goal_net_create(struct game_state *game_state);
 
 // END - Goal net
 

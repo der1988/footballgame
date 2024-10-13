@@ -6,7 +6,7 @@
 #include <raylib.h>
 
 void actions_play_animation_update(struct ActionRunner *action_runner, entity_id_t id,
-				   struct GameState *game_state)
+				   struct game_state *game_state)
 {
     struct ActionPlayAnimation *action = (struct ActionPlayAnimation *)action_runner->action;
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;

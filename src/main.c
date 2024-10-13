@@ -23,14 +23,14 @@ int main()
 
     void *memory = malloc(Megabytes(64));
 
-    struct GameConfig game_config =
-	(struct GameConfig){.screen_width = GetScreenWidth(),
-			    .screen_height = GetScreenHeight(),
-			    .virtual_screen_width = virtual_screen_width,
-			    .virtual_screen_height = virtual_screen_height,
-			    .memory = memory};
+    struct game_config game_config =
+	(struct game_config){.screen_width = GetScreenWidth(),
+			     .screen_height = GetScreenHeight(),
+			     .virtual_screen_width = virtual_screen_width,
+			     .virtual_screen_height = virtual_screen_height,
+			     .memory = memory};
 
-    struct GameState *game_state = game_init(game_config);
+    struct game_state *game_state = game_init(game_config);
 
     f64 current_time = GetTime();
     f64 accumulator = 0.0;

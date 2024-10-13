@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char *animation_name,
-							 struct GameState *game_state)
+							 struct game_state *game_state)
 {
     // Scratch buffer
     char *final_animation =
@@ -53,8 +53,8 @@ bool entities_common_can_reach_position_in_time(v2 current_position, v2 position
 
 bool entities_common_can_reach_future_ball_position(
     struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
-    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct GameState *game_state),
-    v3 *future_pos, time_t *future_time, struct GameState *game_state)
+    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct game_state *game_state),
+    v3 *future_pos, time_t *future_time, struct game_state *game_state)
 {
     const int steps_per_lookahead =
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *

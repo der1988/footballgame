@@ -5,7 +5,7 @@
 
 #define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 
-struct input input_handle(struct GameState *game_state)
+struct input input_handle(struct game_state *game_state)
 {
     i32 gamepad = 0;
 

@@ -36,8 +36,8 @@ struct Action
     enum ActionType type;
     f32 duration;
     b32 loop;
-    void (*start)(struct ActionRunner *, entity_id_t, struct GameState *game_state);
-    void (*update)(struct ActionRunner *, entity_id_t, struct GameState *game_state);
+    void (*start)(struct ActionRunner *, entity_id_t, struct game_state *game_state);
+    void (*update)(struct ActionRunner *, entity_id_t, struct game_state *game_state);
 };
 
 // Changes the sprite color from one color to another
@@ -104,45 +104,45 @@ struct ActionToggleBoolean
 };
 
 void actions_action_run(struct ActionRunner *action_runner, entity_id_t id,
-			struct GameState *game_state);
+			struct game_state *game_state);
 void actions_action_stop(running_action_idx_t running_action_idx, entity_id_t id,
-			 struct GameState *game_state);
+			 struct game_state *game_state);
 
 struct ActionChangeColorFromTo *
 actions_change_color_from_to_create(f32 duration, b32 loop, Color from, Color to,
 				    memory_arena_handle_t *memory_arena_handle);
 void actions_change_color_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
-					 struct GameState *game_state);
+					 struct game_state *game_state);
 
 struct ActionPlayAnimation *
 actions_play_animation_create(struct AssetsAnimation *animation, b32 loop, float speed,
 			      memory_arena_handle_t *memory_arena_handle);
 void actions_play_animation_update(struct ActionRunner *action_runner, entity_id_t id,
-				   struct GameState *game_state);
+				   struct game_state *game_state);
 
 struct ActionSequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
 					       u32 count, ...);
 void actions_sequence_update(struct ActionRunner *action_runner, entity_id_t id,
-			     struct GameState *game_state);
+			     struct game_state *game_state);
 
 struct ActionSpawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count,
 					 ...);
 void actions_spawn_update(struct ActionRunner *action_runner, entity_id_t id,
-			  struct GameState *game_state);
+			  struct game_state *game_state);
 
 struct ActionTweenFloatFromTo *
 actions_tween_float_from_to_create(f32 duration, b32 loop, f32 *value, f32 from, f32 to,
 				   memory_arena_handle_t *memory_arena_handle);
 void actions_tween_float_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
-					struct GameState *game_state);
+					struct game_state *game_state);
 
 struct ActionRotateTo *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
 						memory_arena_handle_t *memory_arena_handle);
 void actions_rotate_to_update(struct ActionRunner *action_runner, entity_id_t id,
-			      struct GameState *game_state);
+			      struct game_state *game_state);
 
 void actions_toggle_boolean_update(struct ActionRunner *action_runner, entity_id_t id,
-				   struct GameState *game_state);
+				   struct game_state *game_state);
 struct ActionToggleBoolean *
 actions_toggle_boolean_create(f32 duration, b32 loop, b32 *value,
 			      memory_arena_handle_t *memory_arena_handle);

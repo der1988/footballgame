@@ -35,7 +35,7 @@ struct PlayerOnTheBall
     struct ComponentCollider *collider;
 };
 
-static entity_id_t find_nearest_teammate(struct GameState *game_state,
+static entity_id_t find_nearest_teammate(struct game_state *game_state,
 					 entity_id_t player_to_not_select_entity_id, v2 position)
 {
     struct Entity *ball_entity =
@@ -74,7 +74,7 @@ static entity_id_t find_nearest_teammate(struct GameState *game_state,
     return selected_entity_id;
 }
 
-static entity_id_t find_pass_target(struct GameState *game_state,
+static entity_id_t find_pass_target(struct game_state *game_state,
 				    struct PlayerOnTheBall *player_on_the_ball, f32 detection_angle,
 				    f32 max_distance)
 {
@@ -119,7 +119,7 @@ static entity_id_t find_pass_target(struct GameState *game_state,
     return selected_entity_id;
 }
 
-void systems_player(struct GameState *game_state, struct Input *input)
+void systems_player(struct game_state *game_state, struct Input *input)
 {
     struct Entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);

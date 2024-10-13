@@ -16,7 +16,7 @@ struct AssetsAnimationCache;
 struct tweakui;
 struct input;
 
-enum MemoryArenaLifetime
+enum memory_arena_lifetime
 {
     MAL_GAME,
     MAL_LEVEL,
@@ -25,13 +25,13 @@ enum MemoryArenaLifetime
     MAL_COUNT
 };
 
-enum CameraType
+enum camera_type
 {
     CAM_MAIN,
     CAM_COUNT
 };
 
-struct GameConfig
+struct game_config
 {
     u32 virtual_screen_width;
     u32 virtual_screen_height;
@@ -41,7 +41,7 @@ struct GameConfig
     u32 players_count;
 };
 
-struct GameConstants
+struct game_constants
 {
     f64 fixed_timestep;
     b32 render_debug;
@@ -88,12 +88,12 @@ struct GameConstants
     u32 crossbar_height;
 };
 
-struct Controls
+struct controls
 {
     v2 steering;
-    struct ActionCharge
+    struct action_charge
     {
-	enum ActionChargeType
+	enum action_charge_type
 	{
 	    ACT_SHOOT,
 	    ACT_PASS,
@@ -108,30 +108,30 @@ struct Controls
     } charge;
 };
 
-struct HumanPlayer
+struct human_player
 {
-    struct Controls controls;
+    struct controls controls;
     entity_id_t player_entity_id;
 };
 
-struct GameVariables
+struct game_vars
 {
     struct Match match;
     struct Pitch pitch;
     entity_id_t camera_entity_id;
     entity_id_t ball_entity_id;
-    struct HumanPlayer p1;
+    struct human_player p1;
     b32 slow_motion;
     b32 is_debug_log_shown;
     b32 is_tweakui_shown;
 };
 
-struct GameState
+struct game_state
 {
     b32 initialised;
-    struct GameConfig config;
-    struct GameConstants constants;
-    struct GameVariables vars;
+    struct game_config config;
+    struct game_constants constants;
+    struct game_vars vars;
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
     struct EntityRepository *entity_repository;
     struct AssetsTextureCache *texture_cache;
@@ -141,15 +141,15 @@ struct GameState
     layers_debug_t *layer_debug;
     AssetsTextureId pitch_texture_id;
     RenderTexture2D render_texture;
-    Camera2D camera;
-    Camera2D virtual_camera;
+    camera2d_t camera;
+    camera2d_t virtual_camera;
     time_t time;
     delta_time_t dt;
 };
 
-struct GameState *game_init(struct GameConfig gameConfig);
-void game_destroy(struct GameState *game_state);
-void game_update(struct GameState *game_state, struct input *input);
-void game_draw(struct GameState *game_state);
+struct game_state *game_init(struct game_config gameConfig);
+void game_destroy(struct game_state *game_state);
+void game_update(struct game_state *game_state, struct input *input);
+void game_draw(struct game_state *game_state);
 
 #endif // !GAME_H

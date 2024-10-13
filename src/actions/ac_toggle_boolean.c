@@ -2,7 +2,7 @@
 #include <raylib.h>
 
 void actions_toggle_boolean_update(struct ActionRunner *action_runner, entity_id_t id,
-				   struct GameState *game_state)
+				   struct game_state *game_state)
 {
     struct ActionToggleBoolean *action = (struct ActionToggleBoolean *)action_runner->action;
 

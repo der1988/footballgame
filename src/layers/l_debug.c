@@ -9,7 +9,7 @@
 
 #define MAX_FONTS 8
 
-layers_debug_t *layers_debug_create(struct GameState *game_state)
+layers_debug_t *layers_debug_create(struct game_state *game_state)
 {
     layers_debug_t *handle =
 	memory_arena_push(game_state->memory_by_lifetime[MAL_GAME], sizeof(layers_debug_t));

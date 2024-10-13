@@ -25,7 +25,7 @@ enum GoalieAIState
 
 enum PlayerAIState ai_player_think(struct Entity *entity, v2 *target_position,
 				   enum PlayerAIKickDecision *kick_decision,
-				   struct GameState *game_state);
+				   struct game_state *game_state);
 
 enum GoalieAIState ai_goalie_think(enum PlayerAIKickDecision *kick_decision,
-				   struct GameState *game_state);
+				   struct game_state *game_state);

@@ -110,7 +110,7 @@ struct ComponentCollider
 struct ComponentCamera
 {
     struct ComponentHeader header;
-    enum CameraType camera;
+    enum camera_type camera;
     f32 slowing_distance;
     v2 offset;
 };
@@ -228,9 +228,9 @@ struct ComponentGoalie
 };
 
 running_action_idx_t components_action_run(entity_id_t id, struct Action *action,
-					   struct GameState *game_state);
+					   struct game_state *game_state);
 void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
-			    struct GameState *game_state);
+			    struct game_state *game_state);
 
 void components_transform_calculate_absolute(struct ComponentTransform *transform,
 					     Vector2 *position, f32 *rotation, Vector2 *scale);

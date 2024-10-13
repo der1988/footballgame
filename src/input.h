@@ -5,7 +5,7 @@
 #include <raylib.h>
 
 // GameState forward declaration
-struct GameState;
+struct game_state;
 
 enum input_button_type
 {
@@ -37,6 +37,6 @@ struct input
     struct input_button buttons[IBT_BUTTON_COUNT];
 };
 
-struct input input_handle(struct GameState *game_state);
+struct input input_handle(struct game_state *game_state);
 
 #endif // !INPUT_H

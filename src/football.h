@@ -5,7 +5,7 @@
 #include <raylib.h>
 
 // Forward declaration
-struct GameState;
+struct game_state;
 
 enum MatchState
 {
@@ -60,7 +60,7 @@ struct Pitch
     enum PitchType type;
 };
 
-void football_match_change_state(struct GameState *game_state, enum MatchState new_state);
+void football_match_change_state(struct game_state *game_state, enum MatchState new_state);
 
 enum PlayerRole
 {
@@ -163,7 +163,7 @@ struct TeamFormationPosition *
 football_tactics_get_team_formation_position(enum TeamFormation formation, u32 position_idx);
 
 bool football_pitch_is_position_inside_penalty_area(v2 pos, enum PitchSide side,
-						    struct GameState *game_state);
-bool football_pitch_is_position_inside(v2 pos, struct GameState *game_state);
+						    struct game_state *game_state);
+bool football_pitch_is_position_inside(v2 pos, struct game_state *game_state);
 
 #endif // !FOOTBALL

@@ -4,7 +4,7 @@
 #include <raylib.h>
 
 void actions_action_run(struct ActionRunner *action_runner, entity_id_t id,
-			struct GameState *game_state)
+			struct game_state *game_state)
 {
     if (!action_runner->started)
     {
@@ -36,7 +36,7 @@ void actions_action_run(struct ActionRunner *action_runner, entity_id_t id,
 }
 
 void actions_action_stop(running_action_idx_t running_action_idx, entity_id_t id,
-			 struct GameState *game_state)
+			 struct game_state *game_state)
 {
     entities_entity_get(game_state->entity_repository, id)
 	->action.running_actions[running_action_idx]

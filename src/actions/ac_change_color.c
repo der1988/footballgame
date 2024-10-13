@@ -4,7 +4,7 @@
 #include <raylib.h>
 
 void actions_change_color_from_to_update(struct ActionRunner *action_runner, entity_id_t id,
-					 struct GameState *game_state)
+					 struct game_state *game_state)
 {
     struct ActionChangeColorFromTo *action =
 	(struct ActionChangeColorFromTo *)action_runner->action;

@@ -3,7 +3,7 @@
 #include <stdarg.h>
 
 void actions_spawn_start(struct ActionRunner *action_runner, entity_id_t id,
-			 struct GameState *game_state)
+			 struct game_state *game_state)
 {
     struct ActionSpawn *action_spawn = (struct ActionSpawn *)action_runner->action;
 
@@ -15,7 +15,7 @@ void actions_spawn_start(struct ActionRunner *action_runner, entity_id_t id,
 }
 
 void actions_spawn_update(struct ActionRunner *action_runner, entity_id_t id,
-			  struct GameState *game_state)
+			  struct game_state *game_state)
 {
     struct ActionSpawn *action_spawn = (struct ActionSpawn *)action_runner->action;
 

@@ -5,10 +5,10 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_controls(struct GameState *game_state, struct input *input)
+void systems_controls(struct game_state *game_state, struct input *input)
 {
     game_state->vars.p1.controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
-    struct ActionCharge *p1_charge = &game_state->vars.p1.controls.charge;
+    struct action_charge *p1_charge = &game_state->vars.p1.controls.charge;
     if (p1_charge->ready)
     {
 	// Ready
@@ -55,7 +55,7 @@ void systems_controls(struct GameState *game_state, struct input *input)
     else
     {
 	b32 charging = false;
-	enum ActionChargeType charge_type;
+	enum action_charge_type charge_type;
 	if (input->buttons[IBT_BUTTON_LEFT].down)
 	{
 	    charging = true;

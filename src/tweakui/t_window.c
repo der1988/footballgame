@@ -32,7 +32,7 @@ void tweakui_destroy(tweakui_t *handle)
     GLOG_INFO(LS_TWEAKUI, "tweakui destroyed");
 }
 
-void tweakui_draw(tweakui_t *handle, struct GameState *game_state)
+void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
 {
     assert(handle->initialised);
 

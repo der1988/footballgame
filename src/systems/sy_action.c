@@ -2,7 +2,7 @@
 #include "components.h"
 #include "entities.h"
 
-void systems_action(struct GameState *game_state)
+void systems_action(struct game_state *game_state)
 {
     for_each_entity(entity, game_state->entity_repository)
     {

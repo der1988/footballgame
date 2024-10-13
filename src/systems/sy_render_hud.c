@@ -4,7 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void systems_render_hud(struct GameState *game_state)
+void systems_render_hud(struct game_state *game_state)
 {
     entity_id_t selected_player_entity_id = game_state->vars.p1.player_entity_id;
     struct Entity *entity =

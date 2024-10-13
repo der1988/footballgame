@@ -48,7 +48,7 @@ static i32 cmp_sprite_order(const void *s1, const void *s2)
     return diff;
 }
 
-void systems_render(struct GameState *game_state)
+void systems_render(struct game_state *game_state)
 {
     EntityRepository *entity_repository = game_state->entity_repository;
 

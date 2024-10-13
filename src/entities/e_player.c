@@ -20,11 +20,11 @@
 implement_state_machine_functions(Player, player);
 implement_state_machine_functions(Goalie, goalie);
 
-static void prepare_gfx(struct ComponentPlayer *player, struct GameState *game_state);
+static void prepare_gfx(struct ComponentPlayer *player, struct game_state *game_state);
 static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentGoalie *goalie,
-			       struct GameState *game_state);
+			       struct game_state *game_state);
 
-struct Entity *entities_player_create(PlayerConfig config, struct GameState *game_state)
+struct Entity *entities_player_create(PlayerConfig config, struct game_state *game_state)
 {
     struct Entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
@@ -136,7 +136,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct GameState *gam
 }
 
 void entities_player_apply_force(entity_id_t player_entity_id, Vector2 force_to_apply,
-				 struct GameState *game_state)
+				 struct game_state *game_state)
 {
     struct ComponentPhysics *physics =
 	&entities_entity_get(game_state->entity_repository, player_entity_id)->physics;
@@ -152,7 +152,7 @@ void entities_player_apply_force(entity_id_t player_entity_id, Vector2 force_to_
     }
 }
 
-void entities_player_apply_velocity(entity_id_t player_entity_id, struct GameState *game_state)
+void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
     struct ComponentPhysics *physics = &entity->physics;
@@ -162,7 +162,7 @@ void entities_player_apply_velocity(entity_id_t player_entity_id, struct GameSta
 }
 
 void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 direction,
-					     f32 velocity_threshold, struct GameState *game_state)
+					     f32 velocity_threshold, struct game_state *game_state)
 {
     struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
     struct ComponentPhysics *physics = &entity->physics;
@@ -191,7 +191,7 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 di
     }
 }
 
-void entities_player_state_machine_on_enter(struct Entity *entity, struct GameState *game_state)
+void entities_player_state_machine_on_enter(struct Entity *entity, struct game_state *game_state)
 {
     struct ComponentPlayer *player = &entity->player;
     struct StateMachinePlayer *state_machine = player->state_machine;
@@ -219,7 +219,7 @@ void entities_player_state_machine_on_enter(struct Entity *entity, struct GameSt
     }
 }
 
-void entities_player_state_machine_on_exit(struct Entity *entity, struct GameState *game_state)
+void entities_player_state_machine_on_exit(struct Entity *entity, struct game_state *game_state)
 {
     struct StateMachinePlayer *state_machine = entity->player.state_machine;
 
@@ -243,7 +243,7 @@ void entities_player_state_machine_on_exit(struct Entity *entity, struct GameSta
     }
 }
 
-void entities_goalie_state_machine_on_enter(struct Entity *entity, struct GameState *game_state)
+void entities_goalie_state_machine_on_enter(struct Entity *entity, struct game_state *game_state)
 {
     struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
@@ -282,7 +282,7 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, struct GameSt
     }
 }
 
-void entities_goalie_state_machine_on_exit(struct Entity *entity, struct GameState *game_state)
+void entities_goalie_state_machine_on_exit(struct Entity *entity, struct game_state *game_state)
 {
     struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
@@ -311,7 +311,7 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, struct GameSta
     }
 }
 
-static void prepare_gfx(struct ComponentPlayer *player, struct GameState *game_state)
+static void prepare_gfx(struct ComponentPlayer *player, struct game_state *game_state)
 {
     // Stand frames
     player->stand_frames[D_DOWN] =
@@ -351,7 +351,7 @@ static void prepare_gfx(struct ComponentPlayer *player, struct GameState *game_s
 }
 
 static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentGoalie *goalie,
-			       struct GameState *game_state)
+			       struct game_state *game_state)
 {
     // Stand frames
     player->stand_frames[D_DOWN] =
@@ -503,7 +503,7 @@ bool entities_player_is_standing_goalie_colliding_with_ball(struct Entity *goali
 
 bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ball_entity,
 				 enum SaveDirection *dive_direction, enum SaveHeight *dive_height,
-				 f32 *dive_speed, f32 *dive_distance, struct GameState *game_state)
+				 f32 *dive_speed, f32 *dive_distance, struct game_state *game_state)
 {
     bool should_dive = false;
 
