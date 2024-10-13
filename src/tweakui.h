@@ -5,7 +5,7 @@
 
 typedef struct tweakui tweakui_t;
 
-tweakui_t *tweakui_create(MemoryArenaHandle *memory_arena_handle);
+tweakui_t *tweakui_create(memory_arena_handle_t *memory_arena_handle);
 void tweakui_destroy(tweakui_t *handle);
 void tweakui_draw(tweakui_t *handle, struct GameState *game_state);
 

@@ -23,7 +23,7 @@ void test_texture_cache()
     InitWindow(800, 400, "test texture cache");
 
     void *buffer = malloc(Megabytes(1));
-    MemoryArenaHandle *memory_arena_handle =
+    memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
     AssetsTextureCache *handle = assets_texture_cache_create(memory_arena_handle);
@@ -51,7 +51,7 @@ void test_sprite_cache()
     GLOG_INFO(LS_TESTS, "sprite frame cache test - start");
 
     void *buffer = malloc(Megabytes(1));
-    MemoryArenaHandle *memory_arena_handle =
+    memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
     AssetsSpriteFrameCache *handle = assets_sprite_frame_cache_create(memory_arena_handle);
@@ -79,7 +79,7 @@ void test_animation_cache()
     GLOG_INFO(LS_TESTS, "animation cache test - start");
 
     void *buffer = malloc(Megabytes(1));
-    MemoryArenaHandle *memory_arena_handle =
+    memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
     AssetsSpriteFrameCache *handle_sprite_cache =

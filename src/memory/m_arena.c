@@ -8,9 +8,9 @@
 #include <string.h>
 
 // Create an arena linear memory allocator using a specific buffer
-MemoryArenaHandle *memory_arena_create(char *name, void *buffer, usize size)
+memory_arena_handle_t *memory_arena_create(char *name, void *buffer, usize size)
 {
-    MemoryArenaHandle *handle = malloc(sizeof(MemoryArenaHandle));
+    memory_arena_handle_t *handle = malloc(sizeof(memory_arena_handle_t));
     handle->name = name;
     handle->base = handle->current = buffer;
     handle->total_size = size;
@@ -19,7 +19,7 @@ MemoryArenaHandle *memory_arena_create(char *name, void *buffer, usize size)
 }
 
 // Destroy an arena linear allocator
-void memory_arena_destroy(MemoryArenaHandle *handle)
+void memory_arena_destroy(memory_arena_handle_t *handle)
 {
     if (handle)
     {
@@ -33,7 +33,7 @@ void memory_arena_destroy(MemoryArenaHandle *handle)
     }
 }
 
-void memory_arena_reset(MemoryArenaHandle *handle)
+void memory_arena_reset(memory_arena_handle_t *handle)
 {
     if (handle)
     {
@@ -47,8 +47,8 @@ void memory_arena_reset(MemoryArenaHandle *handle)
 }
 
 // Allocate some memory inside the arena
-void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize size,
-					     struct MemoryArenaPushSettings settings)
+void *memory_arena_push_with_custom_settings(memory_arena_handle_t *handle, usize size,
+					     struct memory_arena_push_settings settings)
 {
     if (handle)
     {
@@ -84,14 +84,14 @@ void *memory_arena_push_with_custom_settings(MemoryArenaHandle *handle, usize si
 }
 
 // Allocate some memory inside the arena
-void *memory_arena_push(MemoryArenaHandle *handle, usize size)
+void *memory_arena_push(memory_arena_handle_t *handle, usize size)
 {
-    struct MemoryArenaPushSettings settings = (struct MemoryArenaPushSettings){
+    struct memory_arena_push_settings settings = (struct memory_arena_push_settings){
 	.alignment = DEFAULT_MEMORY_ALIGNMENT, .clear_memory = true};
     return memory_arena_push_with_custom_settings(handle, size, settings);
 }
 
-void *memory_arena_push_string(MemoryArenaHandle *handle, char *string)
+void *memory_arena_push_string(memory_arena_handle_t *handle, char *string)
 {
     char *new_string = memory_arena_push(handle, strlen(string) + 1);
     usize i;

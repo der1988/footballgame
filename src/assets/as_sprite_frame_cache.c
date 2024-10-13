@@ -13,7 +13,7 @@
 
 static u32 const MAX_SPRITE_FRAMES = 2000;
 
-AssetsSpriteFrameCache *assets_sprite_frame_cache_create(MemoryArenaHandle *memory_arena_handle)
+AssetsSpriteFrameCache *assets_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
     AssetsSpriteFrameCache *handle =
 	memory_arena_push(memory_arena_handle, sizeof(AssetsSpriteFrameCache));

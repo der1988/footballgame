@@ -14,7 +14,7 @@ struct DrawTextRequest
 struct LayersDebug
 {
     b32 initialised;
-    MemoryArenaHandle *frame_memory_arena;
+    memory_arena_handle_t *frame_memory_arena;
     u16 queued_requests;
     struct DrawTextRequest *draw_text_requests[MAX_QUEUED_DRAW_REQUESTS];
     Color color;

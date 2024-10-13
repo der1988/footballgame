@@ -309,14 +309,14 @@ struct Entity
 typedef struct EntityRepository
 {
     b32 initialised;
-    MemoryArenaHandle *arena_handle;
+    memory_arena_handle_t *arena_handle;
     struct Entity *entities;
     u32 available_slots;
     u32 max_slots;
     u32 last_used_slot;
 } EntityRepository;
 
-EntityRepository *entities_repository_init(MemoryArenaHandle *memory_arena_handle);
+EntityRepository *entities_repository_init(memory_arena_handle_t *memory_arena_handle);
 void entities_repository_destroy(EntityRepository *handle);
 
 struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *name_format);

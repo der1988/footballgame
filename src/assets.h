@@ -19,7 +19,7 @@ struct AssetsTexture
     struct Texture texture;
 };
 
-struct AssetsTextureCache *assets_texture_cache_create(MemoryArenaHandle *memory_arena_handle);
+struct AssetsTextureCache *assets_texture_cache_create(memory_arena_handle_t *memory_arena_handle);
 void assets_texture_cache_destroy(struct AssetsTextureCache *handle);
 struct AssetsTexture *assets_texture_load(struct AssetsTextureCache *handle, const char *filename);
 struct AssetsTexture *assets_texture_get_by_id(struct AssetsTextureCache *handle, const u32 id);
@@ -44,7 +44,8 @@ struct AssetsSpriteFrame
     u32 texture_id;
 };
 
-AssetsSpriteFrameCache *assets_sprite_frame_cache_create(MemoryArenaHandle *memory_arena_handle);
+AssetsSpriteFrameCache *
+assets_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle);
 void assets_sprite_frame_cache_destroy(AssetsSpriteFrameCache *handle);
 i32 assets_sprite_frames_load_from_json(AssetsSpriteFrameCache *handle, const u32 texture_id,
 					const char *filename);
@@ -73,7 +74,7 @@ struct AssetsAnimation
 
 typedef struct AssetsAnimationCache AssetsAnimationCache;
 
-AssetsAnimationCache *assets_animation_cache_create(MemoryArenaHandle *memory_arena_handle);
+AssetsAnimationCache *assets_animation_cache_create(memory_arena_handle_t *memory_arena_handle);
 void assets_animation_cache_destroy(AssetsAnimationCache *handle);
 i32 assets_animations_load_from_json(AssetsAnimationCache *handle,
 				     AssetsSpriteFrameCache *sprite_frame_cache,

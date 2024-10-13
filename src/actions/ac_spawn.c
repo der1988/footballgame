@@ -36,7 +36,7 @@ void actions_spawn_update(struct ActionRunner *action_runner, entity_id_t id,
     }
 }
 
-struct ActionSpawn *actions_spawn_create(MemoryArenaHandle *memory_arena_handle, u32 count, ...)
+struct ActionSpawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count, ...)
 {
     struct ActionSpawn *action_spawn = memory_arena_push(
 	memory_arena_handle, sizeof(struct ActionSpawn) + sizeof(struct ActionRunner) * count);

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct MemoryArenaHandle
+struct memory_arena_handle
 {
     char *name;
     void *base;
@@ -11,7 +11,7 @@ struct MemoryArenaHandle
     usize total_size;
 };
 
-struct MemoryFixedHandle
+struct memory_fixed_handle
 {
     char *name;
     void *base;

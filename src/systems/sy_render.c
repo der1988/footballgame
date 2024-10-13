@@ -11,7 +11,7 @@ struct SpriteToDraw
 {
     struct AssetsSpriteFrame *sprite_frame;
     struct AssetsTexture *texture;
-    enum SpriteLayer layer;
+    enum sprite_layer layer;
     i16 order_in_layer;
     Color color;
     Vector2 position;

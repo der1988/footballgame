@@ -21,7 +21,7 @@ void actions_change_color_from_to_update(struct ActionRunner *action_runner, ent
 
 struct ActionChangeColorFromTo *
 actions_change_color_from_to_create(f32 duration, b32 loop, Color from, Color to,
-				    MemoryArenaHandle *memory_arena_handle)
+				    memory_arena_handle_t *memory_arena_handle)
 {
     struct ActionChangeColorFromTo *action =
 	memory_arena_push(memory_arena_handle, sizeof(*action));

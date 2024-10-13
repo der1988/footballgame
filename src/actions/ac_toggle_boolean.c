@@ -10,8 +10,9 @@ void actions_toggle_boolean_update(struct ActionRunner *action_runner, entity_id
     *action->value = !*action->value;
 }
 
-struct ActionToggleBoolean *actions_toggle_boolean_create(f32 duration, b32 loop, b32 *value,
-							  MemoryArenaHandle *memory_arena_handle)
+struct ActionToggleBoolean *
+actions_toggle_boolean_create(f32 duration, b32 loop, b32 *value,
+			      memory_arena_handle_t *memory_arena_handle)
 {
     struct ActionToggleBoolean *action = memory_arena_push(memory_arena_handle, sizeof(*action));
     *action = (struct ActionToggleBoolean){

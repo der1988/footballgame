@@ -17,7 +17,7 @@ void actions_tween_float_from_to_update(struct ActionRunner *action_runner, enti
 
 struct ActionTweenFloatFromTo *
 actions_tween_float_from_to_create(f32 duration, b32 loop, f32 *value, f32 from, f32 to,
-				   MemoryArenaHandle *memory_arena_handle)
+				   memory_arena_handle_t *memory_arena_handle)
 {
     struct ActionTweenFloatFromTo *action = memory_arena_push(memory_arena_handle, sizeof(*action));
     *action = (struct ActionTweenFloatFromTo){

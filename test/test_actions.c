@@ -185,7 +185,7 @@ void test_action_sequence()
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    MemoryArenaHandle *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
+    memory_arena_handle_t *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
     struct ActionChangeColorFromTo *action_1 =
 	actions_change_color_from_to_create(1, false, WHITE, BLACK, memory_arena_handle);
     struct ActionChangeColorFromTo *action_2 =

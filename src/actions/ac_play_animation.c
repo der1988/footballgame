@@ -24,9 +24,9 @@ void actions_play_animation_update(struct ActionRunner *action_runner, entity_id
     sprite->frame_id = frame_id;
 }
 
-struct ActionPlayAnimation *actions_play_animation_create(struct AssetsAnimation *animation,
-							  b32 loop, float speed,
-							  MemoryArenaHandle *memory_arena_handle)
+struct ActionPlayAnimation *
+actions_play_animation_create(struct AssetsAnimation *animation, b32 loop, float speed,
+			      memory_arena_handle_t *memory_arena_handle)
 {
     struct ActionPlayAnimation *action = memory_arena_push(memory_arena_handle, sizeof(*action));
     *action = (struct ActionPlayAnimation){

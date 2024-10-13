@@ -56,7 +56,7 @@ struct ComponentSprite
     Color color;
     b32 flipX;
     b32 flipY;
-    enum SpriteLayer layer;
+    enum sprite_layer layer;
     i16 order_in_layer;
     v2 pivot_override;
     AssetsSpriteFrameId frame_id;

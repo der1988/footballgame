@@ -51,7 +51,7 @@ static void empty_slot(EntityRepository *entity_repo, entity_id_t id)
     entity_repo->available_slots++;
 }
 
-EntityRepository *entities_repository_init(MemoryArenaHandle *memory_arena_handle)
+EntityRepository *entities_repository_init(memory_arena_handle_t *memory_arena_handle)
 {
     EntityRepository *handle = memory_arena_push(memory_arena_handle, sizeof(EntityRepository));
     assert(handle);

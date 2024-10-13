@@ -12,7 +12,7 @@
 #define ROW_SIZE		  20
 #define MOVE_DOWN_ONE_ROW(bounds) bounds.y += ROW_SIZE
 
-tweakui_t *tweakui_create(MemoryArenaHandle *memory_arena_handle)
+tweakui_t *tweakui_create(memory_arena_handle_t *memory_arena_handle)
 {
     tweakui_t *handle = memory_arena_push(memory_arena_handle, sizeof(struct tweakui));
     handle->initialised = true;

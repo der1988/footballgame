@@ -20,7 +20,7 @@ void test_memory_arena()
 
     void *buffer = malloc(Megabytes(1));
     // valid creation
-    MemoryArenaHandle *handle = memory_arena_create("test_arena", buffer, Megabytes(1));
+    memory_arena_handle_t *handle = memory_arena_create("test_arena", buffer, Megabytes(1));
     TEST_ASSERT_NOT_NULL(handle);
     TEST_ASSERT_EQUAL_INT(0, strcmp(handle->name, "test_arena"));
     TEST_ASSERT_EQUAL_UINT64(Megabytes(1), handle->total_size);
@@ -62,7 +62,7 @@ void test_memory_fixed()
     GLOG_INFO(LS_TESTS, "fixed size linear allocator test - start");
 
     // valid creation
-    MemoryFixedHandle *handle = memory_fixed_create("test_fixed", 100, 3, 4);
+    memory_fixed_handle_t *handle = memory_fixed_create("test_fixed", 100, 3, 4);
     TEST_ASSERT_NOT_NULL(handle);
     TEST_ASSERT_EQUAL_INT(0, strcmp(handle->name, "test_fixed"));
     TEST_ASSERT_EQUAL_UINT64(108, handle->fixed_allocation_size);
@@ -103,7 +103,8 @@ void test_memory_fixed()
     memory_fixed_destroy(handle);
 
     // too much memory requested
-    MemoryFixedHandle *handle_impossible = memory_fixed_create("test_fixed", Gigabytes(128), 1, 4);
+    memory_fixed_handle_t *handle_impossible =
+	memory_fixed_create("test_fixed", Gigabytes(128), 1, 4);
     TEST_ASSERT_NULL(handle_impossible);
 
     GLOG_INFO(LS_TESTS, "fixed size linear allocator test - end");

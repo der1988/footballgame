@@ -13,7 +13,7 @@
 
 static u32 const MAX_TEXTURES = 10;
 
-AssetsTextureCache *assets_texture_cache_create(MemoryArenaHandle *memory_arena_handle)
+AssetsTextureCache *assets_texture_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
     AssetsTextureCache *handle = memory_arena_push(memory_arena_handle, sizeof(AssetsTextureCache));
     assert(handle);

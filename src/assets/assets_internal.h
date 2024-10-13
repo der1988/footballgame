@@ -14,7 +14,7 @@ struct AssetsTextureCache
 struct AssetsSpriteFrameCache
 {
     b32 initialised;
-    MemoryArenaHandle *memory_arena_handle;
+    memory_arena_handle_t *memory_arena_handle;
     struct AssetsSpriteFrame *cache;
     u32 count;
 };
@@ -22,7 +22,7 @@ struct AssetsSpriteFrameCache
 struct AssetsAnimationCache
 {
     b32 initialised;
-    MemoryArenaHandle *memory_arena_handle;
+    memory_arena_handle_t *memory_arena_handle;
     struct AssetsAnimation *cache;
     u32 count;
 };

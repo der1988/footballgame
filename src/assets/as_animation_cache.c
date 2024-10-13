@@ -16,7 +16,7 @@
 static u16 const MAX_ANIMATIONS = 100;
 static u16 const MAX_FRAMES_PER_ANIMATION = 100;
 
-AssetsAnimationCache *assets_animation_cache_create(MemoryArenaHandle *memory_arena_handle)
+AssetsAnimationCache *assets_animation_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
     AssetsAnimationCache *handle =
 	memory_arena_push(memory_arena_handle, sizeof(AssetsAnimationCache));
@@ -50,7 +50,7 @@ void assets_animation_cache_destroy(AssetsAnimationCache *handle)
 static struct AssetsAnimation *load_from_json(const char *filename,
 					      const usize initial_animation_id, usize *count,
 					      AssetsSpriteFrameCache *sprite_frame_cache,
-					      MemoryArenaHandle *memory_arena_handle)
+					      memory_arena_handle_t *memory_arena_handle)
 {
     AssetsAnimationId current_animation_id = initial_animation_id;
     *count = 0;

@@ -46,7 +46,7 @@ void actions_rotate_to_start(struct ActionRunner *action_runner, entity_id_t id,
 }
 
 struct ActionRotateTo *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
-						MemoryArenaHandle *memory_arena_handle)
+						memory_arena_handle_t *memory_arena_handle)
 {
     struct ActionRotateTo *action = memory_arena_push(memory_arena_handle, sizeof(*action));
 

@@ -3,7 +3,8 @@
 
 #include "assets.h"
 
-enum SpriteLayer {
+enum sprite_layer
+{
     SL_BACKGROUND = -100,
     SL_NORTH_GOAL = -10,
     SL_DEFAULT = 0,
@@ -12,10 +13,10 @@ enum SpriteLayer {
 };
 
 void render_sprite_draw(struct AssetsSpriteFrame *sprite_frame, v2 position, f32 rotation, v2 scale,
-                        Color color, b32 flipX, b32 flipY, v2 pivot_override,
-                        struct AssetsTexture *assets_texture);
+			Color color, b32 flipX, b32 flipY, v2 pivot_override,
+			struct AssetsTexture *assets_texture);
 
 void render_sprite_draw_debug_frame(struct AssetsSpriteFrame *sprite_frame, v2 position,
-                                    f32 rotation, v2 scale, v2 pivot_override);
+				    f32 rotation, v2 scale, v2 pivot_override);
 
 #endif // !SPRITES_H

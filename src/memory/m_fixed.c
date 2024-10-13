@@ -9,7 +9,7 @@
 #include <string.h>
 
 // Create a fixed sized linear allocator
-MemoryFixedHandle *memory_fixed_create(char *name, usize size, usize allocations, u16 alignment)
+memory_fixed_handle_t *memory_fixed_create(char *name, usize size, usize allocations, u16 alignment)
 {
     size = memory_utils_align(size, alignment);
     usize real_size = size + sizeof(b32);
@@ -23,7 +23,7 @@ MemoryFixedHandle *memory_fixed_create(char *name, usize size, usize allocations
 			strerror(errsv));
 	return NULL;
     };
-    MemoryFixedHandle *handle = malloc(sizeof(MemoryFixedHandle));
+    memory_fixed_handle_t *handle = malloc(sizeof(memory_fixed_handle_t));
     handle->name = name;
     handle->base = handle->current = buffer;
     memset(buffer, 0, total_size);
@@ -37,7 +37,7 @@ MemoryFixedHandle *memory_fixed_create(char *name, usize size, usize allocations
 }
 
 // Destroy a fixed memory allocator
-void memory_fixed_destroy(MemoryFixedHandle *handle)
+void memory_fixed_destroy(memory_fixed_handle_t *handle)
 {
     if (handle)
     {
@@ -52,7 +52,7 @@ void memory_fixed_destroy(MemoryFixedHandle *handle)
     }
 }
 
-void memory_fixed_reset(MemoryArenaHandle *handle)
+void memory_fixed_reset(memory_arena_handle_t *handle)
 {
     if (handle)
     {
@@ -66,14 +66,14 @@ void memory_fixed_reset(MemoryArenaHandle *handle)
 }
 
 // Allocate fixed size buffer using the linear allocator
-void *memory_fixed_alloc(MemoryFixedHandle *handle)
+void *memory_fixed_alloc(memory_fixed_handle_t *handle)
 {
     if (handle)
     {
 	if (handle->allocated < handle->allocations)
 	{
-	    struct MemoryFixedAllocation *allocation;
-	    while ((allocation = (struct MemoryFixedAllocation *)handle->current)->used)
+	    struct memory_fixed_allocation *allocation;
+	    while ((allocation = (struct memory_fixed_allocation *)handle->current)->used)
 	    {
 		handle->current += handle->fixed_allocation_size;
 		if (handle->current ==
@@ -106,11 +106,11 @@ void *memory_fixed_alloc(MemoryFixedHandle *handle)
 }
 
 // Free fixed size buffer previous allocated with the linear allocator
-void memory_fixed_free(MemoryFixedHandle *handle, void *buffer)
+void memory_fixed_free(memory_fixed_handle_t *handle, void *buffer)
 {
     if (handle)
     {
-	struct MemoryFixedAllocation *allocation = buffer - sizeof(b32);
+	struct memory_fixed_allocation *allocation = buffer - sizeof(b32);
 	allocation->used = false;
 	handle->allocated--;
 	GLOGF_INFO_CTX(LS_MEMORY, handle->name,

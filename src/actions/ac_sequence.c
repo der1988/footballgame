@@ -35,8 +35,8 @@ void actions_sequence_update(struct ActionRunner *action_runner, entity_id_t id,
     }
 }
 
-struct ActionSequence *actions_sequence_create(MemoryArenaHandle *memory_arena_handle, u32 count,
-					       ...)
+struct ActionSequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
+					       u32 count, ...)
 {
     struct ActionSequence *action_sequence = memory_arena_push(
 	memory_arena_handle, sizeof(struct ActionSequence) + sizeof(struct ActionRunner) * count);

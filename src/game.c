@@ -19,7 +19,7 @@
 struct GameState *game_init(struct GameConfig game_config)
 {
     GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct Entity));
-    MemoryArenaHandle *memory_arena_lifetime_game =
+    memory_arena_handle_t *memory_arena_lifetime_game =
 	memory_arena_create("game", game_config.memory, Megabytes(1));
 
     struct GameState *game_state =

@@ -132,7 +132,7 @@ struct GameState
     struct GameConfig config;
     struct GameConstants constants;
     struct GameVariables vars;
-    MemoryArenaHandle *memory_by_lifetime[MAL_COUNT];
+    memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
     struct EntityRepository *entity_repository;
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
