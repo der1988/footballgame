@@ -56,6 +56,7 @@ i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle, con
     if (loaded > (MAX_SPRITE_FRAMES - handle->count))
     {
 	GLOG_ERROR(LS_ASSETS, "sprite frame cache is too small");
+	// TODO: (Marco) we are not freeing sprite_frames here...
     }
     else if (sprite_frames)
     {

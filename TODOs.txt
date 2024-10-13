@@ -79,3 +79,4 @@ v rename structs and enums to be snake case (I know, I know...)
 - implement pitch radar
 - move utility functions from goalie system
 - Fix that horror with conditional debug logging in player system
+- Fix memory not freed in assets_sprite_frames_load_from_json
