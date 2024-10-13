@@ -26,14 +26,15 @@ void test_texture_cache()
     memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
-    AssetsTextureCache *handle = assets_texture_cache_create(memory_arena_handle);
+    assets_texture_cache_t *handle = assets_texture_cache_create(memory_arena_handle);
     TEST_ASSERT(handle);
-    struct AssetsTexture *assets_texture =
+    struct assets_texture *assets_texture =
 	assets_texture_load(handle, "res/spritesheets/footballgame.png");
     TEST_ASSERT_EQUAL_INT(0, strcmp(assets_texture->name, "res/spritesheets/footballgame.png"));
     TEST_ASSERT_GREATER_THAN(0, assets_texture->texture.id);
 
-    struct AssetsTexture *assets_texture_ptr = assets_texture_get_by_id(handle, assets_texture->id);
+    struct assets_texture *assets_texture_ptr =
+	assets_texture_get_by_id(handle, assets_texture->id);
     TEST_ASSERT_NOT_NULL(assets_texture_ptr);
     TEST_ASSERT_EQUAL_UINT(assets_texture->id, assets_texture_ptr->id);
 
@@ -54,13 +55,14 @@ void test_sprite_cache()
     memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
-    AssetsSpriteFrameCache *handle = assets_sprite_frame_cache_create(memory_arena_handle);
+    assets_sprite_frame_cache_t *handle = assets_sprite_frame_cache_create(memory_arena_handle);
     TEST_ASSERT(handle);
     i32 loaded =
 	assets_sprite_frames_load_from_json(handle, 0, "res/spritesheets/footballgame.json");
     TEST_ASSERT_EQUAL_INT32(161, loaded);
 
-    struct AssetsSpriteFrame *sprite_frame = assets_sprite_frame_get_by_name(handle, "ball_left_0");
+    struct assets_sprite_frame *sprite_frame =
+	assets_sprite_frame_get_by_name(handle, "ball_left_0");
     TEST_ASSERT_NOT_NULL(sprite_frame);
     TEST_ASSERT_EQUAL_INT(0, strcmp(sprite_frame->name, "ball_left_0"));
     TEST_ASSERT_EQUAL_UINT(0, sprite_frame->texture_id);
@@ -82,20 +84,20 @@ void test_animation_cache()
     memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
-    AssetsSpriteFrameCache *handle_sprite_cache =
+    assets_sprite_frame_cache_t *handle_sprite_cache =
 	assets_sprite_frame_cache_create(memory_arena_handle);
     TEST_ASSERT(handle_sprite_cache);
     i32 loaded = assets_sprite_frames_load_from_json(handle_sprite_cache, 0,
 						     "res/spritesheets/footballgame.json");
     TEST_ASSERT_EQUAL_INT32(161, loaded);
 
-    AssetsAnimationCache *handle = assets_animation_cache_create(memory_arena_handle);
+    assets_animation_cache_t *handle = assets_animation_cache_create(memory_arena_handle);
     TEST_ASSERT(handle);
     loaded = assets_animations_load_from_json(handle, handle_sprite_cache,
 					      "res/animations/animations.json");
     TEST_ASSERT_EQUAL_INT32(36, loaded);
 
-    struct AssetsAnimation *animation = assets_animation_get_by_name(handle, "ball_left");
+    struct assets_animation *animation = assets_animation_get_by_name(handle, "ball_left");
     TEST_ASSERT_NOT_NULL(animation);
     TEST_ASSERT_EQUAL_INT(0, strcmp(animation->name, "ball_left"));
     TEST_ASSERT_EQUAL_UINT(4, animation->frames_count);

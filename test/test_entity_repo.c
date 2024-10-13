@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct GameState *g_game_state = NULL;
+struct game_state *g_game_state = NULL;
 
 void setUp(void)
 {
@@ -23,8 +23,8 @@ void setUp(void)
 
     void *memory = malloc(Megabytes(10));
 
-    struct GameConfig game_config =
-	(struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
+    struct game_config game_config =
+	(struct game_config){.screen_width = width, .screen_height = height, .memory = memory};
 
     g_game_state = game_init(game_config);
 }
@@ -42,9 +42,9 @@ void tearDown(void)
 
 void test_entity()
 {
-    struct EntityRepository *entity_repo = g_game_state->entity_repository;
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity_repository *entity_repo = g_game_state->entity_repository;
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 

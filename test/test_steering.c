@@ -8,9 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct GameState *g_game_state = NULL;
+struct game_state *g_game_state = NULL;
 
-void setUp(void) {
+void setUp(void)
+{
     int width = 800;
     int height = 600;
     InitWindow(width, height, "Test Steering");
@@ -19,13 +20,14 @@ void setUp(void) {
 
     void *memory = malloc(Megabytes(10));
 
-    struct GameConfig game_config =
-        (struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
+    struct game_config game_config =
+	(struct game_config){.screen_width = width, .screen_height = height, .memory = memory};
 
     g_game_state = game_init(game_config);
 }
 
-void tearDown(void) {
+void tearDown(void)
+{
     void *memory = g_game_state->config.memory;
 
     game_destroy(g_game_state);
@@ -35,7 +37,8 @@ void tearDown(void) {
     CloseWindow();
 }
 
-void test_steering() {
+void test_steering()
+{
     // Main game loop;
     // while (!WindowShouldClose()) // Detect window close button or ESC key
     // {
@@ -53,7 +56,8 @@ void test_steering() {
     // }
 }
 
-int main() {
+int main()
+{
     UNITY_BEGIN();
 
     RUN_TEST(test_steering);

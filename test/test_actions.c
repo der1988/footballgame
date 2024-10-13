@@ -21,7 +21,7 @@
 
 #define DT (0.1f)
 
-struct GameState *g_game_state = NULL;
+struct game_state *g_game_state = NULL;
 
 void setUp(void)
 {
@@ -33,8 +33,8 @@ void setUp(void)
 
     void *memory = malloc(Megabytes(10));
 
-    struct GameConfig game_config =
-	(struct GameConfig){.screen_width = width, .screen_height = height, .memory = memory};
+    struct game_config game_config =
+	(struct game_config){.screen_width = width, .screen_height = height, .memory = memory};
 
     g_game_state = game_init(game_config);
 }
@@ -52,21 +52,21 @@ void tearDown(void)
 
 void test_action_change_color_from_to()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentSprite *component_sprite = &entity->sprite;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_sprite *component_sprite = &entity->sprite;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    struct ActionChangeColorFromTo *action = actions_change_color_from_to_create(
+    struct action_change_color_from_to *action = actions_change_color_from_to_create(
 	1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action, g_game_state);
+	components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -87,24 +87,24 @@ void test_action_change_color_from_to()
 
 void test_action_animation()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentSprite *component_sprite = &entity->sprite;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_sprite *component_sprite = &entity->sprite;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    struct AssetsAnimation *animation =
+    struct assets_animation *animation =
 	assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
 
-    struct ActionPlayAnimation *action = actions_play_animation_create(
+    struct action_play_animation *action = actions_play_animation_create(
 	animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action, g_game_state);
+	components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -120,7 +120,7 @@ void test_action_animation()
     }
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
-    struct AssetsSpriteFrame *expected_sprite_frame =
+    struct assets_sprite_frame *expected_sprite_frame =
 	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
@@ -128,7 +128,7 @@ void test_action_animation()
     action = actions_play_animation_create(animation, false, 0.5f,
 					   g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    running_idx = components_action_run(entity_id, (struct Action *)action, g_game_state);
+    running_idx = components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -152,7 +152,7 @@ void test_action_animation()
     action = actions_play_animation_create(animation, false, 2.0f,
 					   g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    running_idx = components_action_run(entity_id, (struct Action *)action, g_game_state);
+    running_idx = components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -175,26 +175,26 @@ void test_action_animation()
 
 void test_action_sequence()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentSprite *component_sprite = &entity->sprite;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_sprite *component_sprite = &entity->sprite;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     memory_arena_handle_t *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
-    struct ActionChangeColorFromTo *action_1 =
+    struct action_change_color_from_to *action_1 =
 	actions_change_color_from_to_create(1, false, WHITE, BLACK, memory_arena_handle);
-    struct ActionChangeColorFromTo *action_2 =
+    struct action_change_color_from_to *action_2 =
 	actions_change_color_from_to_create(1, false, BLACK, RED, memory_arena_handle);
-    struct ActionSequence *action_sequence =
+    struct action_sequence *action_sequence =
 	actions_sequence_create(memory_arena_handle, 2, action_1, action_2);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action_sequence, g_game_state);
+	components_action_run(entity_id, (struct action *)action_sequence, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action_sequence->base.duration / g_game_state->dt) + 1;
@@ -219,30 +219,30 @@ void test_action_sequence()
 
 void test_action_spawn()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentSprite *component_sprite = &entity->sprite;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_sprite *component_sprite = &entity->sprite;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    struct AssetsAnimation *animation =
+    struct assets_animation *animation =
 	assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
 
-    struct ActionPlayAnimation *action_1 = actions_play_animation_create(
+    struct action_play_animation *action_1 = actions_play_animation_create(
 	animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    struct ActionChangeColorFromTo *action_2 = actions_change_color_from_to_create(
+    struct action_change_color_from_to *action_2 = actions_change_color_from_to_create(
 	action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    struct ActionSpawn *action_spawn =
+    struct action_spawn *action_spawn =
 	actions_spawn_create(g_game_state->memory_by_lifetime[MAL_LEVEL], 2, action_1, action_2);
 
     running_action_idx_t action_spawn_idx =
-	components_action_run(entity_id, (struct Action *)action_spawn, g_game_state);
+	components_action_run(entity_id, (struct action *)action_spawn, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action_spawn->base.duration / g_game_state->dt) + 1;
@@ -259,7 +259,7 @@ void test_action_spawn()
 
     TEST_ASSERT(component_action->running_actions[action_spawn_idx].completed);
 
-    struct AssetsSpriteFrame *expected_sprite_frame =
+    struct assets_sprite_frame *expected_sprite_frame =
 	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
@@ -272,29 +272,29 @@ void test_action_spawn()
 
 void test_multiple_parallel_actions()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentSprite *component_sprite = &entity->sprite;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_sprite *component_sprite = &entity->sprite;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    struct AssetsAnimation *animation =
+    struct assets_animation *animation =
 	assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
 
-    struct ActionPlayAnimation *action_1 = actions_play_animation_create(
+    struct action_play_animation *action_1 = actions_play_animation_create(
 	animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    struct ActionChangeColorFromTo *action_2 = actions_change_color_from_to_create(
+    struct action_change_color_from_to *action_2 = actions_change_color_from_to_create(
 	action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t animation_idx =
-	components_action_run(entity_id, (struct Action *)action_1, g_game_state);
+	components_action_run(entity_id, (struct action *)action_1, g_game_state);
     running_action_idx_t change_color_idx =
-	components_action_run(entity_id, (struct Action *)action_2, g_game_state);
+	components_action_run(entity_id, (struct action *)action_2, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action_1->base.duration / g_game_state->dt) + 1;
@@ -314,7 +314,7 @@ void test_multiple_parallel_actions()
     }
 
     TEST_ASSERT(component_action->running_actions[animation_idx].completed);
-    struct AssetsSpriteFrame *expected_sprite_frame =
+    struct assets_sprite_frame *expected_sprite_frame =
 	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
@@ -328,21 +328,21 @@ void test_multiple_parallel_actions()
 
 void test_action_pause()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentSprite *component_sprite = &entity->sprite;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_sprite *component_sprite = &entity->sprite;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
-    struct ActionChangeColorFromTo *action = actions_change_color_from_to_create(
+    struct action_change_color_from_to *action = actions_change_color_from_to_create(
 	1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action, g_game_state);
+	components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -383,21 +383,21 @@ void test_action_pause()
 
 void test_action_tween_float_from_to()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentAction *component_action = &entity->action;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     f32 value = 0.0f;
-    struct ActionTweenFloatFromTo *action = actions_tween_float_from_to_create(
+    struct action_tween_float_from_to *action = actions_tween_float_from_to_create(
 	1, false, &value, 22.2f, 65.4f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action, g_game_state);
+	components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -414,22 +414,22 @@ void test_action_tween_float_from_to()
 
 void test_action_rotate_to()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentTransform *transform = &entity->transform;
-    struct ComponentAction *component_action = &entity->action;
+    struct component_transform *transform = &entity->transform;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     transform->rotation = 720.0f;
-    struct ActionRotateTo *action =
+    struct action_rotate_to *action =
 	actions_rotate_to_create(1, false, 74.3f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action, g_game_state);
+	components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -446,21 +446,21 @@ void test_action_rotate_to()
 
 void test_action_toggle_boolean()
 {
-    struct Entity *entity =
-	entities_player_create((PlayerConfig){.position = Vector2Zero()}, g_game_state);
+    struct entity *entity =
+	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
     TEST_ASSERT_NOT_NULL(entity);
     entity_id_t entity_id = entity->header.id;
 
-    struct ComponentAction *component_action = &entity->action;
+    struct component_action *component_action = &entity->action;
     // Action component is not enabled by default for player entity
     component_action->header.enabled = true;
 
     b32 value = false;
-    struct ActionToggleBoolean *action = actions_toggle_boolean_create(
+    struct action_toggle_boolean *action = actions_toggle_boolean_create(
 	1, false, &value, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
     running_action_idx_t running_idx =
-	components_action_run(entity_id, (struct Action *)action, g_game_state);
+	components_action_run(entity_id, (struct action *)action, g_game_state);
 
     g_game_state->dt = DT;
     g_game_state->time = g_game_state->dt;
