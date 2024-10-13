@@ -64,6 +64,7 @@ v refactor entity system
 v move header files in project root directory
 v after touch direction cannot be changed once selected
 v improve codebase quality
+v rename structs and enums to be snake case (I know, I know...)
 * long distance shots should be catched by goalie without a sweat
 - implement teams
 - goal is too small? proportional to ball instead of player?
@@ -77,5 +78,4 @@ v improve codebase quality
 - improve player selection system
 - implement pitch radar
 - move utility functions from goalie system
-- rename structs and enums to be snake case (I know, I know...)
 - Fix that horror with conditional debug logging in player system
