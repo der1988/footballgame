@@ -47,13 +47,13 @@ struct entity;
 
 // START - Common
 
-struct StateMachineRunningActionState
+struct state_machine_running_action_state
 {
     running_action_idx_t running_action_idx;
 };
 
-assets_animation_id_t entities_common_animation_id_from_name(char *entity_name,
-							     char *animation_name,
+assets_animation_id_t entities_common_animation_id_from_name(const char *entity_name,
+							     const char *animation_name,
 							     struct game_state *game_state);
 enum direction entities_common_calculate_direction(Vector2 direction);
 

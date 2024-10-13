@@ -7,30 +7,30 @@
 #include <raymath.h>
 #include <stdlib.h>
 
-struct SpriteToDraw
+struct sprite_to_draw
 {
     struct assets_sprite_frame *sprite_frame;
     struct assets_texture *texture;
     enum sprite_layer layer;
     i16 order_in_layer;
-    Color color;
-    Vector2 position;
+    color_t color;
+    v2 position;
     f32 height;
     f32 rotation;
-    Vector2 scale;
+    v2 scale;
     b32 flipX;
     b32 flipY;
     v2 pivot_override;
     b32 draw_shadow;
     v2 shadow_offset;
     v2 shadow_scale;
-    Color shadow_color;
+    color_t shadow_color;
 };
 
 static i32 cmp_sprite_order(const void *s1, const void *s2)
 {
-    const struct SpriteToDraw *sprite_1 = (struct SpriteToDraw *)s1;
-    const struct SpriteToDraw *sprite_2 = (struct SpriteToDraw *)s2;
+    const struct sprite_to_draw *sprite_1 = (struct sprite_to_draw *)s1;
+    const struct sprite_to_draw *sprite_2 = (struct sprite_to_draw *)s2;
 
     i32 diff = 0;
     // First layer, then order in layer
@@ -53,12 +53,12 @@ void systems_render(struct game_state *game_state)
     struct entity_repository *entity_repository = game_state->entity_repository;
 
     // Allocate some buffer in frame memory arena
-    struct SpriteToDraw *ordered_sprites_to_draw =
+    struct sprite_to_draw *ordered_sprites_to_draw =
 	memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW],
-			  sizeof(struct SpriteToDraw) * entity_repository->max_slots);
+			  sizeof(struct sprite_to_draw) * entity_repository->max_slots);
 
     // Collect information about sprites to draw
-    struct SpriteToDraw *current_idx = ordered_sprites_to_draw;
+    struct sprite_to_draw *current_idx = ordered_sprites_to_draw;
     for_each_entity(entity, game_state->entity_repository)
     {
 
@@ -86,32 +86,32 @@ void systems_render(struct game_state *game_state)
 	v2 shadow_scale = sprite->shadow_scale;
 	v2 shadow_offset = sprite->shadow_offset;
 
-	*current_idx = (struct SpriteToDraw){.sprite_frame = sprite_frame,
-					     .layer = sprite->layer,
-					     .order_in_layer = sprite->order_in_layer,
-					     .position = position,
-					     .height = -transform->virtual_height,
-					     .rotation = rotation,
-					     .scale = scale,
-					     .color = sprite->color,
-					     .flipX = sprite->flipX,
-					     .flipY = sprite->flipY,
-					     .pivot_override = sprite->pivot_override,
-					     .texture = texture,
-					     .draw_shadow = draw_shadow,
-					     .shadow_color = shadow_color,
-					     .shadow_offset = shadow_offset,
-					     .shadow_scale = shadow_scale};
+	*current_idx = (struct sprite_to_draw){.sprite_frame = sprite_frame,
+					       .layer = sprite->layer,
+					       .order_in_layer = sprite->order_in_layer,
+					       .position = position,
+					       .height = -transform->virtual_height,
+					       .rotation = rotation,
+					       .scale = scale,
+					       .color = sprite->color,
+					       .flipX = sprite->flipX,
+					       .flipY = sprite->flipY,
+					       .pivot_override = sprite->pivot_override,
+					       .texture = texture,
+					       .draw_shadow = draw_shadow,
+					       .shadow_color = shadow_color,
+					       .shadow_offset = shadow_offset,
+					       .shadow_scale = shadow_scale};
 	current_idx++;
     }
     u32 total_sprites = current_idx - ordered_sprites_to_draw;
 
-    qsort(ordered_sprites_to_draw, total_sprites, sizeof(struct SpriteToDraw), cmp_sprite_order);
+    qsort(ordered_sprites_to_draw, total_sprites, sizeof(struct sprite_to_draw), cmp_sprite_order);
 
     // Draw shadows
     for (usize i = 0; i < total_sprites; ++i)
     {
-	struct SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
+	struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
 	if (sprite_to_draw->draw_shadow)
 	{
 	    v2 shadow_final_offset = Vector2Add(
@@ -130,7 +130,7 @@ void systems_render(struct game_state *game_state)
     // Draw sprites
     for (usize i = 0; i < total_sprites; ++i)
     {
-	struct SpriteToDraw *sprite_to_draw = &ordered_sprites_to_draw[i];
+	struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
 	render_sprite_draw(sprite_to_draw->sprite_frame,
 			   Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
 			   sprite_to_draw->rotation, sprite_to_draw->scale, sprite_to_draw->color,

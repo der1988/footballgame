@@ -9,7 +9,7 @@
 void log_line(char *file, u16 line, enum log_type type, enum log_system system, const char *ctx,
 	      const char *format, ...)
 {
-    static char *log_type_prefixes[LT_COUNT] = {
+    static const char *log_type_prefixes[LT_COUNT] = {
 	"ERROR", "WARN", "INFO", "DEBUG", "TRACE",
     };
 
