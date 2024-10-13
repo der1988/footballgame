@@ -10,7 +10,7 @@
 
 void systems_goal(struct game_state *game_state)
 {
-    struct Entity *ball_entity =
+    struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
 
     declare_ball_entity_components(ball_entity);
@@ -24,9 +24,9 @@ void systems_goal(struct game_state *game_state)
 	    continue;
 	}
 
-	declare_entity_component(entity, Transform, transform);
-	declare_entity_component(entity, Goal, goal);
-	declare_entity_component(entity, Collider, collider);
+	declare_entity_component(entity, transform);
+	declare_entity_component(entity, goal);
+	declare_entity_component(entity, collider);
 
 	Rectangle goal_rectangle = {
 	    .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,

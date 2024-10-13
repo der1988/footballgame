@@ -20,24 +20,24 @@
 implement_state_machine_functions(Player, player);
 implement_state_machine_functions(Goalie, goalie);
 
-static void prepare_gfx(struct ComponentPlayer *player, struct game_state *game_state);
-static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentGoalie *goalie,
+static void prepare_gfx(struct component_player *player, struct game_state *game_state);
+static void prepare_goalie_gfx(struct component_player *player, struct component_goalie *goalie,
 			       struct game_state *game_state);
 
-struct Entity *entities_player_create(PlayerConfig config, struct game_state *game_state)
+struct entity *entities_player_create(PlayerConfig config, struct game_state *game_state)
 {
-    struct Entity *entity =
+    struct entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
     // Initialise transform
-    struct ComponentTransform *transform = &entity->transform;
+    struct component_transform *transform = &entity->transform;
     transform->header.enabled = true;
     transform->position = config.position;
     transform->rotation = 0;
     transform->scale = (v2){.x = 1, .y = 1};
 
     // Initialise physics
-    struct ComponentPhysics *physics = &entity->physics;
+    struct component_physics *physics = &entity->physics;
     physics->header.enabled = true;
     physics->mass = 75.0f;
     physics->velocity = (Vector2){0};
@@ -45,7 +45,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
     physics->max_velocity = game_state->constants.player_control_max_velocity;
 
     // Initialise collider
-    struct ComponentCollider *collider = &entity->collider;
+    struct component_collider *collider = &entity->collider;
     collider->header.enabled = true;
 
     // Initialise sprite
@@ -53,7 +53,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
     struct AssetsSpriteFrame *sprite_frame =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_frame_name);
     assert(sprite_frame != NULL);
-    struct ComponentSprite *sprite = &entity->sprite;
+    struct component_sprite *sprite = &entity->sprite;
     sprite->header.enabled = true;
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;
@@ -68,7 +68,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
     // sprite->shadow_scale = (v2){.x = 0.6, .y = 1};
 
     // Initialise player
-    struct ComponentPlayer *player = &entity->player;
+    struct component_player *player = &entity->player;
     player->header.enabled = true;
     player->side = config.side;
     player->team_formation_position_idx = config.team_formation_position_idx;
@@ -81,13 +81,13 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
     player->state_machine = player_state_machine;
 
     // Initialise action
-    struct ComponentAction *action = &entity->action;
+    struct component_action *action = &entity->action;
     action->header.enabled = true;
 
     if (config.is_goalie)
     {
 	// Initialise goalie
-	struct ComponentGoalie *goalie = &entity->goalie;
+	struct component_goalie *goalie = &entity->goalie;
 	goalie->header.enabled = true;
 	struct StateMachineGoalie *state_machine =
 	    memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
@@ -103,7 +103,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
 
 	collider->num_colliders = PCT_COUNT;
 	collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
-						sizeof(struct Collider) * collider->num_colliders);
+						sizeof(struct collider) * collider->num_colliders);
 	collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
 	collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
 	collider->colliders[PCT_GOALIE].props.circle.radius = 6;
@@ -120,7 +120,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
 	prepare_gfx(&entity->player, game_state);
 
 	collider->colliders =
-	    memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
+	    memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
 	collider->num_colliders = 1;
     }
 
@@ -138,7 +138,7 @@ struct Entity *entities_player_create(PlayerConfig config, struct game_state *ga
 void entities_player_apply_force(entity_id_t player_entity_id, Vector2 force_to_apply,
 				 struct game_state *game_state)
 {
-    struct ComponentPhysics *physics =
+    struct component_physics *physics =
 	&entities_entity_get(game_state->entity_repository, player_entity_id)->physics;
 
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
@@ -154,9 +154,9 @@ void entities_player_apply_force(entity_id_t player_entity_id, Vector2 force_to_
 
 void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state)
 {
-    struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-    struct ComponentPhysics *physics = &entity->physics;
-    struct ComponentTransform *transform = &entity->transform;
+    struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    struct component_physics *physics = &entity->physics;
+    struct component_transform *transform = &entity->transform;
     transform->position =
 	Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
 }
@@ -164,14 +164,14 @@ void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_st
 void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 direction,
 					     f32 velocity_threshold, struct game_state *game_state)
 {
-    struct Entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-    struct ComponentPhysics *physics = &entity->physics;
-    struct ComponentPlayer *player = &entity->player;
-    struct ComponentSprite *sprite = &entity->sprite;
+    struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    struct component_physics *physics = &entity->physics;
+    struct component_player *player = &entity->player;
+    struct component_sprite *sprite = &entity->sprite;
 
     if (Vector2Length(physics->velocity) > velocity_threshold)
     {
-	enum Direction pd = entities_common_calculate_direction(direction);
+	enum direction pd = entities_common_calculate_direction(direction);
 	struct AssetsAnimation *animation =
 	    assets_animation_get_by_id(game_state->animation_cache, player->run_animations[pd]);
 	f32 max_player_velocity = game_state->constants.player_run_max_velocity;
@@ -191,9 +191,9 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 di
     }
 }
 
-void entities_player_state_machine_on_enter(struct Entity *entity, struct game_state *game_state)
+void entities_player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
-    struct ComponentPlayer *player = &entity->player;
+    struct component_player *player = &entity->player;
     struct StateMachinePlayer *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "entering state: %s",
@@ -219,7 +219,7 @@ void entities_player_state_machine_on_enter(struct Entity *entity, struct game_s
     }
 }
 
-void entities_player_state_machine_on_exit(struct Entity *entity, struct game_state *game_state)
+void entities_player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
     struct StateMachinePlayer *state_machine = entity->player.state_machine;
 
@@ -243,7 +243,7 @@ void entities_player_state_machine_on_exit(struct Entity *entity, struct game_st
     }
 }
 
-void entities_goalie_state_machine_on_enter(struct Entity *entity, struct game_state *game_state)
+void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
     struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
@@ -282,7 +282,7 @@ void entities_goalie_state_machine_on_enter(struct Entity *entity, struct game_s
     }
 }
 
-void entities_goalie_state_machine_on_exit(struct Entity *entity, struct game_state *game_state)
+void entities_goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
     struct StateMachineGoalie *state_machine = entity->goalie.state_machine;
 
@@ -311,7 +311,7 @@ void entities_goalie_state_machine_on_exit(struct Entity *entity, struct game_st
     }
 }
 
-static void prepare_gfx(struct ComponentPlayer *player, struct game_state *game_state)
+static void prepare_gfx(struct component_player *player, struct game_state *game_state)
 {
     // Stand frames
     player->stand_frames[D_DOWN] =
@@ -350,7 +350,7 @@ static void prepare_gfx(struct ComponentPlayer *player, struct game_state *game_
 	entities_common_animation_id_from_name("player", "run_back_right", game_state);
 }
 
-static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentGoalie *goalie,
+static void prepare_goalie_gfx(struct component_player *player, struct component_goalie *goalie,
 			       struct game_state *game_state)
 {
     // Stand frames
@@ -463,7 +463,7 @@ static void prepare_goalie_gfx(struct ComponentPlayer *player, struct ComponentG
     //     entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
 }
 
-Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos, struct Collider *dive_collider)
+Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
 {
     return (Rectangle){.x = pos.x + dive_collider->props.rectangle.offset.x,
 		       .y = pos.y + dive_collider->props.rectangle.offset.y,
@@ -471,11 +471,11 @@ Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos, struct Coll
 		       .height = dive_collider->props.rectangle.size.y};
 }
 
-bool entities_player_is_diving_goalie_colliding_with_ball(struct Entity *goalie_entity,
+bool entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
 							  v3 ball_position, f32 ball_radius,
 							  f32 max_height)
 {
-    struct Collider *dive_collider = &goalie_entity->collider.colliders[PCT_DIVE];
+    struct collider *dive_collider = &goalie_entity->collider.colliders[PCT_DIVE];
 
     b32 is_colliding_with_ball =
 	CheckCollisionCircleRec(V3_TO_V2(ball_position), ball_radius,
@@ -486,11 +486,11 @@ bool entities_player_is_diving_goalie_colliding_with_ball(struct Entity *goalie_
     return is_colliding_with_ball;
 }
 
-bool entities_player_is_standing_goalie_colliding_with_ball(struct Entity *goalie_entity,
+bool entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
 							    v3 ball_position, f32 ball_radius,
 							    f32 max_height)
 {
-    struct Collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
+    struct collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
     b32 is_colliding_with_ball =
 	CheckCollisionCircles(
 	    V3_TO_V2(ball_position), ball_radius,
@@ -501,8 +501,8 @@ bool entities_player_is_standing_goalie_colliding_with_ball(struct Entity *goali
     return is_colliding_with_ball;
 }
 
-bool entities_player_should_dive(struct Entity *goalie_entity, struct Entity *ball_entity,
-				 enum SaveDirection *dive_direction, enum SaveHeight *dive_height,
+bool entities_player_should_dive(struct entity *goalie_entity, struct entity *ball_entity,
+				 enum save_direction *dive_direction, enum save_height *dive_height,
 				 f32 *dive_speed, f32 *dive_distance, struct game_state *game_state)
 {
     bool should_dive = false;

@@ -9,7 +9,7 @@
 #include "layers.h"
 
 // Forward declarations
-struct EntityRepository;
+struct entity_repository;
 struct AssetsTextureCache;
 struct AssetsSpriteFrameCache;
 struct AssetsAnimationCache;
@@ -133,7 +133,7 @@ struct game_state
     struct game_constants constants;
     struct game_vars vars;
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
-    struct EntityRepository *entity_repository;
+    struct entity_repository *entity_repository;
     struct AssetsTextureCache *texture_cache;
     struct AssetsSpriteFrameCache *sprite_frame_cache;
     struct AssetsAnimationCache *animation_cache;

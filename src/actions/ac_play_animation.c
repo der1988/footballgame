@@ -15,7 +15,7 @@ void actions_play_animation_update(struct ActionRunner *action_runner, entity_id
 	h = 1;
 	action_runner->completed = true;
     }
-    struct ComponentSprite *sprite =
+    struct component_sprite *sprite =
 	&entities_entity_get(game_state->entity_repository, id)->sprite;
     struct AssetsAnimation *animation =
 	assets_animation_get_by_id(game_state->animation_cache, action->animation_id);

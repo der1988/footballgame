@@ -14,7 +14,7 @@ void actions_change_color_from_to_update(struct ActionRunner *action_runner, ent
 	h = 1;
 	action_runner->completed = true;
     }
-    struct ComponentSprite *sprite =
+    struct component_sprite *sprite =
 	&entities_entity_get(game_state->entity_repository, id)->sprite;
     sprite->color = utils_color_lerp(action->from, action->to, h);
 }

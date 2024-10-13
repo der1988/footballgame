@@ -6,7 +6,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-void apply_force(Vector2 force_to_apply, struct ComponentPhysics *physics, delta_time_t dt)
+void apply_force(Vector2 force_to_apply, struct component_physics *physics, delta_time_t dt)
 {
     physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
@@ -14,7 +14,7 @@ void apply_force(Vector2 force_to_apply, struct ComponentPhysics *physics, delta
     physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
 }
 
-void apply_velocity(struct ComponentTransform *transform, struct ComponentPhysics *physics,
+void apply_velocity(struct component_transform *transform, struct component_physics *physics,
 		    delta_time_t dt)
 {
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
@@ -31,15 +31,15 @@ void systems_camera(struct game_state *game_state)
 	    continue;
 	}
 
-	declare_entity_component(entity, Transform, transform);
-	declare_entity_component(entity, Target, target);
-	declare_entity_component(entity, Physics, physics);
-	declare_entity_component(entity, Camera, camera);
+	declare_entity_component(entity, transform);
+	declare_entity_component(entity, target);
+	declare_entity_component(entity, physics);
+	declare_entity_component(entity, camera);
 
-	struct Entity *target_entity =
+	struct entity *target_entity =
 	    entities_entity_get(game_state->entity_repository, target->entity_id);
-	struct ComponentTransform *target_transform = &target_entity->transform;
-	struct ComponentPhysics3d *target_physics = &target_entity->physics_3d;
+	struct component_transform *target_transform = &target_entity->transform;
+	struct component_physics3d *target_physics = &target_entity->physics3d;
 
 	v2 steering = Vector2Zero();
 	if (target_transform && target_physics)

@@ -13,13 +13,13 @@ static v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos)
     return pos;
 }
 
-enum PlayerAIState ai_player_think(struct Entity *entity, v2 *target_position,
+enum PlayerAIState ai_player_think(struct entity *entity, v2 *target_position,
 				   enum PlayerAIKickDecision *kick_decision,
 				   struct game_state *game_state)
 {
     enum PlayerAIState ai_state;
 
-    struct Entity *ball_entity =
+    struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     declare_ball_entity_components(ball_entity);
     UNUSED(ball_collider);

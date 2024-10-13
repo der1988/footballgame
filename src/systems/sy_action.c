@@ -11,7 +11,7 @@ void systems_action(struct game_state *game_state)
 	    continue;
 	}
 
-	declare_entity_component(entity, Action, action);
+	declare_entity_component(entity, action);
 
 	for (usize j = 0; j < MaxConcurrentActions; ++j)
 	{

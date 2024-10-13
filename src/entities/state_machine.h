@@ -14,15 +14,15 @@
     void entities_##NAME##_state_machine_change_state_to(                                          \
 	struct StateMachine##ENTITY_TYPE *state_machine,                                           \
 	enum StateMachine##ENTITY_TYPE##State state, struct game_state *game_state);               \
-    void entities_##NAME##_state_machine_on_enter(struct Entity *entity,                           \
+    void entities_##NAME##_state_machine_on_enter(struct entity *entity,                           \
 						  struct game_state *game_state);                  \
-    void entities_##NAME##_state_machine_on_exit(struct Entity *entity,                            \
+    void entities_##NAME##_state_machine_on_exit(struct entity *entity,                            \
 						 struct game_state *game_state);
 
 #define declare_state_machine_enter_and_exit(ENTITY_NAME)                                          \
-    void state_machine_##ENTITY_NAME##_on_enter(struct Entity *ENTITY_NAME,                        \
+    void state_machine_##ENTITY_NAME##_on_enter(struct entity *ENTITY_NAME,                        \
 						struct game_state *game_state);                    \
-    void state_machine_##ENTITY_NAME##_on_exit(struct Entity *ENTITY_NAME,                         \
+    void state_machine_##ENTITY_NAME##_on_exit(struct entity *ENTITY_NAME,                         \
 					       struct game_state *game_state);
 
 #define implement_state_machine_functions(ENTITY_TYPE, NAME)                                       \
@@ -30,7 +30,7 @@
 	struct StateMachine##ENTITY_TYPE *state_machine,                                           \
 	enum StateMachine##ENTITY_TYPE##State state, struct game_state *game_state)                \
     {                                                                                              \
-	struct Entity *entity =                                                                    \
+	struct entity *entity =                                                                    \
 	    entities_entity_get(game_state->entity_repository, state_machine->owner_entity);       \
 	if (state_machine->current_state == state)                                                 \
 	{                                                                                          \

@@ -13,7 +13,7 @@
 #include "constants.h"
 #include <stdio.h>
 
-static bool protect_goal_predicate(v3 pos_to_check, struct Entity *seeker_entity,
+static bool protect_goal_predicate(v3 pos_to_check, struct entity *seeker_entity,
 				   struct game_state *game_state)
 {
     f32 ball_distance_from_goal = Vector3Distance(
@@ -24,9 +24,9 @@ static bool protect_goal_predicate(v3 pos_to_check, struct Entity *seeker_entity
 	    pos_to_check.y < (game_state->constants.crossbar_height - 7));
 }
 
-void systems_goalie(struct game_state *game_state, struct Input *input)
+void systems_goalie(struct game_state *game_state, struct input *input)
 {
-    struct Entity *ball_entity =
+    struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     declare_ball_entity_components(ball_entity);
 
@@ -38,14 +38,14 @@ void systems_goalie(struct game_state *game_state, struct Input *input)
 	    continue;
 	}
 
-	declare_entity_component(entity, Player, player);
+	declare_entity_component(entity, player);
 	if (player->state_machine->current_state != PS_GOALIE)
 	    continue;
-	declare_entity_component(entity, Transform, transform);
-	declare_entity_component(entity, Physics, physics);
-	declare_entity_component(entity, Sprite, sprite);
-	declare_entity_component(entity, Goalie, goalie);
-	declare_entity_component(entity, Collider, collider);
+	declare_entity_component(entity, transform);
+	declare_entity_component(entity, physics);
+	declare_entity_component(entity, sprite);
+	declare_entity_component(entity, goalie);
+	declare_entity_component(entity, collider);
 
 	struct StateMachineGoalie *state_machine = goalie->state_machine;
 
@@ -55,7 +55,7 @@ void systems_goalie(struct game_state *game_state, struct Input *input)
 
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 	    game_state->constants.player_control_radius;
-	struct Collider *goalie_collider = &collider->colliders[PCT_GOALIE];
+	struct collider *goalie_collider = &collider->colliders[PCT_GOALIE];
 
 	switch (state_machine->current_state)
 	{
@@ -179,7 +179,7 @@ void systems_goalie(struct game_state *game_state, struct Input *input)
 	}
 	case GS_DIVE:
 	{
-	    enum SaveDirection direction = goalie->dive_direction;
+	    enum save_direction direction = goalie->dive_direction;
 
 	    StateMachineGoalieDiveData *dive_state_data = &goalie->state_machine->state_data.dive;
 

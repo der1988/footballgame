@@ -18,7 +18,7 @@
 
 struct game_state *game_init(struct game_config game_config)
 {
-    GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct Entity));
+    GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
     memory_arena_handle_t *memory_arena_lifetime_game =
 	memory_arena_create("game", game_config.memory, Megabytes(1));
 
@@ -142,7 +142,7 @@ struct game_state *game_init(struct game_config game_config)
 		 .y = 77 + 360 * 3},
 	.area = (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167}};
 
-    struct Entity *player_entity = entities_player_create(
+    struct entity *player_entity = entities_player_create(
 	(PlayerConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
 		       .side = PSI_SOUTH},
 	game_state);
@@ -163,16 +163,16 @@ struct game_state *game_init(struct game_config game_config)
 		       .side = PSI_NORTH},
 	game_state);
 
-    struct Entity *ball_entity = entities_ball_create(
+    struct entity *ball_entity = entities_ball_create(
 	(struct BallConfig){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f}},
 	game_state);
     game_state->vars.ball_entity_id = ball_entity->header.id;
 
     entities_goal_create((GoalConfig){.side = PSI_NORTH}, game_state);
 
-    struct Entity *camera_entity = entities_camera_create(game_state);
-    struct ComponentCamera *camera = &camera_entity->camera;
-    struct ComponentTarget *camera_target = &camera_entity->target;
+    struct entity *camera_entity = entities_camera_create(game_state);
+    struct component_camera *camera = &camera_entity->camera;
+    struct component_target *camera_target = &camera_entity->target;
     camera->camera = CAM_MAIN;
     camera_target->entity_id = ball_entity->header.id;
     game_state->vars.camera_entity_id = camera_entity->header.id;
@@ -257,7 +257,7 @@ void game_draw(struct game_state *game_state)
 
     memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 
-    struct ComponentTransform *camera_transform =
+    struct component_transform *camera_transform =
 	&entities_entity_get(game_state->entity_repository, game_state->vars.camera_entity_id)
 	     ->transform;
 

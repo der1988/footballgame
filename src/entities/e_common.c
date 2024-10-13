@@ -24,13 +24,13 @@ AssetsAnimationId entities_common_animation_id_from_name(char *entity_name, char
     return animation->id;
 }
 
-enum Direction entities_common_calculate_direction(Vector2 direction)
+enum direction entities_common_calculate_direction(Vector2 direction)
 {
     static Vector2 direction_vectors[] = {{.x = 0, .y = -1}, {.x = 0, .y = 1},	 {.x = -1, .y = 0},
 					  {.x = 1, .y = 0},  {.x = -1, .y = -1}, {.x = 1, .y = -1},
 					  {.x = -1, .y = 1}, {.x = 1, .y = 1}};
     f32 max_value = 0;
-    enum Direction selected_direction = D_DOWN;
+    enum direction selected_direction = D_DOWN;
     for (u16 i = 0; i < 8; ++i)
     {
 	f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
@@ -52,8 +52,8 @@ bool entities_common_can_reach_position_in_time(v2 current_position, v2 position
 }
 
 bool entities_common_can_reach_future_ball_position(
-    struct Entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
-    bool(predicate)(v3 pos_to_check, struct Entity *seeker_entity, struct game_state *game_state),
+    struct entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
+    bool(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
     v3 *future_pos, time_t *future_time, struct game_state *game_state)
 {
     const int steps_per_lookahead =

@@ -15,24 +15,24 @@
 struct StateMachineBall;
 struct StateMachinePlayer;
 
-struct ComponentHeader
+struct component_header
 {
     b32 enabled;
 };
 
-struct ComponentTransform
+struct component_transform
 {
-    struct ComponentHeader header;
-    struct ComponentTransform *parent;
+    struct component_header header;
+    struct component_transform *parent;
     v2 position;
     f32 rotation;
     v2 scale;
     f32 virtual_height;
 };
 
-struct ComponentPhysics
+struct component_physics
 {
-    struct ComponentHeader header;
+    struct component_header header;
     f32 mass;
     v2 accel;
     v2 velocity;
@@ -40,9 +40,9 @@ struct ComponentPhysics
     f32 max_force;
 };
 
-struct ComponentPhysics3d
+struct component_physics3d
 {
-    struct ComponentHeader header;
+    struct component_header header;
     f32 mass;
     v3 accel;
     v3 velocity;
@@ -50,9 +50,9 @@ struct ComponentPhysics3d
     f32 max_force;
 };
 
-struct ComponentSprite
+struct component_sprite
 {
-    struct ComponentHeader header;
+    struct component_header header;
     Color color;
     b32 flipX;
     b32 flipY;
@@ -66,19 +66,19 @@ struct ComponentSprite
     v2 shadow_scale;
 };
 
-struct ComponentAction
+struct component_action
 {
-    struct ComponentHeader header;
+    struct component_header header;
     struct ActionRunner running_actions[MaxConcurrentActions];
 };
 
-struct ComponentTarget
+struct component_target
 {
-    struct ComponentHeader header;
+    struct component_header header;
     entity_id_t entity_id;
 };
 
-struct Collider
+struct collider
 {
     enum
     {
@@ -100,22 +100,22 @@ struct Collider
     } props;
 };
 
-struct ComponentCollider
+struct component_collider
 {
-    struct ComponentHeader header;
-    struct Collider *colliders;
+    struct component_header header;
+    struct collider *colliders;
     u16 num_colliders;
 };
 
-struct ComponentCamera
+struct component_camera
 {
-    struct ComponentHeader header;
+    struct component_header header;
     enum camera_type camera;
     f32 slowing_distance;
     v2 offset;
 };
 
-enum Direction
+enum direction
 {
     D_UP,
     D_DOWN,
@@ -128,9 +128,9 @@ enum Direction
     D_COUNT
 };
 
-struct ComponentPlayer
+struct component_player
 {
-    struct ComponentHeader header;
+    struct component_header header;
     enum pitch_side side;
     struct StateMachinePlayer *state_machine;
     b32 control_ball;
@@ -139,16 +139,16 @@ struct ComponentPlayer
     f32 current_max_velocity;
     AssetsSpriteFrameId stand_frames[D_COUNT];
     AssetsAnimationId run_animations[D_COUNT];
-    enum Direction last_direction;
+    enum direction last_direction;
     f32 last_kick_time;
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
     u8 team_formation_position_idx;
 };
 
-struct ComponentBall
+struct component_ball
 {
-    struct ComponentHeader header;
+    struct component_header header;
     struct StateMachineBall *state_machine;
     b32 is_on_the_ground;
     entity_id_t last_player_on_the_ball_entity_id;
@@ -159,7 +159,7 @@ struct ComponentBall
     time_t last_kick_time;
     time_t last_bounce_time;
     AssetsSpriteFrameId roll_animations[D_COUNT];
-    enum Direction last_direction;
+    enum direction last_direction;
     v2 future_bounce_position;
     u32 dts_to_future_bounce;
     v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
@@ -167,56 +167,56 @@ struct ComponentBall
     u16 last_running_frame_idx;
 };
 
-struct ComponentGoal
+struct component_goal
 {
-    struct ComponentHeader header;
+    struct component_header header;
     time_t hit_left_post_time;
     time_t hit_right_post_time;
     time_t hit_crossbar_time;
     b32 scored;
 };
 
-enum SaveSide
+enum save_side
 {
     SS_UP,
     SS_DOWN,
     SS_COUNT
 };
 
-enum SaveDirection
+enum save_direction
 {
     SD_LEFT,
     SD_RIGHT,
     SD_COUNT
 };
 
-enum SaveHeight
+enum save_height
 {
     SH_HIGH,
     SH_LOW,
     SH_COUNT
 };
 
-enum SaveType
+enum save_type
 {
     ST_WITHOUT_BALL,
     ST_WITH_BALL,
     ST_COUNT
 };
 
-enum AnimationPhase
+enum animation_phase
 {
     AP_START,
     AP_END,
     AP_COUNT
 };
 
-struct ComponentGoalie
+struct component_goalie
 {
-    struct ComponentHeader header;
+    struct component_header header;
     struct StateMachineGoalie *state_machine;
-    enum SaveDirection dive_direction;
-    enum SaveHeight dive_height;
+    enum save_direction dive_direction;
+    enum save_height dive_height;
     f32 dive_distance;
     f32 dive_speed;
     AssetsSpriteFrameId save_frames[SS_COUNT][ST_COUNT];
@@ -232,7 +232,7 @@ running_action_idx_t components_action_run(entity_id_t id, struct Action *action
 void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
 			    struct game_state *game_state);
 
-void components_transform_calculate_absolute(struct ComponentTransform *transform,
+void components_transform_calculate_absolute(struct component_transform *transform,
 					     Vector2 *position, f32 *rotation, Vector2 *scale);
 
 #endif // !COMPONENTS

@@ -23,7 +23,7 @@ enum GoalieAIState
     GAS_DIVE
 };
 
-enum PlayerAIState ai_player_think(struct Entity *entity, v2 *target_position,
+enum PlayerAIState ai_player_think(struct entity *entity, v2 *target_position,
 				   enum PlayerAIKickDecision *kick_decision,
 				   struct game_state *game_state);
 

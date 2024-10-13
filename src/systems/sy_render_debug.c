@@ -10,7 +10,7 @@ void systems_render_debug(struct game_state *game_state)
 {
     if (game_state->constants.render_debug)
     {
-	EntityRepository *entity_repository = game_state->entity_repository;
+	struct entity_repository *entity_repository = game_state->entity_repository;
 
 	for_each_entity(entity, game_state->entity_repository)
 	{
@@ -19,9 +19,9 @@ void systems_render_debug(struct game_state *game_state)
 		continue;
 	    }
 
-	    declare_entity_component(entity, Transform, transform);
-	    declare_entity_component(entity, Sprite, sprite);
-	    declare_entity_component(entity, Collider, collider);
+	    declare_entity_component(entity, transform);
+	    declare_entity_component(entity, sprite);
+	    declare_entity_component(entity, collider);
 
 	    Vector2 position = transform->position;
 	    f32 rotation = transform->rotation;
@@ -64,7 +64,7 @@ void systems_render_debug(struct game_state *game_state)
 	}
 
 	// Ball debug
-	struct ComponentBall *ball =
+	struct component_ball *ball =
 	    &entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id)
 		 ->ball;
 	for (u8 i = 0; i < 25; ++i)

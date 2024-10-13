@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-static entity_id_t find_empty_slot(EntityRepository *entity_repo)
+static entity_id_t find_empty_slot(struct entity_repository *entity_repo)
 {
     // TODO(marco): is a linear search enough here?
     entity_id_t id = 0;
@@ -45,20 +45,21 @@ static entity_id_t find_empty_slot(EntityRepository *entity_repo)
     return id;
 }
 
-static void empty_slot(EntityRepository *entity_repo, entity_id_t id)
+static void empty_slot(struct entity_repository *entity_repo, entity_id_t id)
 {
     entity_repo->entities[id].header.alive = false;
     entity_repo->available_slots++;
 }
 
-EntityRepository *entities_repository_init(memory_arena_handle_t *memory_arena_handle)
+struct entity_repository *entities_repository_init(memory_arena_handle_t *memory_arena_handle)
 {
-    EntityRepository *handle = memory_arena_push(memory_arena_handle, sizeof(EntityRepository));
+    struct entity_repository *handle =
+	memory_arena_push(memory_arena_handle, sizeof(struct entity_repository));
     assert(handle);
 
     handle->arena_handle = memory_arena_handle;
     handle->entities =
-	memory_arena_push(handle->arena_handle, sizeof(struct Entity) * MAX_ENTITIES);
+	memory_arena_push(handle->arena_handle, sizeof(struct entity) * MAX_ENTITIES);
     handle->max_slots = handle->available_slots = MAX_ENTITIES;
     handle->last_used_slot = 0;
     handle->initialised = true;
@@ -66,14 +67,15 @@ EntityRepository *entities_repository_init(memory_arena_handle_t *memory_arena_h
     return handle;
 }
 
-void entities_repository_destroy(EntityRepository *handle)
+void entities_repository_destroy(struct entity_repository *handle)
 {
     assert(handle->initialised);
     handle->initialised = false;
     GLOG_INFO(LS_ENTITIES, "entities repository destroyed");
 }
 
-struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, char *name_format)
+struct entity *entities_entity_init(struct entity_repository *handle, enum EntityType type,
+				    char *name_format)
 {
     assert(handle->initialised && handle->available_slots > 0);
 
@@ -83,7 +85,7 @@ struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, c
 	return NULL;
     }
 
-    struct Entity *entity = &handle->entities[id];
+    struct entity *entity = &handle->entities[id];
 
     // Entity header
     entity->header.type = type;
@@ -94,20 +96,20 @@ struct Entity *entities_entity_init(EntityRepository *handle, EntityType type, c
     return entity;
 }
 
-void entities_entity_destroy(EntityRepository *handle, entity_id_t id)
+void entities_entity_destroy(struct entity_repository *handle, entity_id_t id)
 {
     empty_slot(handle, id);
 
     GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].header.name, "entity destroyed");
 }
 
-struct Entity *entities_entity_get(EntityRepository *handle, entity_id_t id)
+struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t id)
 {
     assert(handle->initialised);
     return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;
 }
 
-bool entities_is_entity_alive_and_has_components(struct Entity *entity, u32 count, ...)
+bool entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...)
 {
     if (!entity->header.alive)
     {
@@ -118,8 +120,8 @@ bool entities_is_entity_alive_and_has_components(struct Entity *entity, u32 coun
     va_start(ap, count);
     for (u32 i = 0; i < count; ++i)
     {
-	struct ComponentHeader *component =
-	    (struct ComponentHeader *)(((void *)entity) + va_arg(ap, usize));
+	struct component_header *component =
+	    (struct component_header *)(((void *)entity) + va_arg(ap, usize));
 	if (!component->enabled)
 	{
 	    valid = false;

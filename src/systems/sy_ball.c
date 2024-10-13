@@ -31,17 +31,17 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    continue;
 	}
 
-	declare_entity_component(entity, Transform, transform);
-	declare_entity_component(entity, Physics3d, physics_3d);
-	declare_entity_component(entity, Sprite, sprite);
-	declare_entity_component(entity, Ball, ball);
-	declare_entity_component(entity, Collider, collider);
+	declare_entity_component(entity, transform);
+	declare_entity_component(entity, physics3d);
+	declare_entity_component(entity, sprite);
+	declare_entity_component(entity, ball);
+	declare_entity_component(entity, collider);
 
 	struct StateMachineBall *state_machine = ball->state_machine;
 
 	if (input->buttons[IBT_BUTTON_START].released)
 	{
-	    struct ComponentTransform *p1_transform =
+	    struct component_transform *p1_transform =
 		&entities_entity_get(game_state->entity_repository,
 				     game_state->vars.p1.player_entity_id)
 		     ->transform;
@@ -96,9 +96,8 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    TextFormat(
 		"%-8s %02d pos: [%7.2f, %7.2f, %7.2f] vel: [%6.2f, %6.2f, %6.2f] speed: %6.2f",
 		"Ball", game_state->vars.ball_entity_id, transform->position.x,
-		transform->virtual_height, transform->position.y, physics_3d->velocity.x,
-		physics_3d->velocity.y, physics_3d->velocity.z,
-		Vector3Length(physics_3d->velocity)));
+		transform->virtual_height, transform->position.y, physics3d->velocity.x,
+		physics3d->velocity.y, physics3d->velocity.z, Vector3Length(physics3d->velocity)));
 
 	switch (state_machine->current_state)
 	{
@@ -107,8 +106,8 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	case BS_IN_PLAY:
 	{
 	    v3 position = V2_TO_V3(transform->position, transform->virtual_height);
-	    v3 velocity = physics_3d->velocity;
-	    v3 accel = physics_3d->accel;
+	    v3 velocity = physics3d->velocity;
+	    v3 accel = physics3d->accel;
 
 	    // After touch
 	    f32 after_touch_time = (game_state->time - ball->last_kick_time);
@@ -177,7 +176,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    b32 on_the_ground;
 	    b32 bounced;
 	    f32 ball_radius = collider->colliders[0].props.circle.radius;
-	    sim_ball_physics(&position, &velocity, accel, physics_3d->mass, ball_radius,
+	    sim_ball_physics(&position, &velocity, accel, physics3d->mass, ball_radius,
 			     &on_the_ground, &bounced, game_state);
 	    ball->is_on_the_ground = on_the_ground && !bounced;
 	    if (bounced)
@@ -205,7 +204,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		for (u16 j = 0; j < lookahead_dts; ++j)
 		{
 		    sim_ball_physics(&lookahead_position, &lookahead_velocity, Vector3Zero(),
-				     physics_3d->mass, ball_radius, &lookahead_on_the_ground,
+				     physics3d->mass, ball_radius, &lookahead_on_the_ground,
 				     &lookahead_bounced, game_state);
 		    if (!found_first_bounce && lookahead_bounced)
 		    {
@@ -222,9 +221,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    transform->position = V3_TO_V2(position);
 	    transform->virtual_height = position.y;
 
-	    physics_3d->velocity = velocity;
+	    physics3d->velocity = velocity;
 	    // Acceleration does not accumulate
-	    physics_3d->accel = Vector3Zero();
+	    physics3d->accel = Vector3Zero();
 
 	    if (bounced)
 	    {
@@ -232,10 +231,10 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    }
 
 	    // Calculate frame to display
-	    Vector2 ball_velocity = V3_TO_V2(physics_3d->velocity);
+	    Vector2 ball_velocity = V3_TO_V2(physics3d->velocity);
 	    if (Vector2Length(ball_velocity) > 3)
 	    {
-		enum Direction pd = entities_common_calculate_direction(ball_velocity);
+		enum direction pd = entities_common_calculate_direction(ball_velocity);
 		struct AssetsAnimation *animation = assets_animation_get_by_id(
 		    game_state->animation_cache, ball->roll_animations[pd]);
 		f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;

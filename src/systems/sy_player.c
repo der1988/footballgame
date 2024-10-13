@@ -21,7 +21,7 @@ struct PlayerOnTheBall
     b32 exists;
     entity_id_t id;
     f32 distance_from_the_ball;
-    struct ComponentPlayer *player;
+    struct component_player *player;
     v2 position;
     v2 velocity;
     struct PlayerControls
@@ -32,27 +32,27 @@ struct PlayerOnTheBall
 	b32 automatic_pass;
 	f32 long_pass;
     } *controls;
-    struct ComponentCollider *collider;
+    struct component_collider *collider;
 };
 
 static entity_id_t find_nearest_teammate(struct game_state *game_state,
 					 entity_id_t player_to_not_select_entity_id, v2 position)
 {
-    struct Entity *ball_entity =
+    struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    struct ComponentBall *ball = &ball_entity->ball;
+    struct component_ball *ball = &ball_entity->ball;
 
-    EntityRepository *entity_repository = game_state->entity_repository;
+    struct entity_repository *entity_repository = game_state->entity_repository;
     entity_id_t selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
-    struct Entity *entity;
+    struct entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id)
     {
 	entity = entities_entity_get(game_state->entity_repository, entity_id);
 	if (entity->header.alive && entity->header.type == ET_PLAYER)
 	{
-	    struct ComponentTransform *transform = &entity->transform;
-	    struct ComponentGoalie *goalie = &entity->goalie;
+	    struct component_transform *transform = &entity->transform;
+	    struct component_goalie *goalie = &entity->goalie;
 
 	    if (player_to_not_select_entity_id == entity_id ||
 		(goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
@@ -78,17 +78,17 @@ static entity_id_t find_pass_target(struct game_state *game_state,
 				    struct PlayerOnTheBall *player_on_the_ball, f32 detection_angle,
 				    f32 max_distance)
 {
-    EntityRepository *entity_repository = game_state->entity_repository;
+    struct entity_repository *entity_repository = game_state->entity_repository;
     entity_id_t selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
-    struct Entity *entity;
+    struct entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id)
     {
 	entity = entities_entity_get(game_state->entity_repository, entity_id);
 	if (entity->header.alive && entity->header.type == ET_PLAYER)
 	{
 
-	    struct ComponentTransform *transform = &entity->transform;
+	    struct component_transform *transform = &entity->transform;
 
 	    if (player_on_the_ball->id == entity_id)
 	    {
@@ -121,7 +121,7 @@ static entity_id_t find_pass_target(struct game_state *game_state,
 
 void systems_player(struct game_state *game_state, struct Input *input)
 {
-    struct Entity *ball_entity =
+    struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     declare_ball_entity_components(ball_entity);
     UNUSED(ball_physics_3d);
@@ -138,11 +138,11 @@ void systems_player(struct game_state *game_state, struct Input *input)
 	    continue;
 	}
 
-	declare_entity_component(entity, Transform, transform);
-	declare_entity_component(entity, Physics, physics);
-	declare_entity_component(entity, Player, player);
-	declare_entity_component(entity, Goalie, goalie);
-	declare_entity_component(entity, Collider, collider);
+	declare_entity_component(entity, transform);
+	declare_entity_component(entity, physics);
+	declare_entity_component(entity, player);
+	declare_entity_component(entity, goalie);
+	declare_entity_component(entity, collider);
 
 	struct StateMachinePlayer *state_machine = player->state_machine;
 
@@ -404,7 +404,7 @@ void systems_player(struct game_state *game_state, struct Input *input)
 		teammate_entity_id != EID_NOT_VALID && player_on_the_ball.controls->automatic_pass;
 	    if (automatic_pass)
 	    {
-		struct ComponentTransform *teammate_transform =
+		struct component_transform *teammate_transform =
 		    &entities_entity_get(game_state->entity_repository, teammate_entity_id)
 			 ->transform;
 		v2 to_teammate =

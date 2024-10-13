@@ -13,13 +13,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Entity *entities_goal_create(GoalConfig config, struct game_state *game_state)
+struct entity *entities_goal_create(GoalConfig config, struct game_state *game_state)
 {
-    struct Entity *entity =
+    struct entity *entity =
 	entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
     // Initialise transform
-    struct ComponentTransform *transform = &entity->transform;
+    struct component_transform *transform = &entity->transform;
     transform->header.enabled = true;
     transform->rotation = 0;
     transform->virtual_height = 0;
@@ -37,13 +37,13 @@ struct Entity *entities_goal_create(GoalConfig config, struct game_state *game_s
     }
 
     // Create goal net
-    struct Entity *goal_net_entity = entities_goal_net_create(game_state);
-    struct ComponentTransform *goal_net_transform = &goal_net_entity->transform;
+    struct entity *goal_net_entity = entities_goal_net_create(game_state);
+    struct component_transform *goal_net_transform = &goal_net_entity->transform;
     goal_net_transform->parent = transform;
     goal_net_transform->position = Vector2Zero();
 
     // Initialise sprite
-    struct ComponentSprite *sprite = &entity->sprite;
+    struct component_sprite *sprite = &entity->sprite;
     sprite->header.enabled = true;
     char *posts_frame_name = "posts_0";
     struct AssetsSpriteFrame *sprite_frame =
@@ -62,10 +62,10 @@ struct Entity *entities_goal_create(GoalConfig config, struct game_state *game_s
     sprite->shadow_scale = (v2){.x = 1, .y = 1};
 
     // Initialise collider
-    struct ComponentCollider *collider = &entity->collider;
+    struct component_collider *collider = &entity->collider;
     collider->header.enabled = true;
     collider->colliders =
-	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct Collider));
+	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_RECTANGLE;
     collider->colliders[0].props.rectangle.size = (v2){.x = 79, .y = 27};
@@ -74,7 +74,7 @@ struct Entity *entities_goal_create(GoalConfig config, struct game_state *game_s
 	     .y = -collider->colliders[0].props.rectangle.size.y};
 
     // Initialise goal
-    struct ComponentGoal *goal = &entity->goal;
+    struct component_goal *goal = &entity->goal;
     goal->header.enabled = true;
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "goal created");

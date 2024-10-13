@@ -50,7 +50,7 @@ static i32 cmp_sprite_order(const void *s1, const void *s2)
 
 void systems_render(struct game_state *game_state)
 {
-    EntityRepository *entity_repository = game_state->entity_repository;
+    struct entity_repository *entity_repository = game_state->entity_repository;
 
     // Allocate some buffer in frame memory arena
     struct SpriteToDraw *ordered_sprites_to_draw =
@@ -67,8 +67,8 @@ void systems_render(struct game_state *game_state)
 	    continue;
 	}
 
-	declare_entity_component(entity, Transform, transform);
-	declare_entity_component(entity, Sprite, sprite);
+	declare_entity_component(entity, transform);
+	declare_entity_component(entity, sprite);
 
 	struct AssetsSpriteFrame *sprite_frame =
 	    assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);
