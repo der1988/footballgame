@@ -6,7 +6,7 @@
 
 #define LOG_LEVEL LT_DEBUG
 
-void log_line(char *file, u16 line, enum ULogType type, enum ULogSystem system, const char *ctx,
+void log_line(char *file, u16 line, enum log_type type, enum log_system system, const char *ctx,
 	      const char *format, ...)
 {
     static char *log_type_prefixes[LT_COUNT] = {

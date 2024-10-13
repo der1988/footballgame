@@ -43,7 +43,7 @@
 #define GLOGF_TRACE_CTX(SYSTEM, CTX, FORMAT, ...)                                                  \
     log_line(__FILE__, __LINE__, LT_TRACE, SYSTEM, CTX, FORMAT, __VA_ARGS__)
 
-enum ULogType
+enum log_type
 {
     LT_ERROR,
     LT_WARN,
@@ -53,7 +53,7 @@ enum ULogType
     LT_COUNT,
 };
 
-enum ULogSystem
+enum log_system
 {
     LS_GAME,
     LS_INPUT,
@@ -69,12 +69,12 @@ enum ULogSystem
     LS_COUNT,
 };
 
-static char *utils_log_systems_desc[11] = {
+static const char *utils_log_systems_desc[11] = {
     "GAME",  "INPUT", "SOUND",	 "ASSETS", "ENTITIES", "MEMORY",
     "UTILS", "TESTS", "TWEAKUI", "LAYERS", "OTHER",
 };
 
-void log_line(char *file, u16 line, enum ULogType type, enum ULogSystem system, const char *ctx,
+void log_line(char *file, u16 line, enum log_type type, enum log_system system, const char *ctx,
 	      const char *format, ...);
 
 #endif // !UTILS_H
