@@ -109,13 +109,13 @@ struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t
     return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;
 }
 
-bool entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...)
+b32 entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...)
 {
     if (!entity->header.alive)
     {
 	return false;
     }
-    bool valid = true;
+    b32 valid = true;
     va_list ap;
     va_start(ap, count);
     for (u32 i = 0; i < count; ++i)

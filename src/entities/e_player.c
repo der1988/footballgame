@@ -467,7 +467,7 @@ static void prepare_goalie_gfx(struct component_player *player, struct component
     //     entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
 }
 
-Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
+rect_t entities_player_calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
 {
     return (Rectangle){.x = pos.x + dive_collider->props.rectangle.offset.x,
 		       .y = pos.y + dive_collider->props.rectangle.offset.y,
@@ -475,9 +475,9 @@ Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos, struct coll
 		       .height = dive_collider->props.rectangle.size.y};
 }
 
-bool entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
-							  v3 ball_position, f32 ball_radius,
-							  f32 max_height)
+b32 entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
+							 v3 ball_position, f32 ball_radius,
+							 f32 max_height)
 {
     struct collider *dive_collider = &goalie_entity->collider.colliders[PCT_DIVE];
 
@@ -490,9 +490,9 @@ bool entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_
     return is_colliding_with_ball;
 }
 
-bool entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
-							    v3 ball_position, f32 ball_radius,
-							    f32 max_height)
+b32 entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
+							   v3 ball_position, f32 ball_radius,
+							   f32 max_height)
 {
     struct collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
     b32 is_colliding_with_ball =
@@ -505,11 +505,11 @@ bool entities_player_is_standing_goalie_colliding_with_ball(struct entity *goali
     return is_colliding_with_ball;
 }
 
-bool entities_player_should_dive(struct entity *goalie_entity, struct entity *ball_entity,
-				 enum save_direction *dive_direction, enum save_height *dive_height,
-				 f32 *dive_speed, f32 *dive_distance, struct game_state *game_state)
+b32 entities_player_should_dive(struct entity *goalie_entity, struct entity *ball_entity,
+				enum save_direction *dive_direction, enum save_height *dive_height,
+				f32 *dive_speed, f32 *dive_distance, struct game_state *game_state)
 {
-    bool should_dive = false;
+    b32 should_dive = false;
 
     const int steps_per_lookahead =
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *

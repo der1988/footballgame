@@ -12,8 +12,8 @@
 #include <raymath.h>
 #include "constants.h"
 
-static bool protect_goal_predicate(v3 pos_to_check, struct entity *seeker_entity,
-				   struct game_state *game_state)
+static b32 protect_goal_predicate(v3 pos_to_check, struct entity *seeker_entity,
+				  struct game_state *game_state)
 {
     f32 ball_distance_from_goal = Vector3Distance(
 	pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[seeker_entity->player.side].center, 0));
@@ -108,7 +108,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		// Calculate whether goalie can reach the ball using predicted positions
 		v3 future_pos;
 		time_t future_time;
-		const bool can_reach_ball = entities_common_can_reach_future_ball_position(
+		const b32 can_reach_ball = entities_common_can_reach_future_ball_position(
 		    entity, exit_max_speed, ball->lookahead_positions, protect_goal_predicate,
 		    &future_pos, &future_time, game_state);
 

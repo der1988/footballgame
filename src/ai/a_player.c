@@ -31,7 +31,7 @@ enum player_ai_state ai_player_think(struct entity *entity, v2 *target_position,
     {
 	v3 ball_future_pos;
 	time_t ball_future_time;
-	bool found = entities_common_can_reach_future_ball_position(
+	b32 found = entities_common_can_reach_future_ball_position(
 	    entity, game_state->constants.player_run_max_velocity, ball->lookahead_positions, NULL,
 	    &ball_future_pos, &ball_future_time, game_state);
 	if (!found)

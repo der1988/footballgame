@@ -57,12 +57,12 @@ assets_animation_id_t entities_common_animation_id_from_name(const char *entity_
 							     struct game_state *game_state);
 enum direction entities_common_calculate_direction(Vector2 direction);
 
-bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
-						time_t time, f32 max_speed);
+b32 entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
+					       time_t time, f32 max_speed);
 
-bool entities_common_can_reach_future_ball_position(
+b32 entities_common_can_reach_future_ball_position(
     struct entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
-    bool(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
+    b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
     v3 *future_pos, time_t *future_time, struct game_state *game_state);
 
 // END
@@ -244,16 +244,15 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 di
 					     f32 velocity_threshold, struct game_state *game_state);
 Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos,
 							     struct collider *dive_collider);
-bool entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
-							  v3 ball_position, f32 ball_radius,
-							  f32 max_height);
-bool entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
-							    v3 ball_position, f32 ball_radius,
-							    f32 max_height);
-bool entities_player_should_dive(struct entity *goalie_entity, struct entity *ball_entity,
-				 enum save_direction *dive_direction, enum save_height *dive_height,
-				 f32 *dive_speed, f32 *dive_distance,
-				 struct game_state *game_state);
+b32 entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
+							 v3 ball_position, f32 ball_radius,
+							 f32 max_height);
+b32 entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
+							   v3 ball_position, f32 ball_radius,
+							   f32 max_height);
+b32 entities_player_should_dive(struct entity *goalie_entity, struct entity *ball_entity,
+				enum save_direction *dive_direction, enum save_height *dive_height,
+				f32 *dive_speed, f32 *dive_distance, struct game_state *game_state);
 
 // END - Player
 
@@ -328,6 +327,6 @@ struct entity *entities_entity_init(struct entity_repository *handle, enum entit
 				    char *name_format);
 void entities_entity_destroy(struct entity_repository *handle, entity_id_t id);
 struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t id);
-bool entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...);
+b32 entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...);
 
 #endif

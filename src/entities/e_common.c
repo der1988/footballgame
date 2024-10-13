@@ -44,17 +44,17 @@ enum direction entities_common_calculate_direction(Vector2 direction)
     return selected_direction;
 }
 
-bool entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
-						time_t time, f32 max_speed)
+b32 entities_common_can_reach_position_in_time(v2 current_position, v2 position_to_reach,
+					       time_t time, f32 max_speed)
 {
     f32 distance_to_cover = Vector2Distance(position_to_reach, current_position);
 
     return (distance_to_cover < (max_speed * time));
 }
 
-bool entities_common_can_reach_future_ball_position(
+b32 entities_common_can_reach_future_ball_position(
     struct entity *seeker_entity, f32 seeker_max_speed, v3 *future_ball_positions,
-    bool(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
+    b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
     v3 *future_pos, time_t *future_time, struct game_state *game_state)
 {
     const int steps_per_lookahead =
