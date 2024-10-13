@@ -1,10 +1,14 @@
 #include "actions.h"
+#include "utils.h"
 #include <raylib.h>
 #include <stdarg.h>
 
 void actions_sequence_start(struct action_runner *action_runner, entity_id_t id,
 			    struct game_state *game_state)
 {
+    UNUSED(id);
+    UNUSED(game_state);
+
     struct action_sequence *action_sequence = (struct action_sequence *)action_runner->action;
 
     // Reset all children actions

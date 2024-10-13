@@ -11,7 +11,6 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "constants.h"
-#include <stdio.h>
 
 static bool protect_goal_predicate(v3 pos_to_check, struct entity *seeker_entity,
 				   struct game_state *game_state)
@@ -26,6 +25,8 @@ static bool protect_goal_predicate(v3 pos_to_check, struct entity *seeker_entity
 
 void systems_goalie(struct game_state *game_state, struct input *input)
 {
+    UNUSED(input);
+
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     declare_ball_entity_components(ball_entity);

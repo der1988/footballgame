@@ -14,7 +14,6 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "ai.h"
-#include <stdio.h>
 
 struct PlayerOnTheBall
 {
@@ -119,8 +118,10 @@ static entity_id_t find_pass_target(struct game_state *game_state,
     return selected_entity_id;
 }
 
-void systems_player(struct game_state *game_state, struct Input *input)
+void systems_player(struct game_state *game_state, struct input *input)
 {
+    UNUSED(input);
+
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     declare_ball_entity_components(ball_entity);

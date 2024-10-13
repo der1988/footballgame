@@ -10,8 +10,6 @@ void systems_render_debug(struct game_state *game_state)
 {
     if (game_state->constants.render_debug)
     {
-	struct entity_repository *entity_repository = game_state->entity_repository;
-
 	for_each_entity(entity, game_state->entity_repository)
 	{
 	    if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE))

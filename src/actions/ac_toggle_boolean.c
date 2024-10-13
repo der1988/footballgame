@@ -1,9 +1,13 @@
 #include "actions.h"
+#include "utils.h"
 #include <raylib.h>
 
 void actions_toggle_boolean_update(struct action_runner *action_runner, entity_id_t id,
 				   struct game_state *game_state)
 {
+    UNUSED(id);
+    UNUSED(game_state);
+
     struct action_toggle_boolean *action = (struct action_toggle_boolean *)action_runner->action;
 
     action_runner->completed = true;

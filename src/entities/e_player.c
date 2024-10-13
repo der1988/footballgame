@@ -193,6 +193,8 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id, v2 di
 
 void entities_player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
+    UNUSED(game_state);
+
     struct component_player *player = &entity->player;
     struct state_machine_player *state_machine = player->state_machine;
 
@@ -221,6 +223,8 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 
 void entities_player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
+    UNUSED(game_state);
+
     struct state_machine_player *state_machine = entity->player.state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES, entity->header.name, "exiting state: %s",

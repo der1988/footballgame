@@ -1,9 +1,12 @@
 #include "actions.h"
+#include "utils.h"
 #include <raylib.h>
 
 void actions_tween_float_from_to_update(struct action_runner *action_runner, entity_id_t id,
 					struct game_state *game_state)
 {
+    UNUSED(id);
+
     struct action_tween_float_from_to *action =
 	(struct action_tween_float_from_to *)action_runner->action;
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;

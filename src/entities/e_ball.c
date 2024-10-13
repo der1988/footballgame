@@ -8,6 +8,7 @@
 #include "types.h"
 #include "math_ext.h"
 #include "log.h"
+#include "utils.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -92,6 +93,8 @@ struct entity *entities_ball_create(struct ball_config config, struct game_state
 
 void entities_ball_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
+    UNUSED(game_state);
+
     struct component_ball *ball = &entity->ball;
     struct state_machine_ball *state_machine = ball->state_machine;
 
@@ -125,6 +128,8 @@ void entities_ball_state_machine_on_enter(struct entity *entity, struct game_sta
 
 void entities_ball_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
+    UNUSED(game_state);
+
     struct component_sprite *sprite = &entity->sprite;
     struct component_ball *ball = &entity->ball;
     struct state_machine_ball *state_machine = ball->state_machine;
@@ -228,10 +233,10 @@ void entities_ball_shoot(entity_id_t ball_entity_id, entity_id_t kicker_entity_i
 			 f32 power, struct game_state *game_state)
 {
     struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
-    struct component_transform *transform = &entity->transform;
+    // struct component_transform *transform = &entity->transform;
     struct component_physics3d *physics3d = &entity->physics3d;
     struct component_ball *ball = &entity->ball;
-    struct component_collider *collider = &entity->collider;
+    // struct component_collider *collider = &entity->collider;
 
     v3 shot_direction =
 	Vector3Add(V2_TO_V3(direction, 0),
@@ -244,7 +249,7 @@ void entities_ball_shoot(entity_id_t ball_entity_id, entity_id_t kicker_entity_i
     }
     // Calculate shot force
     f32 shot_force = game_state->constants.ball_shot_force;
-    f32 ball_radius = collider->colliders[0].props.circle.radius;
+    // f32 ball_radius = collider->colliders[0].props.circle.radius;
     // if (!ball->is_on_the_ground) {
     //     if (transform->virtual_height > (ball_radius + 12)) {
     //         // TODO: this needs to handle headers
