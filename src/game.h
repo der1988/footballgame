@@ -111,10 +111,30 @@ struct human_player
     entity_id_t player_entity_id;
 };
 
+struct player_on_the_ball
+{
+    entity_id_t id;
+    f32 distance_from_the_ball;
+    struct component_player *player;
+    v2 position;
+    v2 velocity;
+    b32 kicked_ball;
+    struct player_controls
+    {
+	v2 steering;
+	f32 shot;
+	f32 pass;
+	b32 automatic_pass;
+	f32 long_pass;
+    } *controls;
+    struct component_collider *collider;
+};
+
 struct game_vars
 {
     struct match match;
     struct Pitch pitch;
+    struct player_on_the_ball player_on_the_ball;
     entity_id_t camera_entity_id;
     entity_id_t ball_entity_id;
     struct human_player p1;

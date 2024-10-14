@@ -145,6 +145,9 @@ enum state_machine_player_state
 {
     PS_NONE,
     PS_NORMAL,
+    PS_THROW_IN,
+    PS_HEADER,
+    PS_SLIDING_TACKLE,
     PS_GOALIE,
     PS_COUNT
 };
