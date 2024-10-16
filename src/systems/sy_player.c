@@ -27,11 +27,9 @@ void systems_player(struct game_state *game_state, struct input *input)
     *player_on_the_ball =
 	(struct player_on_the_ball){.id = EID_NOT_VALID, .distance_from_the_ball = 9999999.0f};
 
-    for_each_entity(entity, game_state->entity_repository)
-    {
-	if (!entities_is_entity_alive_and_has_components(entity, 5, C_TRANSFORM, C_PHYSICS,
-							 C_SPRITE, C_PLAYER, C_COLLIDER))
-	{
+    for_each_entity(entity, game_state->entity_repository) {
+	if (!entities_is_entity_alive_and_has_components(
+		entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 	    continue;
 	}
 
@@ -46,75 +44,63 @@ void systems_player(struct game_state *game_state, struct input *input)
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 	    game_state->constants.player_control_radius;
 
-	switch (state_machine->current_state)
-	{
+	switch (state_machine->current_state) {
 	case PS_NONE:
 	    break;
-	case PS_NORMAL:
-	{
+	case PS_NORMAL: {
 	    struct player_controls *player_controls = memory_arena_push(
 		game_state->memory_by_lifetime[MAL_UPDATE], sizeof(*player_controls));
 
-	    if (game_state->vars.p1.player_entity_id == entity_id)
-	    {
+	    if (game_state->vars.p1.player_entity_id == entity_id) {
 		// Player is human controlled
 		player_controls->steering = game_state->vars.p1.controls.steering;
 
-		if (game_state->vars.p1.controls.charge.ready)
-		{
-		    switch (game_state->vars.p1.controls.charge.type)
-		    {
-		    case ACT_SHOOT:
-		    {
+		if (game_state->vars.p1.controls.charge.ready) {
+		    switch (game_state->vars.p1.controls.charge.type) {
+		    case ACT_SHOOT: {
 			player_controls->shot = game_state->vars.p1.controls.charge.power;
 			break;
 		    }
-		    case ACT_PASS:
-		    {
+		    case ACT_PASS: {
 			player_controls->pass = game_state->vars.p1.controls.charge.power;
 			if ((game_state->vars.p1.controls.charge.ended -
-			     game_state->vars.p1.controls.charge.started) < 0.15f)
-			{
+			     game_state->vars.p1.controls.charge.started) < 0.15f) {
 			    player_controls->automatic_pass = true;
 			}
 			break;
 		    }
-		    case ACT_LONG_PASS:
-		    {
+		    case ACT_LONG_PASS: {
 			player_controls->long_pass = game_state->vars.p1.controls.charge.power;
 			break;
 		    }
 		    }
 		}
-	    }
-	    else
-	    {
+	    } else {
 		// Player is AI controlled
-		if (game_state->constants.ai_enabled)
-		{
+		if (game_state->constants.ai_enabled) {
 
 		    v2 target_pos;
 		    enum player_ai_kick_decision kick_decision;
 		    enum player_ai_state ai_state =
 			ai_player_think(entity, &target_pos, &kick_decision, game_state);
 
-		    switch (ai_state)
-		    {
+		    switch (ai_state) {
 		    case PAS_KEEP_POSITION:
 			player_controls->steering = Vector2Zero();
 			break;
-		    case PAS_SEEK_POSITION:
-		    {
-			player_controls->steering =
-			    steering_seek(transform->position, physics->velocity,
-					  physics->max_velocity, target_pos);
+		    case PAS_SEEK_POSITION: {
+			player_controls->steering = steering_seek(transform->position,
+								  physics->velocity,
+								  physics->max_velocity,
+								  target_pos);
 			break;
 		    }
-		    case PAS_ARRIVE_TO_POSITION:
-		    {
-			player_controls->steering =
-			    steering_arrive(transform->position, physics->velocity,
-					    physics->max_velocity, target_pos, 20);
+		    case PAS_ARRIVE_TO_POSITION: {
+			player_controls->steering = steering_arrive(transform->position,
+								    physics->velocity,
+								    physics->max_velocity,
+								    target_pos,
+								    20);
 			break;
 		    }
 		    }
@@ -124,8 +110,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 	    v2 effective_steering = player_controls->steering;
 	    // If charging kick we seek the ball
 	    if (entity_id == game_state->vars.p1.player_entity_id &&
-		game_state->vars.p1.controls.charge.charging)
-	    {
+		game_state->vars.p1.controls.charge.charging) {
 		effective_steering = Vector2Normalize(
 		    Vector2Subtract(ball_transform->position, transform->position));
 	    }
@@ -139,14 +124,10 @@ void systems_player(struct game_state *game_state, struct input *input)
 		Vector2Scale(effective_steering, game_state->constants.player_movement_force);
 
 	    // Apply drag if no steering applied
-	    if (steering_magnitude < 0.1f)
-	    {
-		if (current_velocity < 3)
-		{
+	    if (steering_magnitude < 0.1f) {
+		if (current_velocity < 3) {
 		    physics->velocity = Vector2Zero();
-		}
-		else
-		{
+		} else {
 		    Vector2 drag = Vector2Scale(Vector2Negate(normalized_velocity),
 						game_state->constants.player_movement_drag);
 		    force_to_apply = Vector2Add(force_to_apply, drag);
@@ -159,14 +140,11 @@ void systems_player(struct game_state *game_state, struct input *input)
 	    physics->max_velocity = initial_max_velocity;
 
 	    f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
-	    if (projection > 0 && player->current_max_velocity < player_run_max_velocity)
-	    {
+	    if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
 		player->current_max_velocity += 50 * game_state->dt;
 		player->current_max_velocity =
 		    fminf(player->current_max_velocity, player_run_max_velocity);
-	    }
-	    else if (current_velocity < player->current_max_velocity)
-	    {
+	    } else if (current_velocity < player->current_max_velocity) {
 		player->current_max_velocity -= 100 * game_state->dt;
 		player->current_max_velocity =
 		    fmaxf(initial_max_velocity, player->current_max_velocity);
@@ -179,18 +157,17 @@ void systems_player(struct game_state *game_state, struct input *input)
 	    // Velocity has been applied to player after this point
 
 	    b32 is_colliding_with_ball =
-		CheckCollisionCircles(
-		    transform->position, collider->colliders[0].props.circle.radius,
-		    ball_transform->position, ball_collider->colliders[0].props.circle.radius) &&
+		CheckCollisionCircles(transform->position,
+				      collider->colliders[0].props.circle.radius,
+				      ball_transform->position,
+				      ball_collider->colliders[0].props.circle.radius) &&
 		// Player height
 		ball_transform->virtual_height < game_state->constants.player_control_height;
 
-	    if (is_colliding_with_ball && (game_state->time - player->last_kick_time) > 0.1f)
-	    {
+	    if (is_colliding_with_ball && (game_state->time - player->last_kick_time) > 0.1f) {
 		f32 distance_from_the_ball =
 		    Vector2DistanceSqr(transform->position, ball_transform->position);
-		if (distance_from_the_ball < player_on_the_ball->distance_from_the_ball)
-		{
+		if (distance_from_the_ball < player_on_the_ball->distance_from_the_ball) {
 		    player_on_the_ball->id = entity_id;
 		    player_on_the_ball->player = player;
 		    player_on_the_ball->distance_from_the_ball = distance_from_the_ball;
@@ -201,9 +178,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 
 		    ball->pass_target_entity_id = EID_NOT_VALID;
 		}
-	    }
-	    else
-	    {
+	    } else {
 		player->control_ball = true;
 		player->time_spent_in_precision_control = 0;
 	    }
@@ -216,10 +191,13 @@ void systems_player(struct game_state *game_state, struct input *input)
 	case PS_GOALIE:
 	    layers_debug_queue_draw_text(
 		game_state->layer_debug,
-		TextFormat(
-		    "%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Goalie", entity_id,
-		    transform->position.x, transform->position.y, Vector2Length(physics->velocity),
-		    state_machine_goalie_state_string[goalie->state_machine->current_state]));
+		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s",
+			   "Goalie",
+			   entity_id,
+			   transform->position.x,
+			   transform->position.y,
+			   Vector2Length(physics->velocity),
+			   state_machine_goalie_state_string[goalie->state_machine->current_state]));
 	    break;
 	case PS_THROW_IN:
 	case PS_HEADER:
@@ -227,12 +205,14 @@ void systems_player(struct game_state *game_state, struct input *input)
 	case PS_COUNT:
 	    break;
 	}
-	if (state_machine->current_state != PS_GOALIE)
-	{
+	if (state_machine->current_state != PS_GOALIE) {
 	    layers_debug_queue_draw_text(
 		game_state->layer_debug,
-		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s", "Player",
-			   entity_id, transform->position.x, transform->position.y,
+		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s",
+			   "Player",
+			   entity_id,
+			   transform->position.x,
+			   transform->position.y,
 			   Vector2Length(physics->velocity),
 			   state_machine_player_state_string[state_machine->current_state]));
 	}

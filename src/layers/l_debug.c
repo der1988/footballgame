@@ -47,15 +47,12 @@ void layers_debug_reset(layers_debug_t *handle)
 
 void layers_debug_queue_draw_text(layers_debug_t *handle, const char *text)
 {
-    if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS)
-    {
+    if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS) {
 	struct draw_text_request *dtr =
 	    memory_arena_push(handle->frame_memory_arena, sizeof(struct draw_text_request));
 	strncpy(dtr->text, text, ARRAY_LEN(dtr->text));
 	handle->draw_text_requests[handle->queued_requests++] = dtr;
-    }
-    else
-    {
+    } else {
 	GLOG_WARN(LS_LAYERS, "max queued draw requests reached");
     }
 }
@@ -63,10 +60,13 @@ void layers_debug_queue_draw_text(layers_debug_t *handle, const char *text)
 void layers_debug_draw(layers_debug_t *handle)
 {
     struct draw_text_request *dtr;
-    for (usize i = 0; i < handle->queued_requests; ++i)
-    {
+    for (usize i = 0; i < handle->queued_requests; ++i) {
 	dtr = handle->draw_text_requests[i];
-	DrawTextEx(handle->font, dtr->text, (v2){10, 10 + i * handle->space_between_rows},
-		   handle->font_size, handle->spacing, handle->color);
+	DrawTextEx(handle->font,
+		   dtr->text,
+		   (v2){10, 10 + i * handle->space_between_rows},
+		   handle->font_size,
+		   handle->spacing,
+		   handle->color);
     }
 }

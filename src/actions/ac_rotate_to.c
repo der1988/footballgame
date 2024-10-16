@@ -4,7 +4,8 @@
 #include <math.h>
 #include <raylib.h>
 
-void actions_rotate_to_update(struct action_runner *action_runner, entity_id_t id,
+void actions_rotate_to_update(struct action_runner *action_runner,
+			      entity_id_t id,
 			      struct game_state *game_state)
 {
     struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
@@ -12,8 +13,7 @@ void actions_rotate_to_update(struct action_runner *action_runner, entity_id_t i
     struct entity *entity = entities_entity_get(game_state->entity_repository, id);
 
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
-    if (h >= 1)
-    {
+    if (h >= 1) {
 	h = 1;
 	action_runner->completed = true;
     }
@@ -21,7 +21,8 @@ void actions_rotate_to_update(struct action_runner *action_runner, entity_id_t i
     entity->transform.rotation = action->from + action->diff * h;
 }
 
-void actions_rotate_to_start(struct action_runner *action_runner, entity_id_t id,
+void actions_rotate_to_start(struct action_runner *action_runner,
+			     entity_id_t id,
 			     struct game_state *game_state)
 {
     struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
@@ -45,8 +46,8 @@ void actions_rotate_to_start(struct action_runner *action_runner, entity_id_t id
     action->diff = diff_angle;
 }
 
-struct action_rotate_to *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
-						  memory_arena_handle_t *memory_arena_handle)
+struct action_rotate_to *
+actions_rotate_to_create(f32 duration, b32 loop, f32 to, memory_arena_handle_t *memory_arena_handle)
 {
     struct action_rotate_to *action = memory_arena_push(memory_arena_handle, sizeof(*action));
 

@@ -10,24 +10,17 @@ static entity_id_t find_empty_slot(struct entity_repository *entity_repo)
 {
     // TODO(marco): is a linear search enough here?
     entity_id_t id = 0;
-    if (entity_repo->available_slots == entity_repo->max_slots)
-    {
+    if (entity_repo->available_slots == entity_repo->max_slots) {
 	entity_repo->available_slots--;
 	entity_repo->last_used_slot = id;
 	entity_repo->entities[id].header.id = id;
 	entity_repo->entities[id].header.alive = true;
-    }
-    else if (entity_repo->available_slots > 0)
-    {
+    } else if (entity_repo->available_slots > 0) {
 	id = entity_repo->last_used_slot;
-	do
-	{
-	    if (id == entity_repo->max_slots)
-	    {
+	do {
+	    if (id == entity_repo->max_slots) {
 		id = 0;
-	    }
-	    else
-	    {
+	    } else {
 		id++;
 	    }
 	} while ((entity_repo->entities[id].header.alive));
@@ -35,9 +28,7 @@ static entity_id_t find_empty_slot(struct entity_repository *entity_repo)
 	entity_repo->last_used_slot = id;
 	entity_repo->entities[id].header.id = id;
 	entity_repo->entities[id].header.alive = true;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_ENTITIES, "No more entity slots available");
 	return EID_NOT_VALID;
     }
@@ -74,14 +65,14 @@ void entities_repository_destroy(struct entity_repository *handle)
     GLOG_INFO(LS_ENTITIES, "entities repository destroyed");
 }
 
-struct entity *entities_entity_init(struct entity_repository *handle, enum entity_type type,
+struct entity *entities_entity_init(struct entity_repository *handle,
+				    enum entity_type type,
 				    char *name_format)
 {
     assert(handle->initialised && handle->available_slots > 0);
 
     entity_id_t id = find_empty_slot(handle);
-    if (id == EID_NOT_VALID)
-    {
+    if (id == EID_NOT_VALID) {
 	return NULL;
     }
 
@@ -111,19 +102,16 @@ struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t
 
 b32 entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...)
 {
-    if (!entity->header.alive)
-    {
+    if (!entity->header.alive) {
 	return false;
     }
     b32 valid = true;
     va_list ap;
     va_start(ap, count);
-    for (u32 i = 0; i < count; ++i)
-    {
+    for (u32 i = 0; i < count; ++i) {
 	struct component_header *component =
 	    (struct component_header *)(((void *)entity) + va_arg(ap, usize));
-	if (!component->enabled)
-	{
+	if (!component->enabled) {
 	    valid = false;
 	    break;
 	}

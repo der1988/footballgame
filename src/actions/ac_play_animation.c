@@ -5,13 +5,13 @@
 #include <math.h>
 #include <raylib.h>
 
-void actions_play_animation_update(struct action_runner *action_runner, entity_id_t id,
+void actions_play_animation_update(struct action_runner *action_runner,
+				   entity_id_t id,
 				   struct game_state *game_state)
 {
     struct action_play_animation *action = (struct action_play_animation *)action_runner->action;
     f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
-    if (h >= 1)
-    {
+    if (h >= 1) {
 	h = 1;
 	action_runner->completed = true;
     }
@@ -25,7 +25,9 @@ void actions_play_animation_update(struct action_runner *action_runner, entity_i
 }
 
 struct action_play_animation *
-actions_play_animation_create(struct assets_animation *animation, b32 loop, float speed,
+actions_play_animation_create(struct assets_animation *animation,
+			      b32 loop,
+			      float speed,
 			      memory_arena_handle_t *memory_arena_handle)
 {
     struct action_play_animation *action = memory_arena_push(memory_arena_handle, sizeof(*action));

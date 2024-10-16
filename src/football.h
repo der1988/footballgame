@@ -7,8 +7,7 @@
 // Forward declaration
 struct game_state;
 
-enum match_state
-{
+enum match_state {
     MS_KICKOFF,
     MS_PLAY,
     MS_GOAL,
@@ -23,38 +22,32 @@ enum match_state
 static const char *match_state_to_string[MS_COUNT] = {
     "kickoff", "play", "goal", "throw_in", "goal_kick", "corner_kick", "penalty_kick", "free_kick"};
 
-struct match
-{
+struct match {
     enum match_state state;
-    struct
-    {
+    struct {
 	u16 home;
 	u16 away;
     } score;
 };
 
-enum pitch_type
-{
+enum pitch_type {
     PT_NORMAL,
     PT_MUDDY,
     PT_SNOWY
 };
 
-enum pitch_side
-{
+enum pitch_side {
     PSI_NORTH,
     PSI_SOUTH,
     PSI_COUNT
 };
 
-struct goal
-{
+struct goal {
     Rectangle area;
     v2 center;
 };
 
-struct Pitch
-{
+struct Pitch {
     rect_t field;
     struct goal goal[PSI_COUNT];
     enum pitch_type type;
@@ -62,8 +55,7 @@ struct Pitch
 
 void football_match_change_state(struct game_state *game_state, enum match_state new_state);
 
-enum player_role
-{
+enum player_role {
     PR_GK,  // Goalkeeper
     PR_SB,  // Side Back
     PR_CB,  // Centre Back
@@ -78,8 +70,7 @@ enum player_role
     PR_COUNT
 };
 
-enum team_formation
-{
+enum team_formation {
     TF_433,
     TF_442,
     TF_352,
@@ -90,24 +81,21 @@ enum team_formation
     TF_COUNT
 };
 
-enum style_of_play
-{
+enum style_of_play {
     SOP_BALANCED,
     SOP_OFFENSIVE,
     SOP_DEFENSIVE,
     SOP_COUNT
 };
 
-enum team_momentum
-{
+enum team_momentum {
     TM_DEFENDING,
     TM_DEFAULT,
     TM_ATTACKING,
     TM_COUNT
 };
 
-struct team_formation_position
-{
+struct team_formation_position {
     const char *name;
     enum player_role supported_roles[3];
     v2 position[TM_COUNT];
@@ -162,7 +150,8 @@ struct team_formation_position *football_tactics_get_team_formation(enum team_fo
 struct team_formation_position *
 football_tactics_get_team_formation_position(enum team_formation formation, u32 position_idx);
 
-b32 football_pitch_is_position_inside_penalty_area(v2 pos, enum pitch_side side,
+b32 football_pitch_is_position_inside_penalty_area(v2 pos,
+						   enum pitch_side side,
 						   struct game_state *game_state);
 b32 football_pitch_is_position_inside(v2 pos, struct game_state *game_state);
 

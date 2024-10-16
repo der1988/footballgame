@@ -7,8 +7,7 @@
 #include <raymath.h>
 #include <stdlib.h>
 
-struct sprite_to_draw
-{
+struct sprite_to_draw {
     struct assets_sprite_frame *sprite_frame;
     struct assets_texture *texture;
     enum sprite_layer layer;
@@ -34,11 +33,9 @@ static i32 cmp_sprite_order(const void *s1, const void *s2)
 
     i32 diff = 0;
     // First layer, then order in layer
-    if ((diff = sprite_1->layer - sprite_2->layer) == 0)
-    {
+    if ((diff = sprite_1->layer - sprite_2->layer) == 0) {
 	diff = sprite_1->order_in_layer - sprite_2->order_in_layer;
-	if (diff == 0)
-	{
+	if (diff == 0) {
 	    // Order by y position: on the pitch a sprite positioned lower is in front of a
 	    // sprite positioned higher.
 	    // Multiply by 100 to preserve precision
@@ -59,11 +56,9 @@ void systems_render(struct game_state *game_state)
 
     // Collect information about sprites to draw
     struct sprite_to_draw *current_idx = ordered_sprites_to_draw;
-    for_each_entity(entity, game_state->entity_repository)
-    {
+    for_each_entity(entity, game_state->entity_repository) {
 
-	if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE))
-	{
+	if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
 	    continue;
 	}
 
@@ -109,11 +104,9 @@ void systems_render(struct game_state *game_state)
     qsort(ordered_sprites_to_draw, total_sprites, sizeof(struct sprite_to_draw), cmp_sprite_order);
 
     // Draw shadows
-    for (usize i = 0; i < total_sprites; ++i)
-    {
+    for (usize i = 0; i < total_sprites; ++i) {
 	struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
-	if (sprite_to_draw->draw_shadow)
-	{
+	if (sprite_to_draw->draw_shadow) {
 	    v2 shadow_final_offset = Vector2Add(
 		Vector2Multiply(sprite_to_draw->shadow_offset,
 				sprite_to_draw->sprite_frame->source_size),
@@ -122,19 +115,25 @@ void systems_render(struct game_state *game_state)
 			       Vector2Add(sprite_to_draw->position, shadow_final_offset),
 			       sprite_to_draw->rotation - 45,
 			       Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
-			       sprite_to_draw->shadow_color, sprite_to_draw->flipX, true,
-			       sprite_to_draw->pivot_override, sprite_to_draw->texture);
+			       sprite_to_draw->shadow_color,
+			       sprite_to_draw->flipX,
+			       true,
+			       sprite_to_draw->pivot_override,
+			       sprite_to_draw->texture);
 	}
     }
 
     // Draw sprites
-    for (usize i = 0; i < total_sprites; ++i)
-    {
+    for (usize i = 0; i < total_sprites; ++i) {
 	struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
 	render_sprite_draw(sprite_to_draw->sprite_frame,
 			   Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
-			   sprite_to_draw->rotation, sprite_to_draw->scale, sprite_to_draw->color,
-			   sprite_to_draw->flipX, sprite_to_draw->flipY,
-			   sprite_to_draw->pivot_override, sprite_to_draw->texture);
+			   sprite_to_draw->rotation,
+			   sprite_to_draw->scale,
+			   sprite_to_draw->color,
+			   sprite_to_draw->flipX,
+			   sprite_to_draw->flipY,
+			   sprite_to_draw->pivot_override,
+			   sprite_to_draw->texture);
     }
 }

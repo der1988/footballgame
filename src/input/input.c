@@ -11,8 +11,7 @@ struct input input_handle(struct game_state *game_state)
 
     struct input input = {0};
 
-    if (IsGamepadAvailable(gamepad))
-    {
+    if (IsGamepadAvailable(gamepad)) {
 	input.left_stick.x = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_X),
 					   game_state->constants.input_stick_dead_zone);
 	input.left_stick.y = ApplyDeadZone(GetGamepadAxisMovement(gamepad, GAMEPAD_AXIS_LEFT_Y),
@@ -96,9 +95,7 @@ struct input input_handle(struct game_state *game_state)
 	    IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
 	input.buttons[IBT_BUTTON_TRIGGER_RIGHT].released =
 	    IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
-    }
-    else
-    {
+    } else {
 	input.left_stick.x += (IsKeyDown(KEY_LEFT) ? -1 : 0);
 	input.left_stick.x += (IsKeyDown(KEY_RIGHT) ? 1 : 0);
 	input.left_stick.y += (IsKeyDown(KEY_UP) ? -1 : 0);

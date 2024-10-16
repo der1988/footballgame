@@ -11,8 +11,7 @@ void systems_render_hud(struct game_state *game_state)
 	entities_entity_get(game_state->entity_repository, selected_player_entity_id);
     declare_entity_component(entity, transform);
 
-    if (entity != NULL && entity->header.alive && transform->header.enabled)
-    {
+    if (entity != NULL && entity->header.alive && transform->header.enabled) {
 	DrawCircleV(Vector2Add(transform->position, (v2){.y = -25}), 2, RED);
     }
 }

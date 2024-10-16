@@ -6,30 +6,24 @@
 #include <string.h>
 #include "log.h"
 
-struct assets_sprite_frame *
-assets_texture_packer_load_from_json(const char *filename, const u32 texture_id,
-				     const usize initial_sprite_frame_id, usize *count)
+struct assets_sprite_frame *assets_texture_packer_load_from_json(
+    const char *filename, const u32 texture_id, const usize initial_sprite_frame_id, usize *count)
 {
     assets_sprite_frame_id_t current_sprite_frame_id = initial_sprite_frame_id;
     *count = 0;
 
     char *content;
-    if ((content = LoadFileText(filename)) == NULL)
-    {
+    if ((content = LoadFileText(filename)) == NULL) {
 	GLOG_ERROR_CTX(LS_ASSETS, filename, "error loading json file");
 	return NULL;
     }
 
     cJSON *root = NULL;
-    if ((root = cJSON_Parse(content)) == NULL)
-    {
+    if ((root = cJSON_Parse(content)) == NULL) {
 	const char *error_ptr = cJSON_GetErrorPtr();
-	if (error_ptr)
-	{
+	if (error_ptr) {
 	    GLOGF_ERROR_CTX(LS_ASSETS, filename, "error parsing json file: %s", error_ptr);
-	}
-	else
-	{
+	} else {
 	    GLOG_ERROR_CTX(LS_ASSETS, filename, "error parsing json file");
 	}
 	UnloadFileText(content);
@@ -38,15 +32,11 @@ assets_texture_packer_load_from_json(const char *filename, const u32 texture_id,
     UnloadFileText(content);
 
     cJSON *frames = cJSON_GetObjectItemCaseSensitive(root, "frames");
-    if (!cJSON_IsArray(frames))
-    {
+    if (!cJSON_IsArray(frames)) {
 	const char *error_ptr = cJSON_GetErrorPtr();
-	if (error_ptr)
-	{
+	if (error_ptr) {
 	    GLOGF_ERROR_CTX(LS_ASSETS, filename, "error parsing json file: %s", error_ptr);
-	}
-	else
-	{
+	} else {
 	    GLOG_ERROR_CTX(LS_ASSETS, filename, "error parsing json file");
 	}
 	return NULL;
@@ -84,8 +74,7 @@ assets_texture_packer_load_from_json(const char *filename, const u32 texture_id,
 	f64 pivot_x = 0;
 	f64 pivot_y = 0;
 	cJSON *pivot = cJSON_GetObjectItemCaseSensitive(sprite_frame, "pivot");
-	if (pivot)
-	{
+	if (pivot) {
 	    pivot_x = JSON_GET_DOUBLE(pivot, "x");
 	    pivot_y = JSON_GET_DOUBLE(pivot, "y");
 	}
@@ -96,8 +85,8 @@ assets_texture_packer_load_from_json(const char *filename, const u32 texture_id,
 	sprite_frame->frame = (Rectangle){frame_x, frame_y, frame_w, frame_h};
 	sprite_frame->trimmed = trimmed;
 	sprite_frame->rotated = rotated;
-	sprite_frame->sprite_source_size = (Rectangle){sprite_source_size_x, sprite_source_size_y,
-						       sprite_source_size_w, sprite_source_size_h};
+	sprite_frame->sprite_source_size = (Rectangle){
+	    sprite_source_size_x, sprite_source_size_y, sprite_source_size_w, sprite_source_size_h};
 	sprite_frame->source_size = (Vector2){source_size_w, source_size_h};
 	sprite_frame->pivot = (Vector2){pivot_x, pivot_y};
 	sprite_frame->texture_id = texture_id;

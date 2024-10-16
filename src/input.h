@@ -7,8 +7,7 @@
 // GameState forward declaration
 struct game_state;
 
-enum input_button_type
-{
+enum input_button_type {
     IBT_BUTTON_START,
     IBT_BUTTON_SELECT,
     IBT_BUTTON_DOWN,
@@ -20,16 +19,14 @@ enum input_button_type
     IBT_BUTTON_COUNT
 };
 
-struct input_button
-{
+struct input_button {
     b32 down;
     b32 up;
     b32 pressed;
     b32 released;
 };
 
-struct input
-{
+struct input {
     v2 left_stick;
     v2 right_stick;
     f32 left_trigger;

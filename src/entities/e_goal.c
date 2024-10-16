@@ -24,14 +24,11 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
-    if (config.side == PSI_NORTH)
-    {
+    if (config.side == PSI_NORTH) {
 	transform->position =
 	    (Vector2){game_state->vars.pitch.field.x + game_state->vars.pitch.field.width / 2.0f,
 		      game_state->vars.pitch.field.y};
-    }
-    else
-    {
+    } else {
 	// Not implemented
 	assert(false);
     }

@@ -85,14 +85,14 @@ void test_animation_cache()
     assets_sprite_frame_cache_t *handle_sprite_cache =
 	assets_sprite_frame_cache_create(memory_arena_handle);
     TEST_ASSERT(handle_sprite_cache);
-    i32 loaded = assets_sprite_frames_load_from_json(handle_sprite_cache, 0,
-						     "res/spritesheets/footballgame.json");
+    i32 loaded = assets_sprite_frames_load_from_json(
+	handle_sprite_cache, 0, "res/spritesheets/footballgame.json");
     TEST_ASSERT_EQUAL_INT32(161, loaded);
 
     assets_animation_cache_t *handle = assets_animation_cache_create(memory_arena_handle);
     TEST_ASSERT(handle);
-    loaded = assets_animations_load_from_json(handle, handle_sprite_cache,
-					      "res/animations/animations.json");
+    loaded = assets_animations_load_from_json(
+	handle, handle_sprite_cache, "res/animations/animations.json");
     TEST_ASSERT_EQUAL_INT32(36, loaded);
 
     struct assets_animation *animation = assets_animation_get_by_name(handle, "ball_left");

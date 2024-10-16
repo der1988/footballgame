@@ -26,8 +26,7 @@ assets_animation_cache_t *assets_animation_cache_create(memory_arena_handle_t *m
     handle->cache =
 	memory_arena_push(memory_arena_handle, sizeof(struct assets_animation) * MAX_ANIMATIONS);
     handle->count = 0;
-    if (handle->cache == NULL)
-    {
+    if (handle->cache == NULL) {
 	GLOG_ERROR(LS_ASSETS, "animation cache initialisation failed");
 	return false;
     }
@@ -48,7 +47,8 @@ void assets_animation_cache_destroy(assets_animation_cache_t *handle)
 }
 
 static struct assets_animation *load_from_json(const char *filename,
-					       const usize initial_animation_id, usize *count,
+					       const usize initial_animation_id,
+					       usize *count,
 					       assets_sprite_frame_cache_t *sprite_frame_cache,
 					       memory_arena_handle_t *memory_arena_handle)
 {
@@ -56,22 +56,17 @@ static struct assets_animation *load_from_json(const char *filename,
     *count = 0;
 
     char *content;
-    if ((content = LoadFileText(filename)) == NULL)
-    {
+    if ((content = LoadFileText(filename)) == NULL) {
 	GLOG_ERROR_CTX(LS_ASSETS, filename, "error loading json file");
 	return NULL;
     }
 
     cJSON *root = NULL;
-    if ((root = cJSON_Parse(content)) == NULL)
-    {
+    if ((root = cJSON_Parse(content)) == NULL) {
 	const char *error_ptr = cJSON_GetErrorPtr();
-	if (error_ptr)
-	{
+	if (error_ptr) {
 	    GLOGF_ERROR_CTX(LS_ASSETS, filename, "error parsing json file: %s", error_ptr);
-	}
-	else
-	{
+	} else {
 	    GLOG_ERROR_CTX(LS_ASSETS, filename, "error parsing json file");
 	}
 	UnloadFileText(content);
@@ -114,12 +109,10 @@ static struct assets_animation *load_from_json(const char *filename,
 	    char *frame = NULL;
 	    char frame_name_format[MaxStringSize];
 	    char frame_name[MaxStringSize];
-	    for (frames = animation_frames;; frames = NULL)
-	    {
+	    for (frames = animation_frames;; frames = NULL) {
 		frame = strtok(frames, ",");
 
-		if (!frame)
-		{
+		if (!frame) {
 		    break;
 		}
 
@@ -132,16 +125,20 @@ static struct assets_animation *load_from_json(const char *filename,
 
 		struct assets_sprite_frame *sprite_frame =
 		    assets_sprite_frame_get_by_name(sprite_frame_cache, frame_name);
-		if (!sprite_frame)
-		{
-		    GLOGF_WARN_CTX(LS_ASSETS, filename,
+		if (!sprite_frame) {
+		    GLOGF_WARN_CTX(LS_ASSETS,
+				   filename,
 				   "animation %s sprite frame not found in cache: %s",
-				   assets_animation->name, frame_name);
+				   assets_animation->name,
+				   frame_name);
 		    continue;
 		}
 		sprite_frames_buffer[frames_count] = sprite_frame->id;
 
-		GLOGF_TRACE_CTX(LS_ASSETS, filename, "animation frame %s with id %d", frame_name,
+		GLOGF_TRACE_CTX(LS_ASSETS,
+				filename,
+				"animation frame %s with id %d",
+				frame_name,
 				sprite_frame->id);
 
 		frames_count++;
@@ -152,11 +149,14 @@ static struct assets_animation *load_from_json(const char *filename,
 		sizeof(assets_sprite_frame_id_t) * frames_count;
 	    assets_animation->frames =
 		memory_arena_push(memory_arena_handle, size_to_allocate_for_frames_list);
-	    memcpy(assets_animation->frames, sprite_frames_buffer,
-		   size_to_allocate_for_frames_list);
+	    memcpy(
+		assets_animation->frames, sprite_frames_buffer, size_to_allocate_for_frames_list);
 
-	    GLOGF_TRACE_CTX(LS_ASSETS, filename, "loaded animation %s with %d frames",
-			    assets_animation->name, assets_animation->frames_count);
+	    GLOGF_TRACE_CTX(LS_ASSETS,
+			    filename,
+			    "loaded animation %s with %d frames",
+			    assets_animation->name,
+			    assets_animation->frames_count);
 	}
     }
     cJSON_Delete(root);
@@ -174,20 +174,15 @@ i32 assets_animations_load_from_json(assets_animation_cache_t *handle,
     usize loaded = 0;
     struct assets_animation *animations = load_from_json(
 	filename, handle->count, &loaded, sprite_frame_cache, handle->memory_arena_handle);
-    if (loaded > (MAX_ANIMATIONS - handle->count))
-    {
+    if (loaded > (MAX_ANIMATIONS - handle->count)) {
 	GLOG_ERROR(LS_ASSETS, "animations cache is too small");
-    }
-    else if (animations)
-    {
+    } else if (animations) {
 	memcpy(&handle->cache[handle->count], animations, sizeof(struct assets_animation) * loaded);
 	free(animations);
 	handle->count += loaded;
 	GLOGF_INFO_CTX(LS_ASSETS, filename, "loaded %zu animations into cache", loaded);
 	return loaded;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_ASSETS, "failed loading animations from json");
     }
 
@@ -200,11 +195,9 @@ struct assets_animation *assets_animation_get_by_name(assets_animation_cache_t *
     assert(handle->initialised);
 
     struct assets_animation *animation = NULL;
-    for (usize i = 0; i < handle->count; ++i)
-    {
+    for (usize i = 0; i < handle->count; ++i) {
 	animation = &handle->cache[i];
-	if (strcmp(animation->name, name) == 0)
-	{
+	if (strcmp(animation->name, name) == 0) {
 	    break;
 	}
     }

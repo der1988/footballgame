@@ -24,8 +24,7 @@ assets_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
     handle->cache = memory_arena_push(memory_arena_handle,
 				      sizeof(struct assets_sprite_frame) * MAX_SPRITE_FRAMES);
     handle->count = 0;
-    if (handle->cache == NULL)
-    {
+    if (handle->cache == NULL) {
 	GLOG_ERROR(LS_ASSETS, "sprite frame cache initialisation failed");
 	return false;
     }
@@ -45,7 +44,8 @@ void assets_sprite_frame_cache_destroy(assets_sprite_frame_cache_t *handle)
     GLOG_INFO(LS_ASSETS, "sprite frame cache destroyed");
 }
 
-i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle, const u32 texture_id,
+i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle,
+					const u32 texture_id,
 					const char *filename)
 {
     assert(handle->initialised);
@@ -53,23 +53,22 @@ i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle, con
     usize loaded = 0;
     struct assets_sprite_frame *sprite_frames =
 	assets_texture_packer_load_from_json(filename, texture_id, handle->count, &loaded);
-    if (loaded > (MAX_SPRITE_FRAMES - handle->count))
-    {
+    if (loaded > (MAX_SPRITE_FRAMES - handle->count)) {
 	GLOG_ERROR(LS_ASSETS, "sprite frame cache is too small");
 	// TODO: (Marco) we are not freeing sprite_frames here...
-    }
-    else if (sprite_frames)
-    {
-	memcpy(&handle->cache[handle->count], sprite_frames,
+    } else if (sprite_frames) {
+	memcpy(&handle->cache[handle->count],
+	       sprite_frames,
 	       sizeof(struct assets_sprite_frame) * loaded);
 	free(sprite_frames);
 	handle->count += loaded;
-	GLOGF_INFO_CTX(LS_ASSETS, filename, "loaded %zu sprite frames into cache, texture id is %d",
-		       loaded, texture_id);
+	GLOGF_INFO_CTX(LS_ASSETS,
+		       filename,
+		       "loaded %zu sprite frames into cache, texture id is %d",
+		       loaded,
+		       texture_id);
 	return loaded;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_ASSETS, "failed loading sprite frames from json");
     }
 
@@ -82,11 +81,9 @@ struct assets_sprite_frame *assets_sprite_frame_get_by_name(assets_sprite_frame_
     assert(handle->initialised);
 
     struct assets_sprite_frame *sprite_frame = NULL;
-    for (usize i = 0; i < handle->count; ++i)
-    {
+    for (usize i = 0; i < handle->count; ++i) {
 	sprite_frame = &handle->cache[i];
-	if (strcmp(sprite_frame->name, name) == 0)
-	{
+	if (strcmp(sprite_frame->name, name) == 0) {
 	    return sprite_frame;
 	}
     }

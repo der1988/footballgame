@@ -15,13 +15,11 @@
 struct state_machine_ball;
 struct state_machine_player;
 
-struct component_header
-{
+struct component_header {
     b32 enabled;
 };
 
-struct component_transform
-{
+struct component_transform {
     struct component_header header;
     struct component_transform *parent;
     v2 position;
@@ -30,8 +28,7 @@ struct component_transform
     f32 virtual_height;
 };
 
-struct component_physics
-{
+struct component_physics {
     struct component_header header;
     f32 mass;
     v2 accel;
@@ -40,8 +37,7 @@ struct component_physics
     f32 max_force;
 };
 
-struct component_physics3d
-{
+struct component_physics3d {
     struct component_header header;
     f32 mass;
     v3 accel;
@@ -50,8 +46,7 @@ struct component_physics3d
     f32 max_force;
 };
 
-struct component_sprite
-{
+struct component_sprite {
     struct component_header header;
     Color color;
     b32 flipX;
@@ -66,57 +61,47 @@ struct component_sprite
     v2 shadow_scale;
 };
 
-struct component_action
-{
+struct component_action {
     struct component_header header;
     struct action_runner running_actions[MaxConcurrentActions];
 };
 
-struct component_target
-{
+struct component_target {
     struct component_header header;
     entity_id_t entity_id;
 };
 
-struct collider
-{
-    enum
-    {
+struct collider {
+    enum {
 	CS_CIRCLE,
 	CS_RECTANGLE
     } shape;
-    union
-    {
-	struct
-	{
+    union {
+	struct {
 	    f32 radius;
 	    v2 offset;
 	} circle;
-	struct
-	{
+	struct {
 	    v2 size;
 	    v2 offset;
 	} rectangle;
     } props;
 };
 
-struct component_collider
-{
+struct component_collider {
     struct component_header header;
     struct collider *colliders;
     u16 num_colliders;
 };
 
-struct component_camera
-{
+struct component_camera {
     struct component_header header;
     enum camera_type camera;
     f32 slowing_distance;
     v2 offset;
 };
 
-enum direction
-{
+enum direction {
     D_UP,
     D_DOWN,
     D_LEFT,
@@ -128,8 +113,7 @@ enum direction
     D_COUNT
 };
 
-struct component_player
-{
+struct component_player {
     struct component_header header;
     enum pitch_side side;
     struct state_machine_player *state_machine;
@@ -146,8 +130,7 @@ struct component_player
     u8 team_formation_position_idx;
 };
 
-struct component_ball
-{
+struct component_ball {
     struct component_header header;
     struct state_machine_ball *state_machine;
     b32 is_on_the_ground;
@@ -167,8 +150,7 @@ struct component_ball
     u16 last_running_frame_idx;
 };
 
-struct component_goal
-{
+struct component_goal {
     struct component_header header;
     time_t hit_left_post_time;
     time_t hit_right_post_time;
@@ -176,43 +158,37 @@ struct component_goal
     b32 scored;
 };
 
-enum save_side
-{
+enum save_side {
     SS_UP,
     SS_DOWN,
     SS_COUNT
 };
 
-enum save_direction
-{
+enum save_direction {
     SD_LEFT,
     SD_RIGHT,
     SD_COUNT
 };
 
-enum save_height
-{
+enum save_height {
     SH_HIGH,
     SH_LOW,
     SH_COUNT
 };
 
-enum save_type
-{
+enum save_type {
     ST_WITHOUT_BALL,
     ST_WITH_BALL,
     ST_COUNT
 };
 
-enum animation_phase
-{
+enum animation_phase {
     AP_START,
     AP_END,
     AP_COUNT
 };
 
-struct component_goalie
-{
+struct component_goalie {
     struct component_header header;
     struct state_machine_goalie *state_machine;
     enum save_direction dive_direction;
@@ -227,12 +203,16 @@ struct component_goalie
     time_t last_save_time;
 };
 
-running_action_idx_t components_action_run(entity_id_t id, struct action *action,
+running_action_idx_t components_action_run(entity_id_t id,
+					   struct action *action,
 					   struct game_state *game_state);
-void components_action_stop(entity_id_t id, running_action_idx_t running_action_idx,
+void components_action_stop(entity_id_t id,
+			    running_action_idx_t running_action_idx,
 			    struct game_state *game_state);
 
 void components_transform_calculate_absolute(struct component_transform *transform,
-					     Vector2 *position, f32 *rotation, Vector2 *scale);
+					     Vector2 *position,
+					     f32 *rotation,
+					     Vector2 *scale);
 
 #endif // !COMPONENTS

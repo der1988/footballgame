@@ -13,8 +13,7 @@
 struct entity_repository;
 struct input;
 
-enum memory_arena_lifetime
-{
+enum memory_arena_lifetime {
     MAL_GAME,
     MAL_LEVEL,
     MAL_UPDATE,
@@ -22,14 +21,12 @@ enum memory_arena_lifetime
     MAL_COUNT
 };
 
-enum camera_type
-{
+enum camera_type {
     CAM_MAIN,
     CAM_COUNT
 };
 
-struct game_config
-{
+struct game_config {
     u32 virtual_screen_width;
     u32 virtual_screen_height;
     u32 screen_width;
@@ -38,8 +35,7 @@ struct game_config
     u32 players_count;
 };
 
-struct game_constants
-{
+struct game_constants {
     f64 fixed_timestep;
     b32 render_debug;
     b32 ai_enabled;
@@ -85,13 +81,10 @@ struct game_constants
     u32 crossbar_height;
 };
 
-struct controls
-{
+struct controls {
     v2 steering;
-    struct action_charge
-    {
-	enum action_charge_type
-	{
+    struct action_charge {
+	enum action_charge_type {
 	    ACT_SHOOT,
 	    ACT_PASS,
 	    ACT_LONG_PASS
@@ -105,22 +98,19 @@ struct controls
     } charge;
 };
 
-struct human_player
-{
+struct human_player {
     struct controls controls;
     entity_id_t player_entity_id;
 };
 
-struct player_on_the_ball
-{
+struct player_on_the_ball {
     entity_id_t id;
     f32 distance_from_the_ball;
     struct component_player *player;
     v2 position;
     v2 velocity;
     b32 kicked_ball;
-    struct player_controls
-    {
+    struct player_controls {
 	v2 steering;
 	f32 shot;
 	f32 pass;
@@ -130,8 +120,7 @@ struct player_on_the_ball
     struct component_collider *collider;
 };
 
-struct game_vars
-{
+struct game_vars {
     struct match match;
     struct Pitch pitch;
     struct player_on_the_ball player_on_the_ball;
@@ -143,8 +132,7 @@ struct game_vars
     b32 is_tweakui_shown;
 };
 
-struct game_state
-{
+struct game_state {
     b32 initialised;
     struct game_config config;
     struct game_constants constants;

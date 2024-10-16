@@ -3,16 +3,14 @@
 
 #include "types.h"
 
-struct memory_arena_handle
-{
+struct memory_arena_handle {
     char *name;
     void *base;
     void *current;
     usize total_size;
 };
 
-struct memory_fixed_handle
-{
+struct memory_fixed_handle {
     char *name;
     void *base;
     void *current;

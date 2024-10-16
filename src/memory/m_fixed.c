@@ -14,10 +14,10 @@ memory_fixed_handle_t *memory_fixed_create(char *name, usize size, usize allocat
     usize real_size = size + sizeof(b32);
     usize total_size = real_size * allocations;
     void *buffer;
-    if ((buffer = malloc(total_size)) == NULL)
-    {
+    if ((buffer = malloc(total_size)) == NULL) {
 	int errsv = errno;
-	GLOGF_ERROR_CTX(LS_MEMORY, name,
+	GLOGF_ERROR_CTX(LS_MEMORY,
+			name,
 			"failed allocating memory for fixed size linear allocator: %s",
 			strerror(errsv));
 	return NULL;
@@ -29,37 +29,33 @@ memory_fixed_handle_t *memory_fixed_create(char *name, usize size, usize allocat
     handle->fixed_allocation_size = real_size;
     handle->allocations = allocations;
     handle->allocated = 0;
-    GLOGF_INFO_CTX(LS_MEMORY, name,
+    GLOGF_INFO_CTX(LS_MEMORY,
+		   name,
 		   "fixed size linear allocator created for %zu allocations of size %zu bytes",
-		   allocations, size);
+		   allocations,
+		   size);
     return handle;
 }
 
 // Destroy a fixed memory allocator
 void memory_fixed_destroy(memory_fixed_handle_t *handle)
 {
-    if (handle)
-    {
+    if (handle) {
 	free(handle->base);
 	GLOG_INFO_CTX(LS_MEMORY, handle->name, "fixed size linear allocator destroyed");
 	free(handle);
 	handle = NULL;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_MEMORY, "attempt to free an invalid fixed size linear allocator");
     }
 }
 
 void memory_fixed_reset(memory_arena_handle_t *handle)
 {
-    if (handle)
-    {
+    if (handle) {
 	GLOG_TRACE_CTX(LS_MEMORY, handle->name, "fixed size linear allocator reset");
 	handle->current = handle->base;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_MEMORY, "attempt to reset an invalid fixed size linear allocator");
     }
 }
@@ -67,37 +63,31 @@ void memory_fixed_reset(memory_arena_handle_t *handle)
 // Allocate fixed size buffer using the linear allocator
 void *memory_fixed_alloc(memory_fixed_handle_t *handle)
 {
-    if (handle)
-    {
-	if (handle->allocated < handle->allocations)
-	{
+    if (handle) {
+	if (handle->allocated < handle->allocations) {
 	    struct memory_fixed_allocation *allocation;
-	    while ((allocation = (struct memory_fixed_allocation *)handle->current)->used)
-	    {
+	    while ((allocation = (struct memory_fixed_allocation *)handle->current)->used) {
 		handle->current += handle->fixed_allocation_size;
 		if (handle->current ==
-		    (handle->base + handle->fixed_allocation_size * handle->allocations))
-		{
+		    (handle->base + handle->fixed_allocation_size * handle->allocations)) {
 		    handle->current = handle->base;
 		}
 	    }
 	    allocation->used = true;
 	    handle->allocated++;
-	    GLOGF_INFO_CTX(LS_MEMORY, handle->name,
+	    GLOGF_INFO_CTX(LS_MEMORY,
+			   handle->name,
 			   "allocated %lu bytes from fixed size linear allocator, remaining %zu "
 			   "allocations out of %zu",
 			   handle->fixed_allocation_size - sizeof(b32),
-			   handle->allocations - handle->allocated, handle->allocations);
+			   handle->allocations - handle->allocated,
+			   handle->allocations);
 	    return &allocation->buffer;
+	} else {
+	    GLOG_ERROR_CTX(
+		LS_MEMORY, handle->name, "not enough memory left in fixed size linear allocator");
 	}
-	else
-	{
-	    GLOG_ERROR_CTX(LS_MEMORY, handle->name,
-			   "not enough memory left in fixed size linear allocator");
-	}
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_MEMORY,
 		   "attempt to allocate memory from invalid fixed size linear allocator");
     }
@@ -107,19 +97,18 @@ void *memory_fixed_alloc(memory_fixed_handle_t *handle)
 // Free fixed size buffer previous allocated with the linear allocator
 void memory_fixed_free(memory_fixed_handle_t *handle, void *buffer)
 {
-    if (handle)
-    {
+    if (handle) {
 	struct memory_fixed_allocation *allocation = buffer - sizeof(b32);
 	allocation->used = false;
 	handle->allocated--;
-	GLOGF_INFO_CTX(LS_MEMORY, handle->name,
+	GLOGF_INFO_CTX(LS_MEMORY,
+		       handle->name,
 		       "freed %lu bytes from fixed size linear allocator, remaining %zu "
 		       "allocations out of %zu",
 		       handle->fixed_allocation_size - sizeof(b32),
-		       handle->allocations - handle->allocated, handle->allocations);
-    }
-    else
-    {
+		       handle->allocations - handle->allocated,
+		       handle->allocations);
+    } else {
 	GLOG_ERROR(LS_MEMORY, "attempt to free memory from invalid fixed size linear allocator");
     }
 }

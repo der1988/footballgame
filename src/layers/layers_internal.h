@@ -6,13 +6,11 @@
 
 #define MAX_QUEUED_DRAW_REQUESTS 50
 
-struct draw_text_request
-{
+struct draw_text_request {
     char text[100];
 };
 
-struct layers_debug
-{
+struct layers_debug {
     b32 initialised;
     memory_arena_handle_t *frame_memory_arena;
     u16 queued_requests;

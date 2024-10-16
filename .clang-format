@@ -1,12 +1,14 @@
 Language:        Cpp
 ColumnLimit:     100
 IndentWidth:     4
-AlignConsecutiveMacros:
-  Enabled:         true
+AlignConsecutiveMacros: true
+AlignConsecutiveDeclarations: false
 AlignOperands: true
 AllowShortEnumsOnASingleLine: false
-BinPackParameters: true
-BinPackArguments: true
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+BinPackParameters: false
+BinPackArguments: false
 BraceWrapping:
   AfterClass: false
   AfterControlStatement: false
@@ -23,8 +25,9 @@ BraceWrapping:
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
+BreakArrays:     true
 BreakBeforeBinaryOperators: None
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Custom
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: false
@@ -39,6 +42,16 @@ IndentCaseLabels: false
 IndentGotoLabels: false
 IndentWrappedFunctionNames: false
 MaxEmptyLinesToKeep: 1
+
+# Taken from git's rules
+PenaltyBreakAssignment: 10
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 10
+PenaltyExcessCharacter: 100
+PenaltyReturnTypeOnItsOwnLine: 100
+
 PointerAlignment: Right
 ReflowComments: false
 SortIncludes: false

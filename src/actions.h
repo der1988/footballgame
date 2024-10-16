@@ -5,8 +5,7 @@
 #include "game.h"
 #include "types.h"
 
-enum action_type
-{
+enum action_type {
     AT_CHANGE_COLOR_FROM_TO,
     AT_PLAY_ANIMATION,
     AT_SEQUENCE,
@@ -16,13 +15,16 @@ enum action_type
     AT_TOGGLE_BOOLEAN,
     AT_COUNT
 };
-static const char *ActionTypeToString[AT_COUNT] = {
-    "change_color_from_to", "play_animation", "sequence",      "spawn",
-    "tween_float_from_to",  "rotate_to",      "toggle_boolean"};
+static const char *ActionTypeToString[AT_COUNT] = {"change_color_from_to",
+						   "play_animation",
+						   "sequence",
+						   "spawn",
+						   "tween_float_from_to",
+						   "rotate_to",
+						   "toggle_boolean"};
 
 // Wrapper around an action to keep track of its state while being run
-struct action_runner
-{
+struct action_runner {
     struct action *action;
     b32 started;
     f32 start_time;
@@ -31,8 +33,7 @@ struct action_runner
 };
 
 // Defines of an action
-struct action
-{
+struct action {
     enum action_type type;
     f32 duration;
     b32 loop;
@@ -41,40 +42,35 @@ struct action
 };
 
 // Changes the sprite color from one color to another
-struct action_change_color_from_to
-{
+struct action_change_color_from_to {
     struct action base;
     Color from;
     Color to;
 };
 
 // Plays an animation at a specific speed
-struct action_play_animation
-{
+struct action_play_animation {
     struct action base;
     assets_animation_id_t animation_id;
     f32 speed;
 };
 
 // Concatenates multiple actions to run them in series
-struct action_sequence
-{
+struct action_sequence {
     struct action base;
     u16 count;
     struct action_runner actions[];
 };
 
 // Spawn multiple actions to run them in parallel
-struct action_spawn
-{
+struct action_spawn {
     struct action base;
     u16 count;
     struct action_runner actions[];
 };
 
 // Tween a float from one value to another
-struct action_tween_float_from_to
-{
+struct action_tween_float_from_to {
     struct action base;
     f32 *value;
     f32 from;
@@ -82,8 +78,7 @@ struct action_tween_float_from_to
 };
 
 // Rotate a float to an angle
-struct action_rotate_to
-{
+struct action_rotate_to {
     struct action base;
     f32 from;
     f32 to;
@@ -91,53 +86,69 @@ struct action_rotate_to
 };
 
 // Toggle boolean
-struct action_toggle_boolean
-{
+struct action_toggle_boolean {
     struct action base;
     b32 *value;
 };
 
-void actions_action_run(struct action_runner *action_runner, entity_id_t id,
+void actions_action_run(struct action_runner *action_runner,
+			entity_id_t id,
 			struct game_state *game_state);
-void actions_action_stop(running_action_idx_t running_action_idx, entity_id_t id,
+void actions_action_stop(running_action_idx_t running_action_idx,
+			 entity_id_t id,
 			 struct game_state *game_state);
 
-struct action_change_color_from_to *
-actions_change_color_from_to_create(f32 duration, b32 loop, Color from, Color to,
-				    memory_arena_handle_t *memory_arena_handle);
-void actions_change_color_from_to_update(struct action_runner *action_runner, entity_id_t id,
+struct action_change_color_from_to *actions_change_color_from_to_create(
+    f32 duration, b32 loop, Color from, Color to, memory_arena_handle_t *memory_arena_handle);
+void actions_change_color_from_to_update(struct action_runner *action_runner,
+					 entity_id_t id,
 					 struct game_state *game_state);
 
 struct action_play_animation *
-actions_play_animation_create(struct assets_animation *animation, b32 loop, float speed,
+actions_play_animation_create(struct assets_animation *animation,
+			      b32 loop,
+			      float speed,
 			      memory_arena_handle_t *memory_arena_handle);
-void actions_play_animation_update(struct action_runner *action_runner, entity_id_t id,
+void actions_play_animation_update(struct action_runner *action_runner,
+				   entity_id_t id,
 				   struct game_state *game_state);
 
 struct action_sequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
-						u32 count, ...);
-void actions_sequence_update(struct action_runner *action_runner, entity_id_t id,
+						u32 count,
+						...);
+void actions_sequence_update(struct action_runner *action_runner,
+			     entity_id_t id,
 			     struct game_state *game_state);
 
-struct action_spawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle, u32 count,
+struct action_spawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle,
+					  u32 count,
 					  ...);
-void actions_spawn_update(struct action_runner *action_runner, entity_id_t id,
+void actions_spawn_update(struct action_runner *action_runner,
+			  entity_id_t id,
 			  struct game_state *game_state);
 
 struct action_tween_float_from_to *
-actions_tween_float_from_to_create(f32 duration, b32 loop, f32 *value, f32 from, f32 to,
+actions_tween_float_from_to_create(f32 duration,
+				   b32 loop,
+				   f32 *value,
+				   f32 from,
+				   f32 to,
 				   memory_arena_handle_t *memory_arena_handle);
-void actions_tween_float_from_to_update(struct action_runner *action_runner, entity_id_t id,
+void actions_tween_float_from_to_update(struct action_runner *action_runner,
+					entity_id_t id,
 					struct game_state *game_state);
 
-struct action_rotate_to *actions_rotate_to_create(f32 duration, b32 loop, f32 to,
+struct action_rotate_to *actions_rotate_to_create(f32 duration,
+						  b32 loop,
+						  f32 to,
 						  memory_arena_handle_t *memory_arena_handle);
-void actions_rotate_to_update(struct action_runner *action_runner, entity_id_t id,
+void actions_rotate_to_update(struct action_runner *action_runner,
+			      entity_id_t id,
 			      struct game_state *game_state);
 
-void actions_toggle_boolean_update(struct action_runner *action_runner, entity_id_t id,
+void actions_toggle_boolean_update(struct action_runner *action_runner,
+				   entity_id_t id,
 				   struct game_state *game_state);
-struct action_toggle_boolean *
-actions_toggle_boolean_create(f32 duration, b32 loop, b32 *value,
-			      memory_arena_handle_t *memory_arena_handle);
+struct action_toggle_boolean *actions_toggle_boolean_create(
+    f32 duration, b32 loop, b32 *value, memory_arena_handle_t *memory_arena_handle);
 #endif // !ACTIONS_H

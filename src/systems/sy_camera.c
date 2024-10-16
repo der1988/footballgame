@@ -14,7 +14,8 @@ void apply_force(Vector2 force_to_apply, struct component_physics *physics, delt
     physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
 }
 
-void apply_velocity(struct component_transform *transform, struct component_physics *physics,
+void apply_velocity(struct component_transform *transform,
+		    struct component_physics *physics,
 		    delta_time_t dt)
 {
     transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
@@ -23,11 +24,9 @@ void apply_velocity(struct component_transform *transform, struct component_phys
 void systems_camera(struct game_state *game_state)
 {
 
-    for_each_entity(entity, game_state->entity_repository)
-    {
-	if (!entities_is_entity_alive_and_has_components(entity, 4, C_TRANSFORM, C_PHYSICS,
-							 C_TARGET, C_CAMERA))
-	{
+    for_each_entity(entity, game_state->entity_repository) {
+	if (!entities_is_entity_alive_and_has_components(
+		entity, 4, C_TRANSFORM, C_PHYSICS, C_TARGET, C_CAMERA)) {
 	    continue;
 	}
 
@@ -42,30 +41,25 @@ void systems_camera(struct game_state *game_state)
 	struct component_physics3d *target_physics = &target_entity->physics3d;
 
 	v2 steering = Vector2Zero();
-	if (target_transform && target_physics)
-	{
-	    if (fabsf(target_physics->velocity.z) > 30)
-	    {
-		if (target_physics->velocity.z < 0)
-		{
+	if (target_transform && target_physics) {
+	    if (fabsf(target_physics->velocity.z) > 30) {
+		if (target_physics->velocity.z < 0) {
 		    camera->offset.y -= 70 * game_state->dt;
-		}
-		else
-		{
+		} else {
 		    camera->offset.y += 70 * game_state->dt;
 		}
 		camera->offset.y = Clamp(camera->offset.y, -50, 50);
-	    }
-	    else
-	    {
+	    } else {
 		camera->offset.y *= 0.997f;
 	    }
 
 	    layers_debug_queue_draw_text(game_state->layer_debug,
 					 TextFormat("Camera offset y: %.2f", camera->offset.y));
-	    steering = steering_arrive(
-		transform->position, physics->velocity, physics->max_velocity,
-		Vector2Add(target_transform->position, camera->offset), camera->slowing_distance);
+	    steering = steering_arrive(transform->position,
+				       physics->velocity,
+				       physics->max_velocity,
+				       Vector2Add(target_transform->position, camera->offset),
+				       camera->slowing_distance);
 	}
 	steering = Vector2Scale(steering, physics->max_velocity * physics->max_force);
 

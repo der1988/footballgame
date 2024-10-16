@@ -13,7 +13,8 @@ static v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos)
     return pos;
 }
 
-enum player_ai_state ai_player_think(struct entity *entity, v2 *target_position,
+enum player_ai_state ai_player_think(struct entity *entity,
+				     v2 *target_position,
 				     enum player_ai_kick_decision *kick_decision,
 				     struct game_state *game_state)
 {
@@ -27,20 +28,22 @@ enum player_ai_state ai_player_think(struct entity *entity, v2 *target_position,
 
     // This player is the target of an automatic pass
     // Let's move towards the ball
-    if (ball->pass_target_entity_id == entity->header.id)
-    {
+    if (ball->pass_target_entity_id == entity->header.id) {
 	v3 ball_future_pos;
 	time_t ball_future_time;
 	b32 found = entities_common_can_reach_future_ball_position(
-	    entity, game_state->constants.player_run_max_velocity, ball->lookahead_positions, NULL,
-	    &ball_future_pos, &ball_future_time, game_state);
+	    entity,
+	    game_state->constants.player_run_max_velocity,
+	    ball->lookahead_positions,
+	    NULL,
+	    &ball_future_pos,
+	    &ball_future_time,
+	    game_state);
 	if (!found)
 	    ball_future_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 	*target_position = V3_TO_V2(ball_future_pos);
 	ai_state = PAS_SEEK_POSITION;
-    }
-    else
-    {
+    } else {
 	// Let's move based on the tactics of the team
 	struct team_formation_position *team_formation_position =
 	    football_tactics_get_team_formation_position(

@@ -20,63 +20,54 @@ memory_arena_handle_t *memory_arena_create(char *name, void *buffer, usize size)
 // Destroy an arena linear allocator
 void memory_arena_destroy(memory_arena_handle_t *handle)
 {
-    if (handle)
-    {
+    if (handle) {
 	GLOG_INFO_CTX(LS_MEMORY, handle->name, "memory arena destroyed");
 	free(handle);
 	handle = NULL;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_MEMORY, "attempt to free an invalid memory arena");
     }
 }
 
 void memory_arena_reset(memory_arena_handle_t *handle)
 {
-    if (handle)
-    {
+    if (handle) {
 	GLOG_TRACE_CTX(LS_MEMORY, handle->name, "memory arena reset");
 	handle->current = handle->base;
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_MEMORY, "attempt to reset an invalid memory arena");
     }
 }
 
 // Allocate some memory inside the arena
-void *memory_arena_push_with_custom_settings(memory_arena_handle_t *handle, usize size,
+void *memory_arena_push_with_custom_settings(memory_arena_handle_t *handle,
+					     usize size,
 					     struct memory_arena_push_settings settings)
 {
-    if (handle)
-    {
+    if (handle) {
 	size = memory_utils_align(size, settings.alignment);
 	u64 remaining = handle->total_size - (handle->current - handle->base);
-	if (size <= remaining)
-	{
+	if (size <= remaining) {
 	    void *buffer = handle->current;
-	    if (settings.clear_memory)
-	    {
+	    if (settings.clear_memory) {
 		memset(buffer, 0, size);
 	    }
 	    handle->current += size;
-	    GLOGF_TRACE_CTX(LS_MEMORY, handle->name,
-			    "allocated %lu bytes from memory arena, remaining %lu bytes", size,
+	    GLOGF_TRACE_CTX(LS_MEMORY,
+			    handle->name,
+			    "allocated %lu bytes from memory arena, remaining %lu bytes",
+			    size,
 			    remaining - size);
 	    return buffer;
-	}
-	else
-	{
-	    GLOGF_ERROR_CTX(LS_MEMORY, handle->name,
+	} else {
+	    GLOGF_ERROR_CTX(LS_MEMORY,
+			    handle->name,
 			    "not enough memory left in memory arena, allocation of %lu "
 			    "bytes "
 			    "failed",
 			    size);
 	}
-    }
-    else
-    {
+    } else {
 	GLOG_ERROR(LS_MEMORY, "attempt to allocate memory from invalid arena");
     }
     return NULL;
@@ -94,8 +85,7 @@ void *memory_arena_push_string(memory_arena_handle_t *handle, char *string)
 {
     char *new_string = memory_arena_push(handle, strlen(string) + 1);
     usize i;
-    for (i = 0; i < strlen(string); ++i)
-    {
+    for (i = 0; i < strlen(string); ++i) {
 	new_string[i] = string[i];
     }
     new_string[i] = 0;

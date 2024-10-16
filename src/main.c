@@ -37,19 +37,14 @@ int main()
     f64 dt = game_state->constants.fixed_timestep;
     b32 window_should_close = false;
 
-    while (!window_should_close)
-    {
-	if (game_state->vars.is_tweakui_shown)
-	{
+    while (!window_should_close) {
+	if (game_state->vars.is_tweakui_shown) {
 	    PollInputEvents();
 	    window_should_close = WindowShouldClose();
-	    if (IsKeyReleased(KEY_P))
-	    {
+	    if (IsKeyReleased(KEY_P)) {
 		game_state->vars.is_tweakui_shown = false;
 	    }
-	}
-	else
-	{
+	} else {
 	    // Update game
 	    f64 new_time = GetTime();
 	    f64 frame_time = new_time - current_time;
@@ -58,18 +53,15 @@ int main()
 
 	    u32 physics_iterations = 0;
 	    accumulator += frame_time;
-	    while (accumulator > 0)
-	    {
+	    while (accumulator > 0) {
 		PollInputEvents();
 		window_should_close |= WindowShouldClose();
 
 		// TODO: (Marco) Move this stuff away for god sake
-		if (IsKeyReleased(KEY_P))
-		{
+		if (IsKeyReleased(KEY_P)) {
 		    game_state->vars.is_tweakui_shown = true;
 		}
-		if (IsKeyReleased(KEY_C))
-		{
+		if (IsKeyReleased(KEY_C)) {
 		    game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 		}
 
@@ -87,14 +79,13 @@ int main()
 		physics_iterations++;
 	    }
 
-	    if (physics_iterations > 0)
-	    {
-		layers_debug_queue_draw_text(
-		    game_state->layer_debug,
-		    TextFormat("Update time: %8.6f", total_update_time / physics_iterations));
-		layers_debug_queue_draw_text(
-		    game_state->layer_debug,
-		    TextFormat("Physics iter/frame: %2d", physics_iterations));
+	    if (physics_iterations > 0) {
+		layers_debug_queue_draw_text(game_state->layer_debug,
+					     TextFormat("Update time: %8.6f",
+							total_update_time / physics_iterations));
+		layers_debug_queue_draw_text(game_state->layer_debug,
+					     TextFormat("Physics iter/frame: %2d",
+							physics_iterations));
 		layers_debug_queue_draw_text(game_state->layer_debug,
 					     TextFormat("FPS: %6.2f", 1 / frame_time));
 	    }
