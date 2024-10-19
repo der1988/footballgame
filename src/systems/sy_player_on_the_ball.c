@@ -71,7 +71,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 
     b32 kicked_ball = false;
     if (player_on_the_ball->id != EID_NOT_VALID) {
-	f32 velocity_length = Vector2Length(player_on_the_ball->velocity);
+	f32 player_speed = Vector2Length(player_on_the_ball->velocity);
 	v2 normalized_velocity = Vector2Normalize(player_on_the_ball->velocity);
 	f32 steering_magnitude = Vector2Length(player_on_the_ball->controls->steering);
 	ball->last_player_on_the_ball_entity_id = player_on_the_ball->id;
@@ -167,7 +167,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	} else if (!kicked_ball && steering_magnitude > 0.01f) {
 	    // For ball control we use velocity directly because it's easier and produce
 	    // better results
-	    if (velocity_length < game_state->constants.player_run_max_velocity * 0.7f) {
+	    if (player_speed < game_state->constants.player_run_max_velocity * 0.7f) {
 		player_on_the_ball->player->control_ball = true;
 		player_on_the_ball->player->time_spent_in_run_control = 0;
 	    }
