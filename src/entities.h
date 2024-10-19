@@ -259,16 +259,11 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id,
 					     v2 direction,
 					     f32 velocity_threshold,
 					     struct game_state *game_state);
-Rectangle entities_player_calculate_dive_collision_rectangle(v2 pos,
-							     struct collider *dive_collider);
-b32 entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
-							 v3 ball_position,
-							 f32 ball_radius,
-							 f32 max_height);
-b32 entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
-							   v3 ball_position,
-							   f32 ball_radius,
-							   f32 max_height);
+b32 entities_player_is_colliding_with_ball(struct entity *entity,
+					   enum player_collider_type collider_type,
+					   v3 ball_position,
+					   f32 ball_radius,
+					   f32 max_height);
 b32 entities_player_should_dive(struct entity *goalie_entity,
 				struct entity *ball_entity,
 				enum save_direction *dive_direction,

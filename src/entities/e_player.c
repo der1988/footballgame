@@ -204,11 +204,11 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 
     switch (state_machine->current_state) {
     case PS_NONE:
-	break;
-    case PS_NORMAL: {
-    } break;
-    case PS_GOALIE: {
-    } break;
+    case PS_NORMAL:
+    case PS_GOALIE:
+    case PS_THROW_IN:
+    case PS_HEADER:
+    case PS_SLIDING_TACKLE:
     case PS_COUNT:
 	break;
     }
@@ -227,12 +227,11 @@ void entities_player_state_machine_on_exit(struct entity *entity, struct game_st
 
     switch (state_machine->previous_state) {
     case PS_NONE:
-	break;
-    case PS_NORMAL: {
-	break;
-    }
-    case PS_GOALIE: {
-    } break;
+    case PS_NORMAL:
+    case PS_GOALIE:
+    case PS_THROW_IN:
+    case PS_HEADER:
+    case PS_SLIDING_TACKLE:
     case PS_COUNT:
 	break;
     }
@@ -455,46 +454,43 @@ static void prepare_goalie_gfx(struct component_player *player,
     //     entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
 }
 
-rect_t entities_player_calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
+static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
 {
-    return (Rectangle){.x = pos.x + dive_collider->props.rectangle.offset.x,
-		       .y = pos.y + dive_collider->props.rectangle.offset.y,
-		       .width = dive_collider->props.rectangle.size.x,
-		       .height = dive_collider->props.rectangle.size.y};
+    return (rect_t){.x = pos.x + dive_collider->props.rectangle.offset.x,
+		    .y = pos.y + dive_collider->props.rectangle.offset.y,
+		    .width = dive_collider->props.rectangle.size.x,
+		    .height = dive_collider->props.rectangle.size.y};
 }
 
-b32 entities_player_is_diving_goalie_colliding_with_ball(struct entity *goalie_entity,
-							 v3 ball_position,
-							 f32 ball_radius,
-							 f32 max_height)
+b32 entities_player_is_colliding_with_ball(struct entity *entity,
+					   enum player_collider_type collider_type,
+					   v3 ball_position,
+					   f32 ball_radius,
+					   f32 max_height)
 {
-    struct collider *dive_collider = &goalie_entity->collider.colliders[PCT_DIVE];
+    const v2 player_position = entity->transform.position;
+    const v2 ball_pos = V3_TO_V2(ball_position);
+    b32 check_collision = false;
+    struct collider *collider = &entity->collider.colliders[collider_type];
 
-    b32 is_colliding_with_ball =
-	CheckCollisionCircleRec(V3_TO_V2(ball_position),
-				ball_radius,
-				entities_player_calculate_dive_collision_rectangle(
-				    goalie_entity->transform.position, dive_collider)) &&
-	ball_position.y < max_height;
+    switch (collider_type) {
+    case PCT_DIVE:
+	check_collision = CheckCollisionCircleRec(
+	    ball_pos, ball_radius, calculate_dive_collision_rectangle(player_position, collider));
+	break;
+    case PCT_PLAYER:
+    case PCT_GOALIE:
+	check_collision =
+	    CheckCollisionCircles(ball_pos,
+				  ball_radius,
+				  Vector2Add(player_position, collider->props.circle.offset),
+				  collider->props.circle.radius);
+	break;
+    case PCT_COUNT:
+	break;
+    }
 
-    return is_colliding_with_ball;
-}
-
-b32 entities_player_is_standing_goalie_colliding_with_ball(struct entity *goalie_entity,
-							   v3 ball_position,
-							   f32 ball_radius,
-							   f32 max_height)
-{
-    struct collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
-    b32 is_colliding_with_ball =
-	CheckCollisionCircles(V3_TO_V2(ball_position),
-			      ball_radius,
-			      Vector2Add(goalie_entity->transform.position,
-					 goalie_collider->props.circle.offset),
-			      goalie_collider->props.circle.radius) &&
-	ball_position.y < max_height;
-
-    return is_colliding_with_ball;
+    return check_collision && ball_position.y < max_height;
 }
 
 b32 entities_player_should_dive(struct entity *goalie_entity,
@@ -506,8 +502,9 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 				struct game_state *game_state)
 {
     b32 should_dive = false;
+    const f32 ball_radius = ball_entity->collider.colliders[0].props.circle.radius;
 
-    const int steps_per_lookahead =
+    const u32 steps_per_lookahead =
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
 	game_state->constants.ball_lookahead_dts;
     // We want a lookahead of 150ms for our goalie
@@ -518,11 +515,14 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 		    game_state->constants.ball_lookaheads));
     for (u16 i = 0; i < lookaheads; ++i) {
 	v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
-	b32 is_colliding_with_ball = entities_player_is_standing_goalie_colliding_with_ball(
-	    goalie_entity,
-	    pos_to_check,
-	    ball_entity->collider.colliders[0].props.circle.radius,
-	    game_state->constants.crossbar_height);
+
+	const b32 is_colliding_with_ball =
+	    entities_player_is_colliding_with_ball(goalie_entity,
+						   PCT_GOALIE,
+						   pos_to_check,
+						   ball_radius,
+						   game_state->constants.crossbar_height);
+
 	if (is_colliding_with_ball) {
 	    // Ball is coming our direction, let's wait
 	    break;
