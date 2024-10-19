@@ -4,11 +4,13 @@
 #include "game.h"
 #include "input.h"
 #include "layers.h"
+#include "macro.h"
 #include "render.h"
 #include "simulation.h"
 #include <raylib.h>
 #include <raymath.h>
 #include "math_ext.h"
+#include "constants.h"
 
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 {
@@ -104,7 +106,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		physics3d->velocity.x,
 		physics3d->velocity.y,
 		physics3d->velocity.z,
-		Vector3Length(physics3d->velocity)));
+		VELOCITY_TO_KMH(Vector3Length(physics3d->velocity))));
 
 	switch (state_machine->current_state) {
 	case BS_NONE:

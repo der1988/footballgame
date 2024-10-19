@@ -18,4 +18,8 @@
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
+#define GOALIE_HOLD_OR_BOUNCE(V)                                                                   \
+    (V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
+#define VELOCITY_TO_KMH(V) (V / PIXELS_PER_METER * 3.6f)
+
 #endif // !MACRO_H

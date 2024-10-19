@@ -191,12 +191,12 @@ void systems_player(struct game_state *game_state, struct input *input)
 	case PS_GOALIE:
 	    layers_debug_queue_draw_text(
 		game_state->layer_debug,
-		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s",
+		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %5.2f state: %s",
 			   "Goalie",
 			   entity_id,
 			   transform->position.x,
 			   transform->position.y,
-			   Vector2Length(physics->velocity),
+			   VELOCITY_TO_KMH(Vector2Length(physics->velocity)),
 			   state_machine_goalie_state_string[goalie->state_machine->current_state]));
 	    break;
 	case PS_THROW_IN:
@@ -208,12 +208,12 @@ void systems_player(struct game_state *game_state, struct input *input)
 	if (state_machine->current_state != PS_GOALIE) {
 	    layers_debug_queue_draw_text(
 		game_state->layer_debug,
-		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %6.2f state: %s",
+		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %5.2f state: %s",
 			   "Player",
 			   entity_id,
 			   transform->position.x,
 			   transform->position.y,
-			   Vector2Length(physics->velocity),
+			   VELOCITY_TO_KMH(Vector2Length(physics->velocity)),
 			   state_machine_player_state_string[state_machine->current_state]));
 	}
     }
