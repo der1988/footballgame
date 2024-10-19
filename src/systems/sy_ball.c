@@ -185,13 +185,15 @@ void systems_ball(struct game_state *game_state, struct input *input)
 			     &on_the_ground,
 			     &bounced,
 			     game_state);
+	    ball->future_bounce.available = false;
 	    ball->is_on_the_ground = on_the_ground && !bounced;
 	    if (bounced) {
 		ball->last_bounce_time = game_state->time;
 	    }
 	    if (ball->is_on_the_ground) {
-		ball->future_bounce_position = V3_TO_V2(position);
-		ball->dts_to_future_bounce = 0;
+		ball->future_bounce.available = true;
+		ball->future_bounce.position = V3_TO_V2(position);
+		ball->future_bounce.dts = 0;
 	    }
 
 	    // Calculate next 'ball_lookaheads' look ahead positions, ball_lookahead_dts dts apart from each other
@@ -202,7 +204,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    u16 lookaheads = game_state->constants.ball_lookaheads;
 	    u32 lookahead_dts =
 		(game_state->vars.slow_motion ? 10 : 1) * game_state->constants.ball_lookahead_dts;
-	    b32 found_first_bounce = false;
 	    for (u16 i = 0; i < lookaheads; ++i) {
 		// 10 dt steps (100 in slow motion)
 		for (u16 j = 0; j < lookahead_dts; ++j) {
@@ -214,11 +215,10 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				     &lookahead_on_the_ground,
 				     &lookahead_bounced,
 				     game_state);
-		    if (!found_first_bounce && lookahead_bounced) {
-			ball->future_bounce_position = V3_TO_V2(lookahead_position);
-			ball->dts_to_future_bounce =
-			    i * game_state->constants.ball_lookaheads + j + 1;
-			found_first_bounce = true;
+		    if (!ball->future_bounce.available && lookahead_bounced) {
+			ball->future_bounce.available = true;
+			ball->future_bounce.position = V3_TO_V2(lookahead_position);
+			ball->future_bounce.dts = i * game_state->constants.ball_lookaheads + j + 1;
 		    }
 		}
 		ball->lookahead_positions[i] = lookahead_position;

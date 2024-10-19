@@ -66,10 +66,10 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	player_to_avoid_entity_id = ball->last_kicker_entity_id;
     }
     v2 epicenter = ball_transform->position;
-    if (Vector2Distance(epicenter, ball->future_bounce_position) > 100) {
+    if (Vector2Distance(epicenter, ball->future_bounce.position) > 100) {
 	// If the ball is in flight and it's gonna bounce far from current ball position,
 	// let's use bounce position instead to select which player is human controlled
-	epicenter = ball->future_bounce_position;
+	epicenter = ball->future_bounce.position;
     }
     if (player_on_the_ball->kicked_ball) {
 	nearest_teammate_entity_id =

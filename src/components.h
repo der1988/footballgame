@@ -139,7 +139,11 @@ struct component_ball {
     entity_id_t pass_target_entity_id;
     v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
     v2 selected_after_touch_side;
-    v2 future_bounce_position;
+    struct {
+	b32 available;
+	v2 position;
+	u32 dts;
+    } future_bounce;
     b32 subject_to_after_touch;
     b32 is_on_the_ground;
     u32 dts_to_future_bounce;

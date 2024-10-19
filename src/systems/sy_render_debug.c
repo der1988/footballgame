@@ -65,7 +65,9 @@ void systems_render_debug(struct game_state *game_state)
 	for (u8 i = 0; i < 25; ++i) {
 	    DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
 	}
-	DrawCircle(ball->future_bounce_position.x, ball->future_bounce_position.y, 1, PURPLE);
+	if (ball->future_bounce.available) {
+	    DrawCircle(ball->future_bounce.position.x, ball->future_bounce.position.y, 1, PURPLE);
+	}
 
 	// Pitch
 	DrawRectangleLinesEx(game_state->vars.pitch.field, 1, VIOLET);
