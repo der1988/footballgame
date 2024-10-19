@@ -65,7 +65,8 @@ v move header files in project root directory
 v after touch direction cannot be changed once selected
 v improve codebase quality
 v rename structs and enums to be snake case (I know, I know...)
-* long distance shots should be catched by goalie without a sweat
+v long distance shots should be catched by goalie without a sweat
+v fast shots should not be catched by goalie
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -80,3 +81,5 @@ v rename structs and enums to be snake case (I know, I know...)
 - move utility functions from goalie system
 - Fix that horror with conditional debug logging in player system
 - Fix memory not freed in assets_sprite_frames_load_from_json
+- Implement recorder functionality
+- Implement bounce animation + stunned state for goalie when shot is very fast
