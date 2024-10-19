@@ -79,7 +79,8 @@ v fast shots should not be catched by goalie
 - improve player selection system
 - implement pitch radar
 - move utility functions from goalie system
-- Fix that horror with conditional debug logging in player system
-- Fix memory not freed in assets_sprite_frames_load_from_json
-- Implement recorder functionality
-- Implement bounce animation + stunned state for goalie when shot is very fast
+- fix that horror with conditional debug logging in player system
+- fix memory not freed in assets_sprite_frames_load_from_json
+- implement recorder functionality
+- implement bounce animation + stunned state for goalie when shot is very fast
+- when player stops ball it should fall immediately
