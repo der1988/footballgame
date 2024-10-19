@@ -133,21 +133,21 @@ struct component_player {
 struct component_ball {
     struct component_header header;
     struct state_machine_ball *state_machine;
-    b32 is_on_the_ground;
+    assets_sprite_frame_id_t roll_animations[D_COUNT];
     entity_id_t last_player_on_the_ball_entity_id;
     entity_id_t last_kicker_entity_id;
     entity_id_t pass_target_entity_id;
-    b32 subject_to_after_touch;
+    v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
     v2 selected_after_touch_side;
+    v2 future_bounce_position;
+    b32 subject_to_after_touch;
+    b32 is_on_the_ground;
+    u32 dts_to_future_bounce;
+    u16 last_running_frame_idx;
     time_t last_kick_time;
     time_t last_bounce_time;
-    assets_sprite_frame_id_t roll_animations[D_COUNT];
-    enum direction last_direction;
-    v2 future_bounce_position;
-    u32 dts_to_future_bounce;
-    v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
     time_t last_frame_update_time;
-    u16 last_running_frame_idx;
+    enum direction last_direction;
 };
 
 struct component_goal {
