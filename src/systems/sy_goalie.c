@@ -66,11 +66,50 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 		    ball_collider->colliders[0].props.circle.radius,
 		    game_state->constants.crossbar_height)) {
-		// hold ball in hands
-		entities_ball_held_by_goalie(
-		    game_state->vars.ball_entity_id, entity_id, game_state);
-		entities_goalie_state_machine_change_state_to(
-		    goalie->state_machine, GS_HOLD_BALL, game_state);
+
+		// Choose whether to bounce or hold the ball
+		// Definitely hold if ball velocity is lower than 54km/h
+		// Sometimes hold if ball velocity is lower than 108km/h
+		// Otherwise bounce it
+		b32 hold = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
+
+		if (hold) {
+		    // hold ball in hands
+		    entities_ball_held_by_goalie(
+			game_state->vars.ball_entity_id, entity_id, game_state);
+		    entities_goalie_state_machine_change_state_to(
+			goalie->state_machine, GS_HOLD_BALL, game_state);
+
+		} else {
+		    v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
+
+		    // Project ball position back in the past using current velocity until it's not colliding anymore
+		    v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
+		    b32 still_colliding_with_ball = true;
+		    v3 where_to_place_ball =
+			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+		    while (still_colliding_with_ball) {
+			where_to_place_ball = Vector3Add(
+			    where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
+
+			still_colliding_with_ball =
+			    entities_player_is_standing_goalie_colliding_with_ball(
+				entity,
+				where_to_place_ball,
+				ball_collider->colliders[0].props.circle.radius,
+				game_state->constants.crossbar_height);
+		    }
+
+		    entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+							    where_to_place_ball,
+							    Vector3Scale(new_ball_velocity, 0.3f),
+							    game_state);
+		    entities_ball_saved_by_goalie(
+			game_state->vars.ball_entity_id, entity_id, game_state);
+
+		    // TODO: we should play some animation here and maybe transition to some stunned state
+		}
+
 		break;
 	    }
 
@@ -236,8 +275,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	    v2 force_to_apply = Vector2Zero();
 	    if (dive_state_data->animation_completed) {
 		// Apply friction
-		force_to_apply =
-		    Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 50000);
+		force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+					      50000); // TODO: this should depend on type of pitch
 	    } else {
 		v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
 		force_to_apply = Vector2Scale(steering, 60000);
@@ -261,10 +300,11 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		 ball_transform->virtual_height < ball_radius)) {
 		// Choose whether to bounce or hold the ball
 		// Definitely hold if ball velocity is lower than 54km/h
-		dive_state_data->ball_held = ball_velocity < (15 * PIXELS_PER_METER) ||
-					     GetRandomValue(0, 99) < 33;
+		// Sometimes hold if ball velocity is lower than 108km/h
+		// Otherwise bounce it
+		dive_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
 
-		// TODO: if the ball hit the post and came back we don't want to hold
+		// TODO: if the ball hits the post and came back we don't want to hold
 		// the ball
 		if (dive_state_data->ball_held) {
 		    entities_ball_held_by_goalie(
@@ -277,11 +317,28 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
 
 		    // TODO: position should be outside collider
-		    entities_ball_set_position_and_velocity(
-			game_state->vars.ball_entity_id,
-			V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-			Vector3Scale(new_ball_velocity, 0.3f),
-			game_state);
+
+		    // Project ball position back in the past using current velocity until it's not colliding anymore
+		    v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
+		    b32 still_colliding_with_ball = true;
+		    v3 where_to_place_ball =
+			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+		    while (still_colliding_with_ball) {
+			where_to_place_ball = Vector3Add(
+			    where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
+
+			still_colliding_with_ball =
+			    entities_player_is_diving_goalie_colliding_with_ball(
+				entity,
+				where_to_place_ball,
+				ball_radius,
+				game_state->constants.crossbar_height - ball_radius);
+		    }
+
+		    entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+							    where_to_place_ball,
+							    Vector3Scale(new_ball_velocity, 0.3f),
+							    game_state);
 		    entities_ball_saved_by_goalie(
 			game_state->vars.ball_entity_id, entity_id, game_state);
 		}
