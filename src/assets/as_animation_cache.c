@@ -174,19 +174,19 @@ i32 assets_animations_load_from_json(assets_animation_cache_t *handle,
     usize loaded = 0;
     struct assets_animation *animations = load_from_json(
 	filename, handle->count, &loaded, sprite_frame_cache, handle->memory_arena_handle);
-    if (loaded > (MAX_ANIMATIONS - handle->count)) {
-	GLOG_ERROR(LS_ASSETS, "animations cache is too small");
-    } else if (animations) {
+    assert(loaded <= (MAX_ANIMATIONS - handle->count));
+
+    if (animations) {
 	memcpy(&handle->cache[handle->count], animations, sizeof(struct assets_animation) * loaded);
 	free(animations);
 	handle->count += loaded;
 	GLOGF_INFO_CTX(LS_ASSETS, filename, "loaded %zu animations into cache", loaded);
-	return loaded;
     } else {
+	loaded = -1;
 	GLOG_ERROR(LS_ASSETS, "failed loading animations from json");
     }
 
-    return -1;
+    return loaded;
 }
 
 struct assets_animation *assets_animation_get_by_name(assets_animation_cache_t *handle,

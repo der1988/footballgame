@@ -68,6 +68,8 @@ v rename structs and enums to be snake case (I know, I know...)
 v long distance shots should be catched by goalie without a sweat
 v fast shots should not be catched by goalie
 x when player stops ball it should fall immediately
+v move utility functions from goalie system
+v fix memory not freed in assets_sprite_frames_load_from_json
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -79,8 +81,6 @@ x when player stops ball it should fall immediately
 - implement goalie high catch/bounce
 - improve player selection system
 - implement pitch radar
-- move utility functions from goalie system
 - fix that horror with conditional debug logging in player system
-- fix memory not freed in assets_sprite_frames_load_from_json
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast

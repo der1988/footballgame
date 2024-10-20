@@ -53,10 +53,9 @@ i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle,
     usize loaded = 0;
     struct assets_sprite_frame *sprite_frames =
 	assets_texture_packer_load_from_json(filename, texture_id, handle->count, &loaded);
-    if (loaded > (MAX_SPRITE_FRAMES - handle->count)) {
-	GLOG_ERROR(LS_ASSETS, "sprite frame cache is too small");
-	// TODO: (Marco) we are not freeing sprite_frames here...
-    } else if (sprite_frames) {
+    assert(loaded <= (MAX_SPRITE_FRAMES - handle->count));
+
+    if (sprite_frames) {
 	memcpy(&handle->cache[handle->count],
 	       sprite_frames,
 	       sizeof(struct assets_sprite_frame) * loaded);
@@ -67,12 +66,12 @@ i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle,
 		       "loaded %zu sprite frames into cache, texture id is %d",
 		       loaded,
 		       texture_id);
-	return loaded;
     } else {
+	loaded = -1;
 	GLOG_ERROR(LS_ASSETS, "failed loading sprite frames from json");
     }
 
-    return -1;
+    return loaded;
 }
 
 struct assets_sprite_frame *assets_sprite_frame_get_by_name(assets_sprite_frame_cache_t *handle,
