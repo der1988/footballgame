@@ -44,7 +44,7 @@ struct game_state *game_init(struct game_config game_config)
 				.ball_drag_coefficient = 0.25f,
 				.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
 				.ball_friction_on_pitch = 0.5f,
-				.ball_run_force = 20,
+				.ball_run_force = 30,
 				.ball_control_force = 13,
 				// This will translate to instant velocity, so 119km/h
 				// We want max ball speed to be ~129km/h, and we get

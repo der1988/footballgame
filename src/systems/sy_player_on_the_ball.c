@@ -74,6 +74,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	f32 player_speed = Vector2Length(player_on_the_ball->velocity);
 	v2 normalized_velocity = Vector2Normalize(player_on_the_ball->velocity);
 	f32 steering_magnitude = Vector2Length(player_on_the_ball->controls->steering);
+	b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 	ball->last_player_on_the_ball_entity_id = player_on_the_ball->id;
 
 	if (player_on_the_ball->controls->shot > 0 && steering_magnitude > 0.1f) {
@@ -205,9 +206,32 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		}
 		v2 control_direction = player_on_the_ball->controls->steering;
 
-		// TODO: this should depend on player technical abilities
-		f32 control_ratio = 1 - powf(velocity_length, 4) /
-					    powf(game_state->constants.player_run_max_velocity, 4);
+		// The control ratio should depend on various variables:
+		// - speed of the player
+		// - technical abilities of the player
+		// - height of the ball
+		// - pitch conditions
+		//
+		// Each one should have a specific weight applied.
+		//
+		// Range is 0.0-1.0 with 1.0 being the best control quality
+		//
+		// This will take some time to get right
+		//
+		// TODO: add what's missing
+
+		// The faster the player is running the less control
+		f32 speed_mult = 1 - powf(player_speed, 4) /
+					 powf(game_state->constants.player_run_max_velocity, 4);
+		// The higher the ball is the less control the player has
+		f32 ball_height = ball_transform->virtual_height;
+		f32 ball_height_mult =
+		    1 - (ball_height - 2.5f) / (game_state->constants.player_control_height -
+						2.5f); // Ball center is 2.5f over pitch
+
+		// Let's give weight to each multiplier
+		f32 control_ratio = (speed_mult * 1 + ball_height_mult * 1) / 2.0f;
+
 		entities_ball_control_running(game_state->vars.ball_entity_id,
 					      player_on_the_ball->id,
 					      control_direction,
