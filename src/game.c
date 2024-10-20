@@ -307,16 +307,16 @@ void game_draw(struct game_state *game_state)
     ClearBackground(BLACK);
 
     // The target's height is flipped (in the source Rectangle), due to OpenGL reasons
-    Rectangle source_rec = {0.0f,
-			    0.0f,
-			    (float)game_state->render_texture.texture.width,
-			    -(float)game_state->render_texture.texture.height};
-    Rectangle dest_rec = {-virtual_ratio,
-			  -virtual_ratio,
-			  game_state->config.screen_width + (virtual_ratio * 2),
-			  game_state->config.screen_height + (virtual_ratio * 2)};
+    rect_t source_rec = {0.0f,
+			 0.0f,
+			 (float)game_state->render_texture.texture.width,
+			 -(float)game_state->render_texture.texture.height};
+    rect_t dest_rec = {-virtual_ratio,
+		       -virtual_ratio,
+		       game_state->config.screen_width + (virtual_ratio * 2),
+		       game_state->config.screen_height + (virtual_ratio * 2)};
 
-    Vector2 origin = {0.0f, 0.0f};
+    v2 origin = {0.0f, 0.0f};
 
     BeginMode2D(game_state->camera);
     DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
