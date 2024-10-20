@@ -84,3 +84,4 @@ v fix that horror with conditional debug logging in player system
 - implement pitch radar
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
+- improve player ai
