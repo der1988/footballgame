@@ -74,7 +74,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	f32 player_speed = Vector2Length(player_on_the_ball->velocity);
 	v2 normalized_velocity = Vector2Normalize(player_on_the_ball->velocity);
 	f32 steering_magnitude = Vector2Length(player_on_the_ball->controls->steering);
-	b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
+	// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 	ball->last_player_on_the_ball_entity_id = player_on_the_ball->id;
 
 	if (player_on_the_ball->controls->shot > 0 && steering_magnitude > 0.1f) {
