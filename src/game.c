@@ -33,7 +33,7 @@ struct game_state *game_init(struct game_config game_config)
     // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
     game_state->constants =
 	(struct game_constants){.fixed_timestep = 1 / 480.0,
-				.render_debug = true,
+				.render_debug = false,
 				.input_stick_dead_zone = 0.05f,
 				// Coefficient of restitution
 				.ball_cr = 0.5f,
@@ -131,7 +131,10 @@ struct game_state *game_init(struct game_config game_config)
     game_state->layer_debug = layers_debug_create(game_state);
 
 #ifndef RUNNING_TEST
+    game_state->vars.is_debug_log_shown = true;
+
     game_state->config.players_count = 1;
+
     game_state->vars.pitch.field = (Rectangle){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
     game_state->vars.pitch.goal[PSI_NORTH] =
 	(struct goal){.center = (v2){.x = game_state->vars.pitch.field.x +
@@ -325,7 +328,7 @@ void game_draw(struct game_state *game_state)
     layers_hud_draw(game_state);
 
     if (game_state->vars.is_debug_log_shown) {
-	layers_debug_draw(game_state->layer_debug);
+	layers_debug_draw(game_state->layer_debug, game_state);
     }
 
     // Tweak UI

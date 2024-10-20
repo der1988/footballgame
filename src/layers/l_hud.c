@@ -1,6 +1,10 @@
 #include "game.h"
 #include "layers.h"
 #include <raylib.h>
+#include "entities.h"
+#include "game.h"
+#include "macro.h"
+#include <raymath.h>
 
 void layers_hud_draw(struct game_state *game_state)
 {

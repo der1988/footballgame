@@ -71,6 +71,7 @@ x when player stops ball it should fall immediately
 v move utility functions from goalie system
 v fix memory not freed in assets_sprite_frames_load_from_json
 v fix that horror with conditional debug logging in player system
+v implement pitch radar
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -81,7 +82,6 @@ v fix that horror with conditional debug logging in player system
 - fix broken after touch
 - implement goalie high catch/bounce
 - improve player selection system
-- implement pitch radar
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
 - improve player ai

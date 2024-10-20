@@ -12,6 +12,8 @@ struct draw_text_request {
 
 struct layers_debug {
     b32 initialised;
+    v2 log_position;
+    v2 radar_position;
     memory_arena_handle_t *frame_memory_arena;
     u16 queued_requests;
     struct draw_text_request *draw_text_requests[MAX_QUEUED_DRAW_REQUESTS];
