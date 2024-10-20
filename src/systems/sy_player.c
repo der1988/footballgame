@@ -36,7 +36,6 @@ void systems_player(struct game_state *game_state, struct input *input)
 	declare_entity_component(entity, transform);
 	declare_entity_component(entity, physics);
 	declare_entity_component(entity, player);
-	declare_entity_component(entity, goalie);
 	declare_entity_component(entity, collider);
 
 	struct state_machine_player *state_machine = player->state_machine;
@@ -189,15 +188,6 @@ void systems_player(struct game_state *game_state, struct input *input)
 	    break;
 	}
 	case PS_GOALIE:
-	    layers_debug_queue_draw_text(
-		game_state->layer_debug,
-		TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %5.2f state: %s",
-			   "Goalie",
-			   entity_id,
-			   transform->position.x,
-			   transform->position.y,
-			   VELOCITY_TO_KMH(Vector2Length(physics->velocity)),
-			   state_machine_goalie_state_string[goalie->state_machine->current_state]));
 	    break;
 	case PS_THROW_IN:
 	case PS_HEADER:

@@ -70,6 +70,7 @@ v fast shots should not be catched by goalie
 x when player stops ball it should fall immediately
 v move utility functions from goalie system
 v fix memory not freed in assets_sprite_frames_load_from_json
+v fix that horror with conditional debug logging in player system
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -81,6 +82,5 @@ v fix memory not freed in assets_sprite_frames_load_from_json
 - implement goalie high catch/bounce
 - improve player selection system
 - implement pitch radar
-- fix that horror with conditional debug logging in player system
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
