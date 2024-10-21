@@ -87,8 +87,7 @@ int main()
 					     TextFormat("Update time: %0.6f",
 							total_update_time / physics_iterations));
 		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("Physics iter/frame: %2d",
-							physics_iterations));
+					     TextFormat("Physics/frame: %2d", physics_iterations));
 		layers_debug_queue_draw_text(game_state->layer_debug,
 					     TextFormat("Physics: %12d",
 							game_state->physics_updates));
