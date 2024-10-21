@@ -33,6 +33,7 @@ typedef struct Rectangle rect_t;
 typedef struct Font font_t;
 typedef struct Camera2D camera2d_t;
 typedef struct RenderTexture render_texture_t;
+typedef struct Texture texture_t;
 
 // Game
 typedef u32 entity_id_t;

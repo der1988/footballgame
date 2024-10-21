@@ -280,7 +280,7 @@ void game_draw(struct game_state *game_state)
 	camera_transform->position.y - game_state->virtual_camera.target.y;
     game_state->camera.target.y *= virtual_ratio;
 
-    Texture2D pitch_texture =
+    texture_t pitch_texture =
 	assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture;
 
     BeginTextureMode(game_state->render_texture);
