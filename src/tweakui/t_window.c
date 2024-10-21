@@ -54,10 +54,6 @@ void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
 	      "AI Enabled",
 	      (bool *)&game_state->constants.ai_enabled);
     MOVE_DOWN_ONE_ROW(slider_bounds);
-    GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 100, .height = 15},
-	      "Shoot Aid Enabled",
-	      (bool *)&game_state->constants.shoot_aid_enabled);
-    MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiToggle((Rectangle){.x = slider_bounds.x, .y = slider_bounds.y, .width = 120, .height = 15},
 	      "Shoot Aid No Inertia",
 	      (bool *)&game_state->constants.shoot_aid_no_inertia);

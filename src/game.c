@@ -76,7 +76,6 @@ struct game_state *game_init(struct game_config game_config)
 				.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
 				.goalie_dive_min_ball_velocity = 10 * PIXELS_PER_METER,
 				.ai_enabled = true,
-				.shoot_aid_enabled = true,
 				.shoot_aid_no_inertia = true,
 				.kick_charge_reset_time = 1.5f};
 
