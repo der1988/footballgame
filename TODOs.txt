@@ -72,6 +72,7 @@ v move utility functions from goalie system
 v fix memory not freed in assets_sprite_frames_load_from_json
 v fix that horror with conditional debug logging in player system
 v implement pitch radar
+v fix running animation
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
