@@ -150,6 +150,8 @@ struct game_state {
     camera2d_t virtual_camera;
     time_t time;
     delta_time_t dt;
+    u64 physics_updates;
+    u64 frame_updates;
 };
 
 struct game_state *game_init(struct game_config gameConfig);

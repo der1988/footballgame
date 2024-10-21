@@ -77,17 +77,25 @@ int main()
 		game_state->time += dt;
 
 		physics_iterations++;
+		game_state->physics_updates++;
 	    }
+
+	    game_state->frame_updates++;
 
 	    if (physics_iterations > 0) {
 		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("Update time: %8.6f",
+					     TextFormat("Update time: %0.6f",
 							total_update_time / physics_iterations));
 		layers_debug_queue_draw_text(game_state->layer_debug,
 					     TextFormat("Physics iter/frame: %2d",
 							physics_iterations));
 		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("FPS: %6.2f", 1 / frame_time));
+					     TextFormat("Physics: %12d",
+							game_state->physics_updates));
+		layers_debug_queue_draw_text(game_state->layer_debug,
+					     TextFormat("Frame: %14d", game_state->frame_updates));
+		layers_debug_queue_draw_text(game_state->layer_debug,
+					     TextFormat("FPS: %3.0f", 1 / frame_time));
 	    }
 	}
 
