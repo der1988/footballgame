@@ -77,12 +77,12 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 	ball->last_player_on_the_ball_entity_id = player_on_the_ball->id;
 
-	if (player_on_the_ball->controls->shot > 0 && steering_magnitude > 0.1f) {
+	if (player_on_the_ball->controls->shot > 0) {
 	    // Shot
 	    player_on_the_ball->player->last_kick_time = game_state->time;
 	    v2 shot_direction;
 
-	    if (!game_state->constants.shoot_aid_enabled) {
+	    if (!game_state->constants.shoot_aid_enabled && steering_magnitude > 0.1f) {
 		shot_direction = Vector2Normalize(player_on_the_ball->controls->steering);
 	    } else {
 		v2 center_of_goal = (Vector2){game_state->vars.pitch.field.x +
