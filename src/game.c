@@ -74,6 +74,7 @@ struct game_state *game_init(struct game_config game_config)
 				.goalie_dive_reaction_time = 0.150f,
 				.goalie_dive_force = 8500,
 				.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
+				.goalie_dive_min_ball_velocity = 10 * PIXELS_PER_METER,
 				.ai_enabled = true,
 				.shoot_aid_enabled = true,
 				.shoot_aid_no_inertia = true,

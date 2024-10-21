@@ -256,6 +256,13 @@ void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
 	      300);
     MOVE_DOWN_ONE_ROW(slider_bounds);
     GuiSlider(slider_bounds,
+	      "Goalie dive min ball velocity",
+	      TextFormat("%.2f", game_state->constants.goalie_dive_min_ball_velocity),
+	      &game_state->constants.goalie_dive_min_ball_velocity,
+	      0,
+	      400);
+    MOVE_DOWN_ONE_ROW(slider_bounds);
+    GuiSlider(slider_bounds,
 	      "Kick charge reset time",
 	      TextFormat("%.2f", game_state->constants.kick_charge_reset_time),
 	      &game_state->constants.kick_charge_reset_time,

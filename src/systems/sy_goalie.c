@@ -187,7 +187,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	    entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
 
-	    if (ball_velocity > (10 * PIXELS_PER_METER) &&
+	    if (ball_velocity > game_state->constants.goalie_dive_min_ball_velocity &&
 		entities_player_should_dive(entity,
 					    ball_entity,
 					    &goalie->dive_direction,
@@ -307,7 +307,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		// Otherwise bounce it
 		dive_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
 
-		// TODO: if the ball hits the post and came back we don't want to hold
+		// TODO: if the ball hits the post and comes back we don't want to hold
 		// the ball
 		if (dive_state_data->ball_held) {
 		    entities_ball_held_by_goalie(
