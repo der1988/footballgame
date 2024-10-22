@@ -77,14 +77,11 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 	ball->last_player_on_the_ball_entity_id = player_on_the_ball->id;
 
-	if (player_on_the_ball->controls->shot > 0 && steering_magnitude > 0.1f) {
+	if (player_on_the_ball->controls->shot > 0) {
 	    // Shot
 	    player_on_the_ball->player->last_kick_time = game_state->time;
-	    v2 shot_direction;
 
-	    v2 center_of_goal = (Vector2){game_state->vars.pitch.field.x +
-					      game_state->vars.pitch.field.width / 2.0f,
-					  game_state->vars.pitch.field.y};
+	    v2 center_of_goal = game_state->vars.pitch.goal[PSI_NORTH].center;
 	    v2 shot_direction_to_center =
 		Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
 	    v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
@@ -92,7 +89,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    f32 angle_center_to_post =
 		Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
 
-	    shot_direction =
+	    v2 shot_direction =
 		Vector2Rotate(shot_direction_to_center,
 			      angle_center_to_post * player_on_the_ball->controls->steering.x);
 
