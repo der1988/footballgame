@@ -50,19 +50,19 @@ struct game_state *game_init(struct game_config game_config)
 				// We want max ball speed to be ~129km/h, and we get
 				// there with some modifiers due to hit position
 				.ball_shot_force = 40 * PIXELS_PER_METER,
-				.ball_shot_height = 0.25f,
+				.ball_shot_height = 0.2f,
 				.ball_pass_force = 30 * PIXELS_PER_METER,
-				.ball_long_pass_force = 26 * PIXELS_PER_METER,
+				.ball_long_pass_force = 24 * PIXELS_PER_METER,
 				.ball_long_pass_height = 1.0f,
 				.ball_after_touch_delay_time = 0.1f,
-				.ball_after_touch_max_time = 0.75f,
-				.ball_after_touch_force = 300.0f,
+				.ball_after_touch_max_time = 0.6f,
+				.ball_after_touch_force = 150.0f,
 				// 36m/s seems fair, that would be 129km/h
 				.ball_max_velocity = 50 * PIXELS_PER_METER,
 				.ball_lookaheads = 10,
 				.ball_lookahead_dts = 96,
 				.crossbar_height = 27,
-				.player_movement_force = 25000,
+				.player_movement_force = 27000,
 				.player_movement_drag = 4166,
 				.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
 				// Fastest player should reach ~10.5m/s, slowest 7.8m/s
