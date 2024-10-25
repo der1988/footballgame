@@ -127,6 +127,7 @@ void entities_ball_control_running(entity_id_t ball_entity_id,
 void entities_ball_shoot(entity_id_t ball_entity_id,
 			 entity_id_t kicker_entity_id,
 			 v2 direction,
+			 f32 height,
 			 f32 power,
 			 struct game_state *game_state);
 void entities_ball_short_pass(entity_id_t ball_entity_id,

@@ -27,3 +27,5 @@ f32 Vector2ProjectExt(v2 project_to, v2 project_from, v2 *out)
     *out = Vector2Scale(Vector2Normalize(project_to), scalar);
     return scalar;
 }
+
+v2 Vector2Perp(v2 vector) { return (v2){.x = vector.y, .y = -vector.x}; }

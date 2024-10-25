@@ -234,6 +234,7 @@ void entities_ball_control_running(entity_id_t ball_entity_id,
 void entities_ball_shoot(entity_id_t ball_entity_id,
 			 entity_id_t kicker_entity_id,
 			 v2 direction,
+			 f32 height,
 			 f32 power,
 			 struct game_state *game_state)
 {
@@ -243,16 +244,18 @@ void entities_ball_shoot(entity_id_t ball_entity_id,
     struct component_ball *ball = &entity->ball;
     // struct component_collider *collider = &entity->collider;
 
-    v3 shot_direction =
-	Vector3Add(V2_TO_V3(direction, 0),
-		   (Vector3){.x = 0, .y = game_state->constants.ball_shot_height * power, .z = 0});
+    v3 shot_direction = Vector3Add(
+	V2_TO_V3(direction, 0),
+	(Vector3){.x = 0,
+		  .y = math_ext_split_lerp(game_state->constants.ball_shot_height, 0.4f, height),
+		  .z = 0});
     if (game_state->constants.shoot_aid_no_inertia) {
 	// reset velocity to avoid existing inertia affecting the trajectory: not sure this is
 	// better though, need to test
 	physics3d->velocity = Vector3Zero();
     }
     // Calculate shot force
-    f32 shot_force = game_state->constants.ball_shot_force;
+    f32 shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.6f, power);
     // f32 ball_radius = collider->colliders[0].props.circle.radius;
     // if (!ball->is_on_the_ground) {
     //     if (transform->virtual_height > (ball_radius + 12)) {
@@ -282,7 +285,7 @@ void entities_ball_shoot(entity_id_t ball_entity_id,
     // }
 
     physics3d->accel =
-	Vector3Add(physics3d->accel, Vector3Scale(shot_direction, (shot_force) / game_state->dt));
+	Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
@@ -305,12 +308,11 @@ void entities_ball_short_pass(entity_id_t ball_entity_id,
 	// reset velocity to avoid existing inertia affecting the trajectory
 	physics3d->velocity = Vector3Zero();
     }
-    physics3d->accel =
-	Vector3Add(physics3d->accel,
-		   Vector3Scale(direction,
-				(game_state->constants.ball_pass_force * 0.5f +
-				 power * 0.5f * game_state->constants.ball_pass_force) /
-				    game_state->dt));
+    physics3d->accel = Vector3Add(
+	physics3d->accel,
+	Vector3Scale(direction,
+		     math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power) /
+			 game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;
@@ -329,12 +331,11 @@ void entities_ball_long_pass(entity_id_t ball_entity_id,
     v3 long_pass_direction = Vector3Add(
 	Vector3Normalize(V2_TO_V3(direction, 0)),
 	(Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
-    physics3d->accel =
-	Vector3Add(physics3d->accel,
-		   Vector3Scale(long_pass_direction,
-				(game_state->constants.ball_long_pass_force * 0.75f +
-				 power * 0.25f * game_state->constants.ball_long_pass_force) /
-				    game_state->dt));
+    physics3d->accel = Vector3Add(
+	physics3d->accel,
+	Vector3Scale(long_pass_direction,
+		     math_ext_split_lerp(game_state->constants.ball_long_pass_force, 0.75f, power) /
+			 game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
     ball->last_player_on_the_ball_entity_id = kicker_entity_id;

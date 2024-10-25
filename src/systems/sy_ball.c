@@ -126,7 +126,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		after_touch_time > game_state->constants.ball_after_touch_delay_time) {
 		v2 input = game_state->vars.p1.controls.steering;
 		v2 ball_2d_vel = V3_TO_V2(velocity);
-		v2 ball_2d_vel_perp = {.x = ball_2d_vel.y, .y = -ball_2d_vel.x};
+		v2 ball_2d_vel_perp = Vector2Perp(ball_2d_vel);
 		v2 after_touch_side = Vector2Zero();
 		f32 after_touch_pressure =
 		    Vector2ProjectExt(ball_2d_vel_perp, input, &after_touch_side);
