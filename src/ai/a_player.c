@@ -1,15 +1,24 @@
 #include "ai.h"
 #include "entities.h"
+#include "football.h"
 #include "math_ext.h"
 #include "macro.h"
 #include <raymath.h>
+#include <stdio.h>
 
-#define STAY_THERE_RADIUS 10.0f
+#define STAY_THERE_RADIUS 30.0f
 
-static v2 pitch_pos_rel_to_abs(Rectangle pitch, v2 pos)
+static v2 pitch_pos_rel_to_abs(rect_t pitch, v2 pos)
 {
-    pos.x = pitch.x + pitch.width * 0.5f + pitch.width * 0.5f * pos.x;
+    pos.x = pitch.x + pitch.width * pos.x;
     pos.y = pitch.y + pitch.height * (1 - pos.y);
+    return pos;
+}
+
+static v2 pitch_pos_abs_to_rel(rect_t pitch, v2 pos)
+{
+    pos.x = (pos.x - pitch.x) / pitch.width;
+    pos.y = (pos.y - pitch.y) / pitch.height;
     return pos;
 }
 
@@ -26,9 +35,28 @@ enum player_ai_state ai_player_think(struct entity *entity,
     UNUSED(ball_collider);
     UNUSED(ball_physics_3d);
 
+    declare_entity_component(entity, transform);
+
+    f32 distance_from_ball = Vector2Distance(ball_transform->position, transform->position);
+
     // This player is the target of an automatic pass
     // Let's move towards the ball
     if (ball->pass_target_entity_id == entity->header.id) {
+	v3 ball_future_pos;
+	time_t ball_future_time;
+	b32 found = entities_common_can_reach_future_ball_position(
+	    entity,
+	    game_state->constants.player_run_max_velocity,
+	    ball->lookahead_positions,
+	    NULL,
+	    &ball_future_pos,
+	    &ball_future_time,
+	    game_state);
+	if (!found)
+	    ball_future_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+	*target_position = V3_TO_V2(ball_future_pos);
+	ai_state = PAS_SEEK_POSITION;
+    } else if (distance_from_ball < 20) {
 	v3 ball_future_pos;
 	time_t ball_future_time;
 	b32 found = entities_common_can_reach_future_ball_position(
@@ -48,8 +76,37 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	struct team_formation_position *team_formation_position =
 	    football_tactics_get_team_formation_position(
 		TF_433, entity->player.team_formation_position_idx);
-	*target_position = pitch_pos_rel_to_abs(game_state->vars.pitch.field,
-						team_formation_position->position[TM_DEFAULT]);
+
+	v2 ball_normalized_pos =
+	    pitch_pos_abs_to_rel(game_state->vars.pitch.field, ball_transform->position);
+
+	v2 default_pos = team_formation_position->position[TM_DEFAULT];
+	v2 target_pos;
+
+	if (ball_normalized_pos.y < 0.5f) {
+	    v2 attacking_pos = team_formation_position->position[TM_ATTACKING];
+	    target_pos = Vector2Lerp(attacking_pos, default_pos, ball_normalized_pos.y / 0.5f);
+	} else {
+	    v2 defending_pos = team_formation_position->position[TM_DEFENDING];
+	    target_pos =
+		Vector2Lerp(default_pos, defending_pos, (ball_normalized_pos.y - 0.5f) / 0.5f);
+	}
+
+	// If ball is in the side lanes and player is on the other side of the pitch we need to
+	// close the gap.
+	if (ball_normalized_pos.x < 0.33f && target_pos.x > 0.33f) {
+	    target_pos = Vector2Lerp(
+		Vector2Add(target_pos, (v2){.x = -((target_pos.x - 0.33f) / 0.66f) * 0.33f}),
+		target_pos,
+		ball_normalized_pos.x / 0.33f);
+	} else if (ball_normalized_pos.x > 0.66f && target_pos.x < 0.66f) {
+	    target_pos =
+		Vector2Lerp(target_pos,
+			    Vector2Add(target_pos, (v2){.x = (1 - target_pos.x / 0.66f) * 0.33f}),
+			    (ball_normalized_pos.x - 0.66f) / 0.66f);
+	}
+
+	*target_position = pitch_pos_rel_to_abs(game_state->vars.pitch.field, target_pos);
 	if (Vector2Distance(*target_position, entity->transform.position) < STAY_THERE_RADIUS)
 	    ai_state = PAS_KEEP_POSITION;
 	else
