@@ -76,6 +76,7 @@ v fix running animation
 v if shot is too fast goalie should just bounce the ball back
 v improve shot control: joystick y axis should control height
 v improve control logic
+v player without the ball should be faster than same player with the ball
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?

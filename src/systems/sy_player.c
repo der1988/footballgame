@@ -123,7 +123,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 		Vector2Scale(effective_steering, game_state->constants.player_movement_force);
 
 	    // Apply drag if no steering applied
-	    if (steering_magnitude < 0.1f) {
+	    if (steering_magnitude < 0.01f) {
 		if (current_velocity < 3) {
 		    physics->velocity = Vector2Zero();
 		} else {
@@ -148,7 +148,10 @@ void systems_player(struct game_state *game_state, struct input *input)
 		player->current_max_velocity =
 		    fmaxf(initial_max_velocity, player->current_max_velocity);
 	    }
-	    physics->max_velocity = player->current_max_velocity;
+	    // Player without the ball is 10% faster than the same player with the ball
+	    physics->max_velocity =
+		player->current_max_velocity *
+		(ball->last_player_on_the_ball_entity_id == entity_id ? 1 : 1.1f);
 
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
