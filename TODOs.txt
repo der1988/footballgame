@@ -75,6 +75,7 @@ v implement pitch radar
 v fix running animation
 v if shot is too fast goalie should just bounce the ball back
 v improve shot control: joystick y axis should control height
+v improve control logic
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?

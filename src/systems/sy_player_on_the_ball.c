@@ -11,6 +11,7 @@
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include "ai.h"
 
 static entity_id_t find_pass_target(struct game_state *game_state,
@@ -163,7 +164,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	} else if (!kicked_ball && steering_magnitude > 0.01f) {
 	    // For ball control we use velocity directly because it's easier and produce
 	    // better results
-	    if (player_speed < game_state->constants.player_run_max_velocity * 0.7f) {
+	    if (player_speed < game_state->constants.player_run_max_velocity * 0.8f) {
 		player_on_the_ball->player->control_ball = true;
 		player_on_the_ball->player->time_spent_in_run_control = 0;
 	    }
@@ -171,27 +172,66 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		// Precision control
 		player_on_the_ball->player->time_spent_in_precision_control += game_state->dt;
 		player_on_the_ball->player->time_spent_in_run_control = 0;
-		if (player_on_the_ball->player->time_spent_in_precision_control > 0.25f) {
+		// Every 250ms player does a longer control if he's running at > 70% top speed
+		if (player_on_the_ball->player->time_spent_in_precision_control > 0.25f &&
+		    player_speed > game_state->constants.player_run_max_velocity * 0.7f) {
 		    player_on_the_ball->player->control_ball = false;
 		}
 		layers_debug_queue_draw_text(
 		    game_state->layer_debug,
 		    TextFormat("prec_ctrl: %.2f",
 			       player_on_the_ball->player->time_spent_in_precision_control));
+		/*
+		 * Control difficulty is affected by multiple variables:
+		 * - time on the ball: more time on the ball, control gets more difficult
+		 * - speed: higher speed, harder to control the ball
+		 * - ball height: higher the ball, harder to control
+		 * - pitch conditions (TODO)
+		 * 
+		 * Control difficulty determines the force that will applied to the ball, which
+		 * will be higher if difficulty is lower.
+		 * If difficulty is higher than what the player's quality allows, they will likely 
+		 * lose the ball.
+		 */
+		f32 precision_control_max_seconds = 1.0f;
+		f32 time_on_ball_mult =
+		    Clamp01(player_on_the_ball->player->time_spent_in_precision_control /
+			    precision_control_max_seconds);
+
+		// The faster the player is running the less control
+		f32 speed_mult =
+		    Clamp01(powf(player_speed, 4) /
+			    powf(game_state->constants.player_control_max_velocity, 4));
+
+		// The higher the ball is the less control the player has
+		f32 ball_height = ball_transform->virtual_height;
+		f32 ball_height_mult =
+		    (ball_height - 2.5f) / (game_state->constants.player_control_height -
+					    2.5f); // Ball center is 2.5f over pitch
+
+		// Let's give weight to each multiplier
+		f32 control_difficulty =
+		    (speed_mult * 1 + ball_height_mult * 1 + time_on_ball_mult * 2) / 4.0f;
+		// printf("cq: %.2f sm: %.2f bm: %.2f tm: %.2f\n",
+		//        control_difficulty,
+		//        speed_mult,
+		//        ball_height_mult,
+		//        time_on_ball_mult);
+
 		v2 position_to_seek = Vector2Add(
 		    player_on_the_ball->position,
 		    Vector2Scale(normalized_velocity,
-				 player_on_the_ball->collider->colliders[0].props.circle.radius *
-				     1));
-		// TODO: this should depend on player technical abilities
-		if (player_on_the_ball->player->time_spent_in_precision_control < 1) {
+				 player_on_the_ball->collider->colliders[0].props.circle.radius));
+
+		// This threshold should depend on player quality.
+		// If difficulty is higher than the threshold the player will likely lose the ball.
+		if (control_difficulty < 0.7f)
 		    entities_ball_control_precision(game_state->vars.ball_entity_id,
 						    player_on_the_ball->id,
 						    player_on_the_ball->velocity,
 						    position_to_seek,
-						    1,
+						    control_difficulty,
 						    game_state);
-		}
 	    } else {
 		// Run control
 		player_on_the_ball->player->time_spent_in_run_control += game_state->dt;
@@ -205,7 +245,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		// - speed of the player
 		// - technical abilities of the player
 		// - height of the ball
-		// - pitch conditions
+		// - pitch conditions (TODO)
 		//
 		// Each one should have a specific weight applied.
 		//
@@ -215,23 +255,27 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		//
 		// TODO: add what's missing
 
+		// Player quality
+		f32 player_quality_mult = 1 - 1.0f;
+
 		// The faster the player is running the less control
-		f32 speed_mult = 1 - powf(player_speed, 4) /
-					 powf(game_state->constants.player_run_max_velocity, 4);
+		f32 speed_mult = Clamp01(powf(player_speed, 4) /
+					 powf(game_state->constants.player_run_max_velocity, 4));
 		// The higher the ball is the less control the player has
 		f32 ball_height = ball_transform->virtual_height;
 		f32 ball_height_mult =
-		    1 - (ball_height - 2.5f) / (game_state->constants.player_control_height -
-						2.5f); // Ball center is 2.5f over pitch
+		    (ball_height - 2.5f) / (game_state->constants.player_control_height -
+					    2.5f); // Ball center is 2.5f over pitch
 
 		// Let's give weight to each multiplier
-		f32 control_ratio = (speed_mult * 1 + ball_height_mult * 1) / 2.0f;
+		f32 control_difficulty =
+		    (speed_mult * 1 + ball_height_mult * 1 + player_quality_mult * 1) / 3.0f;
 
 		entities_ball_control_running(game_state->vars.ball_entity_id,
 					      player_on_the_ball->id,
 					      control_direction,
 					      player_on_the_ball->velocity,
-					      control_ratio,
+					      control_difficulty,
 					      game_state);
 	    }
 	}

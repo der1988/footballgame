@@ -45,12 +45,12 @@ struct game_state *game_init(struct game_config game_config)
 				.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
 				.ball_friction_on_pitch = 0.5f,
 				.ball_run_force = 30,
-				.ball_control_force = 13,
+				.ball_control_force = 30,
 				// This will translate to instant velocity, so 119km/h
 				// We want max ball speed to be ~129km/h, and we get
 				// there with some modifiers due to hit position
 				.ball_shot_force = 40 * PIXELS_PER_METER,
-				.ball_shot_height = 0.2f,
+				.ball_shot_height = 0.23f,
 				.ball_pass_force = 30 * PIXELS_PER_METER,
 				.ball_long_pass_force = 24 * PIXELS_PER_METER,
 				.ball_long_pass_height = 1.0f,

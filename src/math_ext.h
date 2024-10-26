@@ -2,6 +2,7 @@
 #define MATH_EXT_H
 
 #include "types.h"
+#include <raymath.h>
 
 #define MAX(a, b)                                                                                  \
     ({                                                                                             \
@@ -53,6 +54,7 @@ float Vector2ProjectScalar(Vector2 project_to, Vector2 project_from);
 Vector2 Vector2Project(Vector2 project_to, Vector2 project_from);
 f32 Vector2ProjectExt(v2 project_to, v2 project_from, v2 *out);
 v2 Vector2Perp(v2 vector);
+inline __attribute__((always_inline)) f32 Clamp01(f32 value) { return Clamp(value, 0, 1); }
 
 f32 math_ext_split_lerp(f32 value, f32 value_fixed_ratio, f32 amount);
 

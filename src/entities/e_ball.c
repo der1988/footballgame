@@ -193,7 +193,7 @@ void entities_ball_control_precision(entity_id_t ball_entity_id,
 				     entity_id_t player_on_the_ball_entity_id,
 				     v2 player_velocity,
 				     v2 position_to_seek,
-				     f32 control_quality,
+				     f32 difficulty,
 				     struct game_state *game_state)
 {
     struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -201,12 +201,15 @@ void entities_ball_control_precision(entity_id_t ball_entity_id,
     struct component_physics3d *physics3d = &entity->physics3d;
     struct component_ball *ball = &entity->ball;
 
-    physics3d->velocity =
-	Vector3Add(V2_TO_V3(player_velocity, 0),
-		   Vector3Scale(Vector3Normalize(Vector3Subtract(
-				    V2_TO_V3(position_to_seek, 0),
-				    V2_TO_V3(transform->position, transform->virtual_height))),
-				game_state->constants.ball_control_force * control_quality));
+    // The more the difficulty of the control, the less force will be applied to the ball.
+    // This means it will be easier for another player to steal the ball.
+    physics3d->velocity = Vector3Add(
+	V2_TO_V3(player_velocity, 0),
+	Vector3Scale(
+	    Vector3Normalize(
+		Vector3Subtract(V2_TO_V3(position_to_seek, 0),
+				V2_TO_V3(transform->position, transform->virtual_height))),
+	    math_ext_split_lerp(game_state->constants.ball_control_force, 0.5f, 1 - difficulty)));
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }
 
@@ -214,7 +217,7 @@ void entities_ball_control_running(entity_id_t ball_entity_id,
 				   entity_id_t player_on_the_ball_entity_id,
 				   v2 control_direction,
 				   v2 player_velocity,
-				   f32 control_quality,
+				   f32 difficulty,
 				   struct game_state *game_state)
 {
     struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
@@ -225,8 +228,7 @@ void entities_ball_control_running(entity_id_t ball_entity_id,
     f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
     v3 velocity_to_add = Vector3Scale(
 	Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
-	game_state->constants.ball_run_force * 0.25f +
-	    game_state->constants.ball_run_force * 0.75f * (1 - control_quality));
+	math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
     physics3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
     ball->last_player_on_the_ball_entity_id = player_on_the_ball_entity_id;
 }
@@ -247,7 +249,7 @@ void entities_ball_shoot(entity_id_t ball_entity_id,
     v3 shot_direction = Vector3Add(
 	V2_TO_V3(direction, 0),
 	(Vector3){.x = 0,
-		  .y = math_ext_split_lerp(game_state->constants.ball_shot_height, 0.4f, height),
+		  .y = math_ext_split_lerp(game_state->constants.ball_shot_height, 0.2f, height),
 		  .z = 0});
     if (game_state->constants.shoot_aid_no_inertia) {
 	// reset velocity to avoid existing inertia affecting the trajectory: not sure this is
