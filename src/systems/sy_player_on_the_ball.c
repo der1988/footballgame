@@ -11,7 +11,6 @@
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 #include "ai.h"
 
 static entity_id_t find_pass_target(struct game_state *game_state,
