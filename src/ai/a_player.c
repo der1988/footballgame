@@ -94,16 +94,18 @@ enum player_ai_state ai_player_think(struct entity *entity,
 
 	// If ball is in the side lanes and player is on the other side of the pitch we need to
 	// close the gap.
-	if (ball_normalized_pos.x < 0.33f && target_pos.x > 0.33f) {
+	if (ball_normalized_pos.x < 0.33f && target_pos.x > ball_normalized_pos.x) {
+	    f32 delta = target_pos.x - ball_normalized_pos.x;
 	    target_pos = Vector2Lerp(
-		Vector2Add(target_pos, (v2){.x = -((target_pos.x - 0.33f) / 0.66f) * 0.33f}),
+		Vector2Add(target_pos, (v2){.x = -delta * (0.33f - ball_normalized_pos.x)}),
 		target_pos,
 		ball_normalized_pos.x / 0.33f);
-	} else if (ball_normalized_pos.x > 0.66f && target_pos.x < 0.66f) {
-	    target_pos =
-		Vector2Lerp(target_pos,
-			    Vector2Add(target_pos, (v2){.x = (1 - target_pos.x / 0.66f) * 0.33f}),
-			    (ball_normalized_pos.x - 0.66f) / 0.66f);
+	} else if (ball_normalized_pos.x > 0.66f && target_pos.x < ball_normalized_pos.x) {
+	    f32 delta = ball_normalized_pos.x - target_pos.x;
+	    target_pos = Vector2Lerp(target_pos,
+				     Vector2Add(target_pos,
+						(v2){.x = delta * (ball_normalized_pos.x - 0.66f)}),
+				     (ball_normalized_pos.x - 0.66f) / 0.33f);
 	}
 
 	*target_position = pitch_pos_rel_to_abs(game_state->vars.pitch.field, target_pos);
