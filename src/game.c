@@ -135,17 +135,22 @@ struct game_state *game_init(struct game_config game_config)
 
     game_state->config.players_count = 1;
 
-    game_state->vars.pitch.field = (rect_t){.x = 33, .y = 77, .width = 640, .height = 360 * 3};
-    game_state->vars.pitch.goal[PSI_NORTH] =
-	(struct goal){.center = (v2){.x = game_state->vars.pitch.field.x +
-					  game_state->vars.pitch.field.width * 0.5f,
-				     .y = 77},
-		      .area = (Rectangle){.x = 165, .y = 77, .width = 374, .height = 167}};
+    game_state->vars.pitch.field = (rect_t){.x = 33, .y = 79, .width = 640, .height = 360 * 3 - 4};
+    game_state->vars.pitch.goal[PSI_NORTH] = (struct goal){
+	.center =
+	    (v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
+		 .y = game_state->vars.pitch.field.y},
+	.area =
+	    (rect_t){.x = 165, .y = game_state->vars.pitch.field.y, .width = 374, .height = 167}};
     game_state->vars.pitch.goal[PSI_SOUTH] = (struct goal){
 	.center =
 	    (v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
-		 .y = 77 + 360 * 3},
-	.area = (Rectangle){.x = 165, .y = 77 + 360 * 3 - 167, .width = 374, .height = 167}};
+		 .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height},
+	.area = (rect_t){.x = 165,
+			 .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height -
+			      167,
+			 .width = 374,
+			 .height = 167}};
 
     struct entity *player_entity = entities_player_create(
 	(struct player_config){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
@@ -173,6 +178,7 @@ struct game_state *game_init(struct game_config game_config)
     game_state->vars.ball_entity_id = ball_entity->header.id;
 
     entities_goal_create((struct goal_config){.side = PSI_NORTH}, game_state);
+    entities_goal_create((struct goal_config){.side = PSI_SOUTH}, game_state);
 
     struct entity *camera_entity = entities_camera_create(game_state);
     struct component_camera *camera = &camera_entity->camera;
@@ -187,9 +193,8 @@ struct game_state *game_init(struct game_config game_config)
     //                                       (f32)game_state->config.screen_height / 2};
     game_state->virtual_camera.zoom = 1;
     game_state->virtual_camera.rotation = 0;
-    game_state->virtual_camera.offset =
-	(Vector2){(f32)game_state->config.virtual_screen_width / 2,
-		  (f32)game_state->config.virtual_screen_height / 2};
+    game_state->virtual_camera.offset = (v2){(f32)game_state->config.virtual_screen_width / 2,
+					     (f32)game_state->config.virtual_screen_height / 2};
 
     football_match_change_state(game_state, MS_PLAY);
     game_state->vars.p1 = (struct human_player){.player_entity_id = player_entity->header.id};
@@ -292,8 +297,8 @@ void game_draw(struct game_state *game_state)
     f32 stretched_height = pitch_texture.height * 1.0f;
     DrawTexturePro(
 	pitch_texture,
-	(Rectangle){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
-	(Rectangle){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
+	(rect_t){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
+	(rect_t){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
 	Vector2Zero(),
 	0,
 	WHITE);
