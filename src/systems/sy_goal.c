@@ -5,6 +5,7 @@
 #include "macro.h"
 #include "log.h"
 #include "math_ext.h"
+#include "types.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -16,7 +17,10 @@ void systems_goal(struct game_state *game_state)
     declare_ball_entity_components(ball_entity);
 
     // First let's check if it's a goal
-    for_each_entity(entity, game_state->entity_repository) {
+    for (usize i = 0; i < PSI_COUNT; ++i) {
+	struct entity *entity =
+	    entities_entity_get(game_state->entity_repository, game_state->vars.pitch.goal[i].id);
+
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 4, C_TRANSFORM, C_SPRITE, C_GOAL, C_COLLIDER)) {
 	    continue;
@@ -26,30 +30,18 @@ void systems_goal(struct game_state *game_state)
 	declare_entity_component(entity, goal);
 	declare_entity_component(entity, collider);
 
-	Rectangle goal_rectangle = {
+	rect_t goal_rectangle = {
 	    .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,
 	    .y = transform->position.y + collider->colliders[0].props.rectangle.offset.y,
 	    .width = collider->colliders[0].props.rectangle.size.x,
 	    .height = collider->colliders[0].props.rectangle.size.y};
 
-	v3 goal_line_p1 =
-	    (v3){.x = game_state->vars.pitch.field.x, .y = 0, .z = game_state->vars.pitch.field.y};
-	v3 goal_line_p2 = (v3){.x = game_state->vars.pitch.field.x,
-			       .y = goal_rectangle.height,
-			       .z = game_state->vars.pitch.field.y};
-	v3 goal_line_p3 =
-	    (v3){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width,
-		 .y = goal_rectangle.height,
-		 .z = game_state->vars.pitch.field.y};
-	v3 goal_line_p4 =
-	    (v3){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width,
-		 .y = 0,
-		 .z = game_state->vars.pitch.field.y};
-
 	f32 post_width = 2;
 
 	if (game_state->vars.match.state == MS_GOAL) {
-	    if (ball_transform->position.y < goal_rectangle.y - 3 ||
+	    if (((i == PSI_NORTH && ball_transform->position.y < goal_rectangle.y - 3) ||
+		 (i == PSI_SOUTH && ball_transform->position.y >
+					(goal_rectangle.y + goal_rectangle.height * 2 + 3))) ||
 		ball_transform->position.x < goal_rectangle.x ||
 		ball_transform->position.x > (goal_rectangle.x + goal_rectangle.width)) {
 		ball_physics_3d->velocity.x *= 0.8f;
@@ -63,14 +55,21 @@ void systems_goal(struct game_state *game_state)
 		   CheckCollisionCircleRec(ball_transform->position,
 					   ball_collider->colliders[0].props.circle.radius,
 					   goal_rectangle) &&
-		   ball_transform->position.y < game_state->vars.pitch.field.y) {
+		   ((i == PSI_NORTH &&
+		     ball_transform->position.y < game_state->vars.pitch.goal[i].center.y) ||
+		    (i == PSI_SOUTH &&
+		     ball_transform->position.y > game_state->vars.pitch.goal[i].center.y))) {
 
 	    v3 current_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 
-	    Ray ray = (Ray){.position = current_pos,
-			    .direction = Vector3Negate(ball_physics_3d->velocity)};
-	    RayCollision collision =
-		GetRayCollisionQuad(ray, goal_line_p1, goal_line_p2, goal_line_p3, goal_line_p4);
+	    ray_t ray = (ray_t){.position = current_pos,
+				.direction = Vector3Negate(ball_physics_3d->velocity)};
+	    v3 *goal_quad_points = game_state->vars.pitch.goal[goal->side].goal_quad_points;
+	    ray_collision_t collision = GetRayCollisionQuad(ray,
+							    goal_quad_points[0],
+							    goal_quad_points[1],
+							    goal_quad_points[2],
+							    goal_quad_points[3]);
 	    // printf("original collision %.2f, %.2f, %.2f\n", collision.point.x,
 	    //        collision.point.y, collision.point.z);
 	    if (collision.hit &&
@@ -99,9 +98,9 @@ void systems_goal(struct game_state *game_state)
 							    120 * normalised_hit_point * DEG2RAD);
 		    collided_with_post = true;
 		    goal->hit_left_post_time = game_state->time;
-		    // This needs to be generalised to account for goal position (top vs
-		    // bottom)
-		    if (new_velocity.x > 0 && new_velocity.z < 0) {
+
+		    if (new_velocity.x > 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
+					       (i == PSI_SOUTH && new_velocity.z > 0))) {
 			scored = true;
 		    }
 		} else if (HAS_TIME_PASSED(game_state->time, goal->hit_right_post_time, 0.1f) &&
@@ -120,7 +119,9 @@ void systems_goal(struct game_state *game_state)
 							    120 * normalised_hit_point * DEG2RAD);
 		    collided_with_post = true;
 		    goal->hit_right_post_time = game_state->time;
-		    if (new_velocity.x < 0 && new_velocity.z < 0) {
+
+		    if (new_velocity.x < 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
+					       (i == PSI_SOUTH && new_velocity.z > 0))) {
 			scored = true;
 		    }
 		} else if (HAS_TIME_PASSED(game_state->time, goal->hit_crossbar_time, 0.1f) &&
@@ -138,7 +139,9 @@ void systems_goal(struct game_state *game_state)
 							    120 * normalised_hit_point * DEG2RAD);
 		    collided_with_post = true;
 		    goal->hit_crossbar_time = game_state->time;
-		    if (new_velocity.z < 0 && new_velocity.y < 0) {
+
+		    if (new_velocity.y < 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
+					       (i == PSI_SOUTH && new_velocity.z > 0))) {
 			scored = true;
 		    }
 		}
@@ -180,25 +183,27 @@ void systems_goal(struct game_state *game_state)
 		}
 	    }
 	}
-	if (game_state->vars.match.state == MS_PLAY &&
-	    !CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch.field)) {
-	    // Ball is out of bounds
-	    Rectangle *pitch_rectangle = &game_state->vars.pitch.field;
-	    if (ball_transform->position.x < pitch_rectangle->x - 50) {
-		// Throw in left
-		football_match_change_state(game_state, MS_THROW_IN);
-	    } else if (ball_transform->position.x >
-		       (pitch_rectangle->x + pitch_rectangle->width + 50)) {
-		// Throw in right
-		football_match_change_state(game_state, MS_THROW_IN);
-	    } else if (ball_transform->position.y < pitch_rectangle->y - 50) {
-		// Corner kick north
-		football_match_change_state(game_state, MS_CORNER_KICK);
-	    } else if (ball_transform->position.y >
-		       (pitch_rectangle->y + pitch_rectangle->height + 50)) {
-		// Corner kick south
-		football_match_change_state(game_state, MS_CORNER_KICK);
-	    }
+    }
+
+    // TODO: move this thing in a proper location
+    if (game_state->vars.match.state == MS_PLAY &&
+	!CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch.field)) {
+	// Ball is out of bounds
+	rect_t *pitch_rectangle = &game_state->vars.pitch.field;
+	if (ball_transform->position.x < pitch_rectangle->x - 50) {
+	    // Throw in left
+	    football_match_change_state(game_state, MS_THROW_IN);
+	} else if (ball_transform->position.x >
+		   (pitch_rectangle->x + pitch_rectangle->width + 50)) {
+	    // Throw in right
+	    football_match_change_state(game_state, MS_THROW_IN);
+	} else if (ball_transform->position.y < pitch_rectangle->y - 50) {
+	    // Corner kick north
+	    football_match_change_state(game_state, MS_CORNER_KICK);
+	} else if (ball_transform->position.y >
+		   (pitch_rectangle->y + pitch_rectangle->height + 50)) {
+	    // Corner kick south
+	    football_match_change_state(game_state, MS_CORNER_KICK);
 	}
     }
 }

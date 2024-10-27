@@ -71,8 +71,8 @@ void systems_render_debug(struct game_state *game_state)
 
 	// Pitch
 	DrawRectangleLinesEx(game_state->vars.pitch.field, 1, VIOLET);
-	DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_NORTH].area, 1, YELLOW);
-	DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_SOUTH].area, 1, YELLOW);
+	DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_NORTH].penalty_box, 1, YELLOW);
+	DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_SOUTH].penalty_box, 1, YELLOW);
 	DrawCircleV(game_state->vars.pitch.goal[PSI_NORTH].center, 1, RED);
 	DrawCircleV(game_state->vars.pitch.goal[PSI_SOUTH].center, 1, RED);
     }

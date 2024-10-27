@@ -3,6 +3,7 @@
 
 #include "actions.h"
 #include "assets.h"
+#include "football.h"
 #include "game.h"
 #include "render.h"
 #include "types.h"
@@ -156,6 +157,7 @@ struct component_ball {
 
 struct component_goal {
     struct component_header header;
+    enum pitch_side side;
     time_t hit_left_post_time;
     time_t hit_right_post_time;
     time_t hit_crossbar_time;

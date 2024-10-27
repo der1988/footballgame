@@ -5,6 +5,8 @@
 
 #define UNUSED(x) (void)(x)
 
+#define INLINE inline __attribute__((always_inline))
+
 #define ARRAY_LEN(A) sizeof(A) / sizeof(A[0])
 
 #define STRINGIFY(v) #v

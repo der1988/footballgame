@@ -279,6 +279,7 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 
 struct goal_config {
     enum pitch_side side;
+    v2 center;
 };
 
 struct entity *entities_goal_create(struct goal_config config, struct game_state *game_state);

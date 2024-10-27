@@ -8,20 +8,6 @@
 
 #define STAY_THERE_RADIUS 30.0f
 
-static v2 pitch_pos_rel_to_abs(rect_t pitch, v2 pos)
-{
-    pos.x = pitch.x + pitch.width * pos.x;
-    pos.y = pitch.y + pitch.height * (1 - pos.y);
-    return pos;
-}
-
-static v2 pitch_pos_abs_to_rel(rect_t pitch, v2 pos)
-{
-    pos.x = (pos.x - pitch.x) / pitch.width;
-    pos.y = (pos.y - pitch.y) / pitch.height;
-    return pos;
-}
-
 enum player_ai_state ai_player_think(struct entity *entity,
 				     v2 *target_position,
 				     enum player_ai_kick_decision *kick_decision,
@@ -77,8 +63,8 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	    football_tactics_get_team_formation_position(
 		TF_433, entity->player.team_formation_position_idx);
 
-	v2 ball_normalized_pos =
-	    pitch_pos_abs_to_rel(game_state->vars.pitch.field, ball_transform->position);
+	v2 ball_normalized_pos = football_pitch_position_abs_to_rel(game_state->vars.pitch.field,
+								    ball_transform->position);
 
 	v2 default_pos = team_formation_position->position[TM_DEFAULT];
 	v2 target_pos;
@@ -108,7 +94,8 @@ enum player_ai_state ai_player_think(struct entity *entity,
 				     (ball_normalized_pos.x - 0.66f) / 0.33f);
 	}
 
-	*target_position = pitch_pos_rel_to_abs(game_state->vars.pitch.field, target_pos);
+	*target_position =
+	    football_pitch_position_rel_to_abs(game_state->vars.pitch.field, target_pos);
 	if (Vector2Distance(*target_position, entity->transform.position) < STAY_THERE_RADIUS)
 	    ai_state = PAS_KEEP_POSITION;
 	else

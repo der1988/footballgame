@@ -1,6 +1,7 @@
 #ifndef FOOTBALL
 #define FOOTBALL
 
+#include "macro.h"
 #include "types.h"
 #include <raylib.h>
 
@@ -43,12 +44,20 @@ enum pitch_side {
 };
 
 struct goal {
-    rect_t area;
+    entity_id_t id;
+    v3 goal_quad_points[4];
     v2 center;
+    rect_t penalty_box;
+    v2 penalty_spot;
 };
 
-struct Pitch {
+struct pitch {
     rect_t field;
+    v2 midfield_spot;
+    u16 goal_width;
+    u16 goal_height;
+    u16 penalty_box_width;
+    u16 penalty_box_height;
     struct goal goal[PSI_COUNT];
     enum pitch_type type;
 };
@@ -154,5 +163,19 @@ b32 football_pitch_is_position_inside_penalty_area(v2 pos,
 						   enum pitch_side side,
 						   struct game_state *game_state);
 b32 football_pitch_is_position_inside(v2 pos, struct game_state *game_state);
+
+INLINE v2 football_pitch_position_rel_to_abs(rect_t pitch, v2 pos)
+{
+    pos.x = pitch.x + pitch.width * pos.x;
+    pos.y = pitch.y + pitch.height * (1 - pos.y);
+    return pos;
+}
+
+INLINE v2 football_pitch_position_abs_to_rel(rect_t pitch, v2 pos)
+{
+    pos.x = (pos.x - pitch.x) / pitch.width;
+    pos.y = (pos.y - pitch.y) / pitch.height;
+    return pos;
+}
 
 #endif // !FOOTBALL

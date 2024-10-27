@@ -24,7 +24,7 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
     transform->rotation = 0;
     transform->virtual_height = 0;
     transform->scale = (v2){.x = 1, .y = 1};
-    transform->position = game_state->vars.pitch.goal[config.side].center;
+    transform->position = config.center;
 
     // Create goal net
     struct entity *goal_net_entity = entities_goal_net_create(game_state);
@@ -44,7 +44,7 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
     sprite->flipX = false;
     sprite->flipY = false;
     sprite->pivot_override = (v2){.x = 0.5, .y = 1};
-    sprite->layer = SL_NORTH_GOAL;
+    sprite->layer = config.side == PSI_NORTH ? SL_NORTH_GOAL : SL_SOUTH_GOAL;
     sprite->draw_shadow = false;
     sprite->shadow_color = BLACK;
     sprite->shadow_color.a = 100;
@@ -58,7 +58,8 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
 	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
     collider->num_colliders = 1;
     collider->colliders[0].shape = CS_RECTANGLE;
-    collider->colliders[0].props.rectangle.size = (v2){.x = 79, .y = 27};
+    collider->colliders[0].props.rectangle.size =
+	(v2){.x = game_state->vars.pitch.goal_width, .y = game_state->vars.pitch.goal_height};
     collider->colliders[0].props.rectangle.offset =
 	(v2){.x = -collider->colliders[0].props.rectangle.size.x / 2.0f,
 	     .y = -collider->colliders[0].props.rectangle.size.y};
@@ -66,6 +67,7 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
     // Initialise goal
     struct component_goal *goal = &entity->goal;
     goal->header.enabled = true;
+    goal->side = config.side;
 
     GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "goal created");
 
