@@ -58,7 +58,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    entities_ball_set_position_and_velocity(
 		entity_id,
 		(v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
-		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 413.5f),
+		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
 	    ball->last_player_on_the_ball_entity_id = -1;
@@ -77,12 +77,12 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    return;
 	}
 
-	// Test goalie
+	// Test post
 	if (input->buttons[IBT_BUTTON_TRIGGER_RIGHT].released) {
 	    entities_ball_set_position_and_velocity(
 		entity_id,
-		(v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
-		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 75.0f),
+		(v3){.x = game_state->vars.pitch.field.x + 358.6, .z = 300},
+		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
 	    ball->last_player_on_the_ball_entity_id = -1;

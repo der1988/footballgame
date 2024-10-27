@@ -16,6 +16,9 @@ void systems_goal(struct game_state *game_state)
 
     declare_ball_entity_components(ball_entity);
 
+    const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
+    const f32 post_width = 2;
+
     // First let's check if it's a goal
     for (usize i = 0; i < PSI_COUNT; ++i) {
 	struct entity *entity =
@@ -30,13 +33,11 @@ void systems_goal(struct game_state *game_state)
 	declare_entity_component(entity, goal);
 	declare_entity_component(entity, collider);
 
-	rect_t goal_rectangle = {
+	const rect_t goal_rectangle = {
 	    .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,
 	    .y = transform->position.y + collider->colliders[0].props.rectangle.offset.y,
 	    .width = collider->colliders[0].props.rectangle.size.x,
 	    .height = collider->colliders[0].props.rectangle.size.y};
-
-	f32 post_width = 2;
 
 	if (game_state->vars.match.state == MS_GOAL) {
 	    if (((i == PSI_NORTH && ball_transform->position.y < goal_rectangle.y - 3) ||
@@ -52,9 +53,7 @@ void systems_goal(struct game_state *game_state)
 		}
 	    }
 	} else if (game_state->vars.match.state == MS_PLAY &&
-		   CheckCollisionCircleRec(ball_transform->position,
-					   ball_collider->colliders[0].props.circle.radius,
-					   goal_rectangle) &&
+		   CheckCollisionCircleRec(ball_transform->position, ball_radius, goal_rectangle) &&
 		   ((i == PSI_NORTH &&
 		     ball_transform->position.y < game_state->vars.pitch.goal[i].center.y) ||
 		    (i == PSI_SOUTH &&
@@ -72,115 +71,108 @@ void systems_goal(struct game_state *game_state)
 							    goal_quad_points[3]);
 	    // printf("original collision %.2f, %.2f, %.2f\n", collision.point.x,
 	    //        collision.point.y, collision.point.z);
-	    if (collision.hit &&
-		collision.point.x >
-		    (goal_rectangle.x - ball_collider->colliders[0].props.circle.radius) &&
-		collision.point.x < (goal_rectangle.x + goal_rectangle.width +
-				     ball_collider->colliders[0].props.circle.radius) &&
-		collision.point.y <
-		    (goal_rectangle.height + ball_collider->colliders[0].props.circle.radius)) {
-
-		b32 collided_with_post = false;
-		b32 scored = false;
-		v3 new_velocity = ball_physics_3d->velocity;
-
-		if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
-		    collision.point.x < (goal_rectangle.x + post_width +
-					 ball_collider->colliders[0].props.circle.radius)) {
-		    // hit left post
-		    f32 normalised_hit_point = Clamp(
-			(collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width,
-			-1,
-			1);
-		    new_velocity.y *= -1;
-		    new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
-							    (v3){.y = 1},
-							    120 * normalised_hit_point * DEG2RAD);
-		    collided_with_post = true;
-		    goal->hit_left_post_time = game_state->time;
-
-		    if (new_velocity.x > 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
-					       (i == PSI_SOUTH && new_velocity.z > 0))) {
-			scored = true;
-		    }
-		} else if (HAS_TIME_PASSED(game_state->time, goal->hit_right_post_time, 0.1f) &&
-			   collision.point.x >
-			       (goal_rectangle.x + goal_rectangle.width - post_width -
-				ball_collider->colliders[0].props.circle.radius)) {
-		    // hit right post
-		    f32 normalised_hit_point = Clamp((collision.point.x - goal_rectangle.x -
-						      goal_rectangle.width + post_width * 0.5f) /
-							 post_width,
-						     -1,
-						     1);
-		    new_velocity.y *= -1;
-		    new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
-							    (v3){.y = 1},
-							    120 * normalised_hit_point * DEG2RAD);
-		    collided_with_post = true;
-		    goal->hit_right_post_time = game_state->time;
-
-		    if (new_velocity.x < 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
-					       (i == PSI_SOUTH && new_velocity.z > 0))) {
-			scored = true;
-		    }
-		} else if (HAS_TIME_PASSED(game_state->time, goal->hit_crossbar_time, 0.1f) &&
-			   collision.point.y > (goal_rectangle.height - post_width -
-						ball_collider->colliders[0].props.circle.radius)) {
-		    // hit cross bar
-		    f32 normalised_hit_point =
-			Clamp((collision.point.y - goal_rectangle.height + post_width) / post_width,
-			      -1,
-			      1) *
-			-1;
-		    new_velocity.x *= -1;
-		    new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
-							    (v3){.x = 1},
-							    120 * normalised_hit_point * DEG2RAD);
-		    collided_with_post = true;
-		    goal->hit_crossbar_time = game_state->time;
-
-		    if (new_velocity.y < 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
-					       (i == PSI_SOUTH && new_velocity.z > 0))) {
-			scored = true;
-		    }
-		}
-		if (collided_with_post) {
-		    ball->subject_to_after_touch = false;
-		    new_velocity =
-			Vector3Scale(new_velocity, game_state->constants.ball_cr_against_post);
-
-		    v3 new_position =
-			Vector3Add(collision.point, Vector3Scale(new_velocity, game_state->dt));
-
-		    entities_ball_set_position_and_velocity(
-			game_state->vars.ball_entity_id, new_position, new_velocity, game_state);
-		    GLOGF_INFO(LS_GAME,
-			       "hit post at %.2f, %.2f, %.2f",
-			       collision.point.x,
-			       collision.point.y,
-			       collision.point.z);
-		    if (scored) {
-			GLOG_INFO(LS_GAME, "goal off post!");
-		    }
-		} else if (collision.point.x > (goal_rectangle.x + post_width +
-						ball_collider->colliders[0].props.circle.radius) &&
+	    b32 hit_goal = collision.hit && collision.point.x > (goal_rectangle.x - ball_radius) &&
 			   collision.point.x <
-			       (goal_rectangle.x + goal_rectangle.width - post_width -
-				ball_collider->colliders[0].props.circle.radius) &&
-			   collision.point.y < (goal_rectangle.height - post_width -
-						ball_collider->colliders[0].props.circle.radius)) {
+			       (goal_rectangle.x + goal_rectangle.width + ball_radius) &&
+			   collision.point.y < (goal_rectangle.height + ball_radius);
+
+	    if (!hit_goal) {
+		continue;
+	    }
+
+	    b32 collided_with_post = false;
+	    b32 scored = false;
+	    v3 new_velocity = ball_physics_3d->velocity;
+
+	    if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
+		collision.point.x < (goal_rectangle.x + post_width + ball_radius)) {
+		// hit left post
+		f32 normalised_hit_point = Clamp(
+		    (collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width, -1, 1);
+		new_velocity.y *= -1;
+		new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
+							(v3){.y = 1},
+							120 * normalised_hit_point * DEG2RAD);
+		collided_with_post = true;
+		goal->hit_left_post_time = game_state->time;
+
+		if (new_velocity.x > 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
+					   (i == PSI_SOUTH && new_velocity.z > 0))) {
 		    scored = true;
 		}
-		if (scored) {
-		    entities_ball_in_goal(game_state->vars.ball_entity_id, game_state);
-		    football_match_change_state(game_state, MS_GOAL);
-		    GLOGF_INFO(LS_GAME,
-			       "goal at %.2f, %.2f, %.2f",
-			       collision.point.x,
-			       collision.point.y,
-			       collision.point.z);
+	    } else if (HAS_TIME_PASSED(game_state->time, goal->hit_right_post_time, 0.1f) &&
+		       collision.point.x >
+			   (goal_rectangle.x + goal_rectangle.width - post_width - ball_radius)) {
+		// hit right post
+		f32 normalised_hit_point = Clamp((collision.point.x - goal_rectangle.x -
+						  goal_rectangle.width + post_width * 0.5f) /
+						     post_width,
+						 -1,
+						 1);
+		new_velocity.y *= -1;
+		new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
+							(v3){.y = 1},
+							120 * normalised_hit_point * DEG2RAD);
+		collided_with_post = true;
+		goal->hit_right_post_time = game_state->time;
+
+		if (new_velocity.x < 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
+					   (i == PSI_SOUTH && new_velocity.z > 0))) {
+		    scored = true;
 		}
+	    } else if (HAS_TIME_PASSED(game_state->time, goal->hit_crossbar_time, 0.1f) &&
+		       collision.point.y > (goal_rectangle.height - post_width - ball_radius)) {
+		// hit cross bar
+		f32 normalised_hit_point =
+		    Clamp((collision.point.y - goal_rectangle.height + post_width) / post_width,
+			  -1,
+			  1) *
+		    -1;
+		new_velocity.x *= -1;
+		new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
+							(v3){.x = 1},
+							120 * normalised_hit_point * DEG2RAD);
+		collided_with_post = true;
+		goal->hit_crossbar_time = game_state->time;
+
+		if (new_velocity.y < 0 && ((i == PSI_NORTH && new_velocity.z < 0) ||
+					   (i == PSI_SOUTH && new_velocity.z > 0))) {
+		    scored = true;
+		}
+	    }
+	    if (collided_with_post) {
+		ball->subject_to_after_touch = false;
+		new_velocity =
+		    Vector3Scale(new_velocity, game_state->constants.ball_cr_against_post);
+
+		v3 new_position =
+		    Vector3Add(collision.point, Vector3Scale(new_velocity, game_state->dt));
+
+		entities_ball_set_position_and_velocity(
+		    game_state->vars.ball_entity_id, new_position, new_velocity, game_state);
+		GLOGF_INFO(LS_GAME,
+			   "hit post at %.2f, %.2f, %.2f",
+			   collision.point.x,
+			   collision.point.y,
+			   collision.point.z);
+		if (scored) {
+		    GLOG_INFO(LS_GAME, "goal off post!");
+		}
+	    } else if (collision.point.x > (goal_rectangle.x + post_width + ball_radius) &&
+		       collision.point.x <
+			   (goal_rectangle.x + goal_rectangle.width - post_width - ball_radius) &&
+		       collision.point.y < (goal_rectangle.height - post_width - ball_radius)) {
+		scored = true;
+	    }
+
+	    if (scored) {
+		entities_ball_in_goal(game_state->vars.ball_entity_id, game_state);
+		football_match_change_state(game_state, MS_GOAL);
+		GLOGF_INFO(LS_GAME,
+			   "goal at %.2f, %.2f, %.2f",
+			   collision.point.x,
+			   collision.point.y,
+			   collision.point.z);
 	    }
 	}
     }
