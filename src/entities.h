@@ -149,6 +149,9 @@ void entities_ball_saved_by_goalie(entity_id_t ball_entity_id,
 				   struct game_state *game_state);
 void entities_ball_back_in_play(entity_id_t ball_entity_id, struct game_state *game_state);
 void entities_ball_in_goal(entity_id_t ball_entity_id, struct game_state *game_state);
+void entities_ball_set_player_on_the_ball(struct component_ball *ball,
+					  entity_id_t player_on_the_ball_entity_id,
+					  struct game_state *game_state);
 
 // END - Ball
 

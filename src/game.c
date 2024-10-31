@@ -204,11 +204,11 @@ struct game_state *game_init(struct game_config game_config)
 	    game_state);
     }
 
-    // entities_player_create((struct player_config){.is_goalie = true,
-    // 		  .position =
-    // 		      game_state->vars.pitch.goal[PSI_NORTH].center,
-    // 		  .side = PSI_NORTH},
-    //   game_state);
+    entities_player_create((struct player_config){.is_goalie = true,
+						  .position =
+						      game_state->vars.pitch.goal[PSI_NORTH].center,
+						  .side = PSI_NORTH},
+			   game_state);
     // entities_player_create((struct player_config){.is_goalie = true,
     // 		  .position =
     // 		      game_state->vars.pitch.goal[PSI_SOUTH].center,

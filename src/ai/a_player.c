@@ -3,6 +3,7 @@
 #include "football.h"
 #include "math_ext.h"
 #include "macro.h"
+#include "types.h"
 #include <raymath.h>
 #include <stdio.h>
 
@@ -42,7 +43,12 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	    ball_future_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 	*target_position = V3_TO_V2(ball_future_pos);
 	ai_state = PAS_SEEK_POSITION;
-    } else if (distance_from_ball < 20) {
+    } else if (ball->future_bounce.available &&
+	       Vector2Distance(transform->position, ball->future_bounce.position) < 150 &&
+	       ball->player_on_the_ball.entity_id == EID_NOT_VALID) {
+	*target_position = ball->future_bounce.position;
+	ai_state = PAS_ARRIVE_TO_POSITION;
+    } else if (distance_from_ball < 150 && ball->player_on_the_ball.entity_id == EID_NOT_VALID) {
 	v3 ball_future_pos;
 	time_t ball_future_time;
 	b32 found = entities_common_can_reach_future_ball_position(

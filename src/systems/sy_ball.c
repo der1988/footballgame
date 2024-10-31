@@ -11,6 +11,7 @@
 #include <raymath.h>
 #include "math_ext.h"
 #include "constants.h"
+#include "types.h"
 
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 {
@@ -49,7 +50,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Zero(),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    ball->last_player_on_the_ball_entity_id = -1;
+	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -61,7 +62,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    ball->last_player_on_the_ball_entity_id = -1;
+	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -73,7 +74,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    ball->last_player_on_the_ball_entity_id = -1;
+	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -85,7 +86,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    ball->last_player_on_the_ball_entity_id = -1;
+	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -115,6 +116,11 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    v3 position = V2_TO_V3(transform->position, transform->virtual_height);
 	    v3 velocity = physics3d->velocity;
 	    v3 accel = physics3d->accel;
+
+	    // Player on the ball
+	    if (HAS_TIME_PASSED(game_state->time, ball->player_on_the_ball.last_touch_time, 0.2f)) {
+		ball->player_on_the_ball.entity_id = EID_NOT_VALID;
+	    }
 
 	    // After touch
 	    f32 after_touch_time = (game_state->time - ball->last_kick_time);
@@ -191,7 +197,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		ball->last_bounce_time = game_state->time;
 	    }
 	    if (ball->is_on_the_ground) {
-		ball->future_bounce.available = true;
+		ball->future_bounce.available = false;
 		ball->future_bounce.position = V3_TO_V2(position);
 		ball->future_bounce.dts = 0;
 	    }
@@ -237,7 +243,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    }
 
 	    // Calculate frame to display
-	    Vector2 ball_velocity = V3_TO_V2(physics3d->velocity);
+	    v2 ball_velocity = V3_TO_V2(physics3d->velocity);
 	    if (Vector2Length(ball_velocity) > 3) {
 		enum direction pd = entities_common_calculate_direction(ball_velocity);
 		struct assets_animation *animation = assets_animation_get_by_id(
