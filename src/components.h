@@ -179,12 +179,6 @@ struct component_goal {
     b32 scored;
 };
 
-enum save_side {
-    SS_UP,
-    SS_DOWN,
-    SS_COUNT
-};
-
 enum save_direction {
     SD_LEFT,
     SD_RIGHT,
@@ -216,10 +210,11 @@ struct component_goalie {
     enum save_height dive_height;
     f32 dive_distance;
     f32 dive_speed;
-    assets_sprite_frame_id_t save_frames[SS_COUNT][ST_COUNT];
-    assets_sprite_frame_id_t dash_frames[SS_COUNT][SD_COUNT][ST_COUNT];
-    assets_animation_id_t dive_animations_start[SS_COUNT][SD_COUNT][SH_COUNT];
-    assets_animation_id_t dive_animations_end[SS_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
+    assets_sprite_frame_id_t save_frames[PSI_COUNT][ST_COUNT];
+    assets_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
+    assets_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];
+    assets_animation_id_t dive_animations_end[PSI_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
+    assets_animation_id_t save_jump_animations[PSI_COUNT][ST_COUNT];
     time_t last_frame_update_time;
     time_t last_save_time;
 };

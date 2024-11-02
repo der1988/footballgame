@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "components.h"
 #include "entities.h"
+#include "football.h"
 #include "game.h"
 #include "input.h"
 #include "simulation.h"
@@ -209,9 +210,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		break;
 	    }
 	    entities_ball_back_in_play(game_state->vars.ball_entity_id, game_state);
+	    i8 direction = player->side == PSI_NORTH ? 1 : -1;
 	    const v2 new_ball_position = Vector2Add(
 		transform->position,
-		Vector2Scale((v2){.y = 1},
+		Vector2Scale((v2){.y = direction},
 			     goalie_collider->props.circle.offset.y +
 				 goalie_collider->props.circle.radius + ball_radius + 7));
 	    entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
@@ -219,7 +221,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						    Vector3Zero(),
 						    game_state);
 	    entities_ball_long_pass(
-		game_state->vars.ball_entity_id, entity_id, (v2){.y = 1}, 0.7f, game_state);
+		game_state->vars.ball_entity_id, entity_id, (v2){.y = direction}, 0.7f, game_state);
 	    entities_goalie_state_machine_change_state_to(
 		goalie->state_machine, GS_PROTECT_GOAL, game_state);
 	    break;
@@ -233,7 +235,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	    if (!dive_state_data->animation_first_phase_completed) {
 		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->animation_cache,
-		    goalie->dive_animations_start[SS_UP][direction][goalie->dive_height]);
+		    goalie->dive_animations_start[player->side][direction][goalie->dive_height]);
 		f32 animation_completion =
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),
@@ -258,7 +260,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		}
 		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->animation_cache,
-		    goalie->dive_animations_end[SS_UP][direction][goalie->dive_height]
+		    goalie->dive_animations_end[player->side][direction][goalie->dive_height]
 					       [dive_state_data->ball_held]);
 		f32 animation_completion =
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /

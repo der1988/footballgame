@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "components.h"
 #include "entities.h"
+#include "football.h"
 #include "game.h"
 #include "memory.h"
 #include "render.h"
@@ -271,7 +272,7 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 	entity->physics.velocity = Vector2Zero();
 	entity->physics.accel = Vector2Zero();
 	entity->goalie.state_machine->state_data.hold_ball.hold_start_time = game_state->time;
-	entity->sprite.frame_id = entity->goalie.save_frames[SS_UP][ST_WITH_BALL];
+	entity->sprite.frame_id = entity->goalie.save_frames[entity->player.side][ST_WITH_BALL];
 	break;
     }
     case GS_COUNT:
@@ -487,73 +488,107 @@ static void prepare_goalie_gfx(struct component_player *player,
 	entities_common_animation_id_from_name("goalkeeper", "run_back_right", game_state);
 
     // Save frames
-    goalie->save_frames[SS_UP][ST_WITHOUT_BALL] =
+    goalie->save_frames[PSI_NORTH][ST_WITHOUT_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_0")->id;
-    goalie->save_frames[SS_UP][ST_WITH_BALL] =
+    goalie->save_frames[PSI_NORTH][ST_WITH_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_ball_0")
 	    ->id;
-    goalie->save_frames[SS_DOWN][ST_WITHOUT_BALL] =
+    goalie->save_frames[PSI_SOUTH][ST_WITHOUT_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_0")->id;
-    goalie->save_frames[SS_DOWN][ST_WITH_BALL] =
+    goalie->save_frames[PSI_SOUTH][ST_WITH_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_ball_0")
 	    ->id;
 
     // Dash frames
-    goalie->dash_frames[SS_UP][SD_LEFT][ST_WITHOUT_BALL] =
+    goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITHOUT_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
 					"goalkeeper_dash_front_left_0")
 	    ->id;
-    goalie->dash_frames[SS_UP][SD_LEFT][ST_WITH_BALL] =
+    goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITH_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
 					"goalkeeper_dash_front_left_1")
 	    ->id;
-    goalie->dash_frames[SS_UP][SD_RIGHT][ST_WITHOUT_BALL] =
+    goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITHOUT_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
 					"goalkeeper_dash_front_right_0")
 	    ->id;
-    goalie->dash_frames[SS_UP][SD_RIGHT][ST_WITH_BALL] =
+    goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITH_BALL] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
 					"goalkeeper_dash_front_right_1")
 	    ->id;
 
     // Diving animations
-    goalie->dive_animations_start[SS_UP][SD_LEFT][SH_HIGH] = entities_common_animation_id_from_name(
-	"goalkeeper", "dive_front_high_left_start", game_state);
-    goalie->dive_animations_start[SS_UP][SD_RIGHT][SH_HIGH] =
+    goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_HIGH] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_front_high_left_start", game_state);
+    goalie->dive_animations_start[PSI_NORTH][SD_RIGHT][SH_HIGH] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_high_right_start", game_state);
-    goalie->dive_animations_start[SS_UP][SD_LEFT][SH_LOW] = entities_common_animation_id_from_name(
-	"goalkeeper", "dive_front_low_left_start", game_state);
-    goalie->dive_animations_start[SS_UP][SD_RIGHT][SH_LOW] = entities_common_animation_id_from_name(
-	"goalkeeper", "dive_front_low_right_start", game_state);
+    goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_LOW] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_front_low_left_start", game_state);
+    goalie->dive_animations_start[PSI_NORTH][SD_RIGHT][SH_LOW] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_front_low_right_start", game_state);
 
-    goalie->dive_animations_end[SS_UP][SD_LEFT][SH_HIGH][ST_WITHOUT_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_HIGH][ST_WITHOUT_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_high_left_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_HIGH][ST_WITHOUT_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_HIGH][ST_WITHOUT_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_high_right_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_LEFT][SH_LOW][ST_WITHOUT_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_LOW][ST_WITHOUT_BALL] =
 	entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_LOW][ST_WITHOUT_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_LOW][ST_WITHOUT_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_low_right_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_LEFT][SH_HIGH][ST_WITH_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_HIGH][ST_WITH_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_high_left_ball_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_HIGH][ST_WITH_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_HIGH][ST_WITH_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_high_right_ball_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_LEFT][SH_LOW][ST_WITH_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_LOW][ST_WITH_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_low_left_ball_end", game_state);
-    goalie->dive_animations_end[SS_UP][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
+    goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_front_low_right_ball_end", game_state);
-    // goalie->dive_animations[SS_DOWN][SD_LEFT] =
-    //     entities_common_animation_id_from_name("goalkeeper", "save_back_left", game_state);
-    // goalie->dive_animations[SS_DOWN][SD_RIGHT] =
-    //     entities_common_animation_id_from_name("goalkeeper", "save_back_right", game_state);
+
+    goalie->dive_animations_start[PSI_SOUTH][SD_LEFT][SH_HIGH] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_high_left_start", game_state);
+    goalie->dive_animations_start[PSI_SOUTH][SD_RIGHT][SH_HIGH] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_high_right_start", game_state);
+    goalie->dive_animations_start[PSI_SOUTH][SD_LEFT][SH_LOW] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_low_left_start", game_state);
+    goalie->dive_animations_start[PSI_SOUTH][SD_RIGHT][SH_LOW] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_low_right_start", game_state);
+
+    goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_HIGH][ST_WITHOUT_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "dive_back_high_left_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_HIGH][ST_WITHOUT_BALL] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_high_right_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_LOW][ST_WITHOUT_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "dive_back_low_left_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_LOW][ST_WITHOUT_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "dive_back_low_right_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_HIGH][ST_WITH_BALL] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_high_left_ball_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_HIGH][ST_WITH_BALL] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_high_right_ball_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_LOW][ST_WITH_BALL] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_low_left_ball_end", game_state);
+    goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
+	entities_common_animation_id_from_name(
+	    "goalkeeper", "dive_back_low_right_ball_end", game_state);
 }
 
 static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)

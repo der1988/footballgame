@@ -1,5 +1,5 @@
-#ifndef FOOTBALL
-#define FOOTBALL
+#ifndef FOOTBALL_H
+#define FOOTBALL_H
 
 #include "macro.h"
 #include "types.h"
@@ -252,4 +252,4 @@ INLINE v2 football_pitch_position_abs_to_rel(rect_t pitch, v2 pos)
     return pos;
 }
 
-#endif // !FOOTBALL
+#endif // !FOOTBALL_H

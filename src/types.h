@@ -12,6 +12,7 @@
 #define EID_NOT_VALID 0xffffffff
 
 typedef uint8_t u8;
+typedef int8_t i8;
 typedef uint16_t u16;
 typedef int16_t i16;
 typedef int32_t b32;
