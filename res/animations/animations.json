@@ -141,6 +141,86 @@
       "delay": 0.05,
       "frames": "2,2,2,2,2,3,4,5",
       "prefix": "save_front_high_right_ball_"
+    },
+    "dive_back_low_left_start": {
+      "delay": 0.05,
+      "frames": "0,1,2",
+      "prefix": "save_back_low_left_"
+    },
+    "dive_back_low_left_end": {
+      "delay": 0.05,
+      "frames": "3",
+      "prefix": "save_back_low_left_"
+    },
+    "dive_back_low_right_start": {
+      "delay": 0.05,
+      "frames": "0,1,2",
+      "prefix": "save_back_low_right_"
+    },
+    "dive_back_low_right_end": {
+      "delay": 0.05,
+      "frames": "3",
+      "prefix": "save_back_low_right_"
+    },
+    "dive_back_high_left_start": {
+      "delay": 0.05,
+      "frames": "0,1",
+      "prefix": "save_back_high_left_"
+    },
+    "dive_back_high_left_end": {
+      "delay": 0.05,
+      "frames": "2,3,4",
+      "prefix": "save_back_high_left_"
+    },
+    "dive_back_high_right_start": {
+      "delay": 0.05,
+      "frames": "0,1",
+      "prefix": "save_back_high_right_"
+    },
+    "dive_back_high_right_end": {
+      "delay": 0.05,
+      "frames": "2,3,4",
+      "prefix": "save_back_high_right_"
+    },
+    "dive_back_low_left_ball_end": {
+      "delay": 0.05,
+      "frames": "2,2,2,3",
+      "prefix": "save_back_low_left_ball_"
+    },
+    "dive_back_low_right_ball_end": {
+      "delay": 0.05,
+      "frames": "2,2,2,3",
+      "prefix": "save_back_low_right_ball_"
+    },
+    "dive_back_high_left_ball_end": {
+      "delay": 0.05,
+      "frames": "2,2,2,2,2,3,4,5",
+      "prefix": "save_back_high_left_ball_"
+    },
+    "dive_back_high_right_ball_end": {
+      "delay": 0.05,
+      "frames": "2,2,2,2,2,3,4,5",
+      "prefix": "save_back_high_right_ball_"
+    },
+    "front_jump_parry": {
+      "delay": 0.05,
+      "frames": "0,1,2,3,4",
+      "prefix": "save_front_jump_parry_"
+    },
+    "front_jump_catch": {
+      "delay": 0.05,
+      "frames": "0,1,2,3,4",
+      "prefix": "save_front_jump_catch_"
+    },
+    "back_jump_parry": {
+      "delay": 0.05,
+      "frames": "0,1,2,3,4",
+      "prefix": "save_back_jump_parry_"
+    },
+    "back_jump_catch": {
+      "delay": 0.05,
+      "frames": "0,1,2,3,4",
+      "prefix": "save_back_jump_catch_"
     }
   },
   "ball": {
