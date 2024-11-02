@@ -135,22 +135,23 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		break;
 	    }
 
-	    // Calculate whether goalie can reach the ball at its next bounce position
-	    const b32 should_seek_ball_at_bounce_pos =
-		!ball->is_on_the_ground && ball->future_bounce.available &&
-		entities_common_can_reach_position_in_time(transform->position,
-							   ball->future_bounce.position,
-							   game_state->dt * ball->future_bounce.dts,
-							   exit_max_speed) &&
+	    // Calculate whether goalie can reach the ball at its next reachable position
+	    const b32 should_seek_ball_at_reachable_pos =
+		!ball->is_on_the_ground && ball->future_reachable.available &&
+		entities_common_can_reach_position_in_time(
+		    transform->position,
+		    V3_TO_V2(ball->future_reachable.position),
+		    game_state->dt * ball->future_bounce.dts,
+		    exit_max_speed) &&
 		football_pitch_is_position_inside_penalty_area(
-		    ball->future_bounce.position, player->side, game_state);
+		    V3_TO_V2(ball->future_reachable.position), player->side, game_state);
 
-	    if (should_seek_ball_at_bounce_pos) {
+	    if (should_seek_ball_at_reachable_pos) {
 		// seek ball future bounce position
 		physics->max_velocity = exit_max_speed;
 		force = game_state->constants.player_movement_force * 2;
 
-		destination = ball->future_bounce.position;
+		destination = V3_TO_V2(ball->future_reachable.position);
 		direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
 		steering = steering_arrive(
 		    transform->position, physics->velocity, physics->max_velocity, destination, 10);

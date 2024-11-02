@@ -77,7 +77,7 @@ struct game_state *game_init(struct game_config game_config)
 				// We want max ball speed to be ~129km/h, and we get
 				// there with some modifiers due to hit position
 				.ball_shot_force = 40 * PIXELS_PER_METER,
-				.ball_shot_height = 0.23f,
+				.ball_shot_height = 0.25f,
 				.ball_pass_force = 30 * PIXELS_PER_METER,
 				.ball_long_pass_force = 24 * PIXELS_PER_METER,
 				.ball_long_pass_height = 1.0f,
@@ -195,16 +195,16 @@ struct game_state *game_init(struct game_config game_config)
 			       .side = PSI_SOUTH},
 	game_state);
 
-    //    for (usize i = 1; i < 10; ++i) {
-    // entities_player_create(
-    //     (struct player_config){
-    // 	.position = football_pitch_position_rel_to_abs(
-    // 	    game_state->vars.pitch.field,
-    // 	    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
-    // 	.side = PSI_SOUTH,
-    // 	.team_formation_position_idx = i},
-    //     game_state);
-    //    }
+    for (usize i = 1; i < 10; ++i) {
+	entities_player_create(
+	    (struct player_config){
+		.position = football_pitch_position_rel_to_abs(
+		    game_state->vars.pitch.field,
+		    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
+		.side = PSI_NORTH,
+		.team_formation_position_idx = i},
+	    game_state);
+    }
 
     entities_player_create((struct player_config){.is_goalie = true,
 						  .position =

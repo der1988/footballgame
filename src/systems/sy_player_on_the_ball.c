@@ -94,8 +94,10 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    v2 shot_direction =
 		Vector2Rotate(shot_direction_to_center,
 			      angle_center_to_post * player_on_the_ball->controls->steering.x);
-	    f32 shot_height = (player_on_the_ball->player->side == PSI_NORTH ? -1 : 1) *
-			      (player_on_the_ball->controls->steering.y + 1) * 0.5f;
+	    f32 shot_height = (((player_on_the_ball->player->side == PSI_NORTH ? -1 : 1) *
+				player_on_the_ball->controls->steering.y) +
+			       1) *
+			      0.5f;
 
 	    // Limit angle between requested shoot direction and current velocity
 	    f32 angle = Vector2Angle(player_on_the_ball->velocity, shot_direction);
