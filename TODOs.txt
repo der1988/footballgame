@@ -78,7 +78,9 @@ v improve shot control: joystick y axis should control height
 v improve control logic
 v player without the ball should be faster than same player with the ball
 v move players on the pitch based on ball position and team formation
-* introduce south goal and goalie
+v introduce south goal and goalie
+v implement goalie high catch/bounce
+v ball shoult not collide with goalie when it's coming back after hitting the post
 * improve player selection system
 - implement teams
 - goal is too small? proportional to ball instead of player?
@@ -87,9 +89,9 @@ v move players on the pitch based on ball position and team formation
 - shot height should depend on starting height of the ball
 - implement header
 - fix broken after touch
-- implement goalie high catch/bounce
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
 - improve player ai
 - goalie should not exit all the time
 - make the game platform agnostic
+- implement network multiplayer

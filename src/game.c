@@ -73,9 +73,7 @@ struct game_state *game_init(struct game_config game_config)
 				.ball_friction_on_pitch = 0.5f,
 				.ball_run_force = 30,
 				.ball_control_force = 30,
-				// This will translate to instant velocity, so 119km/h
-				// We want max ball speed to be ~129km/h, and we get
-				// there with some modifiers due to hit position
+				// This will translate to instant velocity, so 144km/h
 				.ball_shot_force = 40 * PIXELS_PER_METER,
 				.ball_shot_height = 0.25f,
 				.ball_pass_force = 30 * PIXELS_PER_METER,
@@ -101,7 +99,8 @@ struct game_state *game_init(struct game_config game_config)
 				.goalie_dive_reaction_time = 0.150f,
 				.goalie_dive_force = 8500,
 				.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
-				.goalie_dive_min_ball_velocity = 10 * PIXELS_PER_METER,
+				// Minimum speed for goalie to dive is 54km/h
+				.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
 				.ai_enabled = true,
 				.shoot_aid_no_inertia = true,
 				.kick_charge_reset_time = 1.5f};
