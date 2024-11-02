@@ -1,3 +1,4 @@
+#include "e_player.h"
 #include "assets.h"
 #include "components.h"
 #include "entities.h"
@@ -275,6 +276,12 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 	entity->sprite.frame_id = entity->goalie.save_frames[entity->player.side][ST_WITH_BALL];
 	break;
     }
+    case GS_JUMP: {
+	entity->physics.velocity = Vector2Zero();
+	entity->physics.accel = Vector2Zero();
+	state_machine->state_data.jump.animation_start_time = game_state->time;
+	break;
+    }
     case GS_COUNT:
 	break;
     }
@@ -300,6 +307,9 @@ void entities_goalie_state_machine_on_exit(struct entity *entity, struct game_st
 	break;
     }
     case GS_HOLD_BALL: {
+	break;
+    }
+    case GS_JUMP: {
 	break;
     }
     case GS_COUNT:
@@ -589,6 +599,20 @@ static void prepare_goalie_gfx(struct component_player *player,
     goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
 	entities_common_animation_id_from_name(
 	    "goalkeeper", "dive_back_low_right_ball_end", game_state);
+
+    // Jump animations
+    goalie->jump_animations_start[PSI_NORTH] =
+	entities_common_animation_id_from_name("goalkeeper", "front_jump_parry_start", game_state);
+    goalie->jump_animations_start[PSI_SOUTH] =
+	entities_common_animation_id_from_name("goalkeeper", "back_jump_parry_start", game_state);
+    goalie->jump_animations_end[PSI_NORTH][ST_WITHOUT_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "front_jump_parry_end", game_state);
+    goalie->jump_animations_end[PSI_NORTH][ST_WITH_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "front_jump_catch_end", game_state);
+    goalie->jump_animations_end[PSI_SOUTH][ST_WITHOUT_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "back_jump_parry_end", game_state);
+    goalie->jump_animations_end[PSI_SOUTH][ST_WITH_BALL] =
+	entities_common_animation_id_from_name("goalkeeper", "back_jump_catch_end", game_state);
 }
 
 static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)

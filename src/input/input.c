@@ -78,6 +78,42 @@ struct input input_handle(struct game_state *game_state)
 	input.buttons[IBT_BUTTON_RIGHT].released =
 	    IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT);
 
+	input.buttons[IBT_BUTTON_DPAD_DOWN].up =
+	    IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+	input.buttons[IBT_BUTTON_DPAD_DOWN].down =
+	    IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+	input.buttons[IBT_BUTTON_DPAD_DOWN].pressed =
+	    IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+	input.buttons[IBT_BUTTON_DPAD_DOWN].released =
+	    IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+
+	input.buttons[IBT_BUTTON_DPAD_UP].up =
+	    IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_LEFT_FACE_UP);
+	input.buttons[IBT_BUTTON_DPAD_UP].down =
+	    IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_LEFT_FACE_UP);
+	input.buttons[IBT_BUTTON_DPAD_UP].pressed =
+	    IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_LEFT_FACE_UP);
+	input.buttons[IBT_BUTTON_DPAD_UP].released =
+	    IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_LEFT_FACE_UP);
+
+	input.buttons[IBT_BUTTON_DPAD_LEFT].up =
+	    IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+	input.buttons[IBT_BUTTON_DPAD_LEFT].down =
+	    IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+	input.buttons[IBT_BUTTON_DPAD_LEFT].pressed =
+	    IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+	input.buttons[IBT_BUTTON_DPAD_LEFT].released =
+	    IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+
+	input.buttons[IBT_BUTTON_DPAD_RIGHT].up =
+	    IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
+	input.buttons[IBT_BUTTON_DPAD_RIGHT].down =
+	    IsGamepadButtonDown(gamepad, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
+	input.buttons[IBT_BUTTON_DPAD_RIGHT].pressed =
+	    IsGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
+	input.buttons[IBT_BUTTON_DPAD_RIGHT].released =
+	    IsGamepadButtonReleased(gamepad, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
+
 	input.buttons[IBT_BUTTON_TRIGGER_LEFT].up =
 	    IsGamepadButtonUp(gamepad, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
 	input.buttons[IBT_BUTTON_TRIGGER_LEFT].down =

@@ -142,6 +142,11 @@ struct component_ball {
 	v2 position;
 	u32 dts;
     } future_bounce;
+    struct {
+	b32 available;
+	v3 position;
+	u32 dts;
+    } future_reachable;
     time_t last_bounce_time;
     b32 is_on_the_ground;
 
@@ -197,12 +202,6 @@ enum save_type {
     ST_COUNT
 };
 
-enum animation_phase {
-    AP_START,
-    AP_END,
-    AP_COUNT
-};
-
 struct component_goalie {
     struct component_header header;
     struct state_machine_goalie *state_machine;
@@ -214,7 +213,8 @@ struct component_goalie {
     assets_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
     assets_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];
     assets_animation_id_t dive_animations_end[PSI_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
-    assets_animation_id_t save_jump_animations[PSI_COUNT][ST_COUNT];
+    assets_animation_id_t jump_animations_start[PSI_COUNT];
+    assets_animation_id_t jump_animations_end[PSI_COUNT][ST_COUNT];
     time_t last_frame_update_time;
     time_t last_save_time;
 };

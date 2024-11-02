@@ -202,24 +202,44 @@
       "frames": "2,2,2,2,2,3,4,5",
       "prefix": "save_back_high_right_ball_"
     },
-    "front_jump_parry": {
+    "front_jump_parry_start": {
       "delay": 0.05,
-      "frames": "0,1,2,3,4",
+      "frames": "0,1",
       "prefix": "save_front_jump_parry_"
     },
-    "front_jump_catch": {
+    "front_jump_parry_end": {
       "delay": 0.05,
-      "frames": "0,1,2,3,4",
+      "frames": "2,3,4",
+      "prefix": "save_front_jump_parry_"
+    },
+    "front_jump_catch_start": {
+      "delay": 0.05,
+      "frames": "0,1",
       "prefix": "save_front_jump_catch_"
     },
-    "back_jump_parry": {
+    "front_jump_catch_end": {
       "delay": 0.05,
-      "frames": "0,1,2,3,4",
+      "frames": "2,3,4",
+      "prefix": "save_front_jump_catch_"
+    },
+    "back_jump_parry_start": {
+      "delay": 0.05,
+      "frames": "0,1",
       "prefix": "save_back_jump_parry_"
     },
-    "back_jump_catch": {
+    "back_jump_parry_end": {
       "delay": 0.05,
-      "frames": "0,1,2,3,4",
+      "frames": "2,3,4",
+      "prefix": "save_back_jump_parry_"
+    },
+    "back_jump_catch_start": {
+      "delay": 0.05,
+      "frames": "0,1",
+      "prefix": "save_back_jump_catch_"
+    },
+    "back_jump_catch_end": {
+      "delay": 0.05,
+      "frames": "2,3,4",
       "prefix": "save_back_jump_catch_"
     }
   },

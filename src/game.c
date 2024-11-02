@@ -31,6 +31,8 @@ static struct goal setup_goal(entity_id_t id,
 				.y = center.y - (side == PSI_NORTH ? 0 : penalty_box_height),
 				.width = penalty_box_width,
 				.height = penalty_box_height},
+	.penalty_spot = {.x = center.x,
+			 .y = center.y + 11 * PIXELS_PER_METER * (side == PSI_NORTH ? 1 : -1)},
 	.goal_quad_points = {
 	    {.x = center.x - width * 2, .y = 0, .z = center.y},
 	    {.x = center.x - width * 2, .y = height, .z = center.y},
@@ -193,16 +195,16 @@ struct game_state *game_init(struct game_config game_config)
 			       .side = PSI_SOUTH},
 	game_state);
 
-    for (usize i = 1; i < 10; ++i) {
-	entities_player_create(
-	    (struct player_config){
-		.position = football_pitch_position_rel_to_abs(
-		    game_state->vars.pitch.field,
-		    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
-		.side = PSI_SOUTH,
-		.team_formation_position_idx = i},
-	    game_state);
-    }
+    //    for (usize i = 1; i < 10; ++i) {
+    // entities_player_create(
+    //     (struct player_config){
+    // 	.position = football_pitch_position_rel_to_abs(
+    // 	    game_state->vars.pitch.field,
+    // 	    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
+    // 	.side = PSI_SOUTH,
+    // 	.team_formation_position_idx = i},
+    //     game_state);
+    //    }
 
     entities_player_create((struct player_config){.is_goalie = true,
 						  .position =

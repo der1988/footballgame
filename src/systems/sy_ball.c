@@ -55,7 +55,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test cross-bar
-	if (input->buttons[IBT_BUTTON_SELECT].released) {
+	if (input->buttons[IBT_BUTTON_DPAD_DOWN].released) {
 	    entities_ball_set_position_and_velocity(
 		entity_id,
 		(v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
@@ -67,7 +67,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test cross
-	if (input->buttons[IBT_BUTTON_UP].released) {
+	if (input->buttons[IBT_BUTTON_DPAD_UP].released) {
 	    entities_ball_set_position_and_velocity(
 		entity_id,
 		(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
@@ -79,11 +79,25 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test post
-	if (input->buttons[IBT_BUTTON_TRIGGER_RIGHT].released) {
+	if (input->buttons[IBT_BUTTON_DPAD_RIGHT].released) {
 	    entities_ball_set_position_and_velocity(
 		entity_id,
 		(v3){.x = game_state->vars.pitch.field.x + 358.6, .z = 300},
 		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f),
+		game_state);
+	    football_match_change_state(game_state, MS_PLAY);
+	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
+	    return;
+	}
+
+	// Test goalie jump
+	if (input->buttons[IBT_BUTTON_DPAD_LEFT].released) {
+	    entities_ball_set_position_and_velocity(
+		entity_id,
+		(v3){.x = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.x,
+		     .y = 200,
+		     .z = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.y},
+		Vector3Zero(),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
 	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
@@ -192,14 +206,20 @@ void systems_ball(struct game_state *game_state, struct input *input)
 			     &bounced,
 			     game_state);
 	    ball->future_bounce.available = false;
+	    ball->future_reachable.available = false;
 	    ball->is_on_the_ground = on_the_ground && !bounced;
 	    if (bounced) {
 		ball->last_bounce_time = game_state->time;
 	    }
 	    if (ball->is_on_the_ground) {
-		ball->future_bounce.available = false;
+		ball->future_bounce.available = true;
 		ball->future_bounce.position = V3_TO_V2(position);
 		ball->future_bounce.dts = 0;
+	    }
+	    if (position.y < game_state->constants.crossbar_height) {
+		ball->future_reachable.available = true;
+		ball->future_reachable.position = position;
+		ball->future_reachable.dts = 0;
 	    }
 
 	    // Calculate next 'ball_lookaheads' look ahead positions, ball_lookahead_dts dts apart from each other
@@ -225,6 +245,13 @@ void systems_ball(struct game_state *game_state, struct input *input)
 			ball->future_bounce.available = true;
 			ball->future_bounce.position = V3_TO_V2(lookahead_position);
 			ball->future_bounce.dts = i * game_state->constants.ball_lookaheads + j + 1;
+		    }
+		    if (!ball->future_reachable.available &&
+			lookahead_position.y < game_state->constants.crossbar_height) {
+			ball->future_reachable.available = true;
+			ball->future_reachable.position = lookahead_position;
+			ball->future_reachable.dts =
+			    i * game_state->constants.ball_lookaheads + j + 1;
 		    }
 		}
 		ball->lookahead_positions[i] = lookahead_position;

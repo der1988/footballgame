@@ -1,5 +1,6 @@
 #include "assets.h"
 #include "components.h"
+#include "e_player.h"
 #include "entities.h"
 #include "football.h"
 #include "game.h"
@@ -125,6 +126,15 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	    const f32 exit_max_speed = game_state->constants.player_run_max_velocity * 1.5f;
 
+	    // can we get the ball in our hands without moving by any chance?
+	    if (ball_transform->virtual_height > game_state->constants.crossbar_height &&
+		ball->future_reachable.available && ball->future_reachable.dts < 20 &&
+		Vector2Distance(V3_TO_V2(ball->future_reachable.position), transform->position) <
+		    5) {
+		entities_goalie_state_machine_change_state_to(state_machine, GS_JUMP, game_state);
+		break;
+	    }
+
 	    // Calculate whether goalie can reach the ball at its next bounce position
 	    const b32 should_seek_ball_at_bounce_pos =
 		!ball->is_on_the_ground && ball->future_bounce.available &&
@@ -203,6 +213,121 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	    break;
 	}
+	case GS_JUMP: {
+	    struct state_machine_goalie_animation_data *jump_state_data =
+		&goalie->state_machine->state_data.dive;
+
+	    if (!jump_state_data->animation_first_phase_completed) {
+		struct assets_animation *animation = assets_animation_get_by_id(
+		    game_state->animation_cache, goalie->jump_animations_start[player->side]);
+		f32 animation_completion =
+		    Clamp((game_state->time - jump_state_data->animation_start_time) /
+			      (animation->delay * animation->frames_count),
+			  0,
+			  1);
+		const u16 new_frame_id =
+		    floorf(animation_completion * (animation->frames_count - 1));
+		if (animation_completion >= 1) {
+		    animation_completion = 1;
+		    jump_state_data->animation_first_phase_completed = true;
+		    jump_state_data->animation_first_phase_end_time = game_state->time;
+		}
+		sprite->frame_id = animation->frames[new_frame_id];
+	    } else if ((jump_state_data->ball_held ||
+			HAS_TIME_PASSED(game_state->time,
+					jump_state_data->animation_first_phase_end_time,
+					0.05f)) &&
+		       !jump_state_data->animation_completed) {
+		if (!jump_state_data->animation_second_phase_started) {
+		    jump_state_data->animation_second_phase_started = true;
+		    jump_state_data->animation_start_time = game_state->time;
+		}
+		struct assets_animation *animation = assets_animation_get_by_id(
+		    game_state->animation_cache,
+		    goalie->jump_animations_end[player->side][jump_state_data->ball_held]);
+		f32 animation_completion =
+		    Clamp((game_state->time - jump_state_data->animation_start_time) /
+			      (animation->delay * animation->frames_count),
+			  0,
+			  1);
+		const u16 new_frame_id =
+		    floorf(animation_completion * (animation->frames_count - 1));
+		if (animation_completion >= 1) {
+		    animation_completion = 1;
+		    jump_state_data->animation_completed = true;
+		    jump_state_data->animation_end_time = game_state->time;
+		}
+		sprite->frame_id = animation->frames[new_frame_id];
+	    }
+
+	    const b32 is_colliding_with_ball =
+		entities_player_is_colliding_with_ball(entity,
+						       PCT_GOALIE,
+						       ball_position,
+						       ball_radius,
+						       game_state->constants.crossbar_height);
+
+	    if (!jump_state_data->ball_saved &&
+		HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
+		is_colliding_with_ball && !jump_state_data->animation_completed) {
+		// Choose whether to bounce or hold the ball
+		// Definitely hold if ball velocity is lower than 54km/h
+		// Sometimes hold if ball velocity is lower than 108km/h
+		// Otherwise bounce it
+		jump_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
+
+		// TODO: if the ball hits the post and comes back we don't want to hold
+		// the ball
+		if (jump_state_data->ball_held) {
+		    entities_ball_held_by_goalie(
+			game_state->vars.ball_entity_id, entity_id, game_state);
+		} else {
+		    // Bounce ball
+		    v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
+		    // new_ball_velocity = Vector3RotateByAxisAngle(
+		    //     new_ball_velocity, (v3){.y = 1},
+		    //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
+
+		    // TODO: position should be outside collider
+
+		    // Project ball position back in the past using current velocity until it's not colliding anymore
+		    v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
+		    b32 still_colliding_with_ball = true;
+		    v3 where_to_place_ball =
+			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+		    while (still_colliding_with_ball) {
+			where_to_place_ball = Vector3Add(
+			    where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
+
+			still_colliding_with_ball = entities_player_is_colliding_with_ball(
+			    entity,
+			    PCT_GOALIE,
+			    where_to_place_ball,
+			    ball_radius,
+			    game_state->constants.crossbar_height - ball_radius);
+		    }
+
+		    entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+							    where_to_place_ball,
+							    Vector3Scale(new_ball_velocity, 0.3f),
+							    game_state);
+		    entities_ball_saved_by_goalie(
+			game_state->vars.ball_entity_id, entity_id, game_state);
+		}
+
+		goalie->last_save_time = game_state->time;
+		jump_state_data->ball_saved = true;
+	    } else if (jump_state_data->animation_completed) {
+		if (jump_state_data->ball_held) {
+		    entities_goalie_state_machine_change_state_to(
+			goalie->state_machine, GS_HOLD_BALL, game_state);
+		} else {
+		    entities_goalie_state_machine_change_state_to(
+			goalie->state_machine, GS_PROTECT_GOAL, game_state);
+		}
+	    }
+	    break;
+	}
 	case GS_HOLD_BALL: {
 	    if (!HAS_TIME_PASSED(game_state->time,
 				 goalie->state_machine->state_data.hold_ball.hold_start_time,
@@ -229,7 +354,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	case GS_DIVE: {
 	    enum save_direction direction = goalie->dive_direction;
 
-	    struct state_machine_goalie_dive_data *dive_state_data =
+	    struct state_machine_goalie_animation_data *dive_state_data =
 		&goalie->state_machine->state_data.dive;
 
 	    if (!dive_state_data->animation_first_phase_completed) {

@@ -194,6 +194,8 @@ void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id,
     transform->position = V3_TO_V2(pos);
     transform->virtual_height = pos.y;
     entity->physics3d.velocity = velocity;
+    entity->ball.future_bounce.available = false;
+    entity->ball.future_reachable.available = false;
     entity->ball.subject_to_after_touch = false;
     entity->ball.selected_after_touch_side = Vector2Zero();
 }

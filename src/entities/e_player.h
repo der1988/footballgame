@@ -47,6 +47,7 @@ enum state_machine_goalie_state {
     GS_PROTECT_GOAL,
     GS_DIVE,
     GS_HOLD_BALL,
+    GS_JUMP,
     GS_COUNT
 };
 
@@ -59,7 +60,7 @@ struct state_machine_goalie_hold_ball_data {
     time_t hold_start_time;
 };
 
-struct state_machine_goalie_dive_data {
+struct state_machine_goalie_animation_data {
     f64 animation_start_time;
     f64 animation_first_phase_end_time;
     f64 animation_end_time;
@@ -72,8 +73,9 @@ struct state_machine_goalie_dive_data {
 
 union state_machine_goalie_state_data {
     struct state_machine_default_empty_data protect_goal;
-    struct state_machine_goalie_dive_data dive;
+    struct state_machine_goalie_animation_data dive;
     struct state_machine_goalie_hold_ball_data hold_ball;
+    struct state_machine_goalie_animation_data jump;
 };
 
 enum player_collider_type {
