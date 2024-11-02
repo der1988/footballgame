@@ -198,7 +198,11 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
 
-	    entities_player_calculate_running_frame(entity_id, direction, 5, game_state);
+	    entities_player_calculate_running_frame(entity_id,
+						    Vector2Subtract(ball_transform->position,
+								    transform->position),
+						    5,
+						    game_state);
 
 	    if (ball_velocity > game_state->constants.goalie_dive_min_ball_velocity &&
 		entities_player_should_dive(entity,
