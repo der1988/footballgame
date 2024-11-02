@@ -134,25 +134,40 @@ struct component_player {
 struct component_ball {
     struct component_header header;
     struct state_machine_ball *state_machine;
-    assets_sprite_frame_id_t roll_animations[D_COUNT];
-    entity_id_t last_player_on_the_ball_entity_id;
-    entity_id_t last_kicker_entity_id;
-    entity_id_t pass_target_entity_id;
+
+    // Lookahead and bounces
     v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
-    v2 selected_after_touch_side;
     struct {
 	b32 available;
 	v2 position;
 	u32 dts;
     } future_bounce;
-    b32 subject_to_after_touch;
-    b32 is_on_the_ground;
-    u32 dts_to_future_bounce;
-    u16 last_running_frame_idx;
-    time_t last_kick_time;
     time_t last_bounce_time;
-    time_t last_frame_update_time;
+    b32 is_on_the_ground;
+
+    // Player on the ball
+    struct {
+	entity_id_t entity_id;
+	entity_id_t last_entity_id;
+	time_t last_touch_time;
+    } player_on_the_ball;
+
+    // After touch
+    b32 subject_to_after_touch;
+    v2 selected_after_touch_side;
+
+    // Kicks
+    time_t last_kick_time;
+    entity_id_t last_kicker_entity_id;
+
+    // Passes
+    entity_id_t pass_target_entity_id;
+
+    // Animation
     enum direction last_direction;
+    u16 last_running_frame_idx;
+    time_t last_frame_update_time;
+    assets_sprite_frame_id_t roll_animations[D_COUNT];
 };
 
 struct component_goal {
