@@ -12,6 +12,7 @@
 #include "math_ext.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include "constants.h"
 
 static b32 protect_goal_predicate(v3 pos_to_check,
@@ -282,12 +283,12 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		if (jump_state_data->ball_held) {
 		    entities_ball_held_by_goalie(
 			game_state->vars.ball_entity_id, entity_id, game_state);
+		    printf("ball held\n");
 		} else {
 		    // Bounce ball
-		    v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
-		    // new_ball_velocity = Vector3RotateByAxisAngle(
-		    //     new_ball_velocity, (v3){.y = 1},
-		    //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
+		    v3 new_ball_velocity =
+			Vector3Normalize(Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1}));
+		    new_ball_velocity.y = 1;
 
 		    // TODO: position should be outside collider
 
@@ -310,10 +311,12 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 		    entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
 							    where_to_place_ball,
-							    Vector3Scale(new_ball_velocity, 0.3f),
+							    Vector3Scale(new_ball_velocity,
+									 10 * PIXELS_PER_METER),
 							    game_state);
 		    entities_ball_saved_by_goalie(
 			game_state->vars.ball_entity_id, entity_id, game_state);
+		    printf("ball saved\n");
 		}
 
 		goalie->last_save_time = game_state->time;
