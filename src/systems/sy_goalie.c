@@ -280,10 +280,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		// Definitely hold if ball velocity is lower than 54km/h
 		// Sometimes hold if ball velocity is lower than 108km/h
 		// Otherwise bounce it
-		jump_state_data->ball_held =
-		    GOALIE_HOLD_OR_BOUNCE(ball_velocity) &&
-		    ((player->side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
-		     (player->side == PSI_SOUTH && ball_physics_3d->velocity.z > 0));
+		jump_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
 
 		if (jump_state_data->ball_held) {
 		    entities_ball_held_by_goalie(
@@ -439,7 +436,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		// Definitely hold if ball velocity is lower than 54km/h
 		// Sometimes hold if ball velocity is lower than 108km/h
 		// Otherwise bounce it
-		dive_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
+		dive_state_data->ball_held =
+		    GOALIE_HOLD_OR_BOUNCE(ball_velocity) &&
+		    ((player->side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
+		     (player->side == PSI_SOUTH && ball_physics_3d->velocity.z > 0));
 
 		// TODO: if the ball hits the post and comes back we don't want to hold
 		// the ball
