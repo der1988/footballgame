@@ -89,6 +89,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
 
 		    // Project ball position back in the past using current velocity until it's not colliding anymore
+		    // TODO: this thing should be refactored as it's used in more than one place
 		    v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
 		    b32 still_colliding_with_ball = true;
 		    v3 where_to_place_ball =
@@ -158,6 +159,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    transform->position, physics->velocity, physics->max_velocity, destination, 10);
 	    } else {
 		// Calculate whether goalie can reach the ball using predicted positions
+		// TODO: don't rush to the ball if possession is hostile
+
 		v3 future_pos;
 		time_t future_time;
 		const b32 can_reach_ball =

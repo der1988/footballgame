@@ -95,3 +95,7 @@ v ball shoult not collide with goalie when it's coming back after hitting the po
 - goalie should not exit all the time
 - make the game platform agnostic
 - implement network multiplayer
+- refactor the overlapping collision solver
+- refactor player_on_the_ball in ball component: let's use the game_state one
+- don't make goalie rush to the ball if possession is hostile
+- implement tackle
