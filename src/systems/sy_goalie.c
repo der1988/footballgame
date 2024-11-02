@@ -453,8 +453,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    //     new_ball_velocity, (v3){.y = 1},
 		    //     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
 
-		    // TODO: position should be outside collider
-
 		    // Project ball position back in the past using current velocity until it's not colliding anymore
 		    v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
 		    b32 still_colliding_with_ball = true;
