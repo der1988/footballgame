@@ -110,9 +110,6 @@ struct human_player {
 struct player_on_the_ball {
     entity_id_t id;
     f32 distance_from_the_ball;
-    struct component_player *player;
-    v2 position;
-    v2 velocity;
     b32 kicked_ball;
     struct player_controls {
 	v2 steering;
@@ -121,7 +118,6 @@ struct player_on_the_ball {
 	b32 automatic_pass;
 	f32 long_pass;
     } controls;
-    struct component_collider *collider;
 };
 
 struct game_vars {

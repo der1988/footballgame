@@ -82,6 +82,7 @@ v introduce south goal and goalie
 v implement goalie high catch/bounce
 v ball shoult not collide with goalie when it's coming back after hitting the post
 * improve player selection system
+* refactor player_on_the_ball in ball component: let's use the game_state one
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -96,6 +97,5 @@ v ball shoult not collide with goalie when it's coming back after hitting the po
 - make the game platform agnostic
 - implement network multiplayer
 - refactor the overlapping collision solver
-- refactor player_on_the_ball in ball component: let's use the game_state one
 - don't make goalie rush to the ball if possession is hostile
 - implement tackle

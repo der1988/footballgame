@@ -22,9 +22,10 @@ void systems_player(struct game_state *game_state, struct input *input)
     declare_ball_entity_components(ball_entity);
     UNUSED(ball_physics_3d);
 
+    game_state->vars.player_on_the_ball = (struct player_on_the_ball){0};
     struct player_on_the_ball *player_on_the_ball = &game_state->vars.player_on_the_ball;
-    *player_on_the_ball =
-	(struct player_on_the_ball){.id = EID_NOT_VALID, .distance_from_the_ball = 9999999.0f};
+    player_on_the_ball->id = EID_NOT_VALID;
+    player_on_the_ball->distance_from_the_ball = UINT32_MAX;
 
     for_each_entity(entity, game_state->entity_repository) {
 	if (!entities_is_entity_alive_and_has_components(
@@ -168,12 +169,8 @@ void systems_player(struct game_state *game_state, struct input *input)
 		    Vector2DistanceSqr(transform->position, ball_transform->position);
 		if (distance_from_the_ball < player_on_the_ball->distance_from_the_ball) {
 		    player_on_the_ball->id = entity_id;
-		    player_on_the_ball->player = player;
 		    player_on_the_ball->distance_from_the_ball = distance_from_the_ball;
-		    player_on_the_ball->position = transform->position;
-		    player_on_the_ball->velocity = physics->velocity;
 		    player_on_the_ball->controls = player_controls;
-		    player_on_the_ball->collider = collider;
 
 		    ball->pass_target_entity_id = EID_NOT_VALID;
 		}
