@@ -175,13 +175,13 @@ static void ball_prepare_gfx(struct component_ball *ball, struct game_state *gam
 	entities_common_animation_id_from_name("ball", "down_right", game_state);
 }
 
-void entities_ball_set_player_on_the_ball(struct component_ball *ball,
-					  entity_id_t player_on_the_ball_entity_id,
-					  struct game_state *game_state)
+void entities_ball_set_last_touch(struct component_ball *ball,
+				  entity_id_t player_entity_id,
+				  struct game_state *game_state)
 {
-    ball->player_on_the_ball.entity_id = ball->player_on_the_ball.last_entity_id =
-	player_on_the_ball_entity_id;
-    ball->player_on_the_ball.last_touch_time = game_state->time;
+    UNUSED(game_state);
+    ball->last_touch_entity_id = player_entity_id;
+    ball->last_touch_time = 0;
 }
 
 void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id,
@@ -221,7 +221,7 @@ void entities_ball_control_precision(entity_id_t ball_entity_id,
 		Vector3Subtract(V2_TO_V3(position_to_seek, 0),
 				V2_TO_V3(transform->position, transform->virtual_height))),
 	    math_ext_split_lerp(game_state->constants.ball_control_force, 0.5f, 1 - difficulty)));
-    entities_ball_set_player_on_the_ball(ball, player_on_the_ball_entity_id, game_state);
+    entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
 }
 
 void entities_ball_control_running(entity_id_t ball_entity_id,
@@ -241,7 +241,7 @@ void entities_ball_control_running(entity_id_t ball_entity_id,
 	Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
 	math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
     physics3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
-    entities_ball_set_player_on_the_ball(ball, player_on_the_ball_entity_id, game_state);
+    entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
 }
 
 void entities_ball_shoot(entity_id_t ball_entity_id,
@@ -301,7 +301,7 @@ void entities_ball_shoot(entity_id_t ball_entity_id,
 	Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
-    entities_ball_set_player_on_the_ball(ball, kicker_entity_id, game_state);
+    entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
     ball->subject_to_after_touch = true;
     ball->selected_after_touch_side = Vector2Zero();
 }
@@ -328,7 +328,7 @@ void entities_ball_short_pass(entity_id_t ball_entity_id,
 			 game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
-    entities_ball_set_player_on_the_ball(ball, kicker_entity_id, game_state);
+    entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
 }
 
 void entities_ball_long_pass(entity_id_t ball_entity_id,
@@ -351,7 +351,7 @@ void entities_ball_long_pass(entity_id_t ball_entity_id,
 			 game_state->dt));
     ball->last_kick_time = game_state->time;
     ball->last_kicker_entity_id = kicker_entity_id;
-    entities_ball_set_player_on_the_ball(ball, kicker_entity_id, game_state);
+    entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
     ball->subject_to_after_touch = true;
     ball->selected_after_touch_side = Vector2Zero();
 }
@@ -363,7 +363,7 @@ void entities_ball_held_by_goalie(entity_id_t ball_entity_id,
     struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct component_ball *ball = &entity->ball;
 
-    entities_ball_set_player_on_the_ball(ball, goalie_entity_id, game_state);
+    entities_ball_set_last_touch(ball, goalie_entity_id, game_state);
 
     entities_ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
 }
@@ -375,7 +375,7 @@ void entities_ball_saved_by_goalie(entity_id_t ball_entity_id,
     struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
     struct component_ball *ball = &entity->ball;
 
-    entities_ball_set_player_on_the_ball(ball, goalie_entity_id, game_state);
+    entities_ball_set_last_touch(ball, goalie_entity_id, game_state);
 }
 
 void entities_ball_back_in_play(entity_id_t ball_entity_id, struct game_state *game_state)

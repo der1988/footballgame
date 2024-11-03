@@ -50,7 +50,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Zero(),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
+	    entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -62,7 +62,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
+	    entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -74,7 +74,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
+	    entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -86,7 +86,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
+	    entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -100,7 +100,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		Vector3Zero(),
 		game_state);
 	    football_match_change_state(game_state, MS_PLAY);
-	    entities_ball_set_player_on_the_ball(ball, EID_NOT_VALID, game_state);
+	    entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 	    return;
 	}
 
@@ -130,11 +130,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    v3 position = V2_TO_V3(transform->position, transform->virtual_height);
 	    v3 velocity = physics3d->velocity;
 	    v3 accel = physics3d->accel;
-
-	    // Player on the ball
-	    if (HAS_TIME_PASSED(game_state->time, ball->player_on_the_ball.last_touch_time, 0.2f)) {
-		ball->player_on_the_ball.entity_id = EID_NOT_VALID;
-	    }
 
 	    // After touch
 	    f32 after_touch_time = (game_state->time - ball->last_kick_time);

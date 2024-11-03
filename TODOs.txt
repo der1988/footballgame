@@ -81,8 +81,8 @@ v move players on the pitch based on ball position and team formation
 v introduce south goal and goalie
 v implement goalie high catch/bounce
 v ball shoult not collide with goalie when it's coming back after hitting the post
+v refactor player_on_the_ball in ball component and the game_state one
 * improve player selection system
-* refactor player_on_the_ball in ball component: let's use the game_state one
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?

@@ -82,7 +82,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	f32 steering_magnitude = Vector2Length(player_on_the_ball->controls.steering);
 	// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 
-	entities_ball_set_player_on_the_ball(ball, player_on_the_ball->id, game_state);
+	entities_ball_set_last_touch(ball, player_on_the_ball->id, game_state);
 
 	if (player_on_the_ball->controls.shot > 0) {
 	    // Shot
