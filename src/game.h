@@ -120,7 +120,7 @@ struct player_on_the_ball {
 	f32 pass;
 	b32 automatic_pass;
 	f32 long_pass;
-    } *controls;
+    } controls;
     struct component_collider *collider;
 };
 
