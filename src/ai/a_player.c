@@ -5,7 +5,6 @@
 #include "macro.h"
 #include "types.h"
 #include <raymath.h>
-#include <stdio.h>
 
 #define STAY_THERE_RADIUS 30.0f
 

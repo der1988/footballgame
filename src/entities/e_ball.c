@@ -181,7 +181,10 @@ void entities_ball_set_last_touch(struct component_ball *ball,
 {
     UNUSED(game_state);
     ball->last_touch_entity_id = player_entity_id;
-    ball->last_touch_time = 0;
+    if (player_entity_id == EID_NOT_VALID)
+	ball->last_touch_time = 0;
+    else
+	ball->last_touch_time = game_state->time;
 }
 
 void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id,
