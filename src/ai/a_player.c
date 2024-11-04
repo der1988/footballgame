@@ -5,7 +5,6 @@
 #include "macro.h"
 #include "types.h"
 #include <raymath.h>
-#include <stdio.h>
 
 #define STAY_THERE_RADIUS 30.0f
 
@@ -26,6 +25,9 @@ enum player_ai_state ai_player_think(struct entity *entity,
 
     f32 distance_from_ball = Vector2Distance(ball_transform->position, transform->position);
 
+    b32 nobody_on_the_ball = ball->last_touch_entity_id == EID_NOT_VALID ||
+			     HAS_TIME_PASSED(game_state->time, ball->last_touch_time, 0.2f);
+
     // This player is the target of an automatic pass
     // Let's move towards the ball
     if (ball->pass_target_entity_id == entity->header.id) {
@@ -45,10 +47,10 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	ai_state = PAS_SEEK_POSITION;
     } else if (ball->future_bounce.available &&
 	       Vector2Distance(transform->position, ball->future_bounce.position) < 150 &&
-	       ball->player_on_the_ball.entity_id == EID_NOT_VALID) {
+	       nobody_on_the_ball) {
 	*target_position = ball->future_bounce.position;
 	ai_state = PAS_ARRIVE_TO_POSITION;
-    } else if (distance_from_ball < 150 && ball->player_on_the_ball.entity_id == EID_NOT_VALID) {
+    } else if (distance_from_ball < 150 && nobody_on_the_ball) {
 	v3 ball_future_pos;
 	time_t ball_future_time;
 	b32 found = entities_common_can_reach_future_ball_position(

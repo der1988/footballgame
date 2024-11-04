@@ -150,12 +150,9 @@ struct component_ball {
     time_t last_bounce_time;
     b32 is_on_the_ground;
 
-    // Player on the ball
-    struct {
-	entity_id_t entity_id;
-	entity_id_t last_entity_id;
-	time_t last_touch_time;
-    } player_on_the_ball;
+    // Touch
+    time_t last_touch_time;
+    entity_id_t last_touch_entity_id;
 
     // After touch
     b32 subject_to_after_touch;

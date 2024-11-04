@@ -4,7 +4,6 @@
 #include "game.h"
 #include "input.h"
 #include "layers.h"
-#include "memory.h"
 #include "steering.h"
 #include "types.h"
 #include "macro.h"
@@ -23,9 +22,10 @@ void systems_player(struct game_state *game_state, struct input *input)
     declare_ball_entity_components(ball_entity);
     UNUSED(ball_physics_3d);
 
+    game_state->vars.player_on_the_ball = (struct player_on_the_ball){0};
     struct player_on_the_ball *player_on_the_ball = &game_state->vars.player_on_the_ball;
-    *player_on_the_ball =
-	(struct player_on_the_ball){.id = EID_NOT_VALID, .distance_from_the_ball = 9999999.0f};
+    player_on_the_ball->id = EID_NOT_VALID;
+    player_on_the_ball->distance_from_the_ball = UINT32_MAX;
 
     for_each_entity(entity, game_state->entity_repository) {
 	if (!entities_is_entity_alive_and_has_components(
@@ -47,29 +47,28 @@ void systems_player(struct game_state *game_state, struct input *input)
 	case PS_NONE:
 	    break;
 	case PS_NORMAL: {
-	    struct player_controls *player_controls = memory_arena_push(
-		game_state->memory_by_lifetime[MAL_UPDATE], sizeof(*player_controls));
+	    struct player_controls player_controls = {0};
 
 	    if (game_state->vars.p1.player_entity_id == entity_id) {
 		// Player is human controlled
-		player_controls->steering = game_state->vars.p1.controls.steering;
+		player_controls.steering = game_state->vars.p1.controls.steering;
 
 		if (game_state->vars.p1.controls.charge.ready) {
 		    switch (game_state->vars.p1.controls.charge.type) {
 		    case ACT_SHOOT: {
-			player_controls->shot = game_state->vars.p1.controls.charge.power;
+			player_controls.shot = game_state->vars.p1.controls.charge.power;
 			break;
 		    }
 		    case ACT_PASS: {
-			player_controls->pass = game_state->vars.p1.controls.charge.power;
+			player_controls.pass = game_state->vars.p1.controls.charge.power;
 			if ((game_state->vars.p1.controls.charge.ended -
 			     game_state->vars.p1.controls.charge.started) < 0.15f) {
-			    player_controls->automatic_pass = true;
+			    player_controls.automatic_pass = true;
 			}
 			break;
 		    }
 		    case ACT_LONG_PASS: {
-			player_controls->long_pass = game_state->vars.p1.controls.charge.power;
+			player_controls.long_pass = game_state->vars.p1.controls.charge.power;
 			break;
 		    }
 		    }
@@ -85,28 +84,28 @@ void systems_player(struct game_state *game_state, struct input *input)
 
 		    switch (ai_state) {
 		    case PAS_KEEP_POSITION:
-			player_controls->steering = Vector2Zero();
+			player_controls.steering = Vector2Zero();
 			break;
 		    case PAS_SEEK_POSITION: {
-			player_controls->steering = steering_seek(transform->position,
-								  physics->velocity,
-								  physics->max_velocity,
-								  target_pos);
+			player_controls.steering = steering_seek(transform->position,
+								 physics->velocity,
+								 physics->max_velocity,
+								 target_pos);
 			break;
 		    }
 		    case PAS_ARRIVE_TO_POSITION: {
-			player_controls->steering = steering_arrive(transform->position,
-								    physics->velocity,
-								    physics->max_velocity,
-								    target_pos,
-								    20);
+			player_controls.steering = steering_arrive(transform->position,
+								   physics->velocity,
+								   physics->max_velocity,
+								   target_pos,
+								   20);
 			break;
 		    }
 		    }
 		}
 	    }
 
-	    v2 effective_steering = player_controls->steering;
+	    v2 effective_steering = player_controls.steering;
 	    // If charging kick we seek the ball
 	    if (entity_id == game_state->vars.p1.player_entity_id &&
 		game_state->vars.p1.controls.charge.charging) {
@@ -149,8 +148,9 @@ void systems_player(struct game_state *game_state, struct input *input)
 		    fmaxf(initial_max_velocity, player->current_max_velocity);
 	    }
 	    // Player without the ball is 10% faster than the same player with the ball
-	    physics->max_velocity = player->current_max_velocity *
-				    (ball->player_on_the_ball.entity_id == entity_id ? 1 : 1.1f);
+	    physics->max_velocity =
+		player->current_max_velocity *
+		(game_state->vars.player_on_the_ball.id == entity_id ? 1 : 1.1f);
 
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
@@ -170,12 +170,8 @@ void systems_player(struct game_state *game_state, struct input *input)
 		    Vector2DistanceSqr(transform->position, ball_transform->position);
 		if (distance_from_the_ball < player_on_the_ball->distance_from_the_ball) {
 		    player_on_the_ball->id = entity_id;
-		    player_on_the_ball->player = player;
 		    player_on_the_ball->distance_from_the_ball = distance_from_the_ball;
-		    player_on_the_ball->position = transform->position;
-		    player_on_the_ball->velocity = physics->velocity;
 		    player_on_the_ball->controls = player_controls;
-		    player_on_the_ball->collider = collider;
 
 		    ball->pass_target_entity_id = EID_NOT_VALID;
 		}
