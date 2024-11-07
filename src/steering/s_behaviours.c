@@ -13,8 +13,13 @@ v2 steering_arrive(v2 position, v2 velocity, f32 max_velocity, v2 target, f32 sl
 {
     v2 target_offset = Vector2Subtract(target, position);
     f32 distance = Vector2Length(target_offset);
-    f32 clipped_speed = max_velocity * Clamp(distance / slowing_distance, 0, 1);
-    v2 desired_velocity = Vector2Scale(target_offset, clipped_speed / distance);
+    v2 desired_velocity;
+    if (distance == 0) {
+	desired_velocity = Vector2Zero();
+    } else {
+	f32 clipped_speed = max_velocity * Clamp(distance / slowing_distance, 0, 1);
+	desired_velocity = Vector2Scale(target_offset, clipped_speed / distance);
+    }
     v2 steering = Vector2Subtract(desired_velocity, velocity);
     return Vector2Scale(steering, 1.0f / max_velocity);
 }
