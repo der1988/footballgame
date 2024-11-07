@@ -181,6 +181,11 @@ void systems_player(struct game_state *game_state, struct input *input)
 		player->time_spent_in_precision_control = 0;
 	    }
 
+	    if (!is_colliding_with_ball && input->buttons[IBT_BUTTON_LEFT].pressed) {
+		entities_player_state_machine_change_state_to(
+		    player->state_machine, PS_SLIDING_TACKLE, game_state);
+	    }
+
 	    // Calculate frame to display
 	    entities_player_calculate_running_frame(entity_id, physics->velocity, 3, game_state);
 
