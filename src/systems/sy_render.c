@@ -3,6 +3,7 @@
 #include "entities.h"
 #include "game.h"
 #include "render.h"
+#include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
@@ -38,10 +39,10 @@ static i32 cmp_sprite_order(const void *s1, const void *s2)
 	if (diff == 0) {
 	    // Order by y position: on the pitch a sprite positioned lower is in front of a
 	    // sprite positioned higher.
-	    // Multiply by 100 to preserve precision
-	    diff = sprite_1->position.y * 100 - sprite_2->position.y * 100;
+	    diff = sprite_1->position.y - sprite_2->position.y;
 	}
     }
+
     return diff;
 }
 
@@ -67,6 +68,7 @@ void systems_render(struct game_state *game_state)
 
 	struct assets_sprite_frame *sprite_frame =
 	    assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id);
+	assert(sprite_frame);
 
 	Vector2 position = transform->position;
 	f32 rotation = transform->rotation;
@@ -74,6 +76,7 @@ void systems_render(struct game_state *game_state)
 	components_transform_calculate_absolute(transform, &position, &rotation, &scale);
 	struct assets_texture *texture =
 	    assets_texture_get_by_id(game_state->texture_cache, sprite_frame->texture_id);
+	assert(texture);
 
 	// Shadow
 	b32 draw_shadow = sprite->draw_shadow;
