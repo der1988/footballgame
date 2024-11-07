@@ -123,7 +123,9 @@ struct component_player {
     time_t time_spent_in_run_control;
     f32 current_max_velocity;
     assets_sprite_frame_id_t stand_frames[D_COUNT];
+    assets_sprite_frame_id_t tackle_frames[D_COUNT];
     assets_animation_id_t run_animations[D_COUNT];
+    assets_animation_id_t fall_animations[D_COUNT];
     enum direction last_direction;
     f32 last_kick_time;
     f32 last_frame_update_time;

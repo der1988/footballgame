@@ -216,6 +216,9 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
     case PS_THROW_IN:
     case PS_HEADER:
     case PS_SLIDING_TACKLE:
+	entity->sprite.frame_id = player->tackle_frames[player->last_direction];
+	entity->player.state_machine->state_data.tackle.start_time = game_state->time;
+    case PS_FALL:
     case PS_COUNT:
 	break;
     }
@@ -239,6 +242,7 @@ void entities_player_state_machine_on_exit(struct entity *entity, struct game_st
     case PS_THROW_IN:
     case PS_HEADER:
     case PS_SLIDING_TACKLE:
+    case PS_FALL:
     case PS_COUNT:
 	break;
     }
@@ -434,6 +438,31 @@ static void prepare_gfx(struct component_player *player, struct game_state *game
     player->stand_frames[D_UP_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
 
+    // Tackle frames
+    player->tackle_frames[D_DOWN] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_front_0")->id;
+    player->tackle_frames[D_UP] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_back_0")->id;
+    player->tackle_frames[D_LEFT] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_left_0")->id;
+    player->tackle_frames[D_RIGHT] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_right_0")->id;
+    player->tackle_frames[D_DOWN_LEFT] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+					"player_tackle_front_left_0")
+	    ->id;
+    player->tackle_frames[D_DOWN_RIGHT] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+					"player_tackle_front_right_0")
+	    ->id;
+    player->tackle_frames[D_UP_LEFT] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_back_left_0")
+	    ->id;
+    player->tackle_frames[D_UP_RIGHT] =
+	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+					"player_tackle_back_right_0")
+	    ->id;
+
     // Running animations
     player->run_animations[D_DOWN] =
 	entities_common_animation_id_from_name("player", "run_front", game_state);
@@ -451,6 +480,24 @@ static void prepare_gfx(struct component_player *player, struct game_state *game
 	entities_common_animation_id_from_name("player", "run_back_left", game_state);
     player->run_animations[D_UP_RIGHT] =
 	entities_common_animation_id_from_name("player", "run_back_right", game_state);
+
+    // Fall animations
+    player->fall_animations[D_DOWN] =
+	entities_common_animation_id_from_name("player", "fall_front", game_state);
+    player->fall_animations[D_UP] =
+	entities_common_animation_id_from_name("player", "fall_back", game_state);
+    player->fall_animations[D_LEFT] =
+	entities_common_animation_id_from_name("player", "fall_left", game_state);
+    player->fall_animations[D_RIGHT] =
+	entities_common_animation_id_from_name("player", "fall_right", game_state);
+    player->fall_animations[D_DOWN_LEFT] =
+	entities_common_animation_id_from_name("player", "fall_front_left", game_state);
+    player->fall_animations[D_DOWN_RIGHT] =
+	entities_common_animation_id_from_name("player", "fall_front_right", game_state);
+    player->fall_animations[D_UP_LEFT] =
+	entities_common_animation_id_from_name("player", "fall_back_left", game_state);
+    player->fall_animations[D_UP_RIGHT] =
+	entities_common_animation_id_from_name("player", "fall_back_right", game_state);
 }
 
 static void prepare_goalie_gfx(struct component_player *player,
