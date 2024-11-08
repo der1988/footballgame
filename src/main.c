@@ -51,6 +51,10 @@ int main()
 	    f64 total_update_time = 0;
 	    current_time = new_time;
 
+	    if (frame_time > 1) {
+		frame_time = game_state->dt;
+	    }
+
 	    u32 physics_iterations = 0;
 	    accumulator += frame_time;
 	    while (accumulator > 0) {

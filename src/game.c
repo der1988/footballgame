@@ -191,20 +191,24 @@ struct game_state *game_init(struct game_config game_config)
     }
 
     struct entity *player_entity = entities_player_create(
-	(struct player_config){.position = {game_state->config.virtual_screen_width / 2.0f, 220.0f},
-			       .side = PSI_SOUTH},
+	(struct player_config){
+	    .position = football_pitch_position_rel_to_abs(
+		game_state->vars.pitch.field,
+		football_tactics_get_team_formation_position(TF_433, 0)->position[TM_DEFAULT]),
+	    .side = PSI_NORTH,
+	    .team_formation_position_idx = 0},
 	game_state);
 
-    for (usize i = 1; i < 10; ++i) {
-	entities_player_create(
-	    (struct player_config){
-		.position = football_pitch_position_rel_to_abs(
-		    game_state->vars.pitch.field,
-		    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
-		.side = PSI_NORTH,
-		.team_formation_position_idx = i},
-	    game_state);
-    }
+    //    for (usize i = 1; i < 10; ++i) {
+    // entities_player_create(
+    //     (struct player_config){
+    // 	.position = football_pitch_position_rel_to_abs(
+    // 	    game_state->vars.pitch.field,
+    // 	    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
+    // 	.side = PSI_NORTH,
+    // 	.team_formation_position_idx = i},
+    //     game_state);
+    //    }
 
     entities_player_create((struct player_config){.is_goalie = true,
 						  .position =

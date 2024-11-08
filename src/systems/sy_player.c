@@ -1,4 +1,5 @@
 #include "components.h"
+#include "e_player.h"
 #include "entities.h"
 #include "football.h"
 #include "game.h"
@@ -180,6 +181,11 @@ void systems_player(struct game_state *game_state, struct input *input)
 		player->time_spent_in_precision_control = 0;
 	    }
 
+	    if (!is_colliding_with_ball && input->buttons[IBT_BUTTON_LEFT].pressed) {
+		entities_player_state_machine_change_state_to(
+		    player->state_machine, PS_SLIDING_TACKLE, game_state);
+	    }
+
 	    // Calculate frame to display
 	    entities_player_calculate_running_frame(entity_id, physics->velocity, 3, game_state);
 
@@ -189,7 +195,73 @@ void systems_player(struct game_state *game_state, struct input *input)
 	    break;
 	case PS_THROW_IN:
 	case PS_HEADER:
-	case PS_SLIDING_TACKLE:
+	case PS_SLIDING_TACKLE: {
+	    struct state_machine_player_tackle_data *tackle_state_data =
+		&player->state_machine->state_data.tackle;
+
+	    v2 force_to_apply = Vector2Zero();
+	    if (Vector2Length(physics->velocity) > 3) {
+		// Apply friction
+		force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+					      7500); // TODO: this should depend on type of pitch
+	    } else if (HAS_TIME_PASSED(game_state->time, tackle_state_data->start_time, 0.5f)) {
+		entities_player_state_machine_change_state_to(
+		    player->state_machine, PS_NORMAL, game_state);
+		break;
+	    }
+
+	    // Handle max velocity
+	    physics->max_velocity = game_state->constants.player_run_max_velocity;
+
+	    entities_player_apply_force(entity_id, force_to_apply, game_state);
+	    entities_player_apply_velocity(entity_id, game_state);
+
+	    break;
+	}
+	case PS_FALL: {
+	    struct state_machine_player_fall_data *fall_state_data =
+		&player->state_machine->state_data.fall;
+
+	    if (!fall_state_data->animation_completed) {
+		struct assets_animation *animation = assets_animation_get_by_id(
+		    game_state->animation_cache, player->fall_animations[player->last_direction]);
+		f32 animation_completion =
+		    Clamp((game_state->time - fall_state_data->animation_start_time) /
+			      (animation->delay * animation->frames_count),
+			  0,
+			  1);
+		const u16 new_frame_id =
+		    floorf(animation_completion * (animation->frames_count - 1));
+		if (animation_completion >= 1) {
+		    animation_completion = 1;
+		    fall_state_data->animation_end_time = game_state->time;
+		    fall_state_data->animation_completed = true;
+		}
+		entity->sprite.frame_id = animation->frames[new_frame_id];
+	    }
+
+	    v2 force_to_apply = Vector2Zero();
+	    if (fall_state_data->animation_completed) {
+		// Apply friction
+		force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+					      30000); // TODO: this should depend on type of pitch
+	    }
+
+	    // Handle max velocity
+	    physics->max_velocity = game_state->constants.player_run_max_velocity;
+
+	    entities_player_apply_force(entity_id, force_to_apply, game_state);
+	    entities_player_apply_velocity(entity_id, game_state);
+
+	    if (fall_state_data->animation_completed &&
+		HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 0.5f)) {
+		entities_player_state_machine_change_state_to(
+		    player->state_machine, PS_NORMAL, game_state);
+		break;
+	    }
+
+	    break;
+	}
 	case PS_COUNT:
 	    break;
 	}

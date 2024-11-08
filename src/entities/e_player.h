@@ -22,11 +22,13 @@ enum state_machine_player_state {
     PS_THROW_IN,
     PS_HEADER,
     PS_SLIDING_TACKLE,
+    PS_FALL,
     PS_GOALIE,
     PS_COUNT
 };
 
-static const char *state_machine_player_state_string[] = {"none", "normal", "goalie"};
+static const char *state_machine_player_state_string[] = {
+    "none", "normal", "throw_in", "header", "tackle", "fall", "goalie"};
 
 declare_state_machine_enter_and_exit(player);
 
@@ -34,8 +36,22 @@ struct state_machine_player_normal_data {
     enum direction running_action_direction;
 };
 
+struct state_machine_player_tackle_data {
+    time_t start_time;
+    b32 touched_ball;
+    b32 touched_player;
+};
+
+struct state_machine_player_fall_data {
+    time_t animation_start_time;
+    time_t animation_end_time;
+    b32 animation_completed;
+};
+
 union state_machine_player_state_data {
     struct state_machine_player_normal_data normal;
+    struct state_machine_player_tackle_data tackle;
+    struct state_machine_player_fall_data fall;
     struct state_machine_default_empty_data goalie;
 };
 
