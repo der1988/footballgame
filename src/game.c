@@ -133,11 +133,23 @@ struct game_state *game_init(struct game_config game_config)
     assert(texture);
     game_state->pitch_texture_id = texture->id;
 
-    // Load main spritesheet
-    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/footballgame.png");
+    // Load game spritesheets
+    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/player.png");
     assert(texture);
     i32 loaded = assets_sprite_frames_load_from_json(
-	game_state->sprite_frame_cache, texture->id, "res/spritesheets/footballgame.json");
+	game_state->sprite_frame_cache, texture->id, "res/spritesheets/player.json");
+    assert(loaded != -1);
+
+    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/goalkeeper.png");
+    assert(texture);
+    loaded = assets_sprite_frames_load_from_json(
+	game_state->sprite_frame_cache, texture->id, "res/spritesheets/goalkeeper.json");
+    assert(loaded != -1);
+
+    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/ball.png");
+    assert(texture);
+    loaded = assets_sprite_frames_load_from_json(
+	game_state->sprite_frame_cache, texture->id, "res/spritesheets/ball.json");
     assert(loaded != -1);
 
     // Load other spritesheet
