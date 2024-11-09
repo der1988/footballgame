@@ -35,6 +35,7 @@ typedef struct Font font_t;
 typedef struct Camera2D camera2d_t;
 typedef struct RenderTexture render_texture_t;
 typedef struct Texture texture_t;
+typedef struct Shader shader_t;
 typedef struct Ray ray_t;
 typedef struct RayCollision ray_collision_t;
 

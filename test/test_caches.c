@@ -122,25 +122,24 @@ void test_shader_cache()
     memory_arena_handle_t *memory_arena_handle =
 	memory_arena_create("test_arena", buffer, Megabytes(1));
 
-    assets_texture_cache_t *handle = assets_texture_cache_create(memory_arena_handle);
+    assets_shader_cache_t *handle = assets_shader_cache_create(memory_arena_handle);
     TEST_ASSERT(handle);
-    struct assets_texture *assets_texture =
-	assets_texture_load(handle, "res/spritesheets/ball.png");
-    TEST_ASSERT_EQUAL_INT(0, strcmp(assets_texture->name, "res/spritesheets/ball.png"));
-    TEST_ASSERT_GREATER_THAN(0, assets_texture->texture.id);
+    struct assets_shader *assets_shader =
+	assets_shader_load(handle, "player", "res/shaders/base.vert", "res/shaders/base.frag");
+    TEST_ASSERT_EQUAL_INT(0, strcmp(assets_shader->name, "player"));
+    TEST_ASSERT_GREATER_THAN(0, assets_shader->shader.id);
 
-    struct assets_texture *assets_texture_ptr =
-	assets_texture_get_by_id(handle, assets_texture->id);
-    TEST_ASSERT_NOT_NULL(assets_texture_ptr);
-    TEST_ASSERT_EQUAL_UINT(assets_texture->id, assets_texture_ptr->id);
+    struct assets_shader *assets_shader_ptr = assets_shader_get_by_id(handle, assets_shader->id);
+    TEST_ASSERT_NOT_NULL(assets_shader_ptr);
+    TEST_ASSERT_EQUAL_UINT(assets_shader->id, assets_shader_ptr->id);
 
-    assets_texture_ptr = assets_texture_get_by_name(handle, "res/spritesheets/ball.png");
-    assert(assets_texture_ptr != NULL);
-    assert(assets_texture_ptr->id == assets_texture->id);
+    assets_shader_ptr = assets_shader_get_by_name(handle, "player");
+    assert(assets_shader_ptr != NULL);
+    assert(assets_shader_ptr->id == assets_shader->id);
 
-    assets_texture_cache_destroy(handle);
+    assets_shader_cache_destroy(handle);
 
-    GLOG_INFO(LS_TESTS, "texture cache test - end");
+    GLOG_INFO(LS_TESTS, "shader cache test - end");
 }
 
 int main()
@@ -149,6 +148,7 @@ int main()
     RUN_TEST(test_texture_cache);
     RUN_TEST(test_sprite_cache);
     RUN_TEST(test_animation_cache);
+    RUN_TEST(test_shader_cache);
 
     return UNITY_END();
 }

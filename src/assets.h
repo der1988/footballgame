@@ -15,7 +15,7 @@ typedef struct assets_texture_cache assets_texture_cache_t;
 struct assets_texture {
     assets_texture_id_t id;
     char name[MaxStringSize];
-    struct Texture texture;
+    texture_t texture;
 };
 
 struct assets_texture_cache *assets_texture_cache_create(memory_arena_handle_t *memory_arena_handle);
@@ -79,5 +79,27 @@ struct assets_animation *assets_animation_get_by_name(assets_animation_cache_t *
 						      const char *name);
 struct assets_animation *assets_animation_get_by_id(assets_animation_cache_t *handle,
 						    const assets_animation_id_t id);
+
+// Shader Cache
+typedef u32 assets_shader_id_t;
+
+typedef struct assets_shader_cache assets_shader_cache_t;
+
+struct assets_shader {
+    assets_shader_id_t id;
+    char name[MaxStringSize];
+    char vs_filename[MaxStringSize];
+    char fs_filename[MaxStringSize];
+    shader_t shader;
+};
+
+assets_shader_cache_t *assets_shader_cache_create(memory_arena_handle_t *memory_arena_handle);
+struct assets_shader *assets_shader_load(assets_shader_cache_t *handle,
+					 const char *name,
+					 const char *vs_filename,
+					 const char *fs_filename);
+void assets_shader_cache_destroy(assets_shader_cache_t *handle);
+struct assets_shader *assets_shader_get_by_id(assets_shader_cache_t *handle, u32 id);
+struct assets_shader *assets_shader_get_by_name(assets_shader_cache_t *handle, const char *name);
 
 #endif

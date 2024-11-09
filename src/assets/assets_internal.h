@@ -24,4 +24,11 @@ struct assets_animation_cache {
     u32 count;
 };
 
+struct assets_shader_cache {
+    b32 initialised;
+    memory_arena_handle_t *memory_arena_handle;
+    struct assets_shader *cache;
+    u32 count;
+};
+
 #endif
