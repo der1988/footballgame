@@ -1,0 +1,240 @@
+{ "frames": [
+   {
+    "filename": "ball_right_0",
+    "frame": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_1",
+    "frame": { "x": 52, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_2",
+    "frame": { "x": 104, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_3",
+    "frame": { "x": 156, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_0",
+    "frame": { "x": 156, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_1",
+    "frame": { "x": 104, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_2",
+    "frame": { "x": 52, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_3",
+    "frame": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_up_0",
+    "frame": { "x": 0, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_up_1",
+    "frame": { "x": 52, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_up_2",
+    "frame": { "x": 104, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_up_3",
+    "frame": { "x": 156, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_down_0",
+    "frame": { "x": 156, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_down_1",
+    "frame": { "x": 104, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_down_2",
+    "frame": { "x": 52, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_down_3",
+    "frame": { "x": 0, "y": 44, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_updown_0",
+    "frame": { "x": 0, "y": 88, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_updown_1",
+    "frame": { "x": 52, "y": 88, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_updown_2",
+    "frame": { "x": 104, "y": 88, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_right_updown_3",
+    "frame": { "x": 156, "y": 88, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_updown_0",
+    "frame": { "x": 0, "y": 132, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_updown_1",
+    "frame": { "x": 52, "y": 132, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_updown_2",
+    "frame": { "x": 104, "y": 132, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   },
+   {
+    "filename": "ball_left_updown_3",
+    "frame": { "x": 156, "y": 132, "w": 52, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 44 },
+    "sourceSize": { "w": 52, "h": 44 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.5-x64",
+  "image": "ball.png",
+  "format": "RGBA8888",
+  "size": { "w": 208, "h": 176 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "ball" },
+   { "name": "ball_right", "group": "ball", "opacity": 255, "blendMode": "normal" },
+   { "name": "ball_left", "group": "ball", "opacity": 255, "blendMode": "normal" },
+   { "name": "ball_up", "group": "ball", "opacity": 255, "blendMode": "normal" },
+   { "name": "ball_down", "group": "ball", "opacity": 255, "blendMode": "normal" },
+   { "name": "ball_right_updown", "group": "ball", "opacity": 255, "blendMode": "normal" },
+   { "name": "ball_left_updown", "group": "ball", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}
