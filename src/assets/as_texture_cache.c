@@ -55,6 +55,13 @@ struct assets_texture *assets_texture_load(assets_texture_cache_t *handle, const
 void assets_texture_cache_destroy(assets_texture_cache_t *handle)
 {
     assert(handle->initialised);
+
+    struct assets_texture *assets_texture = NULL;
+    for (usize i = 0; i < handle->count; ++i) {
+	assets_texture = &handle->cache[i];
+	UnloadTexture(assets_texture->texture);
+    }
+
     handle->cache = NULL;
     handle->count = 0;
     handle->initialised = false;

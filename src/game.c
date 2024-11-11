@@ -111,9 +111,9 @@ struct game_state *game_init(struct game_config game_config)
     game_state->memory_by_lifetime[MAL_LEVEL] =
 	memory_arena_create("level", game_config.memory + Megabytes(1), Megabytes(1));
     game_state->memory_by_lifetime[MAL_UPDATE] =
-	memory_arena_create("frame", game_config.memory + Megabytes(2), Megabytes(1));
+	memory_arena_create("update", game_config.memory + Megabytes(2), Megabytes(1));
     game_state->memory_by_lifetime[MAL_DRAW] =
-	memory_arena_create("frame", game_config.memory + Megabytes(3), Megabytes(1));
+	memory_arena_create("draw", game_config.memory + Megabytes(3), Megabytes(1));
 
     // Initialise entities repository
     game_state->entity_repository =
@@ -126,6 +126,7 @@ struct game_state *game_init(struct game_config game_config)
 	assets_sprite_frame_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
     game_state->animation_cache =
 	assets_animation_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
+    game_state->shader_cache = assets_shader_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
 
     // Load pitch
     struct assets_texture *texture =
@@ -163,6 +164,10 @@ struct game_state *game_init(struct game_config game_config)
     assets_animations_load_from_json(game_state->animation_cache,
 				     game_state->sprite_frame_cache,
 				     "res/animations/animations.json");
+
+    // Load Shaders
+    assets_shader_load(
+	game_state->shader_cache, "shader_palette", NULL, "res/shaders/palette.frag");
 
     game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_GAME]);
 
@@ -276,15 +281,17 @@ void game_destroy(struct game_state *game_state)
 
     tweakui_destroy(game_state->tweakui);
 
+    assets_shader_cache_destroy(game_state->shader_cache);
     assets_animation_cache_destroy(game_state->animation_cache);
     assets_sprite_frame_cache_destroy(game_state->sprite_frame_cache);
     assets_texture_cache_destroy(game_state->texture_cache);
 
     entities_repository_destroy(game_state->entity_repository);
 
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_GAME]);
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
+    memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
+    memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
+    memory_arena_destroy(game_state->memory_by_lifetime[MAL_GAME]);
 
     game_state->initialised = false;
     GLOG_INFO(LS_GAME, "game destruction complete");

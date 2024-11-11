@@ -35,6 +35,9 @@ struct assets_shader *assets_shader_load(assets_shader_cache_t *handle,
 					 const char *vs_filename,
 					 const char *fs_filename)
 {
+    assert(handle->initialised);
+    assert(name);
+
     struct assets_shader *assets_shader = NULL;
     assert(handle->initialised && handle->count < MAX_SHADERS);
     shader_t shader = {0};
@@ -45,8 +48,12 @@ struct assets_shader *assets_shader_load(assets_shader_cache_t *handle,
 	assets_shader->id = handle->count;
 	assets_shader->shader = shader;
 	strncpy(assets_shader->name, name, MaxStringSize);
-	strncpy(assets_shader->vs_filename, vs_filename, MaxStringSize);
-	strncpy(assets_shader->fs_filename, fs_filename, MaxStringSize);
+	if (vs_filename) {
+	    strncpy(assets_shader->vs_filename, vs_filename, MaxStringSize);
+	}
+	if (fs_filename) {
+	    strncpy(assets_shader->fs_filename, fs_filename, MaxStringSize);
+	}
 	handle->count++;
 	GLOGF_INFO_CTX(LS_ASSETS,
 		       name,
@@ -62,6 +69,13 @@ struct assets_shader *assets_shader_load(assets_shader_cache_t *handle,
 void assets_shader_cache_destroy(assets_shader_cache_t *handle)
 {
     assert(handle->initialised);
+
+    struct assets_shader *assets_shader = NULL;
+    for (usize i = 0; i < handle->count; ++i) {
+	assets_shader = &handle->cache[i];
+	UnloadShader(assets_shader->shader);
+    }
+
     handle->cache = NULL;
     handle->count = 0;
     handle->initialised = false;

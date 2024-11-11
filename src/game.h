@@ -142,6 +142,7 @@ struct game_state {
     assets_texture_cache_t *texture_cache;
     assets_sprite_frame_cache_t *sprite_frame_cache;
     assets_animation_cache_t *animation_cache;
+    assets_shader_cache_t *shader_cache;
     tweakui_t *tweakui;
     layers_debug_t *layer_debug;
     assets_texture_id_t pitch_texture_id;
