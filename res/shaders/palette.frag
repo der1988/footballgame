@@ -7,8 +7,7 @@ in vec2 fragTexCoord;
 in vec4 fragColor;
 
 // Input uniform values
-uniform sampler2D u_tex0;
-uniform vec2 u_tex0Resolution;
+uniform sampler2D texture0;
 uniform vec3 palette[MAX_INDEXED_COLORS];
 
 // Output fragment color
@@ -16,7 +15,7 @@ out vec4 finalColor;
 
 void main()
 {
-    vec4 texelColor = texture(u_tex0, fragTexCoord);
+    vec4 texelColor = texture(texture0, fragTexCoord);
 
     int index = int(texelColor.r*255.0);
     vec3 color = palette[index];
