@@ -49,7 +49,7 @@ struct component_physics3d {
 
 struct component_sprite {
     struct component_header header;
-    Color color;
+    color_t color;
     b32 flipX;
     b32 flipY;
     enum sprite_layer layer;
@@ -57,7 +57,7 @@ struct component_sprite {
     v2 pivot_override;
     assets_sprite_frame_id_t frame_id;
     b32 draw_shadow;
-    Color shadow_color;
+    color_t shadow_color;
     v2 shadow_offset;
     v2 shadow_scale;
 };
