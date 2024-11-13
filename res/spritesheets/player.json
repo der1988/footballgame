@@ -584,6 +584,7 @@
   "size": { "w": 488, "h": 488 },
   "scale": "1",
   "frameTags": [
+   { "name": "Loop", "from": 0, "to": 3, "direction": "forward", "color": "#000000ff" }
   ],
   "layers": [
    { "name": "player" },
