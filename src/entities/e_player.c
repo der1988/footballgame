@@ -27,6 +27,9 @@ static void prepare_goalie_gfx(struct component_player *player,
 			       struct component_goalie *goalie,
 			       struct game_state *game_state);
 static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider);
+color_t *player_custom_palette(entity_id_t entity_id, struct game_state *game_state);
+void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state);
+void player_custom_after_draw(entity_id_t entity_id, struct game_state *game_state);
 
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state)
 {
@@ -119,6 +122,9 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	player_state_machine->current_state = PS_NORMAL;
 
 	prepare_gfx(&entity->player, game_state);
+
+	sprite->before_draw = &player_custom_begin_draw;
+	sprite->after_draw = &player_custom_after_draw;
 
 	collider->colliders =
 	    memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
@@ -668,4 +674,58 @@ static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider 
 		    .y = pos.y + dive_collider->props.rectangle.offset.y,
 		    .width = dive_collider->props.rectangle.size.x,
 		    .height = dive_collider->props.rectangle.size.y};
+}
+
+void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state)
+{
+    UNUSED(entity_id);
+
+    u32 *palette =
+	memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], sizeof(u32) * 3 * 10);
+
+    palette = (u32[]){
+	// Hair
+	0,
+	0,
+	0,
+	// Skin
+	201,
+	147,
+	120,
+	// Skin shadow
+	166,
+	111,
+	90,
+	// Kit
+	148,
+	35,
+	35,
+	// Kit shadow
+	201,
+	147,
+	120,
+	// Pantaloncini
+	255,
+	255,
+	255,
+	// Shoes
+	0,
+	0,
+	0,
+    };
+
+    struct assets_shader *assets_shader =
+	assets_shader_get_by_name(game_state->shader_cache, "shader_palette");
+    u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
+    SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC3, 7);
+
+    BeginShaderMode(assets_shader->shader);
+}
+
+void player_custom_after_draw(entity_id_t entity_id, struct game_state *game_state)
+{
+    UNUSED(entity_id);
+    UNUSED(game_state);
+
+    EndShaderMode();
 }

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 struct sprite_to_draw {
+    entity_id_t entity_id;
     struct assets_sprite_frame *sprite_frame;
     struct assets_texture *texture;
     enum sprite_layer layer;
@@ -25,6 +26,8 @@ struct sprite_to_draw {
     v2 shadow_offset;
     v2 shadow_scale;
     color_t shadow_color;
+    void (*before_draw)(entity_id_t, struct game_state *);
+    void (*after_draw)(entity_id_t, struct game_state *);
 };
 
 static i32 cmp_sprite_order(const void *s1, const void *s2)
@@ -84,22 +87,27 @@ void systems_render(struct game_state *game_state)
 	v2 shadow_scale = sprite->shadow_scale;
 	v2 shadow_offset = sprite->shadow_offset;
 
-	*current_idx = (struct sprite_to_draw){.sprite_frame = sprite_frame,
-					       .layer = sprite->layer,
-					       .order_in_layer = sprite->order_in_layer,
-					       .position = position,
-					       .height = -transform->virtual_height,
-					       .rotation = rotation,
-					       .scale = scale,
-					       .color = sprite->color,
-					       .flipX = sprite->flipX,
-					       .flipY = sprite->flipY,
-					       .pivot_override = sprite->pivot_override,
-					       .texture = texture,
-					       .draw_shadow = draw_shadow,
-					       .shadow_color = shadow_color,
-					       .shadow_offset = shadow_offset,
-					       .shadow_scale = shadow_scale};
+	*current_idx = (struct sprite_to_draw){
+	    .entity_id = entity_id,
+	    .sprite_frame = sprite_frame,
+	    .layer = sprite->layer,
+	    .order_in_layer = sprite->order_in_layer,
+	    .position = position,
+	    .height = -transform->virtual_height,
+	    .rotation = rotation,
+	    .scale = scale,
+	    .color = sprite->color,
+	    .flipX = sprite->flipX,
+	    .flipY = sprite->flipY,
+	    .pivot_override = sprite->pivot_override,
+	    .texture = texture,
+	    .draw_shadow = draw_shadow,
+	    .shadow_color = shadow_color,
+	    .shadow_offset = shadow_offset,
+	    .shadow_scale = shadow_scale,
+	    .before_draw = sprite->before_draw,
+	    .after_draw = sprite->after_draw,
+	};
 	current_idx++;
     }
     u32 total_sprites = current_idx - ordered_sprites_to_draw;
@@ -129,6 +137,9 @@ void systems_render(struct game_state *game_state)
     // Draw sprites
     for (usize i = 0; i < total_sprites; ++i) {
 	struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
+	if (sprite_to_draw->before_draw) {
+	    sprite_to_draw->before_draw(sprite_to_draw->entity_id, game_state);
+	}
 	render_sprite_draw(sprite_to_draw->sprite_frame,
 			   Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
 			   sprite_to_draw->rotation,
@@ -138,5 +149,8 @@ void systems_render(struct game_state *game_state)
 			   sprite_to_draw->flipY,
 			   sprite_to_draw->pivot_override,
 			   sprite_to_draw->texture);
+	if (sprite_to_draw->after_draw) {
+	    sprite_to_draw->after_draw(sprite_to_draw->entity_id, game_state);
+	}
     }
 }

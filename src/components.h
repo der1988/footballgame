@@ -60,6 +60,8 @@ struct component_sprite {
     color_t shadow_color;
     v2 shadow_offset;
     v2 shadow_scale;
+    void (*before_draw)(entity_id_t, struct game_state *);
+    void (*after_draw)(entity_id_t, struct game_state *);
 };
 
 struct component_action {
