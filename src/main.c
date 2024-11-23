@@ -1,7 +1,9 @@
+#include "assets.h"
 #include "game.h"
-#include "input.h"
-#include "layers.h"
+#include "memory.h"
+#include "scenes.h"
 #include "types.h"
+#include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
@@ -22,87 +24,73 @@ int main()
     SetWindowMonitor(0);
 
     void *memory = malloc(Megabytes(64));
+    memory_arena_handle_t *main_memory_arena = memory_arena_create("main", memory, Megabytes(64));
 
-    struct game_config game_config =
-	(struct game_config){.screen_width = GetScreenWidth(),
-			     .screen_height = GetScreenHeight(),
-			     .virtual_screen_width = virtual_screen_width,
-			     .virtual_screen_height = virtual_screen_height,
-			     .memory = memory};
+    // Load assets
+    assets_texture_cache_t *texture_cache = assets_texture_cache_create(main_memory_arena);
+    assets_sprite_frame_cache_t *sprite_frame_cache =
+	assets_sprite_frame_cache_create(main_memory_arena);
+    assets_animation_cache_t *animation_cache = assets_animation_cache_create(main_memory_arena);
+    assets_shader_cache_t *shader_cache = assets_shader_cache_create(main_memory_arena);
 
-    struct game_state *game_state = game_init(game_config);
+    struct assets assets = {.texture_cache = texture_cache,
+			    .sprite_frame_cache = sprite_frame_cache,
+			    .animation_cache = animation_cache,
+			    .shader_cache = shader_cache};
 
-    f64 current_time = GetTime();
-    f64 accumulator = 0.0;
-    f64 dt = game_state->constants.fixed_timestep;
+    // Load pitch texture
+    struct assets_texture *texture = assets_texture_load(texture_cache, "res/pitch.png");
+    assert(texture);
+
+    // Player spritesheet
+    texture = assets_texture_load(texture_cache, "res/spritesheets/player.png");
+    assert(texture);
+    i32 loaded = assets_sprite_frames_load_from_json(
+	sprite_frame_cache, texture->id, "res/spritesheets/player.json");
+    assert(loaded != -1);
+
+    // Goalkeeper spritesheet
+    texture = assets_texture_load(texture_cache, "res/spritesheets/goalkeeper.png");
+    assert(texture);
+    loaded = assets_sprite_frames_load_from_json(
+	sprite_frame_cache, texture->id, "res/spritesheets/goalkeeper.json");
+    assert(loaded != -1);
+
+    // Ball spritesheet
+    texture = assets_texture_load(texture_cache, "res/spritesheets/ball.png");
+    assert(texture);
+    loaded = assets_sprite_frames_load_from_json(
+	sprite_frame_cache, texture->id, "res/spritesheets/ball.json");
+    assert(loaded != -1);
+
+    // Other spritesheets
+    texture = assets_texture_load(texture_cache, "res/spritesheets/other.png");
+    assert(texture);
+    loaded = assets_sprite_frames_load_from_json(
+	sprite_frame_cache, texture->id, "res/spritesheets/other.json");
+    assert(loaded != -1);
+
+    // Animations
+    assets_animations_load_from_json(
+	animation_cache, sprite_frame_cache, "res/animations/animations.json");
+
+    // Shaders
+    assets_shader_load(shader_cache, "shader_palette", NULL, "res/shaders/palette.frag");
+
+    struct game_config game_config = (struct game_config){
+	.screen_width = GetScreenWidth(),
+	.screen_height = GetScreenHeight(),
+	.virtual_screen_width = virtual_screen_width,
+	.virtual_screen_height = virtual_screen_height,
+    };
+
+    struct scene_manager *scene_manager =
+	scenes_manager_init(game_config, &assets, main_memory_arena);
+
     b32 window_should_close = false;
 
     while (!window_should_close) {
-	if (game_state->vars.is_tweakui_shown) {
-	    PollInputEvents();
-	    window_should_close = WindowShouldClose();
-	    if (IsKeyReleased(KEY_P)) {
-		game_state->vars.is_tweakui_shown = false;
-	    }
-	} else {
-	    // Update game
-	    f64 new_time = GetTime();
-	    f64 frame_time = new_time - current_time;
-	    f64 total_update_time = 0;
-	    current_time = new_time;
-
-	    if (frame_time > 1) {
-		frame_time = game_state->dt;
-	    }
-
-	    u32 physics_iterations = 0;
-	    accumulator += frame_time;
-	    while (accumulator > 0) {
-		PollInputEvents();
-		window_should_close |= WindowShouldClose();
-
-		// TODO: (Marco) Move this stuff away for god sake
-		if (IsKeyReleased(KEY_P)) {
-		    game_state->vars.is_tweakui_shown = true;
-		}
-		if (IsKeyReleased(KEY_C)) {
-		    game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
-		}
-
-		struct input input = input_handle(game_state);
-
-		game_state->dt = dt;
-
-		f64 update_time = GetTime();
-		game_update(game_state, &input);
-		total_update_time += GetTime() - update_time;
-
-		accumulator -= dt;
-		game_state->time += dt;
-
-		physics_iterations++;
-		game_state->physics_updates++;
-	    }
-
-	    game_state->frame_updates++;
-
-	    if (physics_iterations > 0) {
-		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("Update time: %0.6f",
-							total_update_time / physics_iterations));
-		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("Physics/frame: %2d", physics_iterations));
-		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("Physics: %12d",
-							game_state->physics_updates));
-		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("Frame: %14d", game_state->frame_updates));
-		layers_debug_queue_draw_text(game_state->layer_debug,
-					     TextFormat("FPS: %3.0f", 1 / frame_time));
-	    }
-	}
-
-	game_draw(game_state);
+	window_should_close = scenes_manager_update(scene_manager);
 
 	SwapScreenBuffer();
     }
@@ -110,7 +98,14 @@ int main()
     // De-Initialization
     //--------------------------------------------------------------------------------------
 
-    game_destroy(game_state);
+    scenes_manager_destroy(scene_manager);
+
+    assets_shader_cache_destroy(shader_cache);
+    assets_animation_cache_destroy(animation_cache);
+    assets_sprite_frame_cache_destroy(sprite_frame_cache);
+    assets_texture_cache_destroy(texture_cache);
+
+    memory_arena_destroy(main_memory_arena);
 
     free(memory);
 

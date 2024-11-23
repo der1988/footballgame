@@ -223,8 +223,9 @@ void systems_player(struct game_state *game_state, struct input *input)
 		&player->state_machine->state_data.fall;
 
 	    if (!fall_state_data->animation_completed) {
-		struct assets_animation *animation = assets_animation_get_by_id(
-		    game_state->animation_cache, player->fall_animations[player->last_direction]);
+		struct assets_animation *animation =
+		    assets_animation_get_by_id(game_state->assets->animation_cache,
+					       player->fall_animations[player->last_direction]);
 		f32 animation_completion =
 		    Clamp((game_state->time - fall_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),

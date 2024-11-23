@@ -43,16 +43,25 @@ static struct goal setup_goal(entity_id_t id,
     return goal;
 }
 
-struct game_state *game_init(struct game_config game_config)
+struct game_state *game_init(struct game_config game_config,
+			     struct assets *assets,
+			     memory_arena_handle_t *memory_arena)
 {
     GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
-    memory_arena_handle_t *memory_arena_lifetime_game =
-	memory_arena_create("game", game_config.memory, Megabytes(1));
 
-    struct game_state *game_state =
-	memory_arena_push(memory_arena_lifetime_game, sizeof(struct game_state));
+    // Push game state onto main memory arena
+    struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
     game_state->config = game_config;
-    game_state->config.players_count = 1;
+    game_state->assets = assets;
+
+    // Push some memory for our own arenas onto main memory arena
+    void *game_memory = memory_arena_push(memory_arena, Megabytes(3));
+    game_state->memory_by_lifetime[MAL_LEVEL] =
+	memory_arena_create("level", game_memory, Megabytes(1));
+    game_state->memory_by_lifetime[MAL_UPDATE] =
+	memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
+    game_state->memory_by_lifetime[MAL_DRAW] =
+	memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
 
     // pitch in reality is 105m long
     // pitch in game is 1080 pixels long
@@ -106,78 +115,23 @@ struct game_state *game_init(struct game_config game_config)
 				.shoot_aid_no_inertia = true,
 				.kick_charge_reset_time = 1.5f};
 
-    // Partition game memory
-    game_state->memory_by_lifetime[MAL_GAME] = memory_arena_lifetime_game;
-    game_state->memory_by_lifetime[MAL_LEVEL] =
-	memory_arena_create("level", game_config.memory + Megabytes(1), Megabytes(1));
-    game_state->memory_by_lifetime[MAL_UPDATE] =
-	memory_arena_create("update", game_config.memory + Megabytes(2), Megabytes(1));
-    game_state->memory_by_lifetime[MAL_DRAW] =
-	memory_arena_create("draw", game_config.memory + Megabytes(3), Megabytes(1));
-
     // Initialise entities repository
     game_state->entity_repository =
-	entities_repository_init(game_state->memory_by_lifetime[MAL_GAME]);
+	entities_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    // Initialise caches
-    game_state->texture_cache =
-	assets_texture_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
-    game_state->sprite_frame_cache =
-	assets_sprite_frame_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
-    game_state->animation_cache =
-	assets_animation_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
-    game_state->shader_cache = assets_shader_cache_create(game_state->memory_by_lifetime[MAL_GAME]);
-
-    // Load pitch
+    // Get pitch texture id
     struct assets_texture *texture =
-	assets_texture_load(game_state->texture_cache, "res/pitch.png");
+	assets_texture_get_by_name(game_state->assets->texture_cache, "res/pitch.png");
     assert(texture);
     game_state->pitch_texture_id = texture->id;
 
-    // Load game spritesheets
-    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/player.png");
-    assert(texture);
-    i32 loaded = assets_sprite_frames_load_from_json(
-	game_state->sprite_frame_cache, texture->id, "res/spritesheets/player.json");
-    assert(loaded != -1);
-
-    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/goalkeeper.png");
-    assert(texture);
-    loaded = assets_sprite_frames_load_from_json(
-	game_state->sprite_frame_cache, texture->id, "res/spritesheets/goalkeeper.json");
-    assert(loaded != -1);
-
-    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/ball.png");
-    assert(texture);
-    loaded = assets_sprite_frames_load_from_json(
-	game_state->sprite_frame_cache, texture->id, "res/spritesheets/ball.json");
-    assert(loaded != -1);
-
-    // Load other spritesheet
-    texture = assets_texture_load(game_state->texture_cache, "res/spritesheets/other.png");
-    assert(texture);
-    loaded = assets_sprite_frames_load_from_json(
-	game_state->sprite_frame_cache, texture->id, "res/spritesheets/other.json");
-    assert(loaded != -1);
-
-    // Load Animations
-    assets_animations_load_from_json(game_state->animation_cache,
-				     game_state->sprite_frame_cache,
-				     "res/animations/animations.json");
-
-    // Load Shaders
-    assets_shader_load(
-	game_state->shader_cache, "shader_palette", NULL, "res/shaders/palette.frag");
-
-    game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_GAME]);
+    game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
     // Layers
     game_state->layer_debug = layers_debug_create(game_state);
 
 #ifndef RUNNING_TEST
     game_state->vars.is_debug_log_shown = true;
-
-    game_state->config.players_count = 1;
 
     game_state->vars.pitch.field = (rect_t){.x = 33, .y = 79, .width = 640, .height = 360 * 3 - 4};
     game_state->vars.pitch.goal_width = 79;
@@ -281,17 +235,11 @@ void game_destroy(struct game_state *game_state)
 
     tweakui_destroy(game_state->tweakui);
 
-    assets_shader_cache_destroy(game_state->shader_cache);
-    assets_animation_cache_destroy(game_state->animation_cache);
-    assets_sprite_frame_cache_destroy(game_state->sprite_frame_cache);
-    assets_texture_cache_destroy(game_state->texture_cache);
-
     entities_repository_destroy(game_state->entity_repository);
 
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_GAME]);
 
     game_state->initialised = false;
     GLOG_INFO(LS_GAME, "game destruction complete");
@@ -350,7 +298,8 @@ void game_draw(struct game_state *game_state)
     game_state->camera.target.y *= virtual_ratio;
 
     texture_t pitch_texture =
-	assets_texture_get_by_id(game_state->texture_cache, game_state->pitch_texture_id)->texture;
+	assets_texture_get_by_id(game_state->assets->texture_cache, game_state->pitch_texture_id)
+	    ->texture;
 
     BeginTextureMode(game_state->render_texture);
     ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});

@@ -45,7 +45,7 @@ struct entity *entities_ball_create(struct ball_config config, struct game_state
     struct component_sprite *sprite = &entity->sprite;
     char *ball_frame_name = "ball_left_0";
     struct assets_sprite_frame *sprite_frame =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, ball_frame_name);
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, ball_frame_name);
     assert(sprite_frame != NULL);
     sprite->header.enabled = true;
     sprite->frame_id = sprite_frame->id;

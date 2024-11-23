@@ -64,10 +64,11 @@ enum log_system {
     LS_TWEAKUI,
     LS_LAYERS,
     LS_OTHER,
+    LS_SCENES,
     LS_COUNT,
 };
 
-static const char *utils_log_systems_desc[11] = {
+static const char *utils_log_systems_desc[12] = {
     "GAME",
     "INPUT",
     "SOUND",
@@ -79,6 +80,7 @@ static const char *utils_log_systems_desc[11] = {
     "TWEAKUI",
     "LAYERS",
     "OTHER",
+    "SCENES",
 };
 
 void log_line(char *file,

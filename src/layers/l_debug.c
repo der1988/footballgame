@@ -16,7 +16,7 @@
 layers_debug_t *layers_debug_create(struct game_state *game_state)
 {
     layers_debug_t *handle =
-	memory_arena_push(game_state->memory_by_lifetime[MAL_GAME], sizeof(layers_debug_t));
+	memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(layers_debug_t));
     handle->initialised = true;
 
     handle->log_position = (v2){.x = 10, .y = 700};

@@ -58,7 +58,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
     // Initialise sprite
     char *player_frame_name = "player_front_0";
     struct assets_sprite_frame *sprite_frame =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, player_frame_name);
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, player_frame_name);
     assert(sprite_frame != NULL);
     struct component_sprite *sprite = &entity->sprite;
     sprite->header.enabled = true;
@@ -181,8 +181,8 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id,
     f32 player_speed = Vector2Length(physics->velocity);
     if (Vector2Length(physics->velocity) > velocity_threshold) {
 	enum direction pd = entities_common_calculate_direction(direction);
-	struct assets_animation *animation =
-	    assets_animation_get_by_id(game_state->animation_cache, player->run_animations[pd]);
+	struct assets_animation *animation = assets_animation_get_by_id(
+	    game_state->assets->animation_cache, player->run_animations[pd]);
 
 	f32 max_player_velocity = game_state->constants.player_run_max_velocity;
 	f32 player_speed_ratio = player_speed / max_player_velocity;
@@ -428,44 +428,63 @@ static void prepare_gfx(struct component_player *player, struct game_state *game
 {
     // Stand frames
     player->stand_frames[D_DOWN] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "player_front_0")
+	    ->id;
     player->stand_frames[D_UP] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "player_back_0")->id;
     player->stand_frames[D_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_left_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "player_left_0")->id;
     player->stand_frames[D_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_right_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "player_right_0")
+	    ->id;
     player->stand_frames[D_DOWN_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_left_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_front_left_0")
+	    ->id;
     player->stand_frames[D_DOWN_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_front_right_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_front_right_0")
+	    ->id;
     player->stand_frames[D_UP_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_left_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_back_left_0")
+	    ->id;
     player->stand_frames[D_UP_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_back_right_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_back_right_0")
+	    ->id;
 
     // Tackle frames
     player->tackle_frames[D_DOWN] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_front_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_tackle_front_0")
+	    ->id;
     player->tackle_frames[D_UP] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_back_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_tackle_back_0")
+	    ->id;
     player->tackle_frames[D_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_left_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_tackle_left_0")
+	    ->id;
     player->tackle_frames[D_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_right_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_tackle_right_0")
+	    ->id;
     player->tackle_frames[D_DOWN_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"player_tackle_front_left_0")
 	    ->id;
     player->tackle_frames[D_DOWN_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"player_tackle_front_right_0")
 	    ->id;
     player->tackle_frames[D_UP_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "player_tackle_back_left_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"player_tackle_back_left_0")
 	    ->id;
     player->tackle_frames[D_UP_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"player_tackle_back_right_0")
 	    ->id;
 
@@ -511,25 +530,34 @@ static void prepare_goalie_gfx(struct component_player *player,
 			       struct game_state *game_state)
 {
     // Stand frames
-    player->stand_frames[D_DOWN] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_0")->id;
+    player->stand_frames[D_DOWN] = assets_sprite_frame_get_by_name(
+				       game_state->assets->sprite_frame_cache, "goalkeeper_front_0")
+				       ->id;
     player->stand_frames[D_UP] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "goalkeeper_back_0")
+	    ->id;
     player->stand_frames[D_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_left_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "goalkeeper_left_0")
+	    ->id;
     player->stand_frames[D_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_right_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_right_0")
+	    ->id;
     player->stand_frames[D_DOWN_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_left_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_front_left_0")
 	    ->id;
     player->stand_frames[D_DOWN_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_right_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_front_right_0")
 	    ->id;
     player->stand_frames[D_UP_LEFT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_left_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_back_left_0")
 	    ->id;
     player->stand_frames[D_UP_RIGHT] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_right_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_back_right_0")
 	    ->id;
 
     // Running animations
@@ -552,31 +580,36 @@ static void prepare_goalie_gfx(struct component_player *player,
 
     // Save frames
     goalie->save_frames[PSI_NORTH][ST_WITHOUT_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_front_0")
+	    ->id;
     goalie->save_frames[PSI_NORTH][ST_WITH_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_front_ball_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_front_ball_0")
 	    ->id;
     goalie->save_frames[PSI_SOUTH][ST_WITHOUT_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_0")->id;
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, "goalkeeper_back_0")
+	    ->id;
     goalie->save_frames[PSI_SOUTH][ST_WITH_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache, "goalkeeper_back_ball_0")
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
+					"goalkeeper_back_ball_0")
 	    ->id;
 
     // Dash frames
     goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITHOUT_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"goalkeeper_dash_front_left_0")
 	    ->id;
     goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITH_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"goalkeeper_dash_front_left_1")
 	    ->id;
     goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITHOUT_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"goalkeeper_dash_front_right_0")
 	    ->id;
     goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITH_BALL] =
-	assets_sprite_frame_get_by_name(game_state->sprite_frame_cache,
+	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache,
 					"goalkeeper_dash_front_right_1")
 	    ->id;
 
@@ -715,7 +748,7 @@ void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_sta
     };
 
     struct assets_shader *assets_shader =
-	assets_shader_get_by_name(game_state->shader_cache, "shader_palette");
+	assets_shader_get_by_name(game_state->assets->shader_cache, "shader_palette");
     u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
     SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC3, 7);
 

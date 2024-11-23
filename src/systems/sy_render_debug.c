@@ -27,7 +27,8 @@ void systems_render_debug(struct game_state *game_state)
 	    position.y -= transform->virtual_height;
 
 	    render_sprite_draw_debug_frame(
-		assets_sprite_frame_get_by_id(game_state->sprite_frame_cache, sprite->frame_id),
+		assets_sprite_frame_get_by_id(game_state->assets->sprite_frame_cache,
+					      sprite->frame_id),
 		position,
 		rotation,
 		scale,

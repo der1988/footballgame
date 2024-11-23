@@ -102,4 +102,11 @@ void assets_shader_cache_destroy(assets_shader_cache_t *handle);
 struct assets_shader *assets_shader_get_by_id(assets_shader_cache_t *handle, u32 id);
 struct assets_shader *assets_shader_get_by_name(assets_shader_cache_t *handle, const char *name);
 
+struct assets {
+    assets_texture_cache_t *texture_cache;
+    assets_sprite_frame_cache_t *sprite_frame_cache;
+    assets_animation_cache_t *animation_cache;
+    assets_shader_cache_t *shader_cache;
+};
+
 #endif

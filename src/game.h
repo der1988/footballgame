@@ -3,6 +3,7 @@
 
 #include "assets.h"
 #include "football.h"
+#include "memory.h"
 #include "raygui/raygui.h"
 #include "types.h"
 #include <raylib.h>
@@ -14,7 +15,6 @@ struct entity_repository;
 struct input;
 
 enum memory_arena_lifetime {
-    MAL_GAME,
     MAL_LEVEL,
     MAL_UPDATE,
     MAL_DRAW,
@@ -31,8 +31,6 @@ struct game_config {
     u32 virtual_screen_height;
     u32 screen_width;
     u32 screen_height;
-    void *memory;
-    u32 players_count;
 };
 
 struct game_constants {
@@ -138,11 +136,8 @@ struct game_state {
     struct game_constants constants;
     struct game_vars vars;
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
+    struct assets *assets;
     struct entity_repository *entity_repository;
-    assets_texture_cache_t *texture_cache;
-    assets_sprite_frame_cache_t *sprite_frame_cache;
-    assets_animation_cache_t *animation_cache;
-    assets_shader_cache_t *shader_cache;
     tweakui_t *tweakui;
     layers_debug_t *layer_debug;
     assets_texture_id_t pitch_texture_id;
@@ -155,7 +150,9 @@ struct game_state {
     u64 frame_updates;
 };
 
-struct game_state *game_init(struct game_config gameConfig);
+struct game_state *game_init(struct game_config gameConfig,
+			     struct assets *assets,
+			     memory_arena_handle_t *memory_arena);
 void game_destroy(struct game_state *game_state);
 void game_update(struct game_state *game_state, struct input *input);
 void game_draw(struct game_state *game_state);
