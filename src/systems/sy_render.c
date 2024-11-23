@@ -70,7 +70,7 @@ void systems_render(struct game_state *game_state)
 	declare_entity_component(entity, sprite);
 
 	struct assets_sprite_frame *sprite_frame =
-	    assets_sprite_frame_get_by_id(game_state->assets->sprite_frame_cache, sprite->frame_id);
+	    assets_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache, sprite->frame_id);
 	assert(sprite_frame);
 
 	Vector2 position = transform->position;
@@ -78,7 +78,7 @@ void systems_render(struct game_state *game_state)
 	Vector2 scale = transform->scale;
 	components_transform_calculate_absolute(transform, &position, &rotation, &scale);
 	struct assets_texture *texture =
-	    assets_texture_get_by_id(game_state->assets->texture_cache, sprite_frame->texture_id);
+	    assets_texture_get_by_id(game_state->assets.texture_cache, sprite_frame->texture_id);
 	assert(texture);
 
 	// Shadow

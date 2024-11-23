@@ -35,7 +35,7 @@ int main()
 	.virtual_screen_height = virtual_screen_height,
     };
 
-    game_loop(game_config, &assets, main_memory_arena);
+    game_loop(game_config, assets, main_memory_arena);
 
     // De-Initialization
     //--------------------------------------------------------------------------------------

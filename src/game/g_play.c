@@ -44,7 +44,7 @@ static struct goal setup_goal(entity_id_t id,
 }
 
 struct game_state *game_play_init(struct game_config game_config,
-				  struct assets *assets,
+				  struct assets assets,
 				  memory_arena_handle_t *memory_arena)
 {
     GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
@@ -126,7 +126,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
     // Get pitch texture id
     struct assets_texture *texture =
-	assets_texture_get_by_name(game_state->assets->texture_cache, "res/pitch.png");
+	assets_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
     assert(texture);
     game_state->pitch_texture_id = texture->id;
 
@@ -303,7 +303,7 @@ void game_play_draw(struct game_state *game_state)
     game_state->camera.target.y *= virtual_ratio;
 
     texture_t pitch_texture =
-	assets_texture_get_by_id(game_state->assets->texture_cache, game_state->pitch_texture_id)
+	assets_texture_get_by_id(game_state->assets.texture_cache, game_state->pitch_texture_id)
 	    ->texture;
 
     BeginTextureMode(game_state->render_texture);

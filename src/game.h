@@ -142,7 +142,7 @@ struct game_state {
     struct game_constants constants;
     struct game_vars vars;
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
-    struct assets *assets;
+    struct assets assets;
     struct entity_repository *entity_repository;
     tweakui_t *tweakui;
     layers_debug_t *layer_debug;
@@ -153,14 +153,14 @@ struct game_state {
 };
 
 struct game_state *game_play_init(struct game_config gameConfig,
-				  struct assets *assets,
+				  struct assets assets,
 				  memory_arena_handle_t *memory_arena);
 void game_play_destroy(struct game_state *game_state);
 void game_play_update(struct game_state *game_state, struct input *input);
 void game_play_draw(struct game_state *game_state);
 
 void game_loop(struct game_config config,
-	       struct assets *assets,
+	       struct assets assets,
 	       memory_arena_handle_t *memory_arena);
 
 #endif // !GAME_H

@@ -228,7 +228,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	    if (!jump_state_data->animation_first_phase_completed) {
 		struct assets_animation *animation =
-		    assets_animation_get_by_id(game_state->assets->animation_cache,
+		    assets_animation_get_by_id(game_state->assets.animation_cache,
 					       goalie->jump_animations_start[player->side]);
 		f32 animation_completion =
 		    Clamp((game_state->time - jump_state_data->animation_start_time) /
@@ -253,7 +253,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    jump_state_data->animation_start_time = game_state->time;
 		}
 		struct assets_animation *animation = assets_animation_get_by_id(
-		    game_state->assets->animation_cache,
+		    game_state->assets.animation_cache,
 		    goalie->jump_animations_end[player->side][jump_state_data->ball_held]);
 		f32 animation_completion =
 		    Clamp((game_state->time - jump_state_data->animation_start_time) /
@@ -367,7 +367,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	    if (!dive_state_data->animation_first_phase_completed) {
 		struct assets_animation *animation = assets_animation_get_by_id(
-		    game_state->assets->animation_cache,
+		    game_state->assets.animation_cache,
 		    goalie->dive_animations_start[player->side][direction][goalie->dive_height]);
 		f32 animation_completion =
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /
@@ -392,7 +392,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    dive_state_data->animation_start_time = game_state->time;
 		}
 		struct assets_animation *animation = assets_animation_get_by_id(
-		    game_state->assets->animation_cache,
+		    game_state->assets.animation_cache,
 		    goalie->dive_animations_end[player->side][direction][goalie->dive_height]
 					       [dive_state_data->ball_held]);
 		f32 animation_completion =

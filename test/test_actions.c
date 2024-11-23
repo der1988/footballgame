@@ -20,6 +20,8 @@
 #define DT (0.1f)
 
 struct game_state *g_game_state = NULL;
+void *g_memory = NULL;
+memory_arena_handle_t *g_main_memory_arena = NULL;
 
 void setUp(void)
 {
@@ -29,21 +31,25 @@ void setUp(void)
 
     SetTargetFPS(60);
 
-    void *memory = malloc(Megabytes(10));
+    g_memory = malloc(Megabytes(10));
+
+    g_main_memory_arena = memory_arena_create("main", g_memory, Megabytes(4));
+
+    struct assets assets = assets_load_everything(g_main_memory_arena);
 
     struct game_config game_config =
-	(struct game_config){.screen_width = width, .screen_height = height, .memory = memory};
+	(struct game_config){.screen_width = width, .screen_height = height};
 
-    g_game_state = game_init(game_config);
+    g_game_state = game_play_init(game_config, assets, g_main_memory_arena);
 }
 
 void tearDown(void)
 {
-    void *memory = g_game_state->config.memory;
+    game_play_destroy(g_game_state);
 
-    game_destroy(g_game_state);
+    memory_arena_destroy(g_main_memory_arena);
 
-    free(memory);
+    free(g_memory);
 
     CloseWindow();
 }
@@ -95,7 +101,7 @@ void test_action_animation()
     component_action->header.enabled = true;
 
     struct assets_animation *animation =
-	assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
+	assets_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
     struct action_play_animation *action = actions_play_animation_create(
 	animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -116,7 +122,7 @@ void test_action_animation()
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     struct assets_sprite_frame *expected_sprite_frame =
-	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
+	assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     // Test half play speed
@@ -138,7 +144,7 @@ void test_action_animation()
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     expected_sprite_frame =
-	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
+	assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     // Test double play speed
@@ -160,7 +166,7 @@ void test_action_animation()
 
     TEST_ASSERT(component_action->running_actions[running_idx].completed);
     expected_sprite_frame =
-	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
+	assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 }
 
@@ -219,7 +225,7 @@ void test_action_spawn()
     component_action->header.enabled = true;
 
     struct assets_animation *animation =
-	assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
+	assets_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
     struct action_play_animation *action_1 = actions_play_animation_create(
 	animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -248,7 +254,7 @@ void test_action_spawn()
     TEST_ASSERT(component_action->running_actions[action_spawn_idx].completed);
 
     struct assets_sprite_frame *expected_sprite_frame =
-	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
+	assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     Color expected_color = WHITE;
@@ -271,7 +277,7 @@ void test_multiple_parallel_actions()
     component_action->header.enabled = true;
 
     struct assets_animation *animation =
-	assets_animation_get_by_name(g_game_state->animation_cache, "ball_left");
+	assets_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
     struct action_play_animation *action_1 = actions_play_animation_create(
 	animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -301,7 +307,7 @@ void test_multiple_parallel_actions()
 
     TEST_ASSERT(component_action->running_actions[animation_idx].completed);
     struct assets_sprite_frame *expected_sprite_frame =
-	assets_sprite_frame_get_by_name(g_game_state->sprite_frame_cache, "ball_left_3");
+	assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
     TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
     TEST_ASSERT(component_action->running_actions[change_color_idx].completed);

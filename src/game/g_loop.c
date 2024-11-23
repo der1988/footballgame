@@ -14,13 +14,13 @@ enum game_scene {
 enum game_scene g_next_scene = GSC_NONE;
 
 void *handle_scene_creation(struct game_config config,
-			    struct assets *assets,
+			    struct assets assets,
 			    memory_arena_handle_t *memory_arena);
 
 void handle_scene_destruction(enum game_scene current_scene, void *handle);
 
 void game_loop(struct game_config config,
-	       struct assets *assets,
+	       struct assets assets,
 	       memory_arena_handle_t *main_memory_arena_handle)
 {
     void *memory_for_current_scene = memory_arena_push(main_memory_arena_handle, Megabytes(4));
@@ -138,7 +138,7 @@ void game_loop(struct game_config config,
 }
 
 void *handle_scene_creation(struct game_config config,
-			    struct assets *assets,
+			    struct assets assets,
 			    memory_arena_handle_t *memory_arena)
 {
     void *current_scene_handle = NULL;

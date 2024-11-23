@@ -30,7 +30,7 @@ struct entity *entities_goal_net_create(struct game_state *game_state)
     sprite->header.enabled = true;
     char *posts_frame_name = "net_0";
     struct assets_sprite_frame *sprite_frame =
-	assets_sprite_frame_get_by_name(game_state->assets->sprite_frame_cache, posts_frame_name);
+	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, posts_frame_name);
     assert(sprite_frame != NULL);
     sprite->frame_id = sprite_frame->id;
     sprite->color = WHITE;
