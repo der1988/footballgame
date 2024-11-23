@@ -109,4 +109,7 @@ struct assets {
     assets_shader_cache_t *shader_cache;
 };
 
+struct assets assets_load_everything(memory_arena_handle_t *memory_arena);
+void assets_destroy_everything(struct assets assets);
+
 #endif
