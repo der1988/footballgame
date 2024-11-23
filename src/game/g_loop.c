@@ -148,7 +148,7 @@ void *handle_scene_creation(struct game_config config,
     case GSC_MAIN:
     case GSC_PLAY: {
 	current_scene_handle = game_play_init(config, assets, memory_arena);
-    }
+    } break;
     case GSC_SETTINGS:
     case GSC_NONE:
 	break;
@@ -165,7 +165,7 @@ void handle_scene_destruction(enum game_scene current_scene, void *handle)
     case GSC_MAIN:
     case GSC_PLAY: {
 	game_play_destroy(handle);
-    }
+    } break;
     case GSC_SETTINGS:
     case GSC_NONE:
 	break;
