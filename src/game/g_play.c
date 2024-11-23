@@ -225,7 +225,7 @@ struct game_state *game_play_init(struct game_config game_config,
 						   (f32)game_state->config.virtual_screen_height);
 
     game_state->initialised = true;
-    GLOG_INFO(LS_GAME, "game initialisation complete");
+    GLOG_INFO(LS_GAME, "gameplay initialisation complete");
 
     return game_state;
 }
@@ -247,7 +247,7 @@ void game_play_destroy(struct game_state *game_state)
     memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
 
     game_state->initialised = false;
-    GLOG_INFO(LS_GAME, "game destruction complete");
+    GLOG_INFO(LS_GAME, "gameplay destruction complete");
 }
 
 void game_play_update(struct game_state *game_state, struct input *input)

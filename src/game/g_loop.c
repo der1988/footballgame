@@ -13,6 +13,41 @@ enum game_scene {
 
 enum game_scene g_next_scene = GSC_NONE;
 
+void *handle_scene_creation(struct game_config config,
+			    struct assets *assets,
+			    memory_arena_handle_t *memory_arena)
+{
+    void *current_scene_handle = NULL;
+
+    switch (g_next_scene) {
+    case GSC_TITLE:
+    case GSC_MAIN:
+    case GSC_PLAY: {
+	current_scene_handle = game_play_init(config, assets, memory_arena);
+    }
+    case GSC_SETTINGS:
+    case GSC_NONE:
+	break;
+    }
+
+    return current_scene_handle;
+}
+
+void handle_scene_destruction(enum game_scene current_scene, void *handle)
+{
+    // Destroy current scene
+    switch (current_scene) {
+    case GSC_TITLE:
+    case GSC_MAIN:
+    case GSC_PLAY: {
+	game_play_destroy(handle);
+    }
+    case GSC_SETTINGS:
+    case GSC_NONE:
+	break;
+    }
+}
+
 void game_loop(struct game_config config,
 	       struct assets *assets,
 	       memory_arena_handle_t *main_memory_arena_handle)
@@ -23,8 +58,8 @@ void game_loop(struct game_config config,
 	memory_arena_create("scene", memory_for_current_scene, Megabytes(4));
 
     enum game_scene current_scene = GSC_NONE;
-    g_next_scene = GSC_PLAY;
     void *current_scene_handle = NULL;
+    g_next_scene = GSC_PLAY;
 
     b32 quit = false;
 
@@ -33,31 +68,14 @@ void game_loop(struct game_config config,
 	// Manage scene transitions: should this be front or back?
 	if (g_next_scene != GSC_NONE) {
 	    // Destroy current scene
-	    switch (current_scene) {
-	    case GSC_TITLE:
-	    case GSC_MAIN:
-	    case GSC_PLAY: {
-		game_play_destroy(current_scene_handle);
-	    }
-	    case GSC_SETTINGS:
-	    case GSC_NONE:
-		break;
-	    }
+	    handle_scene_destruction(current_scene, current_scene_handle);
 
 	    // Reset scene memory arena
 	    memory_arena_reset(current_scene_memory_arena);
 
 	    // Initialise new scene
-	    switch (g_next_scene) {
-	    case GSC_TITLE:
-	    case GSC_MAIN:
-	    case GSC_PLAY: {
-		current_scene_handle = game_play_init(config, assets, current_scene_memory_arena);
-	    }
-	    case GSC_SETTINGS:
-	    case GSC_NONE:
-		break;
-	    }
+	    current_scene_handle =
+		handle_scene_creation(config, assets, current_scene_memory_arena);
 
 	    current_scene = g_next_scene;
 	    g_next_scene = GSC_NONE;
@@ -142,6 +160,8 @@ void game_loop(struct game_config config,
 
 	SwapScreenBuffer();
     }
+
+    handle_scene_destruction(current_scene, current_scene_handle);
 
     memory_arena_destroy(current_scene_memory_arena);
 }

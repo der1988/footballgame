@@ -86,6 +86,7 @@ v support shaders
 v implement a scene manager
 v refactor scene manager into a proper game loop with scenes
 * improve player selection system
+- make tests work again after refactor
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
