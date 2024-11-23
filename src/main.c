@@ -1,7 +1,6 @@
 #include "assets.h"
 #include "game.h"
 #include "memory.h"
-#include "scenes.h"
 #include "types.h"
 #include <assert.h>
 #include <raylib.h>
@@ -84,21 +83,10 @@ int main()
 	.virtual_screen_height = virtual_screen_height,
     };
 
-    struct scene_manager *scene_manager =
-	scenes_manager_init(game_config, &assets, main_memory_arena);
-
-    b32 window_should_close = false;
-
-    while (!window_should_close) {
-	window_should_close = scenes_manager_update(scene_manager);
-
-	SwapScreenBuffer();
-    }
+    game_loop(game_config, &assets, main_memory_arena);
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-
-    scenes_manager_destroy(scene_manager);
 
     assets_shader_cache_destroy(shader_cache);
     assets_animation_cache_destroy(animation_cache);

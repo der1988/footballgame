@@ -43,14 +43,19 @@ static struct goal setup_goal(entity_id_t id,
     return goal;
 }
 
-struct game_state *game_init(struct game_config game_config,
-			     struct assets *assets,
-			     memory_arena_handle_t *memory_arena)
+struct game_state *game_play_init(struct game_config game_config,
+				  struct assets *assets,
+				  memory_arena_handle_t *memory_arena)
 {
     GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
 
+    time_t fixed_timestep = 1 / 480.0;
+
     // Push game state onto main memory arena
     struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
+    game_state->current_time = GetTime();
+    game_state->accumulator = 0.0;
+    game_state->dt = fixed_timestep;
     game_state->config = game_config;
     game_state->assets = assets;
 
@@ -68,7 +73,7 @@ struct game_state *game_init(struct game_config game_config,
     // 1m is ~10 pixels in game
     // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
     game_state->constants =
-	(struct game_constants){.fixed_timestep = 1 / 480.0,
+	(struct game_constants){.fixed_timestep = fixed_timestep,
 				.render_debug = false,
 				.input_stick_dead_zone = 0.05f,
 				// Coefficient of restitution
@@ -225,7 +230,7 @@ struct game_state *game_init(struct game_config game_config,
     return game_state;
 }
 
-void game_destroy(struct game_state *game_state)
+void game_play_destroy(struct game_state *game_state)
 {
     assert(game_state->initialised);
 
@@ -245,7 +250,7 @@ void game_destroy(struct game_state *game_state)
     GLOG_INFO(LS_GAME, "game destruction complete");
 }
 
-void game_update(struct game_state *game_state, struct input *input)
+void game_play_update(struct game_state *game_state, struct input *input)
 {
     assert(game_state->initialised);
 
@@ -273,7 +278,7 @@ void game_update(struct game_state *game_state, struct input *input)
     systems_camera(game_state);
 }
 
-void game_draw(struct game_state *game_state)
+void game_play_draw(struct game_state *game_state)
 {
     assert(game_state->initialised);
 

@@ -132,6 +132,12 @@ struct game_vars {
 
 struct game_state {
     b32 initialised;
+    time_t current_time;
+    f64 accumulator;
+    time_t time;
+    delta_time_t dt;
+    u64 physics_updates;
+    u64 frame_updates;
     struct game_config config;
     struct game_constants constants;
     struct game_vars vars;
@@ -144,17 +150,17 @@ struct game_state {
     render_texture_t render_texture;
     camera2d_t camera;
     camera2d_t virtual_camera;
-    time_t time;
-    delta_time_t dt;
-    u64 physics_updates;
-    u64 frame_updates;
 };
 
-struct game_state *game_init(struct game_config gameConfig,
-			     struct assets *assets,
-			     memory_arena_handle_t *memory_arena);
-void game_destroy(struct game_state *game_state);
-void game_update(struct game_state *game_state, struct input *input);
-void game_draw(struct game_state *game_state);
+struct game_state *game_play_init(struct game_config gameConfig,
+				  struct assets *assets,
+				  memory_arena_handle_t *memory_arena);
+void game_play_destroy(struct game_state *game_state);
+void game_play_update(struct game_state *game_state, struct input *input);
+void game_play_draw(struct game_state *game_state);
+
+void game_loop(struct game_config config,
+	       struct assets *assets,
+	       memory_arena_handle_t *memory_arena);
 
 #endif // !GAME_H
