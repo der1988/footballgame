@@ -312,7 +312,7 @@ void draw(struct game_state *game_state)
 		       game_state->config.screen_width + (virtual_ratio * 2),
 		       game_state->config.screen_height + (virtual_ratio * 2)};
 
-    v2 origin = {0.0f, 0.0f};
+    v2 origin = Vector2Zero();
 
     BeginMode2D(game_state->camera);
     DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
