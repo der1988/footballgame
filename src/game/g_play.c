@@ -143,6 +143,8 @@ b32 game_play_update(struct game_state *game_state)
 
     b32 quit = false;
 
+    time_t dt = game_state->constants.fixed_timestep;
+
     if (game_state->vars.is_tweakui_shown) {
 	PollInputEvents();
 	quit = WindowShouldClose();
@@ -170,13 +172,21 @@ b32 game_play_update(struct game_state *game_state)
 
 	    f64 update_time = GetTime();
 
+	    // Slow motion
+	    game_state->vars.slow_motion = input.buttons[IBT_BUTTON_TRIGGER_LEFT].down;
+	    if (game_state->vars.slow_motion) {
+		game_state->dt = dt * (game_state->vars.slow_motion ? 0.1 : 1);
+	    } else {
+		game_state->dt = dt;
+	    }
+	    game_state->time += game_state->dt;
+
 	    // Update game logic
 	    update(game_state, &input);
 
 	    total_update_time += GetTime() - update_time;
 
-	    game_state->accumulator -= game_state->dt;
-	    game_state->time += game_state->dt;
+	    game_state->accumulator -= dt;
 
 	    physics_iterations++;
 	    game_state->physics_updates++;
@@ -216,15 +226,6 @@ void update(struct game_state *game_state, struct input *input)
     }
     if (IsKeyReleased(KEY_C)) {
 	game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
-    }
-
-    // Slow motion
-    game_state->vars.slow_motion = input->buttons[IBT_BUTTON_TRIGGER_LEFT].down;
-    if (game_state->vars.slow_motion) {
-	game_state->time -= game_state->dt;
-	game_state->dt = game_state->dt * 0.1;
-	game_state->time += game_state->dt;
-	game_state->vars.slow_motion = true;
     }
 
     systems_controls(game_state, input);
