@@ -16,32 +16,15 @@
 #include <raymath.h>
 #include "constants.h"
 
+void update(struct game_state *game_state, struct input *input);
+void draw(struct game_state *game_state);
 static struct goal setup_goal(entity_id_t id,
 			      enum pitch_side side,
 			      v2 center,
 			      u16 width,
 			      u16 height,
 			      u16 penalty_box_width,
-			      u16 penalty_box_height)
-{
-    struct goal goal = (struct goal){
-	.id = id,
-	.center = center,
-	.penalty_box = (rect_t){.x = 165,
-				.y = center.y - (side == PSI_NORTH ? 0 : penalty_box_height),
-				.width = penalty_box_width,
-				.height = penalty_box_height},
-	.penalty_spot = {.x = center.x,
-			 .y = center.y + 11 * PIXELS_PER_METER * (side == PSI_NORTH ? 1 : -1)},
-	.goal_quad_points = {
-	    {.x = center.x - width * 2, .y = 0, .z = center.y},
-	    {.x = center.x - width * 2, .y = height, .z = center.y},
-	    {.x = center.x + width * 2, .y = height, .z = center.y},
-	    {.x = center.x + width * 2, .y = 0, .z = center.y},
-	}};
-
-    return goal;
-}
+			      u16 penalty_box_height);
 
 struct game_state *game_play_init(struct game_config game_config,
 				  struct assets assets,
@@ -250,13 +233,86 @@ void game_play_destroy(struct game_state *game_state)
     GLOG_INFO(LS_GAME, "gameplay destruction complete");
 }
 
-void game_play_update(struct game_state *game_state, struct input *input)
+b32 game_play_update(struct game_state *game_state)
 {
     assert(game_state->initialised);
 
+    b32 quit = false;
+
+    if (game_state->vars.is_tweakui_shown) {
+	PollInputEvents();
+	quit = WindowShouldClose();
+	if (IsKeyReleased(KEY_P)) {
+	    game_state->vars.is_tweakui_shown = false;
+	}
+    } else {
+	// Update game
+	f64 new_time = GetTime();
+	f64 frame_time = new_time - game_state->current_time;
+	f64 total_update_time = 0;
+	game_state->current_time = new_time;
+
+	if (frame_time > 1) {
+	    frame_time = game_state->dt;
+	}
+
+	u32 physics_iterations = 0;
+	game_state->accumulator += frame_time;
+	while (game_state->accumulator > 0) {
+	    PollInputEvents();
+	    quit |= WindowShouldClose();
+
+	    struct input input = input_handle(game_state);
+
+	    f64 update_time = GetTime();
+
+	    // Update game logic
+	    update(game_state, &input);
+
+	    total_update_time += GetTime() - update_time;
+
+	    game_state->accumulator -= game_state->dt;
+	    game_state->time += game_state->dt;
+
+	    physics_iterations++;
+	    game_state->physics_updates++;
+	}
+
+	game_state->frame_updates++;
+
+	if (physics_iterations > 0) {
+	    layers_debug_queue_draw_text(game_state->layer_debug,
+					 TextFormat("Update time: %0.6f",
+						    total_update_time / physics_iterations));
+	    layers_debug_queue_draw_text(game_state->layer_debug,
+					 TextFormat("Physics/frame: %2d", physics_iterations));
+	    layers_debug_queue_draw_text(game_state->layer_debug,
+					 TextFormat("Physics: %12d", game_state->physics_updates));
+	    layers_debug_queue_draw_text(game_state->layer_debug,
+					 TextFormat("Frame: %14d", game_state->frame_updates));
+	    layers_debug_queue_draw_text(game_state->layer_debug,
+					 TextFormat("FPS: %3.0f", 1 / frame_time));
+	}
+    }
+
+    // Draw game
+    draw(game_state);
+
+    return quit;
+}
+
+void update(struct game_state *game_state, struct input *input)
+{
     // These should be reset every update
     memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
     layers_debug_reset(game_state->layer_debug);
+
+    if (IsKeyReleased(KEY_P)) {
+	game_state->vars.is_tweakui_shown = true;
+    }
+    if (IsKeyReleased(KEY_C)) {
+	game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
+    }
 
     // Slow motion
     game_state->vars.slow_motion = input->buttons[IBT_BUTTON_TRIGGER_LEFT].down;
@@ -278,7 +334,7 @@ void game_play_update(struct game_state *game_state, struct input *input)
     systems_camera(game_state);
 }
 
-void game_play_draw(struct game_state *game_state)
+void draw(struct game_state *game_state)
 {
     assert(game_state->initialised);
 
@@ -360,4 +416,31 @@ void game_play_draw(struct game_state *game_state)
     }
 
     EndDrawing();
+}
+
+static struct goal setup_goal(entity_id_t id,
+			      enum pitch_side side,
+			      v2 center,
+			      u16 width,
+			      u16 height,
+			      u16 penalty_box_width,
+			      u16 penalty_box_height)
+{
+    struct goal goal = (struct goal){
+	.id = id,
+	.center = center,
+	.penalty_box = (rect_t){.x = 165,
+				.y = center.y - (side == PSI_NORTH ? 0 : penalty_box_height),
+				.width = penalty_box_width,
+				.height = penalty_box_height},
+	.penalty_spot = {.x = center.x,
+			 .y = center.y + 11 * PIXELS_PER_METER * (side == PSI_NORTH ? 1 : -1)},
+	.goal_quad_points = {
+	    {.x = center.x - width * 2, .y = 0, .z = center.y},
+	    {.x = center.x - width * 2, .y = height, .z = center.y},
+	    {.x = center.x + width * 2, .y = height, .z = center.y},
+	    {.x = center.x + width * 2, .y = 0, .z = center.y},
+	}};
+
+    return goal;
 }

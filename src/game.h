@@ -156,11 +156,20 @@ struct game_state *game_play_init(struct game_config gameConfig,
 				  struct assets assets,
 				  memory_arena_handle_t *memory_arena);
 void game_play_destroy(struct game_state *game_state);
-void game_play_update(struct game_state *game_state, struct input *input);
-void game_play_draw(struct game_state *game_state);
+b32 game_play_update(struct game_state *game_state);
+
+enum game_scene {
+    GSC_NONE,
+    GSC_TITLE,
+    GSC_MAIN,
+    GSC_SETTINGS,
+    GSC_PLAY,
+};
 
 void game_loop(struct game_config config,
 	       struct assets assets,
 	       memory_arena_handle_t *memory_arena);
+
+void game_set_next_scene(enum game_scene next_scene);
 
 #endif // !GAME_H
