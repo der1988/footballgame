@@ -88,6 +88,7 @@ v refactor scene manager into a proper game loop with scenes
 v make tests work again after refactor
 v optimized includes
 * improve player selection system
+* implement tackle
 - implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
@@ -103,4 +104,3 @@ v optimized includes
 - implement network multiplayer
 - refactor the overlapping collision solver
 - don't make goalie rush to the ball if possession is hostile
-- implement tackle

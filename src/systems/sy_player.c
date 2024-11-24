@@ -173,7 +173,8 @@ void systems_player(struct game_state *game_state, struct input *input)
 		player->time_spent_in_precision_control = 0;
 	    }
 
-	    if (!is_colliding_with_ball && input->buttons[IBT_BUTTON_LEFT].pressed) {
+	    if (!is_colliding_with_ball && input->buttons[IBT_BUTTON_LEFT].pressed &&
+		ball->last_touch_entity_id != entity_id) {
 		entities_player_state_machine_change_state_to(
 		    player->state_machine, PS_SLIDING_TACKLE, game_state);
 	    }
