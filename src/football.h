@@ -252,4 +252,6 @@ INLINE v2 football_pitch_position_abs_to_rel(rect_t pitch, v2 pos)
     return pos;
 }
 
+void football_setup(struct game_state *game_state);
+
 #endif // !FOOTBALL_H

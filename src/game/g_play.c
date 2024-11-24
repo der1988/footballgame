@@ -18,13 +18,6 @@
 
 void update(struct game_state *game_state, struct input *input);
 void draw(struct game_state *game_state);
-static struct goal setup_goal(entity_id_t id,
-			      enum pitch_side side,
-			      v2 center,
-			      u16 width,
-			      u16 height,
-			      u16 penalty_box_width,
-			      u16 penalty_box_height);
 
 struct game_state *game_play_init(struct game_config game_config,
 				  struct assets assets,
@@ -117,95 +110,16 @@ struct game_state *game_play_init(struct game_config game_config,
 
     // Layers
     game_state->layer_debug = layers_debug_create(game_state);
-
-#ifndef RUNNING_TEST
     game_state->vars.is_debug_log_shown = true;
-
-    game_state->vars.pitch.field = (rect_t){.x = 33, .y = 79, .width = 640, .height = 360 * 3 - 4};
-    game_state->vars.pitch.goal_width = 79;
-    game_state->vars.pitch.goal_height = 27;
-    game_state->vars.pitch.penalty_box_width = 374;
-    game_state->vars.pitch.penalty_box_height = 167;
-    game_state->vars.pitch.midfield_spot =
-	(v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
-	     .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height * 0.5f};
-
-    // Set up goals
-    for (usize i = 0; i < PSI_COUNT; ++i) {
-
-	v2 goal_center =
-	    (v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
-		 .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height * i};
-
-	struct entity *goal_entity = entities_goal_create(
-	    (struct goal_config){.side = i, .center = goal_center}, game_state);
-
-	game_state->vars.pitch.goal[i] = setup_goal(goal_entity->header.id,
-						    i,
-						    goal_center,
-						    game_state->vars.pitch.goal_width,
-						    game_state->vars.pitch.goal_height,
-						    game_state->vars.pitch.penalty_box_width,
-						    game_state->vars.pitch.penalty_box_height);
-    }
-
-    struct entity *player_entity = entities_player_create(
-	(struct player_config){
-	    .position = football_pitch_position_rel_to_abs(
-		game_state->vars.pitch.field,
-		football_tactics_get_team_formation_position(TF_433, 0)->position[TM_DEFAULT]),
-	    .side = PSI_NORTH,
-	    .team_formation_position_idx = 0},
-	game_state);
-
-    //    for (usize i = 1; i < 10; ++i) {
-    // entities_player_create(
-    //     (struct player_config){
-    // 	.position = football_pitch_position_rel_to_abs(
-    // 	    game_state->vars.pitch.field,
-    // 	    football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT]),
-    // 	.side = PSI_NORTH,
-    // 	.team_formation_position_idx = i},
-    //     game_state);
-    //    }
-
-    entities_player_create((struct player_config){.is_goalie = true,
-						  .position =
-						      game_state->vars.pitch.goal[PSI_NORTH].center,
-						  .side = PSI_NORTH},
-			   game_state);
-    entities_player_create((struct player_config){.is_goalie = true,
-						  .position =
-						      game_state->vars.pitch.goal[PSI_SOUTH].center,
-						  .side = PSI_SOUTH},
-			   game_state);
-
-    struct entity *ball_entity = entities_ball_create(
-	(struct ball_config){.position = game_state->vars.pitch.midfield_spot}, game_state);
-    game_state->vars.ball_entity_id = ball_entity->header.id;
-
-    struct entity *camera_entity = entities_camera_create(game_state);
-    struct component_camera *camera = &camera_entity->camera;
-    struct component_target *camera_target = &camera_entity->target;
-    camera->camera = CAM_MAIN;
-    camera_target->entity_id = ball_entity->header.id;
-    game_state->vars.camera_entity_id = camera_entity->header.id;
-
-    game_state->camera.zoom = 1;
-    game_state->camera.rotation = 0;
-    // game_state->camera.offset = (Vector2){(f32)game_state->config.screen_width / 2,
-    //                                       (f32)game_state->config.screen_height / 2};
-    game_state->virtual_camera.zoom = 1;
-    game_state->virtual_camera.rotation = 0;
-    game_state->virtual_camera.offset = (v2){(f32)game_state->config.virtual_screen_width / 2,
-					     (f32)game_state->config.virtual_screen_height / 2};
-
-    football_match_change_state(game_state, MS_PLAY);
-    game_state->vars.p1 = (struct human_player){.player_entity_id = player_entity->header.id};
-#endif
 
     game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
 						   (f32)game_state->config.virtual_screen_height);
+
+#ifndef RUNNING_TEST
+
+    football_setup(game_state);
+
+#endif
 
     game_state->initialised = true;
     GLOG_INFO(LS_GAME, "gameplay initialisation complete");
@@ -416,31 +330,4 @@ void draw(struct game_state *game_state)
     }
 
     EndDrawing();
-}
-
-static struct goal setup_goal(entity_id_t id,
-			      enum pitch_side side,
-			      v2 center,
-			      u16 width,
-			      u16 height,
-			      u16 penalty_box_width,
-			      u16 penalty_box_height)
-{
-    struct goal goal = (struct goal){
-	.id = id,
-	.center = center,
-	.penalty_box = (rect_t){.x = 165,
-				.y = center.y - (side == PSI_NORTH ? 0 : penalty_box_height),
-				.width = penalty_box_width,
-				.height = penalty_box_height},
-	.penalty_spot = {.x = center.x,
-			 .y = center.y + 11 * PIXELS_PER_METER * (side == PSI_NORTH ? 1 : -1)},
-	.goal_quad_points = {
-	    {.x = center.x - width * 2, .y = 0, .z = center.y},
-	    {.x = center.x - width * 2, .y = height, .z = center.y},
-	    {.x = center.x + width * 2, .y = height, .z = center.y},
-	    {.x = center.x + width * 2, .y = 0, .z = center.y},
-	}};
-
-    return goal;
 }
