@@ -9,7 +9,7 @@ struct entity;
 struct player_config {
     v2 position;
     b32 is_goalie;
-    enum pitch_side side;
+    i8 team_idx;
     u8 team_formation_position_idx;
 };
 

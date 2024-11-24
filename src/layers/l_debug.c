@@ -3,6 +3,7 @@
 #include "game.h"
 #include "entities.h"
 #include <assert.h>
+#include <raylib.h>
 #include <string.h>
 #include <raymath.h>
 
@@ -116,6 +117,6 @@ void layers_debug_draw(layers_debug_t *handle, struct game_state *game_state)
 					 handle->radar_position,
 					 radar_ratio),
 		       (v2){.x = 6, .y = 4},
-		       RED);
+		       entity->player.team_idx == 0 ? RED : BLUE);
     }
 }

@@ -224,6 +224,7 @@ static struct team_formation_position TeamFormations[TF_COUNT][10] = {
 
 struct team {
     char *name;
+    enum pitch_side pitch_side;
     enum team_formation formation;
 };
 
@@ -237,14 +238,14 @@ b32 football_pitch_is_position_inside_penalty_area(v2 pos,
 						   struct game_state *game_state);
 b32 football_pitch_is_position_inside(v2 pos, struct game_state *game_state);
 
-INLINE v2 football_pitch_position_rel_to_abs(rect_t pitch, v2 pos)
+INLINE v2 football_pitch_position_normalized_to_abs(rect_t pitch, v2 pos)
 {
     pos.x = pitch.x + pitch.width * pos.x;
     pos.y = pitch.y + pitch.height * (1 - pos.y);
     return pos;
 }
 
-INLINE v2 football_pitch_position_abs_to_rel(rect_t pitch, v2 pos)
+INLINE v2 football_pitch_position_abs_to_normalized(rect_t pitch, v2 pos)
 {
     pos.x = (pos.x - pitch.x) / pitch.width;
     pos.y = (pos.y - pitch.y) / pitch.height;

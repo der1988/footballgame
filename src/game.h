@@ -114,6 +114,7 @@ struct player_on_the_ball {
 struct game_vars {
     struct match match;
     struct pitch pitch;
+    struct team teams[2];
     struct player_on_the_ball player_on_the_ball;
     entity_id_t camera_entity_id;
     entity_id_t ball_entity_id;

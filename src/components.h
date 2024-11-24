@@ -120,7 +120,6 @@ enum direction {
 
 struct component_player {
     struct component_header header;
-    enum pitch_side side;
     struct state_machine_player *state_machine;
     b32 control_ball;
     time_t time_spent_in_precision_control;
@@ -135,6 +134,7 @@ struct component_player {
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
     u8 team_formation_position_idx;
+    i8 team_idx;
 };
 
 struct component_ball {

@@ -70,6 +70,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	struct component_player *player = &player_entity->player;
 	v2 player_position = player_entity->transform.position;
 	v2 player_velocity = player_entity->physics.velocity;
+	enum pitch_side player_pitch_side = game_state->vars.teams[player->team_idx].pitch_side;
 	f32 player_speed = Vector2Length(player_velocity);
 	v2 normalized_velocity = Vector2Normalize(player_velocity);
 	f32 steering_magnitude = Vector2Length(player_on_the_ball->controls.steering);
@@ -81,7 +82,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    // Shot
 	    player->last_kick_time = game_state->time;
 
-	    v2 center_of_goal = game_state->vars.pitch.goal[player->side].center;
+	    v2 center_of_goal = game_state->vars.pitch.goal[1 - player_pitch_side].center;
 	    v2 shot_direction_to_center =
 		Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
 	    v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
@@ -92,10 +93,10 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    v2 shot_direction =
 		Vector2Rotate(shot_direction_to_center,
 			      angle_center_to_post * player_on_the_ball->controls.steering.x);
-	    f32 shot_height =
-		(((player->side == PSI_NORTH ? -1 : 1) * player_on_the_ball->controls.steering.y) +
-		 1) *
-		0.5f;
+	    f32 shot_height = (((player_pitch_side == PSI_NORTH ? 1 : -1) *
+				player_on_the_ball->controls.steering.y) +
+			       1) *
+			      0.5f;
 
 	    // Limit angle between requested shoot direction and current velocity
 	    f32 angle = Vector2Angle(player_velocity, shot_direction);

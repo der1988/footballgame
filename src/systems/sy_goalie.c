@@ -9,12 +9,13 @@ static b32 protect_goal_predicate(v3 pos_to_check,
 				  struct entity *seeker_entity,
 				  struct game_state *game_state)
 {
-    f32 ball_distance_from_goal = Vector3Distance(
-	pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[seeker_entity->player.side].center, 0));
-    return (football_pitch_is_position_inside_penalty_area(
-		V3_TO_V2(pos_to_check), seeker_entity->player.side, game_state) &&
-	    ball_distance_from_goal < 125 &&
-	    pos_to_check.y < (game_state->constants.crossbar_height - 7));
+    enum pitch_side side = game_state->vars.teams[seeker_entity->player.team_idx].pitch_side;
+    f32 ball_distance_from_goal =
+	Vector3Distance(pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[side].center, 0));
+    return (
+	football_pitch_is_position_inside_penalty_area(V3_TO_V2(pos_to_check), side, game_state) &&
+	ball_distance_from_goal < 125 &&
+	pos_to_check.y < (game_state->constants.crossbar_height - 7));
 }
 
 void systems_goalie(struct game_state *game_state, struct input *input)
@@ -42,7 +43,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	struct state_machine_goalie *state_machine = goalie->state_machine;
 
-	const v2 goal_center = game_state->vars.pitch.goal[player->side].center;
+	enum pitch_side pitch_side = game_state->vars.teams[player->team_idx].pitch_side;
+	const v2 goal_center = game_state->vars.pitch.goal[pitch_side].center;
 
 	const v3 ball_position = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 	const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
@@ -136,7 +138,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		    game_state->dt * ball->future_bounce.dts,
 		    exit_max_speed) &&
 		football_pitch_is_position_inside_penalty_area(
-		    V3_TO_V2(ball->future_reachable.position), player->side, game_state);
+		    V3_TO_V2(ball->future_reachable.position), pitch_side, game_state);
 
 	    if (should_seek_ball_at_reachable_pos) {
 		// seek ball future bounce position
@@ -217,9 +219,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		&goalie->state_machine->state_data.dive;
 
 	    if (!jump_state_data->animation_first_phase_completed) {
-		struct assets_animation *animation =
-		    assets_animation_get_by_id(game_state->assets.animation_cache,
-					       goalie->jump_animations_start[player->side]);
+		struct assets_animation *animation = assets_animation_get_by_id(
+		    game_state->assets.animation_cache, goalie->jump_animations_start[pitch_side]);
 		f32 animation_completion =
 		    Clamp((game_state->time - jump_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),
@@ -244,7 +245,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		}
 		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->assets.animation_cache,
-		    goalie->jump_animations_end[player->side][jump_state_data->ball_held]);
+		    goalie->jump_animations_end[pitch_side][jump_state_data->ball_held]);
 		f32 animation_completion =
 		    Clamp((game_state->time - jump_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),
@@ -333,7 +334,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		break;
 	    }
 	    entities_ball_back_in_play(game_state->vars.ball_entity_id, game_state);
-	    i8 direction = player->side == PSI_NORTH ? 1 : -1;
+	    i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
 	    const v2 new_ball_position = Vector2Add(
 		transform->position,
 		Vector2Scale((v2){.y = direction},
@@ -358,7 +359,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	    if (!dive_state_data->animation_first_phase_completed) {
 		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->assets.animation_cache,
-		    goalie->dive_animations_start[player->side][direction][goalie->dive_height]);
+		    goalie->dive_animations_start[pitch_side][direction][goalie->dive_height]);
 		f32 animation_completion =
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),
@@ -383,7 +384,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		}
 		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->assets.animation_cache,
-		    goalie->dive_animations_end[player->side][direction][goalie->dive_height]
+		    goalie->dive_animations_end[pitch_side][direction][goalie->dive_height]
 					       [dive_state_data->ball_held]);
 		f32 animation_completion =
 		    Clamp((game_state->time - dive_state_data->animation_start_time) /
@@ -432,8 +433,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		// Otherwise bounce it
 		dive_state_data->ball_held =
 		    GOALIE_HOLD_OR_BOUNCE(ball_velocity) &&
-		    ((player->side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
-		     (player->side == PSI_SOUTH && ball_physics_3d->velocity.z > 0));
+		    ((pitch_side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
+		     (pitch_side == PSI_SOUTH && ball_physics_3d->velocity.z > 0));
 
 		// TODO: if the ball hits the post and comes back we don't want to hold
 		// the ball

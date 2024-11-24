@@ -104,3 +104,5 @@ v optimized includes
 - implement network multiplayer
 - refactor the overlapping collision solver
 - don't make goalie rush to the ball if possession is hostile
+- implement player tripped animation
+- fix bug when player slide tackles instead of shooting if goalkeeper saved the shot

@@ -1,5 +1,6 @@
 #include "ai.h"
 #include "entities.h"
+#include "football.h"
 #include "math_ext.h"
 #include "types.h"
 #include "game.h"
@@ -48,7 +49,7 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	       nobody_on_the_ball) {
 	*target_position = ball->future_bounce.position;
 	ai_state = PAS_ARRIVE_TO_POSITION;
-    } else if (distance_from_ball < 150 && nobody_on_the_ball) {
+    } else if (distance_from_ball < 50 && nobody_on_the_ball) {
 	v3 ball_future_pos;
 	time_t ball_future_time;
 	b32 found = entities_common_can_reach_future_ball_position(
@@ -69,19 +70,33 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	    football_tactics_get_team_formation_position(
 		TF_433, entity->player.team_formation_position_idx);
 
-	v2 ball_normalized_pos = football_pitch_position_abs_to_rel(game_state->vars.pitch.field,
-								    ball_transform->position);
+	v2 ball_normalized_pos = football_pitch_position_abs_to_normalized(
+	    game_state->vars.pitch.field, ball_transform->position);
 
 	v2 default_pos = team_formation_position->position[TM_DEFAULT];
 	v2 target_pos;
 
-	if (ball_normalized_pos.y < 0.5f) {
-	    v2 attacking_pos = team_formation_position->position[TM_ATTACKING];
-	    target_pos = Vector2Lerp(attacking_pos, default_pos, ball_normalized_pos.y / 0.5f);
+	enum pitch_side player_pitch_side =
+	    game_state->vars.teams[entity->player.team_idx].pitch_side;
+
+	if (player_pitch_side == PSI_SOUTH) {
+	    if (ball_normalized_pos.y < 0.5f) {
+		v2 attacking_pos = team_formation_position->position[TM_ATTACKING];
+		target_pos = Vector2Lerp(attacking_pos, default_pos, ball_normalized_pos.y / 0.5f);
+	    } else {
+		v2 defending_pos = team_formation_position->position[TM_DEFENDING];
+		target_pos =
+		    Vector2Lerp(default_pos, defending_pos, (ball_normalized_pos.y - 0.5f) / 0.5f);
+	    }
 	} else {
-	    v2 defending_pos = team_formation_position->position[TM_DEFENDING];
-	    target_pos =
-		Vector2Lerp(default_pos, defending_pos, (ball_normalized_pos.y - 0.5f) / 0.5f);
+	    if (ball_normalized_pos.y > 0.5f) {
+		v2 attacking_pos = team_formation_position->position[TM_ATTACKING];
+		target_pos =
+		    Vector2Lerp(default_pos, attacking_pos, (ball_normalized_pos.y - 0.5f) / 0.5f);
+	    } else {
+		v2 defending_pos = team_formation_position->position[TM_DEFENDING];
+		target_pos = Vector2Lerp(defending_pos, default_pos, ball_normalized_pos.y / 0.5f);
+	    }
 	}
 
 	// If ball is in the side lanes and player is on the other side of the pitch we need to
@@ -100,8 +115,12 @@ enum player_ai_state ai_player_think(struct entity *entity,
 				     (ball_normalized_pos.x - 0.66f) / 0.33f);
 	}
 
+	if (player_pitch_side == PSI_NORTH) {
+	    target_pos.y = 1 - target_pos.y;
+	}
+
 	*target_position =
-	    football_pitch_position_rel_to_abs(game_state->vars.pitch.field, target_pos);
+	    football_pitch_position_normalized_to_abs(game_state->vars.pitch.field, target_pos);
 	if (Vector2Distance(*target_position, entity->transform.position) < STAY_THERE_RADIUS)
 	    ai_state = PAS_KEEP_POSITION;
 	else

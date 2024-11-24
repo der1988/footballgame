@@ -2,8 +2,10 @@
 #include "log.h"
 #include "math_ext.h"
 #include <assert.h>
+#include <raylib.h>
 #include <string.h>
 #include "game.h"
+#include "types.h"
 
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);
@@ -63,7 +65,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
     // Initialise player
     struct component_player *player = &entity->player;
     player->header.enabled = true;
-    player->side = config.side;
+    player->team_idx = config.team_idx;
     player->team_formation_position_idx = config.team_formation_position_idx;
     // Sets initial max velocity to half of max run velocity
     player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
@@ -269,7 +271,9 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 	entity->physics.velocity = Vector2Zero();
 	entity->physics.accel = Vector2Zero();
 	entity->goalie.state_machine->state_data.hold_ball.hold_start_time = game_state->time;
-	entity->sprite.frame_id = entity->goalie.save_frames[entity->player.side][ST_WITH_BALL];
+	entity->sprite.frame_id =
+	    entity->goalie.save_frames[game_state->vars.teams[entity->player.team_idx].pitch_side]
+				      [ST_WITH_BALL];
 	break;
     }
     case GS_JUMP: {
@@ -691,10 +695,12 @@ static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider 
 
 void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state)
 {
-    UNUSED(entity_id);
+    struct entity *entity = entities_entity_get(game_state->entity_repository, entity_id);
 
     u32 *palette =
 	memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], sizeof(u32) * 3 * 10);
+
+    color_t kit_color = entity->player.team_idx == 0 ? RED : BLUE;
 
     palette = (u32[]){
 	// Hair
@@ -710,9 +716,9 @@ void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_sta
 	111,
 	90,
 	// Kit
-	148,
-	35,
-	35,
+	kit_color.r,
+	kit_color.g,
+	kit_color.b,
 	// Kit shadow
 	201,
 	147,

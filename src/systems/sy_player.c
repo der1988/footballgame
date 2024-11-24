@@ -20,6 +20,12 @@ void systems_player(struct game_state *game_state, struct input *input)
     player_on_the_ball->id = EID_NOT_VALID;
     player_on_the_ball->distance_from_the_ball = UINT32_MAX;
 
+    struct entity *last_entity_that_touched_ball =
+	entities_entity_get(game_state->entity_repository, ball->last_touch_entity_id);
+
+    i8 team_idx_last_ball_possession =
+	last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_idx : -1;
+
     for_each_entity(entity, game_state->entity_repository) {
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
@@ -173,8 +179,10 @@ void systems_player(struct game_state *game_state, struct input *input)
 		player->time_spent_in_precision_control = 0;
 	    }
 
-	    if (!is_colliding_with_ball && input->buttons[IBT_BUTTON_LEFT].pressed &&
-		ball->last_touch_entity_id != entity_id) {
+	    if (!is_colliding_with_ball &&
+		(team_idx_last_ball_possession != player->team_idx &&
+		 team_idx_last_ball_possession == -1) &&
+		input->buttons[IBT_BUTTON_LEFT].pressed) {
 		entities_player_state_machine_change_state_to(
 		    player->state_machine, PS_SLIDING_TACKLE, game_state);
 	    }
