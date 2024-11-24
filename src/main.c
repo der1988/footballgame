@@ -1,10 +1,4 @@
-#include "assets.h"
 #include "game.h"
-#include "memory.h"
-#include "types.h"
-#include <assert.h>
-#include <raylib.h>
-#include <raymath.h>
 #include <stdlib.h>
 
 int main()

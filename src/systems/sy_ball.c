@@ -1,17 +1,8 @@
-#include "components.h"
 #include "entities.h"
-#include "football.h"
 #include "game.h"
 #include "input.h"
-#include "layers.h"
-#include "macro.h"
-#include "render.h"
 #include "simulation.h"
-#include <raylib.h>
-#include <raymath.h>
 #include "math_ext.h"
-#include "constants.h"
-#include "types.h"
 
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 {

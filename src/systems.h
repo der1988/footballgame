@@ -1,7 +1,9 @@
 #ifndef SYSTEMS_H
 #define SYSTEMS_H
 
-#include "game.h"
+// Forward declaration
+struct game_state;
+struct input;
 
 void systems_controls(struct game_state *game_state, struct input *input);
 void systems_ball(struct game_state *game_state, struct input *input);

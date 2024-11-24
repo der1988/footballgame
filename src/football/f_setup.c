@@ -1,5 +1,5 @@
-#include "game.h"
 #include "entities.h"
+#include "game.h"
 
 static struct goal setup_goal(entity_id_t id,
 			      enum pitch_side side,

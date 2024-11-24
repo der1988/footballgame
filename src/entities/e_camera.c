@@ -1,9 +1,7 @@
-#include "components.h"
 #include "entities.h"
-#include "game.h"
 #include "log.h"
-#include <raylib.h>
 #include <raymath.h>
+#include "game.h"
 
 struct entity *entities_camera_create(struct game_state *game_state)
 {

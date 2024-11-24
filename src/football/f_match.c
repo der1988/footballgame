@@ -1,11 +1,7 @@
-#include "components.h"
 #include "entities.h"
-#include "football.h"
-#include "game.h"
 #include "math_ext.h"
 #include "log.h"
-#include <raylib.h>
-#include <raymath.h>
+#include "game.h"
 
 void football_match_change_state(struct game_state *game_state, enum match_state new_state)
 {

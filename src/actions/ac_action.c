@@ -1,7 +1,6 @@
 #include "actions.h"
-#include "components.h"
+#include "game.h"
 #include "entities.h"
-#include <raylib.h>
 
 void actions_action_run(struct action_runner *action_runner,
 			entity_id_t id,

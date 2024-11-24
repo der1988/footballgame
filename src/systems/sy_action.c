@@ -1,6 +1,5 @@
-#include "actions.h"
-#include "components.h"
 #include "entities.h"
+#include "game.h"
 
 void systems_action(struct game_state *game_state)
 {

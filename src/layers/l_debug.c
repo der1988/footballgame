@@ -1,14 +1,9 @@
 #include "layers_internal.h"
-#include "game.h"
-#include "memory.h"
-#include "macro.h"
 #include "log.h"
-#include <assert.h>
-#include <raylib.h>
-#include <string.h>
-#include "layers.h"
-#include "entities.h"
 #include "game.h"
+#include "entities.h"
+#include <assert.h>
+#include <string.h>
 #include <raymath.h>
 
 #define MAX_FONTS 8

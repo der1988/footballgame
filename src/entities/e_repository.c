@@ -1,9 +1,6 @@
 #include "entities.h"
-#include "memory.h"
-#include "types.h"
 #include "log.h"
 #include <assert.h>
-#include <stdarg.h>
 #include <stdio.h>
 
 static entity_id_t find_empty_slot(struct entity_repository *entity_repo)

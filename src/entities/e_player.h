@@ -2,10 +2,7 @@
 #define ENTITIES_PLAYER_H
 
 #include "components.h"
-#include "entities/state_machine.h"
-#include "football.h"
 #include "state_machine.h"
-#include "types.h"
 
 struct entity;
 

@@ -1,5 +1,4 @@
 #include "types.h"
-#include <raylib.h>
 #include <raymath.h>
 
 v2 Vector2RotateAroundPivot(v2 vector, v2 pivot, f32 angle)

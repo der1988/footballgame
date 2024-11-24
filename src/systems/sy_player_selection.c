@@ -1,13 +1,6 @@
-#include "components.h"
 #include "entities.h"
-#include "football.h"
 #include "game.h"
-#include "input.h"
-#include "layers.h"
 #include "types.h"
-#include "macro.h"
-#include <math_ext.h>
-#include <raylib.h>
 #include <raymath.h>
 #include "ai.h"
 

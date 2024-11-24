@@ -1,10 +1,6 @@
-#include "assets.h"
-#include "components.h"
 #include "entities.h"
 #include "game.h"
-#include "render.h"
 #include <assert.h>
-#include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
 

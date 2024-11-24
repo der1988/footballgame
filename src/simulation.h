@@ -1,5 +1,7 @@
-#include "game.h"
 #include "types.h"
+
+// Forward declaration
+struct game_state;
 
 void sim_ball_physics(v3 *out_position,
 		      v3 *out_velocity,

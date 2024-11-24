@@ -1,4 +1,3 @@
-#include "types.h"
 #include "football.h"
 #include "game.h"
 

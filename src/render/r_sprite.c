@@ -1,5 +1,4 @@
 #include "assets.h"
-#include <raylib.h>
 #include <raymath.h>
 #include "math_ext.h"
 

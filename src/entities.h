@@ -1,11 +1,6 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "components.h"
-#include "football.h"
-#include "game.h"
-#include "input.h"
-#include "memory.h"
 #include "types.h"
 
 #include "entities/e_ball.h"

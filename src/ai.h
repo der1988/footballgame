@@ -1,5 +1,8 @@
-#include "game.h"
-#include "entities.h"
+#include "types.h"
+
+// Forward declaration
+struct game_state;
+struct entity;
 
 enum player_ai_kick_decision {
     PAKD_NO_KICK,

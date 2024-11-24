@@ -4,9 +4,7 @@
 #include "assets.h"
 #include "football.h"
 #include "memory.h"
-#include "raygui/raygui.h"
 #include "types.h"
-#include <raylib.h>
 #include "layers.h"
 #include "tweakui.h"
 
@@ -19,11 +17,6 @@ enum memory_arena_lifetime {
     MAL_UPDATE,
     MAL_DRAW,
     MAL_COUNT
-};
-
-enum camera_type {
-    CAM_MAIN,
-    CAM_COUNT
 };
 
 struct game_config {

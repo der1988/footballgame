@@ -6,7 +6,6 @@
 #include "macro.h"
 #include "log.h"
 #include <assert.h>
-#include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

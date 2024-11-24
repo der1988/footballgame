@@ -1,8 +1,6 @@
 #ifndef MACRO_H
 #define MACRO_H
 
-#include <raylib.h>
-
 #define UNUSED(x) (void)(x)
 
 #define INLINE inline __attribute__((always_inline))

@@ -3,7 +3,6 @@
 
 #include "macro.h"
 #include "types.h"
-#include <raylib.h>
 
 // Forward declaration
 struct game_state;

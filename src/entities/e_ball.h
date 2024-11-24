@@ -3,10 +3,6 @@
 
 #include "components.h"
 #include "entities/state_machine.h"
-#include "football.h"
-#include "game.h"
-#include "input.h"
-#include "state_machine.h"
 #include "types.h"
 
 struct entity;

@@ -2,7 +2,6 @@
 #define INPUT_H
 
 #include "types.h"
-#include <raylib.h>
 
 // GameState forward declaration
 struct game_state;

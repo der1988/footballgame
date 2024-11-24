@@ -1,20 +1,10 @@
-#include "game.h"
-#include "assets.h"
-#include "components.h"
 #include "entities.h"
-#include "football.h"
-#include "input.h"
-#include "layers.h"
-#include "memory.h"
-#include "raygui/raygui.h"
-#include "systems.h"
-#include "tweakui.h"
-#include "types.h"
 #include "log.h"
+#include "systems.h"
+#include "input.h"
+#include "game.h"
 #include <assert.h>
-#include <raylib.h>
 #include <raymath.h>
-#include "constants.h"
 
 void update(struct game_state *game_state, struct input *input);
 void draw(struct game_state *game_state);

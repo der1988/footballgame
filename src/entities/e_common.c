@@ -1,13 +1,8 @@
-#include "assets.h"
-#include "components.h"
-#include "game.h"
 #include "math_ext.h"
 #include <assert.h>
-#include <raylib.h>
-#include <raymath.h>
-#include "constants.h"
 #include "entities.h"
 #include <stdio.h>
+#include "game.h"
 
 assets_animation_id_t entities_common_animation_id_from_name(const char *entity_name,
 							     const char *animation_name,

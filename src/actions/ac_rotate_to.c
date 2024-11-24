@@ -1,8 +1,7 @@
 #include "actions.h"
-#include "components.h"
+#include "game.h"
 #include "entities.h"
 #include <math.h>
-#include <raylib.h>
 
 void actions_rotate_to_update(struct action_runner *action_runner,
 			      entity_id_t id,

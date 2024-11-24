@@ -2,8 +2,10 @@
 #define ACTIONS_H
 
 #include "assets.h"
-#include "game.h"
 #include "types.h"
+
+// Forward declaration
+struct game_state;
 
 enum action_type {
     AT_CHANGE_COLOR_FROM_TO,

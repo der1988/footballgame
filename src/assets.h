@@ -3,7 +3,6 @@
 
 #include "memory.h"
 #include "types.h"
-#include <raylib.h>
 
 #define MaxStringSize 50
 

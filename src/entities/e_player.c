@@ -1,23 +1,9 @@
-#include "e_player.h"
-#include "assets.h"
-#include "components.h"
 #include "entities.h"
-#include "football.h"
-#include "game.h"
-#include "memory.h"
-#include "render.h"
-#include "state_machine.h"
-#include "types.h"
 #include "log.h"
-#include "macro.h"
-#include <assert.h>
-#include <raylib.h>
-#include <raymath.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "constants.h"
 #include "math_ext.h"
+#include <assert.h>
+#include <string.h>
+#include "game.h"
 
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);

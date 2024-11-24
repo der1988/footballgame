@@ -1,7 +1,6 @@
 #include "input.h"
 #include "game.h"
 #include <math.h>
-#include <raylib.h>
 
 #define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 

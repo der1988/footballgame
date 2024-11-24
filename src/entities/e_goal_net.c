@@ -1,16 +1,7 @@
-#include "assets.h"
-#include "components.h"
 #include "entities.h"
-#include "game.h"
-#include "render.h"
-#include "types.h"
 #include "log.h"
 #include <assert.h>
-#include <raylib.h>
-#include <raymath.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "game.h"
 
 struct entity *entities_goal_net_create(struct game_state *game_state)
 {

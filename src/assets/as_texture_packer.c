@@ -1,7 +1,6 @@
 #include "assets.h"
 #include "libs/cJSON/cJSON.h"
 #include "macro.h"
-#include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
 #include "log.h"

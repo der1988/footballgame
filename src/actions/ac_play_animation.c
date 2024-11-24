@@ -1,9 +1,8 @@
 #include "actions.h"
 #include "assets.h"
-#include "components.h"
 #include "entities.h"
+#include "game.h"
 #include <math.h>
-#include <raylib.h>
 
 void actions_play_animation_update(struct action_runner *action_runner,
 				   entity_id_t id,

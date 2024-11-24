@@ -1,7 +1,5 @@
-#include "components.h"
 #include "entities.h"
 #include "game.h"
-#include <raylib.h>
 #include <raymath.h>
 
 void systems_render_hud(struct game_state *game_state)

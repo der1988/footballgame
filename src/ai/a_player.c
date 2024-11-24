@@ -1,10 +1,8 @@
 #include "ai.h"
 #include "entities.h"
-#include "football.h"
 #include "math_ext.h"
-#include "macro.h"
 #include "types.h"
-#include <raymath.h>
+#include "game.h"
 
 #define STAY_THERE_RADIUS 30.0f
 

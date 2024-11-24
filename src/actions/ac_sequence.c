@@ -1,6 +1,5 @@
 #include "actions.h"
 #include "macro.h"
-#include <raylib.h>
 #include <stdarg.h>
 
 void actions_sequence_start(struct action_runner *action_runner,

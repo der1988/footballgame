@@ -1,9 +1,6 @@
-#include "components.h"
 #include "entities.h"
 #include "game.h"
-#include "layers.h"
 #include "steering.h"
-#include <raylib.h>
 #include <raymath.h>
 
 void apply_force(Vector2 force_to_apply, struct component_physics *physics, delta_time_t dt)

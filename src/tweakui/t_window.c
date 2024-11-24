@@ -1,10 +1,7 @@
 #include "game.h"
-#include "memory.h"
 #include "tweakui_internal.h"
-#include "tweakui.h"
 #include "log.h"
 #include <assert.h>
-#include <raylib.h>
 
 #define RAYGUI_IMPLEMENTATION
 #include "raygui/raygui.h"

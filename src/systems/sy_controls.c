@@ -1,8 +1,5 @@
 #include "game.h"
 #include "input.h"
-#include "layers.h"
-#include "macro.h"
-#include <raylib.h>
 #include <raymath.h>
 
 void systems_controls(struct game_state *game_state, struct input *input)

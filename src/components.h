@@ -4,10 +4,7 @@
 #include "actions.h"
 #include "assets.h"
 #include "football.h"
-#include "game.h"
 #include "render.h"
-#include "types.h"
-#include <raylib.h>
 #include "constants.h"
 
 #define MaxConcurrentActions 5
@@ -95,6 +92,11 @@ struct component_collider {
     struct component_header header;
     struct collider *colliders;
     u16 num_colliders;
+};
+
+enum camera_type {
+    CAM_MAIN,
+    CAM_COUNT
 };
 
 struct component_camera {

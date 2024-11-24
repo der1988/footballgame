@@ -1,6 +1,5 @@
 #include "types.h"
 #include <math.h>
-#include <raylib.h>
 #include <raymath.h>
 
 f32 math_ext_trigo_constrain_angle_360(f32 angle)

@@ -1,9 +1,5 @@
-#include "assets.h"
-#include "components.h"
 #include "entities.h"
-#include "football.h"
-#include "render.h"
-#include <raylib.h>
+#include "game.h"
 #include <raymath.h>
 
 void systems_render_debug(struct game_state *game_state)
@@ -18,9 +14,9 @@ void systems_render_debug(struct game_state *game_state)
 	    declare_entity_component(entity, sprite);
 	    declare_entity_component(entity, collider);
 
-	    Vector2 position = transform->position;
+	    v2 position = transform->position;
 	    f32 rotation = transform->rotation;
-	    Vector2 scale = transform->scale;
+	    v2 scale = transform->scale;
 	    components_transform_calculate_absolute(transform, &position, &rotation, &scale);
 
 	    // TODO(marco): not great but I haven't found a better way to do it yet
@@ -35,7 +31,7 @@ void systems_render_debug(struct game_state *game_state)
 		sprite->pivot_override);
 
 	    // Debug lines for pitch
-	    Rectangle pitch = game_state->vars.pitch.field;
+	    rect_t pitch = game_state->vars.pitch.field;
 	    DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
 	    if (collider->header.enabled) {

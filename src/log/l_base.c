@@ -1,6 +1,5 @@
 #include "types.h"
 #include "log.h"
-#include <raylib.h>
 #include <stdarg.h>
 #include <stdio.h>
 

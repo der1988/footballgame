@@ -1,10 +1,8 @@
-#include "actions.h"
-#include "components.h"
 #include "entities.h"
-#include "game.h"
 #include "types.h"
 #include "log.h"
 #include <assert.h>
+#include "game.h"
 
 running_action_idx_t components_action_run(entity_id_t id,
 					   struct action *action,
