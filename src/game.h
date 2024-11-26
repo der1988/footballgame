@@ -102,6 +102,7 @@ struct player_on_the_ball {
     entity_id_t id;
     f32 distance_from_the_ball;
     b32 kicked_ball;
+    i8 team_idx;
     struct player_controls {
 	v2 steering;
 	f32 shot;

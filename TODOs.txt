@@ -87,6 +87,7 @@ v implement a scene manager
 v refactor scene manager into a proper game loop with scenes
 v make tests work again after refactor
 v optimized includes
+v improve automatic passing
 * improve player selection system
 * implement tackle
 - implement teams

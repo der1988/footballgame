@@ -169,6 +169,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 		    Vector2DistanceSqr(transform->position, ball_transform->position);
 		if (distance_from_the_ball < player_on_the_ball->distance_from_the_ball) {
 		    player_on_the_ball->id = entity_id;
+		    player_on_the_ball->team_idx = entity->player.team_idx;
 		    player_on_the_ball->distance_from_the_ball = distance_from_the_ball;
 		    player_on_the_ball->controls = player_controls;
 

@@ -2,6 +2,7 @@
 #include "game.h"
 #include "layers.h"
 #include "log.h"
+#include <math.h>
 #include <math_ext.h>
 #include <raymath.h>
 #include "ai.h"
@@ -15,6 +16,7 @@ static entity_id_t find_pass_target(struct game_state *game_state,
     struct entity_repository *entity_repository = game_state->entity_repository;
     entity_id_t selected_entity_id = EID_NOT_VALID;
     f32 selected_distance = UINT32_MAX;
+    f32 selected_angle = UINT32_MAX;
     struct entity *entity;
     for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
 	entity = entities_entity_get(game_state->entity_repository, entity_id);
@@ -22,19 +24,21 @@ static entity_id_t find_pass_target(struct game_state *game_state,
 
 	    struct component_transform *transform = &entity->transform;
 
-	    if (player_on_the_ball->id == entity_id) {
-		// We don't want to pass to ourselves, right?
+	    if (player_on_the_ball->id == entity_id ||
+		player_on_the_ball->team_idx != entity->player.team_idx) {
+		// We don't want to pass to ourselves nor to the other team, right?
 		continue;
 	    }
 
 	    v2 selected_direction = player_on_the_ball->controls.steering;
 	    v2 to_player = Vector2Subtract(transform->position, player_on_the_ball_pos);
 	    f32 distance_from_player = Vector2Length(to_player);
-	    f32 angle = Vector2Angle(selected_direction, to_player) * RAD2DEG;
-	    if (distance_from_player < max_distance && distance_from_player < selected_distance &&
-		fabs(angle) < detection_angle) {
+	    f32 angle = fabs(Vector2Angle(selected_direction, to_player) * RAD2DEG);
+	    if (distance_from_player < max_distance && angle < detection_angle &&
+		angle < selected_angle) {
 		selected_entity_id = entity_id;
 		selected_distance = distance_from_player;
+		selected_angle = angle;
 
 		GLOGF_DEBUG(LS_GAME,
 			    "found valid pass target: %zu, %.2f, %.2f",
@@ -45,8 +49,11 @@ static entity_id_t find_pass_target(struct game_state *game_state,
 	}
     }
     if (selected_entity_id != EID_NOT_VALID) {
-	GLOGF_DEBUG(
-	    LS_GAME, "selected pass target %zu at %.2f", selected_entity_id, selected_distance);
+	GLOGF_DEBUG(LS_GAME,
+		    "selected pass target %zu at %.2f with angle %.2f",
+		    selected_entity_id,
+		    selected_distance,
+		    selected_angle);
     }
     return selected_entity_id;
 }
@@ -129,7 +136,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		v2 to_teammate = Vector2Subtract(teammate_transform->position, player_position);
 		pass_direction = Vector3Normalize(V2_TO_V3(to_teammate, 0));
 		ball->pass_target_entity_id = teammate_entity_id;
-		power = Vector2Length(to_teammate) / 300.0f;
+		power = Vector2Length(to_teammate) / 250.0f;
 	    } else {
 		pass_direction =
 		    Vector3Normalize(V2_TO_V3(player_on_the_ball->controls.steering, 0));

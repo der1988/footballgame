@@ -45,7 +45,7 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	*target_position = V3_TO_V2(ball_future_pos);
 	ai_state = PAS_SEEK_POSITION;
     } else if (ball->future_bounce.available &&
-	       Vector2Distance(transform->position, ball->future_bounce.position) < 150 &&
+	       Vector2Distance(transform->position, ball->future_bounce.position) < 50 &&
 	       nobody_on_the_ball) {
 	*target_position = ball->future_bounce.position;
 	ai_state = PAS_ARRIVE_TO_POSITION;
