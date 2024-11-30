@@ -96,6 +96,7 @@ struct controls {
 struct human_player {
     struct controls controls;
     entity_id_t player_entity_id;
+    u8 team_idx;
 };
 
 struct player_on_the_ball {

@@ -90,7 +90,7 @@ v optimized includes
 v improve automatic passing
 * improve player selection system
 * implement tackle
-- implement teams
+* implement teams
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - use r1 to make the player stop the ball?

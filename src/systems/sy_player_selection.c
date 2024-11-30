@@ -1,4 +1,5 @@
 #include "entities.h"
+#include "football.h"
 #include "game.h"
 #include "types.h"
 #include <raymath.h>
@@ -6,7 +7,8 @@
 
 static entity_id_t find_nearest_teammate(struct game_state *game_state,
 					 entity_id_t player_to_not_select_entity_id,
-					 v2 position)
+					 v2 position,
+					 u8 team_idx)
 {
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
@@ -23,6 +25,7 @@ static entity_id_t find_nearest_teammate(struct game_state *game_state,
 	    struct component_goalie *goalie = &entity->goalie;
 
 	    if (player_to_not_select_entity_id == entity_id ||
+		entity->player.team_idx != team_idx ||
 		(goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
 		ball->pass_target_entity_id == entity_id) {
 		// If player is the one on the ball or a goalie or the destination of the pass let's
@@ -64,12 +67,9 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	// let's use bounce position instead to select which player is human controlled
 	epicenter = ball->future_bounce.position;
     }
-    if (player_on_the_ball->kicked_ball) {
-	nearest_teammate_entity_id =
-	    find_nearest_teammate(game_state, player_to_avoid_entity_id, epicenter);
-    } else if (player_on_the_ball->id == EID_NOT_VALID) {
-	nearest_teammate_entity_id =
-	    find_nearest_teammate(game_state, player_to_avoid_entity_id, epicenter);
+    if (player_on_the_ball->kicked_ball || player_on_the_ball->id == EID_NOT_VALID) {
+	nearest_teammate_entity_id = find_nearest_teammate(
+	    game_state, player_to_avoid_entity_id, epicenter, game_state->vars.p1.team_idx);
     }
     game_state->vars.p1.player_entity_id = nearest_teammate_entity_id;
 }
