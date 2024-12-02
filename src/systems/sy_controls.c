@@ -4,8 +4,8 @@
 
 void systems_controls(struct game_state *game_state, struct input *input)
 {
-    game_state->vars.p1.controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
-    struct action_charge *p1_charge = &game_state->vars.p1.controls.charge;
+    game_state->human_players[0].controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
+    struct action_charge *p1_charge = &game_state->human_players[0].controls.charge;
     if (p1_charge->ready) {
 	// Ready
 	if (HAS_TIME_PASSED(
@@ -52,7 +52,7 @@ void systems_controls(struct game_state *game_state, struct input *input)
 	}
 	if (charging) {
 	    p1_charge->ready = false;
-	    p1_charge->direction = Vector2Normalize(game_state->vars.p1.controls.steering);
+	    p1_charge->direction = Vector2Normalize(game_state->human_players[0].controls.steering);
 	    p1_charge->started = game_state->time;
 	    p1_charge->power = 0.0f;
 	    p1_charge->ended = 0;

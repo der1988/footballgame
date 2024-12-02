@@ -50,26 +50,27 @@ void systems_player(struct game_state *game_state, struct input *input)
 	case PS_NORMAL: {
 	    struct player_controls player_controls = {0};
 
-	    if (game_state->vars.p1.player_entity_id == entity_id) {
+	    if (game_state->human_players[0].controlled_player_entity_id == entity_id) {
 		// Player is human controlled
-		player_controls.steering = game_state->vars.p1.controls.steering;
+		player_controls.steering = game_state->human_players[0].controls.steering;
 
-		if (game_state->vars.p1.controls.charge.ready) {
-		    switch (game_state->vars.p1.controls.charge.type) {
+		if (game_state->human_players[0].controls.charge.ready) {
+		    switch (game_state->human_players[0].controls.charge.type) {
 		    case ACT_SHOOT: {
-			player_controls.shot = game_state->vars.p1.controls.charge.power;
+			player_controls.shot = game_state->human_players[0].controls.charge.power;
 			break;
 		    }
 		    case ACT_PASS: {
-			player_controls.pass = game_state->vars.p1.controls.charge.power;
-			if ((game_state->vars.p1.controls.charge.ended -
-			     game_state->vars.p1.controls.charge.started) < 0.15f) {
+			player_controls.pass = game_state->human_players[0].controls.charge.power;
+			if ((game_state->human_players[0].controls.charge.ended -
+			     game_state->human_players[0].controls.charge.started) < 0.15f) {
 			    player_controls.automatic_pass = true;
 			}
 			break;
 		    }
 		    case ACT_LONG_PASS: {
-			player_controls.long_pass = game_state->vars.p1.controls.charge.power;
+			player_controls.long_pass =
+			    game_state->human_players[0].controls.charge.power;
 			break;
 		    }
 		    }
@@ -108,8 +109,8 @@ void systems_player(struct game_state *game_state, struct input *input)
 
 	    v2 effective_steering = player_controls.steering;
 	    // If charging kick we seek the ball
-	    if (entity_id == game_state->vars.p1.player_entity_id &&
-		game_state->vars.p1.controls.charge.charging) {
+	    if (entity_id == game_state->human_players[0].controlled_player_entity_id &&
+		game_state->human_players[0].controls.charge.charging) {
 		effective_steering = Vector2Normalize(
 		    Vector2Subtract(ball_transform->position, transform->position));
 	    }

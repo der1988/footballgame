@@ -7,6 +7,7 @@
 #include "types.h"
 #include "layers.h"
 #include "tweakui.h"
+#include "constants.h"
 
 // Forward declarations
 struct entity_repository;
@@ -76,7 +77,7 @@ struct game_constants {
     f32 kick_charge_reset_time;
 };
 
-struct controls {
+struct device_controls {
     v2 steering;
     struct action_charge {
 	enum action_charge_type {
@@ -94,9 +95,9 @@ struct controls {
 };
 
 struct human_player {
-    struct controls controls;
-    entity_id_t player_entity_id;
     enum team_side team_side;
+    struct device_controls controls;
+    entity_id_t controlled_player_entity_id;
 };
 
 struct player_on_the_ball {
@@ -120,7 +121,6 @@ struct game_vars {
     struct player_on_the_ball player_on_the_ball;
     entity_id_t camera_entity_id;
     entity_id_t ball_entity_id;
-    struct human_player p1;
     b32 slow_motion;
     b32 is_debug_log_shown;
     b32 is_tweakui_shown;
@@ -137,6 +137,7 @@ struct game_state {
     struct game_config config;
     struct game_constants constants;
     struct game_vars vars;
+    struct human_player human_players[MAX_HUMAN_PLAYERS];
     memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
     struct assets assets;
     struct entity_repository *entity_repository;

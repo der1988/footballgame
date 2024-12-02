@@ -285,12 +285,17 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 
 	player_on_the_ball->kicked_ball = kicked_ball;
 
-	// We can reset charge now: we already kicked the ball if needed
-	if (player_on_the_ball->kicked_ball &&
-	    player_on_the_ball->id == game_state->vars.p1.player_entity_id &&
-	    game_state->vars.p1.controls.charge.ready) {
-	    game_state->vars.p1.controls.charge.ready =
-		game_state->vars.p1.controls.charge.charging = false;
+	if (player_on_the_ball->kicked_ball) {
+	    for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		struct human_player *human_player = &game_state->human_players[i];
+		// We can reset charge now: we already kicked the ball if needed
+		if (player_on_the_ball->id == human_player->controlled_player_entity_id &&
+		    human_player->controls.charge.ready) {
+		    human_player->controls.charge.ready = human_player->controls.charge.charging =
+			false;
+		    break;
+		}
+	    }
 	}
     }
 }

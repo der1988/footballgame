@@ -68,8 +68,10 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	epicenter = ball->future_bounce.position;
     }
     if (player_on_the_ball->kicked_ball || player_on_the_ball->id == EID_NOT_VALID) {
-	nearest_teammate_entity_id = find_nearest_teammate(
-	    game_state, player_to_avoid_entity_id, epicenter, game_state->vars.p1.team_side);
+	nearest_teammate_entity_id = find_nearest_teammate(game_state,
+							   player_to_avoid_entity_id,
+							   epicenter,
+							   game_state->human_players[0].team_side);
     }
-    game_state->vars.p1.player_entity_id = nearest_teammate_entity_id;
+    game_state->human_players[0].controlled_player_entity_id = nearest_teammate_entity_id;
 }

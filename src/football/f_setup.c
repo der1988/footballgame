@@ -110,8 +110,8 @@ void football_setup(struct game_state *game_state)
 					     (f32)game_state->config.virtual_screen_height / 2};
 
     football_match_change_state(game_state, MS_PLAY);
-    game_state->vars.p1 =
-	(struct human_player){.player_entity_id = player_entity->header.id, .team_side = TS_HOME};
+    game_state->human_players[0] = (struct human_player){
+	.controlled_player_entity_id = player_entity->header.id, .team_side = TS_HOME};
 }
 
 static struct goal setup_goal(entity_id_t id,

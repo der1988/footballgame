@@ -33,7 +33,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	if (input->buttons[IBT_BUTTON_START].released) {
 	    struct component_transform *p1_transform =
 		&entities_entity_get(game_state->entity_repository,
-				     game_state->vars.p1.player_entity_id)
+				     game_state->human_players[0].controlled_player_entity_id)
 		     ->transform;
 	    entities_ball_set_position_and_velocity(
 		entity_id,
@@ -130,7 +130,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    // way.
 	    if (ball->subject_to_after_touch &&
 		after_touch_time > game_state->constants.ball_after_touch_delay_time) {
-		v2 input = game_state->vars.p1.controls.steering;
+		v2 input = game_state->human_players[0].controls.steering;
 		v2 ball_2d_vel = V3_TO_V2(velocity);
 		v2 ball_2d_vel_perp = Vector2Perp(ball_2d_vel);
 		v2 after_touch_side = Vector2Zero();
