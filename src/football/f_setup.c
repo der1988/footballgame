@@ -51,7 +51,7 @@ void football_setup(struct game_state *game_state)
 	    .position = football_pitch_position_normalized_to_abs(
 		game_state->vars.pitch.field,
 		football_tactics_get_team_formation_position(TF_433, 0)->position[TM_DEFAULT]),
-	    .team_idx = 0,
+	    .team_side = TS_HOME,
 	    .team_formation_position_idx = 0},
 	game_state);
 
@@ -62,7 +62,7 @@ void football_setup(struct game_state *game_state)
 	entities_player_create((struct player_config){.position =
 							  football_pitch_position_normalized_to_abs(
 							      game_state->vars.pitch.field, pos),
-						      .team_idx = 0,
+						      .team_side = TS_HOME,
 						      .team_formation_position_idx = i},
 			       game_state);
     }
@@ -73,7 +73,7 @@ void football_setup(struct game_state *game_state)
 	entities_player_create((struct player_config){.position =
 							  football_pitch_position_normalized_to_abs(
 							      game_state->vars.pitch.field, pos),
-						      .team_idx = 1,
+						      .team_side = TS_AWAY,
 						      .team_formation_position_idx = i},
 			       game_state);
     }
@@ -81,12 +81,12 @@ void football_setup(struct game_state *game_state)
     entities_player_create((struct player_config){.is_goalie = true,
 						  .position =
 						      game_state->vars.pitch.goal[PSI_NORTH].center,
-						  .team_idx = 0},
+						  .team_side = TS_HOME},
 			   game_state);
     entities_player_create((struct player_config){.is_goalie = true,
 						  .position =
 						      game_state->vars.pitch.goal[PSI_SOUTH].center,
-						  .team_idx = 1},
+						  .team_side = TS_AWAY},
 			   game_state);
 
     struct entity *ball_entity = entities_ball_create(
@@ -111,7 +111,7 @@ void football_setup(struct game_state *game_state)
 
     football_match_change_state(game_state, MS_PLAY);
     game_state->vars.p1 =
-	(struct human_player){.player_entity_id = player_entity->header.id, .team_idx = 0};
+	(struct human_player){.player_entity_id = player_entity->header.id, .team_side = TS_HOME};
 }
 
 static struct goal setup_goal(entity_id_t id,

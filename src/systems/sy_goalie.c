@@ -9,7 +9,7 @@ static b32 protect_goal_predicate(v3 pos_to_check,
 				  struct entity *seeker_entity,
 				  struct game_state *game_state)
 {
-    enum pitch_side side = game_state->vars.teams[seeker_entity->player.team_idx].pitch_side;
+    enum pitch_side side = game_state->vars.teams[seeker_entity->player.team_side].pitch_side;
     f32 ball_distance_from_goal =
 	Vector3Distance(pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[side].center, 0));
     return (
@@ -43,7 +43,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 	struct state_machine_goalie *state_machine = goalie->state_machine;
 
-	enum pitch_side pitch_side = game_state->vars.teams[player->team_idx].pitch_side;
+	enum pitch_side pitch_side = game_state->vars.teams[player->team_side].pitch_side;
 	const v2 goal_center = game_state->vars.pitch.goal[pitch_side].center;
 
 	const v3 ball_position = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);

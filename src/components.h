@@ -6,6 +6,7 @@
 #include "football.h"
 #include "render.h"
 #include "constants.h"
+#include "types.h"
 
 #define MaxConcurrentActions 5
 
@@ -134,7 +135,7 @@ struct component_player {
     f32 last_frame_update_time;
     u16 last_running_frame_idx;
     u8 team_formation_position_idx;
-    i8 team_idx;
+    enum team_side team_side;
 };
 
 struct component_ball {

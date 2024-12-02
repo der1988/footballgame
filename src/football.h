@@ -228,6 +228,12 @@ struct team {
     enum team_formation formation;
 };
 
+enum team_side {
+    TS_HOME,
+    TS_AWAY,
+    TS_COUNT
+};
+
 struct team_formation_position *football_tactics_get_team_formation(enum team_formation formation);
 
 struct team_formation_position *

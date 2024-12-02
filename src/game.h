@@ -96,14 +96,14 @@ struct controls {
 struct human_player {
     struct controls controls;
     entity_id_t player_entity_id;
-    u8 team_idx;
+    enum team_side team_side;
 };
 
 struct player_on_the_ball {
     entity_id_t id;
     f32 distance_from_the_ball;
     b32 kicked_ball;
-    i8 team_idx;
+    enum team_side team_side;
     struct player_controls {
 	v2 steering;
 	f32 shot;
@@ -116,7 +116,7 @@ struct player_on_the_ball {
 struct game_vars {
     struct match match;
     struct pitch pitch;
-    struct team teams[2];
+    struct team teams[TS_COUNT];
     struct player_on_the_ball player_on_the_ball;
     entity_id_t camera_entity_id;
     entity_id_t ball_entity_id;

@@ -1,4 +1,5 @@
 #include "entities.h"
+#include "football.h"
 #include "log.h"
 #include "math_ext.h"
 #include <assert.h>
@@ -65,7 +66,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
     // Initialise player
     struct component_player *player = &entity->player;
     player->header.enabled = true;
-    player->team_idx = config.team_idx;
+    player->team_side = config.team_side;
     player->team_formation_position_idx = config.team_formation_position_idx;
     // Sets initial max velocity to half of max run velocity
     player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
@@ -272,7 +273,7 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 	entity->physics.accel = Vector2Zero();
 	entity->goalie.state_machine->state_data.hold_ball.hold_start_time = game_state->time;
 	entity->sprite.frame_id =
-	    entity->goalie.save_frames[game_state->vars.teams[entity->player.team_idx].pitch_side]
+	    entity->goalie.save_frames[game_state->vars.teams[entity->player.team_side].pitch_side]
 				      [ST_WITH_BALL];
 	break;
     }
@@ -700,7 +701,7 @@ void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_sta
     u32 *palette =
 	memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], sizeof(u32) * 3 * 10);
 
-    color_t kit_color = entity->player.team_idx == 0 ? RED : BLUE;
+    color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
 
     palette = (u32[]){
 	// Hair

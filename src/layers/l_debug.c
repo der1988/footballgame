@@ -1,3 +1,4 @@
+#include "football.h"
 #include "layers_internal.h"
 #include "log.h"
 #include "game.h"
@@ -117,6 +118,6 @@ void layers_debug_draw(layers_debug_t *handle, struct game_state *game_state)
 					 handle->radar_position,
 					 radar_ratio),
 		       (v2){.x = 6, .y = 4},
-		       entity->player.team_idx == 0 ? RED : BLUE);
+		       entity->player.team_side == TS_HOME ? RED : BLUE);
     }
 }

@@ -3,13 +3,14 @@
 
 #include "components.h"
 #include "state_machine.h"
+#include "types.h"
 
 struct entity;
 
 struct player_config {
     v2 position;
     b32 is_goalie;
-    i8 team_idx;
+    enum team_side team_side;
     u8 team_formation_position_idx;
 };
 

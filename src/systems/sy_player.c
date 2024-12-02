@@ -1,10 +1,12 @@
 #include "entities.h"
+#include "football.h"
 #include "game.h"
 #include "input.h"
 #include "steering.h"
 #include <math_ext.h>
 #include <raymath.h>
 #include "ai.h"
+#include "types.h"
 
 void systems_player(struct game_state *game_state, struct input *input)
 {
@@ -23,8 +25,8 @@ void systems_player(struct game_state *game_state, struct input *input)
     struct entity *last_entity_that_touched_ball =
 	entities_entity_get(game_state->entity_repository, ball->last_touch_entity_id);
 
-    i8 team_idx_last_ball_possession =
-	last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_idx : -1;
+    enum team_side team_idx_last_ball_possession =
+	last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_side : TS_COUNT;
 
     for_each_entity(entity, game_state->entity_repository) {
 	if (!entities_is_entity_alive_and_has_components(
@@ -169,7 +171,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 		    Vector2DistanceSqr(transform->position, ball_transform->position);
 		if (distance_from_the_ball < player_on_the_ball->distance_from_the_ball) {
 		    player_on_the_ball->id = entity_id;
-		    player_on_the_ball->team_idx = entity->player.team_idx;
+		    player_on_the_ball->team_side = entity->player.team_side;
 		    player_on_the_ball->distance_from_the_ball = distance_from_the_ball;
 		    player_on_the_ball->controls = player_controls;
 
@@ -180,9 +182,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 		player->time_spent_in_precision_control = 0;
 	    }
 
-	    if (!is_colliding_with_ball &&
-		(team_idx_last_ball_possession != player->team_idx &&
-		 team_idx_last_ball_possession == -1) &&
+	    if (!is_colliding_with_ball && team_idx_last_ball_possession != player->team_side &&
 		input->buttons[IBT_BUTTON_LEFT].pressed) {
 		entities_player_state_machine_change_state_to(
 		    player->state_machine, PS_SLIDING_TACKLE, game_state);
