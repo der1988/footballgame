@@ -184,7 +184,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 	    }
 
 	    if (!is_colliding_with_ball && team_idx_last_ball_possession != player->team_side &&
-		input->buttons[IBT_BUTTON_LEFT].pressed) {
+		input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
 		entities_player_state_machine_change_state_to(
 		    player->state_machine, PS_SLIDING_TACKLE, game_state);
 	    }

@@ -4,7 +4,8 @@
 
 void systems_controls(struct game_state *game_state, struct input *input)
 {
-    game_state->human_players[0].controls.steering = Vector2ClampValue(input->left_stick, -1, 1);
+    game_state->human_players[0].controls.steering =
+	Vector2ClampValue(input->devices[0].left_stick, -1, 1);
     struct action_charge *p1_charge = &game_state->human_players[0].controls.charge;
     if (p1_charge->ready) {
 	// Ready
@@ -13,22 +14,22 @@ void systems_controls(struct game_state *game_state, struct input *input)
 	    p1_charge->ready = p1_charge->charging = false;
 	}
     } else if (p1_charge->charging) {
-	enum input_button_type button_type;
+	enum input_device_button_type button_type;
 	switch (p1_charge->type) {
 	case ACT_SHOOT: {
-	    button_type = IBT_BUTTON_LEFT;
+	    button_type = IDBT_BUTTON_LEFT;
 	    break;
 	}
 	case ACT_PASS: {
-	    button_type = IBT_BUTTON_DOWN;
+	    button_type = IDBT_BUTTON_DOWN;
 	    break;
 	}
 	case ACT_LONG_PASS: {
-	    button_type = IBT_BUTTON_RIGHT;
+	    button_type = IDBT_BUTTON_RIGHT;
 	    break;
 	}
 	}
-	if (input->buttons[button_type].down) {
+	if (input->devices[0].buttons[button_type].down) {
 	    p1_charge->power += 2 * game_state->dt;
 	    p1_charge->power = Clamp(p1_charge->power, 0, 1.0f);
 	    layers_debug_queue_draw_text(game_state->layer_debug,
@@ -40,13 +41,13 @@ void systems_controls(struct game_state *game_state, struct input *input)
     } else {
 	b32 charging = false;
 	enum action_charge_type charge_type;
-	if (input->buttons[IBT_BUTTON_LEFT].down) {
+	if (input->devices[0].buttons[IDBT_BUTTON_LEFT].down) {
 	    charging = true;
 	    charge_type = ACT_SHOOT;
-	} else if (input->buttons[IBT_BUTTON_DOWN].down) {
+	} else if (input->devices[0].buttons[IDBT_BUTTON_DOWN].down) {
 	    charging = true;
 	    charge_type = ACT_PASS;
-	} else if (input->buttons[IBT_BUTTON_RIGHT].down) {
+	} else if (input->devices[0].buttons[IDBT_BUTTON_RIGHT].down) {
 	    charging = true;
 	    charge_type = ACT_LONG_PASS;
 	}

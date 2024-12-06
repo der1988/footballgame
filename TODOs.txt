@@ -88,9 +88,13 @@ v refactor scene manager into a proper game loop with scenes
 v make tests work again after refactor
 v optimized includes
 v improve automatic passing
+v support multiple input devices
 * improve player selection system
 * implement tackle
 * implement teams
+* move ai in its own system
+* support multiple human players
+* refactor player selection to support multiple human players
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - use r1 to make the player stop the ball?
@@ -107,3 +111,4 @@ v improve automatic passing
 - don't make goalie rush to the ball if possession is hostile
 - implement player tripped animation
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
+- why does player on the ball has its data in game_state directly?

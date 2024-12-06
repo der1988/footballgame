@@ -173,7 +173,7 @@ b32 game_play_update(struct game_state *game_state)
 	    f64 update_time = GetTime();
 
 	    // Slow motion
-	    game_state->vars.slow_motion = input.buttons[IBT_BUTTON_TRIGGER_LEFT].down;
+	    game_state->vars.slow_motion = input.devices[0].buttons[IDBT_BUTTON_TRIGGER_LEFT].down;
 	    if (game_state->vars.slow_motion) {
 		game_state->dt = dt * (game_state->vars.slow_motion ? 0.1 : 1);
 	    } else {
