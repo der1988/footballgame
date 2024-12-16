@@ -1,3 +1,4 @@
+#include "components.h"
 #include "entities.h"
 #include "football.h"
 #include "log.h"
@@ -79,6 +80,10 @@ struct entity *entities_player_create(struct player_config config, struct game_s
     // Initialise action
     struct component_action *action = &entity->action;
     action->header.enabled = true;
+
+    // Initialise player controls
+    struct component_player_controls *player_controls = &entity->player_controls;
+    player_controls->header.enabled = true;
 
     if (config.is_goalie) {
 	// Initialise goalie

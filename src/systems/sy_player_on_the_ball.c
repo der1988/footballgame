@@ -1,3 +1,4 @@
+#include "components.h"
 #include "entities.h"
 #include "game.h"
 #include "layers.h"
@@ -8,8 +9,7 @@
 #include "ai.h"
 
 static entity_id_t find_pass_target(struct game_state *game_state,
-				    struct player_on_the_ball *player_on_the_ball,
-				    v2 player_on_the_ball_pos,
+				    struct entity *player_on_the_ball_entity,
 				    f32 detection_angle,
 				    f32 max_distance)
 {
@@ -24,14 +24,15 @@ static entity_id_t find_pass_target(struct game_state *game_state,
 
 	    struct component_transform *transform = &entity->transform;
 
-	    if (player_on_the_ball->id == entity_id ||
-		player_on_the_ball->team_side != entity->player.team_side) {
+	    if (player_on_the_ball_entity->header.id == entity_id ||
+		player_on_the_ball_entity->player.team_side != entity->player.team_side) {
 		// We don't want to pass to ourselves nor to the other team, right?
 		continue;
 	    }
 
-	    v2 selected_direction = player_on_the_ball->controls.steering;
-	    v2 to_player = Vector2Subtract(transform->position, player_on_the_ball_pos);
+	    v2 selected_direction = player_on_the_ball_entity->player_controls.steering;
+	    v2 to_player =
+		Vector2Subtract(transform->position, player_on_the_ball_entity->transform.position);
 	    f32 distance_from_player = Vector2Length(to_player);
 	    f32 angle = fabs(Vector2Angle(selected_direction, to_player) * RAD2DEG);
 	    if (distance_from_player < max_distance && angle < detection_angle &&
@@ -68,24 +69,26 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
     UNUSED(ball_physics_3d);
     UNUSED(ball_collider);
 
-    struct player_on_the_ball *player_on_the_ball = &game_state->vars.player_on_the_ball;
+    const entity_id_t player_on_the_ball_entity_id = game_state->vars.player_on_the_ball_entity_id;
 
     b32 kicked_ball = false;
-    if (player_on_the_ball->id != EID_NOT_VALID) {
+    if (player_on_the_ball_entity_id != EID_NOT_VALID) {
 	struct entity *player_entity =
-	    entities_entity_get(game_state->entity_repository, player_on_the_ball->id);
+	    entities_entity_get(game_state->entity_repository, player_on_the_ball_entity_id);
 	struct component_player *player = &player_entity->player;
+	struct component_player_controls *player_controls = &player_entity->player_controls;
+
 	v2 player_position = player_entity->transform.position;
 	v2 player_velocity = player_entity->physics.velocity;
 	enum pitch_side player_pitch_side = game_state->vars.teams[player->team_side].pitch_side;
 	f32 player_speed = Vector2Length(player_velocity);
 	v2 normalized_velocity = Vector2Normalize(player_velocity);
-	f32 steering_magnitude = Vector2Length(player_on_the_ball->controls.steering);
+	f32 steering_magnitude = Vector2Length(player_controls->steering);
 	// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 
-	entities_ball_set_last_touch(ball, player_on_the_ball->id, game_state);
+	entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
 
-	if (player_on_the_ball->controls.shot > 0) {
+	if (player_controls->shot > 0) {
 	    // Shot
 	    player->last_kick_time = game_state->time;
 
@@ -97,13 +100,11 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    f32 angle_center_to_post =
 		Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
 
-	    v2 shot_direction =
-		Vector2Rotate(shot_direction_to_center,
-			      angle_center_to_post * player_on_the_ball->controls.steering.x);
-	    f32 shot_height = (((player_pitch_side == PSI_NORTH ? 1 : -1) *
-				player_on_the_ball->controls.steering.y) +
-			       1) *
-			      0.5f;
+	    v2 shot_direction = Vector2Rotate(shot_direction_to_center,
+					      angle_center_to_post * player_controls->steering.x);
+	    f32 shot_height =
+		(((player_pitch_side == PSI_NORTH ? 1 : -1) * player_controls->steering.y) + 1) *
+		0.5f;
 
 	    // Limit angle between requested shoot direction and current velocity
 	    f32 angle = Vector2Angle(player_velocity, shot_direction);
@@ -114,21 +115,20 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		shot_direction = Vector2Normalize(Vector2Rotate(player_velocity, -max_angle));
 	    }
 	    entities_ball_shoot(game_state->vars.ball_entity_id,
-				player_on_the_ball->id,
+				player_on_the_ball_entity_id,
 				shot_direction,
 				shot_height,
-				player_on_the_ball->controls.shot,
+				player_controls->shot,
 				game_state);
 	    kicked_ball = true;
-	} else if (player_on_the_ball->controls.pass > 0 && steering_magnitude > 0.1f) {
+	} else if (player_controls->pass > 0 && steering_magnitude > 0.1f) {
 	    // Pass
 	    player->last_kick_time = game_state->time;
 	    v3 pass_direction;
-	    entity_id_t teammate_entity_id =
-		find_pass_target(game_state, player_on_the_ball, player_position, 30, 300);
-	    f32 power = player_on_the_ball->controls.pass;
+	    entity_id_t teammate_entity_id = find_pass_target(game_state, player_entity, 30, 300);
+	    f32 power = player_controls->pass;
 	    b32 automatic_pass = teammate_entity_id != EID_NOT_VALID &&
-				 player_on_the_ball->controls.automatic_pass;
+				 player_controls->automatic_pass;
 	    if (automatic_pass) {
 		struct component_transform *teammate_transform =
 		    &entities_entity_get(game_state->entity_repository, teammate_entity_id)
@@ -138,20 +138,19 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		ball->pass_target_entity_id = teammate_entity_id;
 		power = Vector2Length(to_teammate) / 250.0f;
 	    } else {
-		pass_direction =
-		    Vector3Normalize(V2_TO_V3(player_on_the_ball->controls.steering, 0));
+		pass_direction = Vector3Normalize(V2_TO_V3(player_controls->steering, 0));
 	    }
 	    entities_ball_short_pass(game_state->vars.ball_entity_id,
-				     player_on_the_ball->id,
+				     player_on_the_ball_entity_id,
 				     pass_direction,
 				     power,
 				     automatic_pass,
 				     game_state);
 	    kicked_ball = true;
-	} else if (player_on_the_ball->controls.long_pass && steering_magnitude > 0.1f) {
+	} else if (player_controls->long_pass && steering_magnitude > 0.1f) {
 	    // Long pass
 	    player->last_kick_time = game_state->time;
-	    v2 long_pass_direction = Vector2Normalize(player_on_the_ball->controls.steering);
+	    v2 long_pass_direction = Vector2Normalize(player_controls->steering);
 	    // Limit angle between requested shoot direction and current velocity
 	    f32 angle = Vector2Angle(player_velocity, long_pass_direction);
 	    f32 max_angle = 120 * DEG2RAD;
@@ -161,9 +160,9 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		long_pass_direction = Vector2Normalize(Vector2Rotate(player_velocity, -max_angle));
 	    }
 	    entities_ball_long_pass(game_state->vars.ball_entity_id,
-				    player_on_the_ball->id,
+				    player_on_the_ball_entity_id,
 				    long_pass_direction,
-				    player_on_the_ball->controls.long_pass,
+				    player_controls->long_pass,
 				    game_state);
 	    kicked_ball = true;
 	} else if (!kicked_ball && steering_magnitude > 0.01f) {
@@ -230,7 +229,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		// If difficulty is higher than the threshold the player will likely lose the ball.
 		if (control_difficulty < 0.7f)
 		    entities_ball_control_precision(game_state->vars.ball_entity_id,
-						    player_on_the_ball->id,
+						    player_on_the_ball_entity_id,
 						    player_velocity,
 						    position_to_seek,
 						    control_difficulty,
@@ -242,7 +241,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		if (player->time_spent_in_run_control > 0.25f) {
 		    player->control_ball = true;
 		}
-		v2 control_direction = player_on_the_ball->controls.steering;
+		v2 control_direction = player_controls->steering;
 
 		// The control ratio should depend on various variables:
 		// - speed of the player
@@ -275,7 +274,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 		    (speed_mult * 1 + ball_height_mult * 1 + player_quality_mult * 1) / 3.0f;
 
 		entities_ball_control_running(game_state->vars.ball_entity_id,
-					      player_on_the_ball->id,
+					      player_on_the_ball_entity_id,
 					      control_direction,
 					      player_velocity,
 					      control_difficulty,
@@ -283,13 +282,13 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    }
 	}
 
-	player_on_the_ball->kicked_ball = kicked_ball;
+	player_controls->kicked_ball = kicked_ball;
 
-	if (player_on_the_ball->kicked_ball) {
+	if (player_controls->kicked_ball) {
 	    for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		struct human_player *human_player = &game_state->human_players[i];
 		// We can reset charge now: we already kicked the ball if needed
-		if (player_on_the_ball->id == human_player->controlled_player_entity_id &&
+		if (player_on_the_ball_entity_id == human_player->controlled_player_entity_id &&
 		    human_player->controls.charge.ready) {
 		    human_player->controls.charge.ready = human_player->controls.charge.charging =
 			false;

@@ -1,6 +1,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include "components.h"
 #include "types.h"
 
 #include "entities/e_ball.h"
@@ -121,6 +122,7 @@ struct entity {
     struct component_action action;
     struct component_target target;
     struct component_player player;
+    struct component_player_controls player_controls;
     struct component_ball ball;
     struct component_goal goal;
     struct component_goalie goalie;

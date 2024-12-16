@@ -61,34 +61,40 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	epicenter = ball->future_bounce.position;
     }
 
-    struct player_on_the_ball *player_on_the_ball = &game_state->vars.player_on_the_ball;
+    entity_id_t player_on_the_ball_entity_id = game_state->vars.player_on_the_ball_entity_id;
+    struct entity *player_on_the_ball_entity =
+	entities_entity_get(game_state->entity_repository, player_on_the_ball_entity_id);
 
     for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 	struct human_player *human_player = &game_state->human_players[i];
 
 	b32 player_on_the_ball_exists_and_its_in_our_team =
-	    player_on_the_ball->id != EID_NOT_VALID &&
-	    player_on_the_ball->team_side == human_player->team_side;
+	    player_on_the_ball_entity &&
+	    player_on_the_ball_entity->player.team_side == human_player->team_side;
 
 	b32 player_on_the_ball_exists_and_its_not_in_our_team =
-	    player_on_the_ball->id != EID_NOT_VALID &&
-	    player_on_the_ball->team_side != human_player->team_side;
+	    player_on_the_ball_entity &&
+	    player_on_the_ball_entity->player.team_side != human_player->team_side;
 
-	entity_id_t nearest_teammate_entity_id =
-	    player_on_the_ball_exists_and_its_in_our_team ? player_on_the_ball->id : EID_NOT_VALID;
+	entity_id_t nearest_teammate_entity_id = player_on_the_ball_exists_and_its_in_our_team ?
+						     player_on_the_ball_entity_id :
+						     EID_NOT_VALID;
 	entity_id_t player_to_avoid_entity_id = EID_NOT_VALID;
 
-	if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f)) {
+	if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
+	    ball->last_kicker_entity_id != EID_NOT_VALID && player_on_the_ball_entity) {
 	    struct entity *last_kicker_entity =
 		entities_entity_get(game_state->entity_repository, ball->last_kicker_entity_id);
-	    assert(last_kicker_entity);
-	    if (last_kicker_entity->player.team_side == player_on_the_ball->team_side) {
+
+	    if (last_kicker_entity->player.team_side ==
+		player_on_the_ball_entity->player.team_side) {
 		player_to_avoid_entity_id = ball->last_kicker_entity_id;
 	    }
 	}
-	if ((player_on_the_ball_exists_and_its_in_our_team && player_on_the_ball->kicked_ball) ||
+	if ((player_on_the_ball_exists_and_its_in_our_team &&
+	     player_on_the_ball_entity->player_controls.kicked_ball) ||
 	    player_on_the_ball_exists_and_its_not_in_our_team ||
-	    player_on_the_ball->id == EID_NOT_VALID) {
+	    player_on_the_ball_entity_id == EID_NOT_VALID) {
 	    nearest_teammate_entity_id = find_nearest_teammate(
 		game_state, player_to_avoid_entity_id, epicenter, human_player->team_side);
 	}

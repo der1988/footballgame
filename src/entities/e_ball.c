@@ -72,6 +72,10 @@ struct entity *entities_ball_create(struct ball_config config, struct game_state
     state_machine->previous_state = BS_NONE;
     state_machine->current_state = BS_IN_PLAY;
     ball->state_machine = state_machine;
+    ball->last_touch_entity_id = EID_NOT_VALID;
+    ball->last_kicker_entity_id = EID_NOT_VALID;
+    ball->pass_target_entity_id = EID_NOT_VALID;
+    ball->last_touch_time = EID_NOT_VALID;
 
     ball_prepare_gfx(ball, game_state);
 

@@ -9,6 +9,10 @@
 #include "types.h"
 
 #define MaxConcurrentActions 5
+#define ResetComponent(c)                                                                          \
+    memset(((void *)player_controls) + sizeof(struct component_header),                            \
+	   0,                                                                                      \
+	   sizeof(*player_controls) - sizeof(struct component_header));
 
 // Forward declarations
 struct state_machine_ball;
@@ -138,6 +142,16 @@ struct component_player {
     enum team_side team_side;
 };
 
+struct component_player_controls {
+    struct component_header header;
+    v2 steering;
+    f32 shot;
+    f32 pass;
+    b32 automatic_pass;
+    f32 long_pass;
+    b32 kicked_ball;
+};
+
 struct component_ball {
     struct component_header header;
     struct state_machine_ball *state_machine;
@@ -231,8 +245,8 @@ void components_action_stop(entity_id_t id,
 			    struct game_state *game_state);
 
 void components_transform_calculate_absolute(struct component_transform *transform,
-					     Vector2 *position,
+					     v2 *position,
 					     f32 *rotation,
-					     Vector2 *scale);
+					     v2 *scale);
 
 #endif // !COMPONENTS
