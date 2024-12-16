@@ -3,12 +3,13 @@
 
 void systems_action(struct game_state *game_state)
 {
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 	if (!entities_is_entity_alive_and_has_components(entity, 1, C_ACTION)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, action);
+	DECLARE_ENTITY_COMPONENT(entity, action);
 
 	for (usize j = 0; j < MaxConcurrentActions; ++j) {
 	    struct action_runner *action_runner = &action->running_actions[j];

@@ -93,7 +93,7 @@ void layers_debug_draw(layers_debug_t *handle, struct game_state *game_state)
 
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    declare_ball_entity_components(ball_entity);
+    DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
     UNUSED(ball_physics_3d);
     UNUSED(ball);
     UNUSED(ball_collider);
@@ -105,13 +105,14 @@ void layers_debug_draw(layers_debug_t *handle, struct game_state *game_state)
 		3,
 		WHITE);
 
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
 
 	DrawRectangleV(to_radar_position(transform->position,
 					 game_state->vars.pitch.field,

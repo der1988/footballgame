@@ -24,22 +24,23 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    declare_ball_entity_components(ball_entity);
+    DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 6, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_GOALIE, C_COLLIDER)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, player);
+	DECLARE_ENTITY_COMPONENT(entity, player);
 	if (player->state_machine->current_state != PS_GOALIE)
 	    continue;
-	declare_entity_component(entity, transform);
-	declare_entity_component(entity, physics);
-	declare_entity_component(entity, sprite);
-	declare_entity_component(entity, goalie);
-	declare_entity_component(entity, collider);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, physics);
+	DECLARE_ENTITY_COMPONENT(entity, sprite);
+	DECLARE_ENTITY_COMPONENT(entity, goalie);
+	DECLARE_ENTITY_COMPONENT(entity, collider);
 
 	struct state_machine_goalie *state_machine = goalie->state_machine;
 

@@ -9,10 +9,6 @@
 #include "types.h"
 
 #define MaxConcurrentActions 5
-#define ResetComponent(c)                                                                          \
-    memset(((void *)player_controls) + sizeof(struct component_header),                            \
-	   0,                                                                                      \
-	   sizeof(*player_controls) - sizeof(struct component_header));
 
 // Forward declarations
 struct state_machine_ball;

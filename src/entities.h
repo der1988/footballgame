@@ -24,20 +24,20 @@
 #define C_BALL			      offsetof(struct entity, ball)
 #define C_GOAL			      offsetof(struct entity, goal)
 
-#define for_each_entity(item, entity_repo)                                                         \
+#define FOR_EACH_ENTITY(item, entity_repo)                                                         \
     struct entity *item = entity_repo->entities;                                                   \
     for (usize item##_id = 0; entity_id < entity_repo->max_slots; ++item##_id, item++)
 
-#define declare_entity_component_ext(entity, type, name)                                           \
+#define DECLARE_ENTITY_COMPONENT_EXT(entity, type, name)                                           \
     struct component_##type *name = &entity->type
 
-#define declare_entity_component(entity, type) declare_entity_component_ext(entity, type, type)
+#define DECLARE_ENTITY_COMPONENT(entity, type) DECLARE_ENTITY_COMPONENT_EXT(entity, type, type)
 
-#define declare_ball_entity_components(entity)                                                     \
-    declare_entity_component_ext(entity, transform, ball_transform);                               \
-    declare_entity_component_ext(entity, physics3d, ball_physics_3d);                              \
-    declare_entity_component_ext(entity, collider, ball_collider);                                 \
-    declare_entity_component_ext(entity, ball, ball)
+#define DECLARE_BALL_ENTITY_COMPONENTS(entity)                                                     \
+    DECLARE_ENTITY_COMPONENT_EXT(entity, transform, ball_transform);                               \
+    DECLARE_ENTITY_COMPONENT_EXT(entity, physics3d, ball_physics_3d);                              \
+    DECLARE_ENTITY_COMPONENT_EXT(entity, collider, ball_collider);                                 \
+    DECLARE_ENTITY_COMPONENT_EXT(entity, ball, ball)
 
 // Forward declaration
 struct entity;

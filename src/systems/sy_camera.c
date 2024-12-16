@@ -21,16 +21,17 @@ void apply_velocity(struct component_transform *transform,
 void systems_camera(struct game_state *game_state)
 {
 
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 4, C_TRANSFORM, C_PHYSICS, C_TARGET, C_CAMERA)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, transform);
-	declare_entity_component(entity, target);
-	declare_entity_component(entity, physics);
-	declare_entity_component(entity, camera);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, target);
+	DECLARE_ENTITY_COMPONENT(entity, physics);
+	DECLARE_ENTITY_COMPONENT(entity, camera);
 
 	struct entity *target_entity =
 	    entities_entity_get(game_state->entity_repository, target->entity_id);

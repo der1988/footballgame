@@ -22,4 +22,9 @@
     (V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
 #define VELOCITY_TO_KMH(V) (V / PIXELS_PER_METER * 3.6f)
 
+#define RESET_COMPONENT(c)                                                                         \
+    memset(((void *)player_controls) + sizeof(struct component_header),                            \
+	   0,                                                                                      \
+	   sizeof(*player_controls) - sizeof(struct component_header));
+
 #endif // !MACRO_H

@@ -16,17 +16,18 @@ static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 
 void systems_ball(struct game_state *game_state, struct input *input)
 {
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 5, C_TRANSFORM, C_PHYSICS_3D, C_SPRITE, C_BALL, C_COLLIDER)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, transform);
-	declare_entity_component(entity, physics3d);
-	declare_entity_component(entity, sprite);
-	declare_entity_component(entity, ball);
-	declare_entity_component(entity, collider);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, physics3d);
+	DECLARE_ENTITY_COMPONENT(entity, sprite);
+	DECLARE_ENTITY_COMPONENT(entity, ball);
+	DECLARE_ENTITY_COMPONENT(entity, collider);
 
 	struct state_machine_ball *state_machine = ball->state_machine;
 

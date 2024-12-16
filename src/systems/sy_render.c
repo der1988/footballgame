@@ -56,14 +56,15 @@ void systems_render(struct game_state *game_state)
 
     // Collect information about sprites to draw
     struct sprite_to_draw *current_idx = ordered_sprites_to_draw;
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 
 	if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, transform);
-	declare_entity_component(entity, sprite);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, sprite);
 
 	struct assets_sprite_frame *sprite_frame =
 	    assets_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache, sprite->frame_id);

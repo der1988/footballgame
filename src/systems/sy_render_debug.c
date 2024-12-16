@@ -5,14 +5,15 @@
 void systems_render_debug(struct game_state *game_state)
 {
     if (game_state->constants.render_debug) {
-	for_each_entity(entity, game_state->entity_repository) {
+	FOR_EACH_ENTITY(entity, game_state->entity_repository)
+	{
 	    if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
 		continue;
 	    }
 
-	    declare_entity_component(entity, transform);
-	    declare_entity_component(entity, sprite);
-	    declare_entity_component(entity, collider);
+	    DECLARE_ENTITY_COMPONENT(entity, transform);
+	    DECLARE_ENTITY_COMPONENT(entity, sprite);
+	    DECLARE_ENTITY_COMPONENT(entity, collider);
 
 	    v2 position = transform->position;
 	    f32 rotation = transform->rotation;

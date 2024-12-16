@@ -9,7 +9,7 @@ void systems_goal(struct game_state *game_state)
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
 
-    declare_ball_entity_components(ball_entity);
+    DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 
     const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
     const f32 post_width = 2;
@@ -24,9 +24,9 @@ void systems_goal(struct game_state *game_state)
 	    continue;
 	}
 
-	declare_entity_component(entity, transform);
-	declare_entity_component(entity, goal);
-	declare_entity_component(entity, collider);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, goal);
+	DECLARE_ENTITY_COMPONENT(entity, collider);
 
 	const rect_t goal_rectangle = {
 	    .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,

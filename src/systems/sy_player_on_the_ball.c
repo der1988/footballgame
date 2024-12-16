@@ -65,7 +65,7 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    declare_ball_entity_components(ball_entity);
+    DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
     UNUSED(ball_physics_3d);
     UNUSED(ball_collider);
 

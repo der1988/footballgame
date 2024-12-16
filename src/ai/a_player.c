@@ -16,11 +16,11 @@ enum player_ai_state ai_player_think(struct entity *entity,
 
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    declare_ball_entity_components(ball_entity);
+    DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
     UNUSED(ball_collider);
     UNUSED(ball_physics_3d);
 
-    declare_entity_component(entity, transform);
+    DECLARE_ENTITY_COMPONENT(entity, transform);
 
     f32 distance_from_ball = Vector2Distance(ball_transform->position, transform->position);
 

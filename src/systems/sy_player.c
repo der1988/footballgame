@@ -3,6 +3,7 @@
 #include "football.h"
 #include "game.h"
 #include "input.h"
+#include "macro.h"
 #include "steering.h"
 #include <math_ext.h>
 #include <raymath.h>
@@ -16,7 +17,7 @@ void systems_player(struct game_state *game_state, struct input *input)
 
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-    declare_ball_entity_components(ball_entity);
+    DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
     UNUSED(ball_physics_3d);
 
     game_state->vars.player_on_the_ball_entity_id = EID_NOT_VALID;
@@ -28,21 +29,22 @@ void systems_player(struct game_state *game_state, struct input *input)
     enum team_side team_idx_last_ball_possession =
 	last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_side : TS_COUNT;
 
-    for_each_entity(entity, game_state->entity_repository) {
+    FOR_EACH_ENTITY(entity, game_state->entity_repository)
+    {
 	if (!entities_is_entity_alive_and_has_components(
 		entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 	    continue;
 	}
 
-	declare_entity_component(entity, transform);
-	declare_entity_component(entity, physics);
-	declare_entity_component(entity, player);
-	declare_entity_component(entity, collider);
+	DECLARE_ENTITY_COMPONENT(entity, transform);
+	DECLARE_ENTITY_COMPONENT(entity, physics);
+	DECLARE_ENTITY_COMPONENT(entity, player);
+	DECLARE_ENTITY_COMPONENT(entity, collider);
 
 	struct state_machine_player *state_machine = player->state_machine;
 
 	struct component_player_controls *player_controls = &entity->player_controls;
-	ResetComponent(player_controls);
+	RESET_COMPONENT(player_controls);
 
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 	    game_state->constants.player_control_radius;
