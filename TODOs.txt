@@ -90,6 +90,7 @@ v optimized includes
 v improve automatic passing
 v support multiple input devices
 v move ai in its own system
+v why does player on the ball has its data in game_state directly? -> fixed it
 * improve player selection system
 * implement tackle
 * implement teams
@@ -98,6 +99,7 @@ v move ai in its own system
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - use r1 to make the player stop the ball?
+- use pass when you don't have the ball to chase the ball?
 - shot height should depend on starting height of the ball
 - implement header
 - fix broken after touch
@@ -111,4 +113,3 @@ v move ai in its own system
 - don't make goalie rush to the ball if possession is hostile
 - implement player tripped animation
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
-- why does player on the ball has its data in game_state directly?
