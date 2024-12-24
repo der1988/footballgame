@@ -59,10 +59,8 @@ static entity_id_t find_pass_target(struct game_state *game_state,
     return selected_entity_id;
 }
 
-void systems_player_on_the_ball(struct game_state *game_state, struct input *input)
+void systems_player_on_the_ball(struct game_state *game_state)
 {
-    UNUSED(input);
-
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
@@ -282,9 +280,9 @@ void systems_player_on_the_ball(struct game_state *game_state, struct input *inp
 	    }
 	}
 
-	player_controls->kicked_ball = kicked_ball;
+	player_entity->player.kicked_ball = kicked_ball;
 
-	if (player_controls->kicked_ball) {
+	if (kicked_ball) {
 	    for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		struct human_player *human_player = &game_state->human_players[i];
 		// We can reset charge now: we already kicked the ball if needed

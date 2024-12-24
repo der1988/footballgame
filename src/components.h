@@ -136,6 +136,8 @@ struct component_player {
     u16 last_running_frame_idx;
     u8 team_formation_position_idx;
     enum team_side team_side;
+    b32 is_colliding_with_ball;
+    b32 kicked_ball;
 };
 
 struct component_player_controls {
@@ -145,7 +147,6 @@ struct component_player_controls {
     f32 pass;
     b32 automatic_pass;
     f32 long_pass;
-    b32 kicked_ball;
 };
 
 struct component_ball {

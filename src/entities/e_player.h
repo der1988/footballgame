@@ -66,7 +66,7 @@ enum state_machine_goalie_state {
 };
 
 static const char *state_machine_goalie_state_string[] = {
-    "none", "protect_goal", "dive", "hold_ball"};
+    "none", "protect_goal", "dive", "hold_ball", "jump"};
 
 declare_state_machine_enter_and_exit(goalie);
 

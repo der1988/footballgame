@@ -4,30 +4,19 @@
 #include "game.h"
 #include "input.h"
 #include "macro.h"
-#include "steering.h"
 #include <math_ext.h>
 #include <raymath.h>
-#include <string.h>
 #include "ai.h"
 #include "types.h"
 
-void systems_player(struct game_state *game_state, struct input *input)
+void systems_player_physics(struct game_state *game_state)
 {
-    UNUSED(input);
-
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
     DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
     UNUSED(ball_physics_3d);
-
-    game_state->vars.player_on_the_ball_entity_id = EID_NOT_VALID;
-    f32 min_distance_from_the_ball = UINT32_MAX;
-
-    struct entity *last_entity_that_touched_ball =
-	entities_entity_get(game_state->entity_repository, ball->last_touch_entity_id);
-
-    enum team_side team_idx_last_ball_possession =
-	last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_side : TS_COUNT;
+    UNUSED(ball);
+    UNUSED(ball_collider);
 
     FOR_EACH_ENTITY(entity, game_state->entity_repository)
     {
@@ -44,7 +33,6 @@ void systems_player(struct game_state *game_state, struct input *input)
 	struct state_machine_player *state_machine = player->state_machine;
 
 	struct component_player_controls *player_controls = &entity->player_controls;
-	RESET_COMPONENT(player_controls);
 
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 	    game_state->constants.player_control_radius;
@@ -53,63 +41,6 @@ void systems_player(struct game_state *game_state, struct input *input)
 	case PS_NONE:
 	    break;
 	case PS_NORMAL: {
-	    if (game_state->human_players[0].controlled_player_entity_id == entity_id) {
-		// Player is human controlled
-		player_controls->steering = game_state->human_players[0].controls.steering;
-
-		if (game_state->human_players[0].controls.charge.ready) {
-		    switch (game_state->human_players[0].controls.charge.type) {
-		    case ACT_SHOOT: {
-			player_controls->shot = game_state->human_players[0].controls.charge.power;
-			break;
-		    }
-		    case ACT_PASS: {
-			player_controls->pass = game_state->human_players[0].controls.charge.power;
-			if ((game_state->human_players[0].controls.charge.ended -
-			     game_state->human_players[0].controls.charge.started) < 0.15f) {
-			    player_controls->automatic_pass = true;
-			}
-			break;
-		    }
-		    case ACT_LONG_PASS: {
-			player_controls->long_pass =
-			    game_state->human_players[0].controls.charge.power;
-			break;
-		    }
-		    }
-		}
-	    } else {
-		// Player is AI controlled
-		if (game_state->constants.ai_enabled) {
-
-		    v2 target_pos;
-		    enum player_ai_kick_decision kick_decision;
-		    enum player_ai_state ai_state =
-			ai_player_think(entity, &target_pos, &kick_decision, game_state);
-
-		    switch (ai_state) {
-		    case PAS_KEEP_POSITION:
-			player_controls->steering = Vector2Zero();
-			break;
-		    case PAS_SEEK_POSITION: {
-			player_controls->steering = steering_seek(transform->position,
-								  physics->velocity,
-								  physics->max_velocity,
-								  target_pos);
-			break;
-		    }
-		    case PAS_ARRIVE_TO_POSITION: {
-			player_controls->steering = steering_arrive(transform->position,
-								    physics->velocity,
-								    physics->max_velocity,
-								    target_pos,
-								    20);
-			break;
-		    }
-		    }
-		}
-	    }
-
 	    v2 effective_steering = player_controls->steering;
 	    // If charging kick we seek the ball
 	    if (entity_id == game_state->human_players[0].controlled_player_entity_id &&
@@ -159,36 +90,6 @@ void systems_player(struct game_state *game_state, struct input *input)
 
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
-
-	    // Velocity has been applied to player after this point
-
-	    b32 is_colliding_with_ball =
-		CheckCollisionCircles(transform->position,
-				      collider->colliders[0].props.circle.radius,
-				      ball_transform->position,
-				      ball_collider->colliders[0].props.circle.radius) &&
-		// Player height
-		ball_transform->virtual_height < game_state->constants.player_control_height;
-
-	    if (is_colliding_with_ball && (game_state->time - player->last_kick_time) > 0.1f) {
-		f32 distance_from_the_ball =
-		    Vector2DistanceSqr(transform->position, ball_transform->position);
-		if (distance_from_the_ball < min_distance_from_the_ball) {
-		    game_state->vars.player_on_the_ball_entity_id = entity_id;
-		    min_distance_from_the_ball = distance_from_the_ball;
-
-		    ball->pass_target_entity_id = EID_NOT_VALID;
-		}
-	    } else {
-		player->control_ball = true;
-		player->time_spent_in_precision_control = 0;
-	    }
-
-	    if (!is_colliding_with_ball && team_idx_last_ball_possession != player->team_side &&
-		input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
-		entities_player_state_machine_change_state_to(
-		    player->state_machine, PS_SLIDING_TACKLE, game_state);
-	    }
 
 	    // Calculate frame to display
 	    entities_player_calculate_running_frame(entity_id, physics->velocity, 3, game_state);

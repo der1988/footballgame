@@ -92,12 +92,14 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	    }
 	}
 	if ((player_on_the_ball_exists_and_its_in_our_team &&
-	     player_on_the_ball_entity->player_controls.kicked_ball) ||
+	     player_on_the_ball_entity->player.kicked_ball) ||
 	    player_on_the_ball_exists_and_its_not_in_our_team ||
 	    player_on_the_ball_entity_id == EID_NOT_VALID) {
 	    nearest_teammate_entity_id = find_nearest_teammate(
 		game_state, player_to_avoid_entity_id, epicenter, human_player->team_side);
 	}
+	// TODO: this has to be fixed to support multiple human players
+	// e.g.: we need to check whether the player is already controlled by a human
 	human_player->controlled_player_entity_id = nearest_teammate_entity_id;
     }
 }
