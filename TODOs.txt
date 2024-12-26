@@ -91,6 +91,7 @@ v improve automatic passing
 v support multiple input devices
 v move ai in its own system
 v why does player on the ball has its data in game_state directly? -> fixed it
+v fix goalkeeper back dive right high with ball
 * improve player selection system
 * implement tackle
 * implement teams
