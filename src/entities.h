@@ -68,6 +68,16 @@ b32 entities_common_can_reach_future_ball_position(struct entity *seeker_entity,
 						   time_t *future_time,
 						   struct game_state *game_state);
 
+entity_id_t entities_common_find_pass_target(struct game_state *game_state,
+					     struct entity *player_on_the_ball_entity,
+					     f32 detection_angle,
+					     f32 max_distance);
+
+entity_id_t entities_common_find_nearest_teammate(struct game_state *game_state,
+						  entity_id_t player_to_not_select_entity_id,
+						  v2 position,
+						  enum team_side team_side);
+
 // END - Common
 
 // START - Camera
