@@ -131,8 +131,10 @@ struct component_player {
     assets_animation_id_t run_animations[D_COUNT];
     assets_animation_id_t fall_animations[D_COUNT];
     enum direction last_direction;
-    f32 last_kick_time;
-    f32 last_frame_update_time;
+    time_low_prec_t last_kick_time;
+    time_low_prec_t last_frame_update_time;
+    time_low_prec_t last_possession_time;
+    time_low_prec_t last_selected_for_pass_time;
     u16 last_running_frame_idx;
     u8 team_formation_position_idx;
     enum team_side team_side;

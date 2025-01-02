@@ -71,19 +71,16 @@ void systems_player_on_the_ball(struct game_state *game_state)
 	    // Pass
 	    player->last_kick_time = game_state->time;
 	    v3 pass_direction;
-	    entity_id_t teammate_entity_id =
+	    struct entity *teammate_entity =
 		entities_common_find_pass_target(game_state, player_entity, 30, 300);
 	    f32 power = player_controls->pass;
-	    b32 automatic_pass = teammate_entity_id != EID_NOT_VALID &&
-				 player_controls->automatic_pass;
+	    b32 automatic_pass = teammate_entity != NULL && player_controls->automatic_pass;
 	    if (automatic_pass) {
-		struct component_transform *teammate_transform =
-		    &entities_entity_get(game_state->entity_repository, teammate_entity_id)
-			 ->transform;
+		struct component_transform *teammate_transform = &teammate_entity->transform;
 		v2 to_teammate = Vector2Subtract(teammate_transform->position, player_position);
 		pass_direction = Vector3Normalize(V2_TO_V3(to_teammate, 0));
-		ball->pass_target_entity_id = teammate_entity_id;
-		power = Vector2Length(to_teammate) / 250.0f;
+		ball->pass_target_entity_id = teammate_entity->header.id;
+		power = Vector2Length(to_teammate) / 300.0f;
 	    } else {
 		pass_direction = Vector3Normalize(V2_TO_V3(player_controls->steering, 0));
 	    }

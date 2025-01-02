@@ -420,6 +420,18 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
     return should_dive;
 }
 
+void entities_player_gained_possession(entity_id_t player_entity_id, struct game_state *game_state)
+{
+    struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    entity->player.last_possession_time = game_state->time;
+}
+
+void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game_state *game_state)
+{
+    struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
+    entity->player.last_selected_for_pass_time = game_state->time;
+}
+
 static void prepare_gfx(struct component_player *player, struct game_state *game_state)
 {
     // Stand frames

@@ -1,15 +1,34 @@
 #include "ai.h"
+#include "e_player.h"
 #include "entities.h"
 #include "football.h"
 #include "math_ext.h"
 #include "types.h"
 #include "game.h"
+#include <raylib.h>
+#include <raymath.h>
+#include <stdio.h>
+#include <assert.h>
 
 #define STAY_THERE_RADIUS 30.0f
+
+enum whos_on_the_ball {
+    WOTB_PLAYER,
+    WOTB_TEAMMATE,
+    WOTB_OPPONENT,
+    WOTB_NO_ONE
+};
+
+enum whos_on_the_ball identify_whos_on_the_ball(struct entity *player_entity,
+						struct game_state *game_state);
+v2 get_target_position_based_on_tactics(struct entity *entity,
+					v2 ball_position,
+					struct game_state *game_state);
 
 enum player_ai_state ai_player_think(struct entity *entity,
 				     v2 *target_position,
 				     enum player_ai_kick_decision *kick_decision,
+				     f32 *kick_power,
 				     struct game_state *game_state)
 {
     enum player_ai_state ai_state;
@@ -22,113 +41,156 @@ enum player_ai_state ai_player_think(struct entity *entity,
 
     DECLARE_ENTITY_COMPONENT(entity, transform);
 
-    f32 distance_from_ball = Vector2Distance(ball_transform->position, transform->position);
+    b32 ball_in_keeper_hands = ball->state_machine->current_state == BS_GK_HANDS;
 
-    b32 nobody_on_the_ball = ball->last_touch_entity_id == EID_NOT_VALID ||
-			     HAS_TIME_PASSED(game_state->time, ball->last_touch_time, 0.2f);
-
-    // This player is the target of an automatic pass
-    // Let's move towards the ball
-    if (ball->pass_target_entity_id == entity->header.id) {
-	v3 ball_future_pos;
-	time_t ball_future_time;
-	b32 found = entities_common_can_reach_future_ball_position(
-	    entity,
-	    game_state->constants.player_run_max_velocity,
-	    ball->lookahead_positions,
-	    NULL,
-	    &ball_future_pos,
-	    &ball_future_time,
-	    game_state);
-	if (!found)
-	    ball_future_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-	*target_position = V3_TO_V2(ball_future_pos);
-	ai_state = PAS_SEEK_POSITION;
-    } else if (ball->future_bounce.available &&
-	       Vector2Distance(transform->position, ball->future_bounce.position) < 50 &&
-	       nobody_on_the_ball) {
-	*target_position = ball->future_bounce.position;
-	ai_state = PAS_ARRIVE_TO_POSITION;
-    } else if (distance_from_ball < 50 && nobody_on_the_ball) {
-	v3 ball_future_pos;
-	time_t ball_future_time;
-	b32 found = entities_common_can_reach_future_ball_position(
-	    entity,
-	    game_state->constants.player_run_max_velocity,
-	    ball->lookahead_positions,
-	    NULL,
-	    &ball_future_pos,
-	    &ball_future_time,
-	    game_state);
-	if (!found)
-	    ball_future_pos = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-	*target_position = V3_TO_V2(ball_future_pos);
-	ai_state = PAS_SEEK_POSITION;
+    if (ball_in_keeper_hands) {
+	ai_state = PAS_KEEP_POSITION;
     } else {
-	// Let's move based on the tactics of the team
-	struct team_formation_position *team_formation_position =
-	    football_tactics_get_team_formation_position(
-		TF_433, entity->player.team_formation_position_idx);
+	enum whos_on_the_ball whos_on_the_ball = identify_whos_on_the_ball(entity, game_state);
 
-	v2 ball_normalized_pos = football_pitch_position_abs_to_normalized(
-	    game_state->vars.pitch.field, ball_transform->position);
-
-	v2 default_pos = team_formation_position->position[TM_DEFAULT];
-	v2 target_pos;
-
-	enum pitch_side player_pitch_side =
-	    game_state->vars.teams[entity->player.team_side].pitch_side;
-
-	if (player_pitch_side == PSI_SOUTH) {
-	    if (ball_normalized_pos.y < 0.5f) {
-		v2 attacking_pos = team_formation_position->position[TM_ATTACKING];
-		target_pos = Vector2Lerp(attacking_pos, default_pos, ball_normalized_pos.y / 0.5f);
-	    } else {
-		v2 defending_pos = team_formation_position->position[TM_DEFENDING];
-		target_pos =
-		    Vector2Lerp(default_pos, defending_pos, (ball_normalized_pos.y - 0.5f) / 0.5f);
+	switch (whos_on_the_ball) {
+	case WOTB_PLAYER: {
+	    // We possess the ball
+	    b32 should_be_human_controlled = false;
+	    for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		if (entity->player.team_side == game_state->human_players[i].team_side) {
+		    // Player should really be controlled by human
+		    should_be_human_controlled = true;
+		    break;
+		}
 	    }
-	} else {
-	    if (ball_normalized_pos.y > 0.5f) {
-		v2 attacking_pos = team_formation_position->position[TM_ATTACKING];
-		target_pos =
-		    Vector2Lerp(default_pos, attacking_pos, (ball_normalized_pos.y - 0.5f) / 0.5f);
-	    } else {
-		v2 defending_pos = team_formation_position->position[TM_DEFENDING];
-		target_pos = Vector2Lerp(defending_pos, default_pos, ball_normalized_pos.y / 0.5f);
+	    if (should_be_human_controlled) {
+		ai_state = PAS_KEEP_POSITION;
+		break;
 	    }
+	    v2 goal_center =
+		game_state->vars.pitch
+		    .goal[game_state->vars.teams[1 - entity->player.team_side].pitch_side]
+		    .center;
+	    f32 distance_from_goal = Vector2Distance(goal_center, entity->transform.position);
+	    if (distance_from_goal < 250) {
+		v2 to_target_goal = Vector2Subtract(goal_center, entity->transform.position);
+		f32 angle = fabs(Vector2Angle(entity->physics.velocity, to_target_goal) * RAD2DEG);
+		if (angle < 30) {
+		    *kick_decision = PAKD_SHOOT;
+		    *kick_power = 0.5f + 0.5f * GetRandomValue(1, 100) / 100.f;
+		    v2 shoot_target = goal_center;
+		    shoot_target.x += GetRandomValue(-60, 60);
+		    *target_position =
+			Vector2Normalize(Vector2Subtract(shoot_target, entity->transform.position));
+		} else {
+		    *target_position =
+			Vector2Normalize(Vector2Subtract(goal_center, entity->transform.position));
+		}
+	    } else {
+		struct entity *opponent_entity =
+		    entities_common_find_nearest_facing_opponent(game_state, entity);
+		struct entity *teammate_entity =
+		    entities_common_find_pass_target(game_state, entity, 60, 300);
+		if (opponent_entity && teammate_entity) {
+		    // Facing an opponent and we have someone to pass to, let's pass
+		    *kick_decision = PAKD_PASS;
+		    *kick_power = 0.1f;
+		    *target_position = Vector2Subtract(teammate_entity->transform.position,
+						       entity->transform.position);
+		} else {
+		    *kick_decision = PAKD_NO_KICK;
+		    *target_position = Vector2Subtract(goal_center, entity->transform.position);
+		}
+	    }
+	    ai_state = PAS_SET_STEERING;
+	    break;
 	}
-
-	// If ball is in the side lanes and player is on the other side of the pitch we need to
-	// close the gap.
-	if (ball_normalized_pos.x < 0.33f && target_pos.x > ball_normalized_pos.x) {
-	    f32 delta = target_pos.x - ball_normalized_pos.x;
-	    target_pos = Vector2Lerp(
-		Vector2Add(target_pos, (v2){.x = -delta * (0.33f - ball_normalized_pos.x)}),
-		target_pos,
-		ball_normalized_pos.x / 0.33f);
-	} else if (ball_normalized_pos.x > 0.66f && target_pos.x < ball_normalized_pos.x) {
-	    f32 delta = ball_normalized_pos.x - target_pos.x;
-	    target_pos = Vector2Lerp(target_pos,
-				     Vector2Add(target_pos,
-						(v2){.x = delta * (ball_normalized_pos.x - 0.66f)}),
-				     (ball_normalized_pos.x - 0.66f) / 0.33f);
-	}
-
-	if (player_pitch_side == PSI_NORTH) {
-	    target_pos.y = 1 - target_pos.y;
-	}
-
-	*target_position =
-	    football_pitch_position_normalized_to_abs(game_state->vars.pitch.field, target_pos);
-	if (Vector2Distance(*target_position, entity->transform.position) < STAY_THERE_RADIUS)
+	case WOTB_TEAMMATE: {
+	    // Let's move based on the tactics of the team
+	    // TODO: we should probably make runs or movements to facilitate passing here
 	    ai_state = PAS_KEEP_POSITION;
-	else
-	    ai_state = PAS_ARRIVE_TO_POSITION;
+	    break;
+	}
+	case WOTB_OPPONENT: {
+	    if (game_state->vars.player_nearest_to_the_ball[entity->player.team_side] ==
+		entity->header.id) {
+		// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
+		ai_state = PAS_SEEK_POSITION;
+		*target_position = ball_transform->position;
+	    } else {
+		// We are not the nearest to the player with the ball, so let's mind our business
+		// and move based on the tactics of the team
+		ai_state = PAS_KEEP_POSITION;
+	    }
+	    break;
+	}
+	case WOTB_NO_ONE: {
+	    // This player is the target of an automatic pass
+	    // Let's move towards the ball
+	    if (ball->pass_target_entity_id == entity->header.id) {
+		v3 ball_future_pos;
+		time_t ball_future_time;
+		b32 found = entities_common_can_reach_future_ball_position(
+		    entity,
+		    game_state->constants.player_run_max_velocity,
+		    ball->lookahead_positions,
+		    NULL,
+		    &ball_future_pos,
+		    &ball_future_time,
+		    game_state);
+		if (!found)
+		    ball_future_pos =
+			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+		*target_position = V3_TO_V2(ball_future_pos);
+		ai_state = PAS_SEEK_POSITION;
+	    } else if (ball->future_bounce.available &&
+		       Vector2Distance(transform->position, ball->future_bounce.position) < 50) {
+		*target_position = ball->future_bounce.position;
+		ai_state = PAS_ARRIVE_TO_POSITION;
+	    } else if (game_state->vars.player_nearest_to_the_ball[entity->player.team_side] ==
+		       entity->header.id) {
+		v3 ball_future_pos;
+		time_t ball_future_time;
+		b32 found = entities_common_can_reach_future_ball_position(
+		    entity,
+		    game_state->constants.player_run_max_velocity,
+		    ball->lookahead_positions,
+		    NULL,
+		    &ball_future_pos,
+		    &ball_future_time,
+		    game_state);
+		if (!found)
+		    ball_future_pos =
+			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+		*target_position = V3_TO_V2(ball_future_pos);
+		ai_state = PAS_SEEK_POSITION;
+	    } else {
+		// Let's move based on the tactics of the team
+		ai_state = PAS_KEEP_POSITION;
+	    }
+
+	    *kick_decision = PAKD_NO_KICK;
+	    break;
+	}
+	}
     }
 
-    // TODO: implement kick decision logic
-    *kick_decision = PAKD_NO_KICK;
-
     return ai_state;
+}
+
+enum whos_on_the_ball identify_whos_on_the_ball(struct entity *player_entity,
+						struct game_state *game_state)
+{
+    if (game_state->vars.player_on_the_ball_entity_id == player_entity->header.id) {
+	return WOTB_PLAYER;
+    } else if (game_state->vars.player_on_the_ball_entity_id == EID_NOT_VALID) {
+	return WOTB_NO_ONE;
+    } else {
+	struct entity *player_on_the_ball_entity = entities_entity_get(
+	    game_state->entity_repository, game_state->vars.player_on_the_ball_entity_id);
+	assert(player_on_the_ball_entity);
+
+	enum team_side player_team_side = player_entity->player.team_side;
+	if (player_on_the_ball_entity->player.team_side == player_team_side) {
+	    return WOTB_TEAMMATE;
+	} else {
+	    return WOTB_OPPONENT;
+	}
+    }
 }

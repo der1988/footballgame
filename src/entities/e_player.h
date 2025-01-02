@@ -144,4 +144,7 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 				f32 *dive_distance,
 				struct game_state *game_state);
 
+void entities_player_gained_possession(entity_id_t player_entity_id, struct game_state *game_state);
+void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game_state *game_state);
+
 #endif // !ENTITIES_PLAYER_H

@@ -1,4 +1,5 @@
 #include "components.h"
+#include "e_player.h"
 #include "entities.h"
 #include "football.h"
 #include "game.h"
@@ -18,7 +19,8 @@ void systems_player_checks(struct game_state *game_state)
 
     game_state->vars.player_on_the_ball_entity_id = EID_NOT_VALID;
 
-    f32 min_distance_from_the_ball = UINT32_MAX;
+    f32 min_distance_from_the_ball_possession = UINT32_MAX;
+    f32 min_distance_from_the_ball[TS_COUNT] = {UINT32_MAX, UINT32_MAX};
 
     FOR_EACH_ENTITY(entity, game_state->entity_repository)
     {
@@ -49,19 +51,26 @@ void systems_player_checks(struct game_state *game_state)
 		// Player height
 		ball_transform->virtual_height < game_state->constants.player_control_height;
 
+	    f32 distance_from_the_ball =
+		Vector2DistanceSqr(transform->position, ball_transform->position);
+
 	    if (is_colliding_with_ball &&
 		HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f)) {
-		f32 distance_from_the_ball =
-		    Vector2DistanceSqr(transform->position, ball_transform->position);
-		if (distance_from_the_ball < min_distance_from_the_ball) {
+		if (distance_from_the_ball < min_distance_from_the_ball_possession) {
 		    game_state->vars.player_on_the_ball_entity_id = entity_id;
-		    min_distance_from_the_ball = distance_from_the_ball;
+		    min_distance_from_the_ball_possession = distance_from_the_ball;
 
 		    ball->pass_target_entity_id = EID_NOT_VALID;
 		}
 	    } else {
 		player->control_ball = true;
 		player->time_spent_in_precision_control = 0;
+
+		if (distance_from_the_ball < min_distance_from_the_ball[entity->player.team_side]) {
+		    game_state->vars.player_nearest_to_the_ball[entity->player.team_side] =
+			entity_id;
+		    min_distance_from_the_ball[entity->player.team_side] = distance_from_the_ball;
+		}
 	    }
 	    player->is_colliding_with_ball = is_colliding_with_ball;
 
@@ -76,5 +85,10 @@ void systems_player_checks(struct game_state *game_state)
 	case PS_COUNT:
 	    break;
 	}
+    }
+
+    if (game_state->vars.player_on_the_ball_entity_id != EID_NOT_VALID) {
+	entities_player_gained_possession(game_state->vars.player_on_the_ball_entity_id,
+					  game_state);
     }
 }

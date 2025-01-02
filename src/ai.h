@@ -15,6 +15,7 @@ enum player_ai_state {
     PAS_KEEP_POSITION,
     PAS_SEEK_POSITION,
     PAS_ARRIVE_TO_POSITION,
+    PAS_SET_STEERING,
 };
 
 enum goalie_ai_state {
@@ -26,6 +27,7 @@ enum goalie_ai_state {
 enum player_ai_state ai_player_think(struct entity *entity,
 				     v2 *target_position,
 				     enum player_ai_kick_decision *kick_decision,
+				     f32 *kick_power,
 				     struct game_state *game_state);
 
 enum goalie_ai_state ai_goalie_think(enum player_ai_kick_decision *kick_decision,
