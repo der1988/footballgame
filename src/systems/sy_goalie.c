@@ -157,7 +157,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		v3 future_pos;
 		time_t future_time;
 		const b32 can_reach_ball =
-		    entities_common_can_reach_future_ball_position(entity,
+		    entities_player_can_reach_future_ball_position(entity,
 								   exit_max_speed,
 								   ball->lookahead_positions,
 								   protect_goal_predicate,

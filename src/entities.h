@@ -58,29 +58,6 @@ b32 entities_common_can_reach_position_in_time(v2 current_position,
 					       time_t time,
 					       f32 max_speed);
 
-b32 entities_common_can_reach_future_ball_position(struct entity *seeker_entity,
-						   f32 seeker_max_speed,
-						   v3 *future_ball_positions,
-						   b32(predicate)(v3 pos_to_check,
-								  struct entity *seeker_entity,
-								  struct game_state *game_state),
-						   v3 *future_pos,
-						   time_t *future_time,
-						   struct game_state *game_state);
-
-struct entity *entities_common_find_pass_target(struct game_state *game_state,
-						struct entity *player_on_the_ball_entity,
-						f32 detection_angle,
-						f32 max_distance);
-
-entity_id_t entities_common_find_nearest_teammate(struct game_state *game_state,
-						  entity_id_t player_to_not_select_entity_id,
-						  v2 position,
-						  enum team_side team_side);
-
-struct entity *entities_common_find_nearest_facing_opponent(struct game_state *game_state,
-							    struct entity *player_entity);
-
 // END - Common
 
 // START - Camera

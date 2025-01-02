@@ -57,7 +57,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	     player_on_the_ball_entity->player.kicked_ball) ||
 	    player_on_the_ball_exists_and_its_not_in_our_team ||
 	    player_on_the_ball_entity_id == EID_NOT_VALID) {
-	    nearest_teammate_entity_id = entities_common_find_nearest_teammate(
+	    nearest_teammate_entity_id = entities_player_find_nearest_teammate(
 		game_state, player_to_avoid_entity_id, epicenter, human_player->team_side);
 	}
 	// TODO: this has to be fixed to support multiple human players

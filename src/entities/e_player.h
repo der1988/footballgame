@@ -123,19 +123,24 @@ define_state_machine_functions(goalie);
 	collider->header.enabled)
 
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
+
 void entities_player_apply_force(entity_id_t player_entity_id,
 				 Vector2 steering,
 				 struct game_state *game_state);
+
 void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state);
+
 void entities_player_calculate_running_frame(entity_id_t player_entity_id,
 					     v2 direction,
 					     f32 velocity_threshold,
 					     struct game_state *game_state);
+
 b32 entities_player_is_colliding_with_ball(struct entity *entity,
 					   enum player_collider_type collider_type,
 					   v3 ball_position,
 					   f32 ball_radius,
 					   f32 max_height);
+
 b32 entities_player_should_dive(struct entity *goalie_entity,
 				struct entity *ball_entity,
 				enum save_direction *dive_direction,
@@ -145,6 +150,30 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 				struct game_state *game_state);
 
 void entities_player_gained_possession(entity_id_t player_entity_id, struct game_state *game_state);
+
 void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game_state *game_state);
+
+b32 entities_player_can_reach_future_ball_position(struct entity *seeker_entity,
+						   f32 seeker_max_speed,
+						   v3 *future_ball_positions,
+						   b32(predicate)(v3 pos_to_check,
+								  struct entity *seeker_entity,
+								  struct game_state *game_state),
+						   v3 *future_pos,
+						   time_t *future_time,
+						   struct game_state *game_state);
+
+struct entity *entities_player_find_pass_target(struct game_state *game_state,
+						struct entity *player_on_the_ball_entity,
+						f32 detection_angle,
+						f32 max_distance);
+
+entity_id_t entities_player_find_nearest_teammate(struct game_state *game_state,
+						  entity_id_t player_to_not_select_entity_id,
+						  v2 position,
+						  enum team_side team_side);
+
+struct entity *entities_player_find_nearest_facing_opponent(struct game_state *game_state,
+							    struct entity *player_entity);
 
 #endif // !ENTITIES_PLAYER_H

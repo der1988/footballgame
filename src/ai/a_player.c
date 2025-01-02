@@ -84,9 +84,9 @@ enum player_ai_state ai_player_think(struct entity *entity,
 		}
 	    } else {
 		struct entity *opponent_entity =
-		    entities_common_find_nearest_facing_opponent(game_state, entity);
+		    entities_player_find_nearest_facing_opponent(game_state, entity);
 		struct entity *teammate_entity =
-		    entities_common_find_pass_target(game_state, entity, 60, 300);
+		    entities_player_find_pass_target(game_state, entity, 60, 300);
 		if (opponent_entity && teammate_entity) {
 		    // Facing an opponent and we have someone to pass to, let's pass
 		    *kick_decision = PAKD_PASS;
@@ -126,7 +126,7 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	    if (ball->pass_target_entity_id == entity->header.id) {
 		v3 ball_future_pos;
 		time_t ball_future_time;
-		b32 found = entities_common_can_reach_future_ball_position(
+		b32 found = entities_player_can_reach_future_ball_position(
 		    entity,
 		    game_state->constants.player_run_max_velocity,
 		    ball->lookahead_positions,
@@ -147,7 +147,7 @@ enum player_ai_state ai_player_think(struct entity *entity,
 		       entity->header.id) {
 		v3 ball_future_pos;
 		time_t ball_future_time;
-		b32 found = entities_common_can_reach_future_ball_position(
+		b32 found = entities_player_can_reach_future_ball_position(
 		    entity,
 		    game_state->constants.player_run_max_velocity,
 		    ball->lookahead_positions,
