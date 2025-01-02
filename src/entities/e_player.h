@@ -122,6 +122,12 @@ define_state_machine_functions(goalie);
 	sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
 	collider->header.enabled)
 
+struct ball_reachability_prediction {
+    b32 can_reach_it;
+    v3 future_pos;
+    time_t future_time;
+};
+
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
 
 void entities_player_apply_force(entity_id_t player_entity_id,
@@ -153,15 +159,12 @@ void entities_player_gained_possession(entity_id_t player_entity_id, struct game
 
 void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game_state *game_state);
 
-b32 entities_player_can_reach_future_ball_position(struct entity *seeker_entity,
-						   f32 seeker_max_speed,
-						   v3 *future_ball_positions,
-						   b32(predicate)(v3 pos_to_check,
-								  struct entity *seeker_entity,
-								  struct game_state *game_state),
-						   v3 *future_pos,
-						   time_t *future_time,
-						   struct game_state *game_state);
+struct ball_reachability_prediction entities_player_can_reach_future_ball_position(
+    struct entity *seeker_entity,
+    f32 seeker_max_speed,
+    v3 *future_ball_positions,
+    b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
+    struct game_state *game_state);
 
 struct entity *entities_player_find_pass_target(struct game_state *game_state,
 						struct entity *player_on_the_ball_entity,

@@ -124,17 +124,17 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	    // This player is the target of an automatic pass
 	    // Let's move towards the ball
 	    if (ball->pass_target_entity_id == entity->header.id) {
+		struct ball_reachability_prediction prediction =
+		    entities_player_can_reach_future_ball_position(
+			entity,
+			game_state->constants.player_run_max_velocity,
+			ball->lookahead_positions,
+			NULL,
+			game_state);
 		v3 ball_future_pos;
-		time_t ball_future_time;
-		b32 found = entities_player_can_reach_future_ball_position(
-		    entity,
-		    game_state->constants.player_run_max_velocity,
-		    ball->lookahead_positions,
-		    NULL,
-		    &ball_future_pos,
-		    &ball_future_time,
-		    game_state);
-		if (!found)
+		if (prediction.can_reach_it)
+		    ball_future_pos = prediction.future_pos;
+		else
 		    ball_future_pos =
 			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 		*target_position = V3_TO_V2(ball_future_pos);
@@ -145,17 +145,17 @@ enum player_ai_state ai_player_think(struct entity *entity,
 		ai_state = PAS_ARRIVE_TO_POSITION;
 	    } else if (game_state->vars.player_nearest_to_the_ball[entity->player.team_side] ==
 		       entity->header.id) {
+		struct ball_reachability_prediction prediction =
+		    entities_player_can_reach_future_ball_position(
+			entity,
+			game_state->constants.player_run_max_velocity,
+			ball->lookahead_positions,
+			NULL,
+			game_state);
 		v3 ball_future_pos;
-		time_t ball_future_time;
-		b32 found = entities_player_can_reach_future_ball_position(
-		    entity,
-		    game_state->constants.player_run_max_velocity,
-		    ball->lookahead_positions,
-		    NULL,
-		    &ball_future_pos,
-		    &ball_future_time,
-		    game_state);
-		if (!found)
+		if (prediction.can_reach_it)
+		    ball_future_pos = prediction.future_pos;
+		else
 		    ball_future_pos =
 			V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 		*target_position = V3_TO_V2(ball_future_pos);

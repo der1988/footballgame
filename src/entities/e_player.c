@@ -432,16 +432,16 @@ void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game
     entity->player.last_selected_for_pass_time = game_state->time;
 }
 
-b32 entities_player_can_reach_future_ball_position(struct entity *seeker_entity,
-						   f32 seeker_max_speed,
-						   v3 *future_ball_positions,
-						   b32(predicate)(v3 pos_to_check,
-								  struct entity *seeker_entity,
-								  struct game_state *game_state),
-						   v3 *future_pos,
-						   time_t *future_time,
-						   struct game_state *game_state)
+struct ball_reachability_prediction entities_player_can_reach_future_ball_position(
+    struct entity *seeker_entity,
+    f32 seeker_max_speed,
+    v3 *future_ball_positions,
+    b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
+    struct game_state *game_state)
 {
+    struct ball_reachability_prediction prediction;
+    prediction.can_reach_it = false;
+
     const int steps_per_lookahead =
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
 	game_state->constants.ball_lookahead_dts;
@@ -454,13 +454,14 @@ b32 entities_player_can_reach_future_ball_position(struct entity *seeker_entity,
 							   V3_TO_V2(pos_to_check),
 							   lookahead_time,
 							   seeker_max_speed)) {
-		*future_pos = pos_to_check;
-		*future_time = lookahead_time;
-		return true;
+		prediction.can_reach_it = true;
+		prediction.future_pos = pos_to_check;
+		prediction.future_time = lookahead_time;
+		return prediction;
 	    }
 	}
     }
-    return false;
+    return prediction;
 }
 
 struct entity *entities_player_find_pass_target(struct game_state *game_state,
@@ -604,6 +605,40 @@ struct entity *entities_player_find_nearest_facing_opponent(struct game_state *g
     }
     return NULL;
 }
+
+struct entities {
+    struct entity *array;
+    u32 length;
+};
+
+// struct entities entities_player_find_colliding_opponents(struct game_state *game_state,
+// 							 struct entity *player_entity)
+// {
+//     struct entity_repository *entity_repository = game_state->entity_repository;
+//     struct entity *opponent_entity;
+//     for (usize opponent_entity_id = 0; opponent_entity_id < entity_repository->max_slots;
+// 	 ++opponent_entity_id) {
+// 	opponent_entity = entities_entity_get(game_state->entity_repository, opponent_entity_id);
+// 	if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER) {
+// 	    struct component_transform *transform = &opponent_entity->transform;
+//
+// 	    if (player_entity->header.id == opponent_entity_id ||
+// 		opponent_entity->player.team_side == player_entity->player.team_side) {
+// 		// If player is in our team or the player we are considering we skip
+// 		continue;
+// 	    }
+// 	    v2 to_opponent = Vector2Subtract(opponent_entity->transform.position,
+// 					     player_entity->transform.position);
+// 	    f32 angle = fabs(Vector2Angle(player_entity->physics.velocity, to_opponent) * RAD2DEG);
+//
+// 	    f32 distance = Vector2Distance(player_entity->transform.position, transform->position);
+// 	    if (distance < 100 && angle < 30) {
+// 		return opponent_entity;
+// 	    }
+// 	}
+//     }
+//     return NULL;
+// }
 
 static void prepare_gfx(struct component_player *player, struct game_state *game_state)
 {

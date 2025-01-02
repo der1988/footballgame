@@ -1,3 +1,4 @@
+#include "e_player.h"
 #include "entities.h"
 #include "game.h"
 #include "steering.h"
@@ -154,22 +155,18 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		// Calculate whether goalie can reach the ball using predicted positions
 		// TODO: don't rush to the ball if possession is hostile
 
-		v3 future_pos;
-		time_t future_time;
-		const b32 can_reach_ball =
+		const struct ball_reachability_prediction prediction =
 		    entities_player_can_reach_future_ball_position(entity,
 								   exit_max_speed,
 								   ball->lookahead_positions,
 								   protect_goal_predicate,
-								   &future_pos,
-								   &future_time,
 								   game_state);
 
-		if (can_reach_ball) {
+		if (prediction.can_reach_it) {
 		    physics->max_velocity = exit_max_speed;
 		    force = game_state->constants.player_movement_force * 1;
 
-		    destination = V3_TO_V2(future_pos);
+		    destination = V3_TO_V2(prediction.future_pos);
 		    direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
 		    steering = steering_seek(
 			transform->position, physics->velocity, physics->max_velocity, destination);
