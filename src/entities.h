@@ -48,9 +48,6 @@ struct state_machine_running_action_state {
     running_action_idx_t running_action_idx;
 };
 
-assets_animation_id_t entities_common_animation_id_from_name(const char *entity_name,
-							     const char *animation_name,
-							     struct game_state *game_state);
 enum sprite_orientation entities_common_calculate_orientation(v2 direction);
 
 b32 entities_common_can_reach_position_in_time(v2 current_position,

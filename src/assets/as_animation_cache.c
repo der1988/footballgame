@@ -209,3 +209,18 @@ struct assets_animation *assets_animation_get_by_id(assets_animation_cache_t *ha
     assert(handle->initialised);
     return &handle->cache[id];
 }
+
+assets_animation_id_t assets_animation_id_from_name(assets_animation_cache_t *handle,
+						    const char *name,
+						    const char *animation_name,
+						    memory_arena_handle_t *memory_arena_handle)
+{
+    // Scratch buffer
+    char *final_animation = memory_arena_push(memory_arena_handle, MaxStringSize);
+
+    snprintf(final_animation, MaxStringSize, "%s_%s", name, animation_name);
+    struct assets_animation *animation = assets_animation_get_by_name(handle, final_animation);
+    assert(animation);
+
+    return animation->id;
+}

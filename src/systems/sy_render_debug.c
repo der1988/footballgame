@@ -2,6 +2,8 @@
 #include "entities.h"
 #include "game.h"
 #include "math_ext.h"
+#include "types.h"
+#include "sprite.h"
 #include <raymath.h>
 
 v2 project_vector_to_8_directions(Vector2 direction)
@@ -60,11 +62,13 @@ void systems_render_debug(struct game_state *game_state)
 	    DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
 	    if (collider->header.enabled) {
-		static Color colliders_colors[] = {RED, VIOLET, PINK, YELLOW};
+		static color_t colliders_colors[] = {RED, VIOLET, PINK, YELLOW};
 		for (u16 i = 0; i < collider->num_colliders; ++i) {
 		    if (collider->colliders[i].shape == CS_CIRCLE) {
-			v2 pos = Vector2Add(transform->position,
-					    collider->colliders[i].props.circle.offset);
+			v2 offset_in_orientation_space = sprite_apply_offset_to_orientation(
+			    sprite->orientation, collider->colliders[i].props.circle.offset);
+
+			v2 pos = Vector2Add(transform->position, offset_in_orientation_space);
 			DrawCircleLinesV(
 			    pos, collider->colliders[i].props.circle.radius, colliders_colors[i]);
 		    } else if (collider->colliders[i].shape == CS_RECTANGLE) {

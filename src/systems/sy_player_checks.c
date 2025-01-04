@@ -44,15 +44,14 @@ void systems_player_checks(struct game_state *game_state)
 
 	switch (state_machine->current_state) {
 	case PS_NORMAL: {
-	    b32 is_colliding_with_ball =
-		CheckCollisionCircles(transform->position,
-				      collider->colliders[0].props.circle.radius,
-				      ball_transform->position,
-				      ball_collider->colliders[0].props.circle.radius) &&
-		// Player height
-		ball_transform->virtual_height < game_state->constants.player_control_height;
+	    const b32 is_colliding_with_ball = entities_player_is_colliding_with_ball(
+		entity,
+		PCT_PLAYER,
+		V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+		ball_collider->colliders[0].props.circle.radius,
+		game_state->constants.player_control_height);
 
-	    f32 distance_from_the_ball =
+	    const f32 distance_from_the_ball =
 		Vector2DistanceSqr(transform->position, ball_transform->position);
 
 	    if (is_colliding_with_ball &&
@@ -82,13 +81,12 @@ void systems_player_checks(struct game_state *game_state)
 	case PS_THROW_IN:
 	case PS_HEADER:
 	case PS_SLIDING_TACKLE: {
-	    b32 is_colliding_with_ball =
-		CheckCollisionCircles(transform->position,
-				      collider->colliders[0].props.circle.radius,
-				      ball_transform->position,
-				      ball_collider->colliders[0].props.circle.radius) &&
-		// Player height
-		ball_transform->virtual_height < game_state->constants.player_control_height;
+	    const b32 is_colliding_with_ball = entities_player_is_colliding_with_ball(
+		entity,
+		PCT_TACKLE,
+		V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+		ball_collider->colliders[0].props.circle.radius,
+		game_state->constants.player_control_height);
 
 	    if (is_colliding_with_ball) {
 		player->is_colliding_with_ball = true;

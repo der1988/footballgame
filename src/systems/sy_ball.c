@@ -4,6 +4,7 @@
 #include "input.h"
 #include "simulation.h"
 #include "math_ext.h"
+#include "sprite.h"
 
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 {
@@ -261,7 +262,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    v2 ball_velocity = V3_TO_V2(physics3d->velocity);
 	    if (Vector2Length(ball_velocity) > 3) {
 		enum sprite_orientation sprite_orientation =
-		    entities_common_calculate_orientation(ball_velocity);
+		    sprite_calculate_orientation(ball_velocity);
 		struct assets_animation *animation = assets_animation_get_by_id(
 		    game_state->assets.animation_cache, ball->roll_animations[sprite_orientation]);
 		f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;

@@ -1,3 +1,4 @@
+#include "assets.h"
 #include "entities.h"
 #include "types.h"
 #include "math_ext.h"
@@ -154,22 +155,26 @@ void entities_ball_state_machine_on_exit(struct entity *entity, struct game_stat
 
 static void ball_prepare_gfx(struct component_ball *ball, struct game_state *game_state)
 {
+    assets_animation_cache_t *animation_cache = game_state->assets.animation_cache;
+    memory_arena_handle_t *memory_arena_handle = game_state->memory_by_lifetime[MAL_UPDATE];
+
     // Roll frames
-    ball->roll_animations[SO_UP] = entities_common_animation_id_from_name("ball", "up", game_state);
+    ball->roll_animations[SO_UP] =
+	assets_animation_id_from_name(animation_cache, "ball", "up", memory_arena_handle);
     ball->roll_animations[SO_DOWN] =
-	entities_common_animation_id_from_name("ball", "down", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "down", memory_arena_handle);
     ball->roll_animations[SO_LEFT] =
-	entities_common_animation_id_from_name("ball", "left", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "left", memory_arena_handle);
     ball->roll_animations[SO_RIGHT] =
-	entities_common_animation_id_from_name("ball", "right", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "right", memory_arena_handle);
     ball->roll_animations[SO_UP_LEFT] =
-	entities_common_animation_id_from_name("ball", "up_left", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "up_left", memory_arena_handle);
     ball->roll_animations[SO_UP_RIGHT] =
-	entities_common_animation_id_from_name("ball", "up_right", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "up_right", memory_arena_handle);
     ball->roll_animations[SO_DOWN_LEFT] =
-	entities_common_animation_id_from_name("ball", "down_left", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "down_left", memory_arena_handle);
     ball->roll_animations[SO_DOWN_RIGHT] =
-	entities_common_animation_id_from_name("ball", "down_right", game_state);
+	assets_animation_id_from_name(animation_cache, "ball", "down_right", memory_arena_handle);
 }
 
 void entities_ball_set_last_touch(struct component_ball *ball,

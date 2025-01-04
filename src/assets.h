@@ -78,6 +78,10 @@ struct assets_animation *assets_animation_get_by_name(assets_animation_cache_t *
 						      const char *name);
 struct assets_animation *assets_animation_get_by_id(assets_animation_cache_t *handle,
 						    const assets_animation_id_t id);
+assets_animation_id_t assets_animation_id_from_name(assets_animation_cache_t *handle,
+						    const char *name,
+						    const char *animation_name,
+						    memory_arena_handle_t *memory_arena_handle);
 
 // Shader Cache
 typedef u32 assets_shader_id_t;

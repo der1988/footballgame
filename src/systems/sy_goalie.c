@@ -3,8 +3,9 @@
 #include "game.h"
 #include "steering.h"
 #include "math_ext.h"
-#include <stdio.h>
 #include "constants.h"
+#include "physics.h"
+#include <stdio.h>
 
 static b32 protect_goal_predicate(v3 pos_to_check,
 				  struct entity *seeker_entity,
@@ -134,11 +135,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 	    // Calculate whether goalie can reach the ball at its next reachable position
 	    const b32 should_seek_ball_at_reachable_pos =
 		!ball->is_on_the_ground && ball->future_reachable.available &&
-		entities_common_can_reach_position_in_time(
-		    transform->position,
-		    V3_TO_V2(ball->future_reachable.position),
-		    game_state->dt * ball->future_bounce.dts,
-		    exit_max_speed) &&
+		physics_can_reach_position_in_time(transform->position,
+						   V3_TO_V2(ball->future_reachable.position),
+						   game_state->dt * ball->future_bounce.dts,
+						   exit_max_speed) &&
 		football_pitch_is_position_inside_penalty_area(
 		    V3_TO_V2(ball->future_reachable.position), pitch_side, game_state);
 

@@ -1,13 +1,17 @@
+#include "e_player.h"
+#include "assets.h"
 #include "components.h"
 #include "entities.h"
 #include "football.h"
 #include "log.h"
 #include "math_ext.h"
+#include "game.h"
+#include "types.h"
+#include "sprite.h"
+#include "physics.h"
 #include <assert.h>
 #include <raylib.h>
 #include <string.h>
-#include "game.h"
-#include "types.h"
 
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);
@@ -101,17 +105,6 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 
 	prepare_goalie_gfx(player, &entity->goalie, game_state);
 
-	collider->num_colliders = PCT_COUNT;
-	collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
-						sizeof(struct collider) * collider->num_colliders);
-	collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
-	collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
-	collider->colliders[PCT_GOALIE].props.circle.radius = 6;
-
-	collider->colliders[PCT_DIVE].shape = CS_RECTANGLE;
-	collider->colliders[PCT_DIVE].props.rectangle.offset = (v2){.x = -10, .y = -5};
-	collider->colliders[PCT_DIVE].props.rectangle.size.x = 22;
-	collider->colliders[PCT_DIVE].props.rectangle.size.y = 10;
     } else {
 	player_state_machine->current_state = PS_NORMAL;
 
@@ -119,14 +112,27 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 
 	sprite->before_draw = &player_custom_begin_draw;
 	sprite->after_draw = &player_custom_after_draw;
-
-	collider->colliders =
-	    memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
-	collider->num_colliders = 1;
     }
+
+    collider->num_colliders = PCT_COUNT;
+    collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
+					    sizeof(struct collider) * collider->num_colliders);
+    collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
+    collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
+    collider->colliders[PCT_GOALIE].props.circle.radius = 6;
+
+    collider->colliders[PCT_DIVE].shape = CS_RECTANGLE;
+    collider->colliders[PCT_DIVE].props.rectangle.offset = (v2){.x = -10, .y = -5};
+    collider->colliders[PCT_DIVE].props.rectangle.size.x = 22;
+    collider->colliders[PCT_DIVE].props.rectangle.size.y = 10;
 
     collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
     collider->colliders[PCT_PLAYER].props.circle.radius =
+	game_state->constants.player_control_radius;
+
+    collider->colliders[PCT_TACKLE].shape = CS_CIRCLE;
+    collider->colliders[PCT_TACKLE].props.circle.offset = (v2){.y = 10};
+    collider->colliders[PCT_TACKLE].props.circle.radius =
 	game_state->constants.player_control_radius;
 
     entities_player_state_machine_on_enter(entity, game_state);
@@ -174,8 +180,7 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id,
 
     f32 player_speed = Vector2Length(physics->velocity);
     if (Vector2Length(physics->velocity) > velocity_threshold) {
-	enum sprite_orientation sprite_orientation =
-	    entities_common_calculate_orientation(direction);
+	enum sprite_orientation sprite_orientation = sprite_calculate_orientation(direction);
 	struct assets_animation *animation = assets_animation_get_by_id(
 	    game_state->assets.animation_cache, player->run_animations[sprite_orientation]);
 
@@ -343,6 +348,7 @@ b32 entities_player_is_colliding_with_ball(struct entity *entity,
 	break;
     case PCT_PLAYER:
     case PCT_GOALIE:
+    case PCT_TACKLE:
 	check_collision =
 	    CheckCollisionCircles(ball_pos,
 				  ball_radius,
@@ -451,10 +457,10 @@ struct ball_reachability_prediction entities_player_can_reach_future_ball_positi
 	v3 pos_to_check = future_ball_positions[i];
 	if (!predicate || predicate(pos_to_check, seeker_entity, game_state)) {
 	    time_t lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
-	    if (entities_common_can_reach_position_in_time(seeker_entity->transform.position,
-							   V3_TO_V2(pos_to_check),
-							   lookahead_time,
-							   seeker_max_speed)) {
+	    if (physics_can_reach_position_in_time(seeker_entity->transform.position,
+						   V3_TO_V2(pos_to_check),
+						   lookahead_time,
+						   seeker_max_speed)) {
 		prediction.can_reach_it = true;
 		prediction.future_pos = pos_to_check;
 		prediction.future_time = lookahead_time;
@@ -643,6 +649,9 @@ struct entities {
 
 static void prepare_gfx(struct component_player *player, struct game_state *game_state)
 {
+    assets_animation_cache_t *animation_cache = game_state->assets.animation_cache;
+    memory_arena_handle_t *memory_arena_handle = game_state->memory_by_lifetime[MAL_UPDATE];
+
     // Stand frames
     player->stand_frames[SO_DOWN] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_front_0")->id;
@@ -704,39 +713,39 @@ static void prepare_gfx(struct component_player *player, struct game_state *game
 
     // Running animations
     player->run_animations[SO_DOWN] =
-	entities_common_animation_id_from_name("player", "run_front", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "run_front", memory_arena_handle);
     player->run_animations[SO_UP] =
-	entities_common_animation_id_from_name("player", "run_back", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "run_back", memory_arena_handle);
     player->run_animations[SO_LEFT] =
-	entities_common_animation_id_from_name("player", "run_left", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "run_left", memory_arena_handle);
     player->run_animations[SO_RIGHT] =
-	entities_common_animation_id_from_name("player", "run_right", game_state);
-    player->run_animations[SO_DOWN_LEFT] =
-	entities_common_animation_id_from_name("player", "run_front_left", game_state);
-    player->run_animations[SO_DOWN_RIGHT] =
-	entities_common_animation_id_from_name("player", "run_front_right", game_state);
-    player->run_animations[SO_UP_LEFT] =
-	entities_common_animation_id_from_name("player", "run_back_left", game_state);
-    player->run_animations[SO_UP_RIGHT] =
-	entities_common_animation_id_from_name("player", "run_back_right", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "run_right", memory_arena_handle);
+    player->run_animations[SO_DOWN_LEFT] = assets_animation_id_from_name(
+	animation_cache, "player", "run_front_left", memory_arena_handle);
+    player->run_animations[SO_DOWN_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "player", "run_front_right", memory_arena_handle);
+    player->run_animations[SO_UP_LEFT] = assets_animation_id_from_name(
+	animation_cache, "player", "run_back_left", memory_arena_handle);
+    player->run_animations[SO_UP_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "player", "run_back_right", memory_arena_handle);
 
     // Fall animations
     player->fall_animations[SO_DOWN] =
-	entities_common_animation_id_from_name("player", "fall_front", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "fall_front", memory_arena_handle);
     player->fall_animations[SO_UP] =
-	entities_common_animation_id_from_name("player", "fall_back", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "fall_back", memory_arena_handle);
     player->fall_animations[SO_LEFT] =
-	entities_common_animation_id_from_name("player", "fall_left", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "fall_left", memory_arena_handle);
     player->fall_animations[SO_RIGHT] =
-	entities_common_animation_id_from_name("player", "fall_right", game_state);
-    player->fall_animations[SO_DOWN_LEFT] =
-	entities_common_animation_id_from_name("player", "fall_front_left", game_state);
-    player->fall_animations[SO_DOWN_RIGHT] =
-	entities_common_animation_id_from_name("player", "fall_front_right", game_state);
-    player->fall_animations[SO_UP_LEFT] =
-	entities_common_animation_id_from_name("player", "fall_back_left", game_state);
-    player->fall_animations[SO_UP_RIGHT] =
-	entities_common_animation_id_from_name("player", "fall_back_right", game_state);
+	assets_animation_id_from_name(animation_cache, "player", "fall_right", memory_arena_handle);
+    player->fall_animations[SO_DOWN_LEFT] = assets_animation_id_from_name(
+	animation_cache, "player", "fall_front_left", memory_arena_handle);
+    player->fall_animations[SO_DOWN_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "player", "fall_front_right", memory_arena_handle);
+    player->fall_animations[SO_UP_LEFT] = assets_animation_id_from_name(
+	animation_cache, "player", "fall_back_left", memory_arena_handle);
+    player->fall_animations[SO_UP_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "player", "fall_back_right", memory_arena_handle);
 }
 
 static void prepare_goalie_gfx(struct component_player *player,
@@ -773,23 +782,26 @@ static void prepare_goalie_gfx(struct component_player *player,
 					"goalkeeper_back_right_0")
 	    ->id;
 
+    assets_animation_cache_t *animation_cache = game_state->assets.animation_cache;
+    memory_arena_handle_t *memory_arena_handle = game_state->memory_by_lifetime[MAL_UPDATE];
+
     // Running animations
-    player->run_animations[SO_DOWN] =
-	entities_common_animation_id_from_name("goalkeeper", "run_front", game_state);
-    player->run_animations[SO_UP] =
-	entities_common_animation_id_from_name("goalkeeper", "run_back", game_state);
-    player->run_animations[SO_LEFT] =
-	entities_common_animation_id_from_name("goalkeeper", "run_left", game_state);
-    player->run_animations[SO_RIGHT] =
-	entities_common_animation_id_from_name("goalkeeper", "run_right", game_state);
-    player->run_animations[SO_DOWN_LEFT] =
-	entities_common_animation_id_from_name("goalkeeper", "run_front_left", game_state);
-    player->run_animations[SO_DOWN_RIGHT] =
-	entities_common_animation_id_from_name("goalkeeper", "run_front_right", game_state);
-    player->run_animations[SO_UP_LEFT] =
-	entities_common_animation_id_from_name("goalkeeper", "run_back_left", game_state);
-    player->run_animations[SO_UP_RIGHT] =
-	entities_common_animation_id_from_name("goalkeeper", "run_back_right", game_state);
+    player->run_animations[SO_DOWN] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_front", memory_arena_handle);
+    player->run_animations[SO_UP] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_back", memory_arena_handle);
+    player->run_animations[SO_LEFT] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_left", memory_arena_handle);
+    player->run_animations[SO_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_right", memory_arena_handle);
+    player->run_animations[SO_DOWN_LEFT] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_front_left", memory_arena_handle);
+    player->run_animations[SO_DOWN_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_front_right", memory_arena_handle);
+    player->run_animations[SO_UP_LEFT] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_back_left", memory_arena_handle);
+    player->run_animations[SO_UP_RIGHT] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "run_back_right", memory_arena_handle);
 
     // Save frames
     goalie->save_frames[PSI_NORTH][ST_WITHOUT_BALL] =
@@ -826,91 +838,87 @@ static void prepare_goalie_gfx(struct component_player *player,
 	    ->id;
 
     // Diving animations
-    goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_HIGH] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_high_left_start", game_state);
-    goalie->dive_animations_start[PSI_NORTH][SD_RIGHT][SH_HIGH] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_high_right_start", game_state);
-    goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_LOW] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_low_left_start", game_state);
-    goalie->dive_animations_start[PSI_NORTH][SD_RIGHT][SH_LOW] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_low_right_start", game_state);
+    goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_HIGH] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_front_high_left_start", memory_arena_handle);
+    goalie->dive_animations_start[PSI_NORTH][SD_RIGHT][SH_HIGH] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_front_high_right_start", memory_arena_handle);
+    goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_LOW] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_front_low_left_start", memory_arena_handle);
+    goalie->dive_animations_start[PSI_NORTH][SD_RIGHT][SH_LOW] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_front_low_right_start", memory_arena_handle);
 
     goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_HIGH][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_high_left_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_high_left_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_HIGH][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_high_right_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_high_right_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_LOW][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "dive_front_low_left_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_low_left_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_LOW][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_low_right_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_low_right_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_HIGH][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_high_left_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_high_left_ball_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_HIGH][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_high_right_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_high_right_ball_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_LEFT][SH_LOW][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_low_left_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_low_left_ball_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_NORTH][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_front_low_right_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_front_low_right_ball_end", memory_arena_handle);
 
-    goalie->dive_animations_start[PSI_SOUTH][SD_LEFT][SH_HIGH] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_high_left_start", game_state);
-    goalie->dive_animations_start[PSI_SOUTH][SD_RIGHT][SH_HIGH] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_high_right_start", game_state);
-    goalie->dive_animations_start[PSI_SOUTH][SD_LEFT][SH_LOW] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_low_left_start", game_state);
-    goalie->dive_animations_start[PSI_SOUTH][SD_RIGHT][SH_LOW] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_low_right_start", game_state);
+    goalie->dive_animations_start[PSI_SOUTH][SD_LEFT][SH_HIGH] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_back_high_left_start", memory_arena_handle);
+    goalie->dive_animations_start[PSI_SOUTH][SD_RIGHT][SH_HIGH] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_back_high_right_start", memory_arena_handle);
+    goalie->dive_animations_start[PSI_SOUTH][SD_LEFT][SH_LOW] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_back_low_left_start", memory_arena_handle);
+    goalie->dive_animations_start[PSI_SOUTH][SD_RIGHT][SH_LOW] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "dive_back_low_right_start", memory_arena_handle);
 
     goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_HIGH][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "dive_back_high_left_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_high_left_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_HIGH][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_high_right_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_high_right_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_LOW][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "dive_back_low_left_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_low_left_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_LOW][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "dive_back_low_right_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_low_right_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_HIGH][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_high_left_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_high_left_ball_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_HIGH][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_high_right_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_high_right_ball_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_LEFT][SH_LOW][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_low_left_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_low_left_ball_end", memory_arena_handle);
     goalie->dive_animations_end[PSI_SOUTH][SD_RIGHT][SH_LOW][ST_WITH_BALL] =
-	entities_common_animation_id_from_name(
-	    "goalkeeper", "dive_back_low_right_ball_end", game_state);
+	assets_animation_id_from_name(
+	    animation_cache, "goalkeeper", "dive_back_low_right_ball_end", memory_arena_handle);
 
     // Jump animations
-    goalie->jump_animations_start[PSI_NORTH] =
-	entities_common_animation_id_from_name("goalkeeper", "front_jump_parry_start", game_state);
-    goalie->jump_animations_start[PSI_SOUTH] =
-	entities_common_animation_id_from_name("goalkeeper", "back_jump_parry_start", game_state);
-    goalie->jump_animations_end[PSI_NORTH][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "front_jump_parry_end", game_state);
-    goalie->jump_animations_end[PSI_NORTH][ST_WITH_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "front_jump_catch_end", game_state);
-    goalie->jump_animations_end[PSI_SOUTH][ST_WITHOUT_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "back_jump_parry_end", game_state);
-    goalie->jump_animations_end[PSI_SOUTH][ST_WITH_BALL] =
-	entities_common_animation_id_from_name("goalkeeper", "back_jump_catch_end", game_state);
+    goalie->jump_animations_start[PSI_NORTH] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "front_jump_parry_start", memory_arena_handle);
+    goalie->jump_animations_start[PSI_SOUTH] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "back_jump_parry_start", memory_arena_handle);
+    goalie->jump_animations_end[PSI_NORTH][ST_WITHOUT_BALL] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "front_jump_parry_end", memory_arena_handle);
+    goalie->jump_animations_end[PSI_NORTH][ST_WITH_BALL] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "front_jump_catch_end", memory_arena_handle);
+    goalie->jump_animations_end[PSI_SOUTH][ST_WITHOUT_BALL] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "back_jump_parry_end", memory_arena_handle);
+    goalie->jump_animations_end[PSI_SOUTH][ST_WITH_BALL] = assets_animation_id_from_name(
+	animation_cache, "goalkeeper", "back_jump_catch_end", memory_arena_handle);
 }
 
 static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
