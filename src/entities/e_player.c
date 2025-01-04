@@ -131,7 +131,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	game_state->constants.player_control_radius;
 
     collider->colliders[PCT_TACKLE].shape = CS_CIRCLE;
-    collider->colliders[PCT_TACKLE].props.circle.offset = (v2){.y = 10};
+    collider->colliders[PCT_TACKLE].props.circle.offset = (v2){.y = -10};
     collider->colliders[PCT_TACKLE].props.circle.radius =
 	game_state->constants.player_control_radius;
 
