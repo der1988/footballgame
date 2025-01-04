@@ -45,8 +45,8 @@ INLINE v2 sprite_apply_offset_to_orientation(enum sprite_orientation sprite_orie
     v2 v_perp = {-v_norm.y, v_norm.x};
 
     // Transform offset to global coordinates
-    v2 o_global = {offset.x * v_norm.x - offset.y * v_perp.x,
-		   offset.x * v_norm.y - offset.y * v_perp.y};
+    v2 o_global = {offset.x * v_perp.x - offset.y * v_norm.x,
+		   offset.x * v_perp.y - offset.y * v_norm.y};
 
     // Apply the offset
     v2 result = {v.x + o_global.x, v.y + o_global.y};
