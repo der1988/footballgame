@@ -4,6 +4,8 @@
 #include "log.h"
 #include "macro.h"
 #include <assert.h>
+#include <raylib.h>
+#include <raymath.h>
 #include <string.h>
 #include "game.h"
 
@@ -153,20 +155,20 @@ void entities_ball_state_machine_on_exit(struct entity *entity, struct game_stat
 static void ball_prepare_gfx(struct component_ball *ball, struct game_state *game_state)
 {
     // Roll frames
-    ball->roll_animations[D_UP] = entities_common_animation_id_from_name("ball", "up", game_state);
-    ball->roll_animations[D_DOWN] =
+    ball->roll_animations[SO_UP] = entities_common_animation_id_from_name("ball", "up", game_state);
+    ball->roll_animations[SO_DOWN] =
 	entities_common_animation_id_from_name("ball", "down", game_state);
-    ball->roll_animations[D_LEFT] =
+    ball->roll_animations[SO_LEFT] =
 	entities_common_animation_id_from_name("ball", "left", game_state);
-    ball->roll_animations[D_RIGHT] =
+    ball->roll_animations[SO_RIGHT] =
 	entities_common_animation_id_from_name("ball", "right", game_state);
-    ball->roll_animations[D_UP_LEFT] =
+    ball->roll_animations[SO_UP_LEFT] =
 	entities_common_animation_id_from_name("ball", "up_left", game_state);
-    ball->roll_animations[D_UP_RIGHT] =
+    ball->roll_animations[SO_UP_RIGHT] =
 	entities_common_animation_id_from_name("ball", "up_right", game_state);
-    ball->roll_animations[D_DOWN_LEFT] =
+    ball->roll_animations[SO_DOWN_LEFT] =
 	entities_common_animation_id_from_name("ball", "down_left", game_state);
-    ball->roll_animations[D_DOWN_RIGHT] =
+    ball->roll_animations[SO_DOWN_RIGHT] =
 	entities_common_animation_id_from_name("ball", "down_right", game_state);
 }
 
@@ -339,9 +341,9 @@ void entities_ball_long_pass(entity_id_t ball_entity_id,
     struct component_physics3d *physics3d = &entity->physics3d;
     struct component_ball *ball = &entity->ball;
 
-    v3 long_pass_direction = Vector3Add(
-	Vector3Normalize(V2_TO_V3(direction, 0)),
-	(Vector3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
+    v3 long_pass_direction =
+	Vector3Add(Vector3Normalize(V2_TO_V3(direction, 0)),
+		   (v3){.x = 0, .y = game_state->constants.ball_long_pass_height * power, .z = 0});
     physics3d->accel = Vector3Add(
 	physics3d->accel,
 	Vector3Scale(long_pass_direction,
@@ -352,6 +354,54 @@ void entities_ball_long_pass(entity_id_t ball_entity_id,
     entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
     ball->subject_to_after_touch = true;
     ball->selected_after_touch_side = Vector2Zero();
+}
+
+void entities_ball_tackle(entity_id_t ball_entity_id,
+			  entity_id_t kicker_entity_id,
+			  v3 direction,
+			  f32 power,
+			  struct game_state *game_state)
+{
+    struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    struct component_physics3d *physics3d = &entity->physics3d;
+    struct component_ball *ball = &entity->ball;
+
+    physics3d->velocity = Vector3Zero();
+    physics3d->accel = Vector3Add(
+	physics3d->accel,
+	Vector3Scale(direction,
+		     math_ext_split_lerp(game_state->constants.ball_tackle_force, 0.5f, power) /
+			 game_state->dt));
+    ball->last_kick_time = game_state->time;
+    ball->last_kicker_entity_id = kicker_entity_id;
+    entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
+}
+
+void entities_ball_deviate_trajectory(entity_id_t ball_entity_id,
+				      entity_id_t player_entity_id,
+				      struct game_state *game_state)
+{
+    struct entity *entity = entities_entity_get(game_state->entity_repository, ball_entity_id);
+    struct component_physics3d *physics3d = &entity->physics3d;
+    struct component_ball *ball = &entity->ball;
+
+    v3 random_deviation = {
+	.x = GetRandomValue(-100, 100),
+	.y = GetRandomValue(-100, 100),
+	.z = GetRandomValue(-100, 100),
+    };
+    random_deviation = Vector3Normalize(random_deviation);
+    physics3d->velocity = Vector3Zero();
+    physics3d->accel =
+	Vector3Add(physics3d->accel,
+		   Vector3Scale(random_deviation,
+				math_ext_split_lerp(game_state->constants.ball_tackle_force,
+						    0.0f,
+						    GetRandomValue(25, 100) / 100.f) /
+				    game_state->dt));
+    ball->last_kick_time = game_state->time;
+    ball->last_kicker_entity_id = player_entity_id;
+    entities_ball_set_last_touch(ball, player_entity_id, game_state);
 }
 
 void entities_ball_held_by_goalie(entity_id_t ball_entity_id,

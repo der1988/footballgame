@@ -67,6 +67,14 @@ void entities_ball_long_pass(entity_id_t ball_entity_id,
 			     v2 direction,
 			     f32 power,
 			     struct game_state *game_state);
+void entities_ball_tackle(entity_id_t ball_entity_id,
+			  entity_id_t tackling_entity_id,
+			  v3 direction,
+			  f32 power,
+			  struct game_state *game_state);
+void entities_ball_deviate_trajectory(entity_id_t ball_entity_id,
+				      entity_id_t player_entity_id,
+				      struct game_state *game_state);
 void entities_ball_held_by_goalie(entity_id_t ball_entity_id,
 				  entity_id_t goalie_entity_id,
 				  struct game_state *game_state);

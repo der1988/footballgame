@@ -45,11 +45,24 @@ struct component_physics3d {
     f32 max_force;
 };
 
+enum sprite_orientation {
+    SO_UP,
+    SO_DOWN,
+    SO_LEFT,
+    SO_RIGHT,
+    SO_UP_LEFT,
+    SO_UP_RIGHT,
+    SO_DOWN_LEFT,
+    SO_DOWN_RIGHT,
+    SO_COUNT
+};
+
 struct component_sprite {
     struct component_header header;
     color_t color;
     b32 flipX;
     b32 flipY;
+    enum sprite_orientation orientation;
     enum sprite_layer layer;
     i16 order_in_layer;
     v2 pivot_override;
@@ -107,18 +120,6 @@ struct component_camera {
     v2 offset;
 };
 
-enum direction {
-    D_UP,
-    D_DOWN,
-    D_LEFT,
-    D_RIGHT,
-    D_UP_LEFT,
-    D_UP_RIGHT,
-    D_DOWN_LEFT,
-    D_DOWN_RIGHT,
-    D_COUNT
-};
-
 struct component_player {
     struct component_header header;
     struct state_machine_player *state_machine;
@@ -126,11 +127,10 @@ struct component_player {
     time_t time_spent_in_precision_control;
     time_t time_spent_in_run_control;
     f32 current_max_velocity;
-    assets_sprite_frame_id_t stand_frames[D_COUNT];
-    assets_sprite_frame_id_t tackle_frames[D_COUNT];
-    assets_animation_id_t run_animations[D_COUNT];
-    assets_animation_id_t fall_animations[D_COUNT];
-    enum direction last_direction;
+    assets_sprite_frame_id_t stand_frames[SO_COUNT];
+    assets_sprite_frame_id_t tackle_frames[SO_COUNT];
+    assets_animation_id_t run_animations[SO_COUNT];
+    assets_animation_id_t fall_animations[SO_COUNT];
     time_low_prec_t last_kick_time;
     time_low_prec_t last_frame_update_time;
     time_low_prec_t last_possession_time;
@@ -186,10 +186,9 @@ struct component_ball {
     entity_id_t pass_target_entity_id;
 
     // Animation
-    enum direction last_direction;
     u16 last_running_frame_idx;
     time_t last_frame_update_time;
-    assets_sprite_frame_id_t roll_animations[D_COUNT];
+    assets_sprite_frame_id_t roll_animations[SO_COUNT];
 };
 
 struct component_goal {

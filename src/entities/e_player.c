@@ -174,9 +174,10 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id,
 
     f32 player_speed = Vector2Length(physics->velocity);
     if (Vector2Length(physics->velocity) > velocity_threshold) {
-	enum direction pd = entities_common_calculate_direction(direction);
+	enum sprite_orientation sprite_orientation =
+	    entities_common_calculate_orientation(direction);
 	struct assets_animation *animation = assets_animation_get_by_id(
-	    game_state->assets.animation_cache, player->run_animations[pd]);
+	    game_state->assets.animation_cache, player->run_animations[sprite_orientation]);
 
 	f32 max_player_velocity = game_state->constants.player_run_max_velocity;
 	f32 player_speed_ratio = player_speed / max_player_velocity;
@@ -188,9 +189,9 @@ void entities_player_calculate_running_frame(entity_id_t player_entity_id,
 	    sprite->frame_id = animation->frames[new_frame_id];
 	    player->last_running_frame_idx = new_frame_id;
 	}
-	player->last_direction = pd;
+	sprite->orientation = sprite_orientation;
     } else {
-	sprite->frame_id = player->stand_frames[player->last_direction];
+	sprite->frame_id = player->stand_frames[sprite->orientation];
     }
 }
 
@@ -199,6 +200,7 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
     UNUSED(game_state);
 
     struct component_player *player = &entity->player;
+    struct component_sprite *sprite = &entity->sprite;
     struct state_machine_player *state_machine = player->state_machine;
 
     GLOGF_INFO_CTX(LS_ENTITIES,
@@ -216,7 +218,7 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
     case PS_THROW_IN:
     case PS_HEADER:
     case PS_SLIDING_TACKLE:
-	entity->sprite.frame_id = player->tackle_frames[player->last_direction];
+	entity->sprite.frame_id = player->tackle_frames[sprite->orientation];
 	entity->player.state_machine->state_data.tackle.start_time = game_state->time;
     case PS_FALL:
     case PS_COUNT:
@@ -439,8 +441,7 @@ struct ball_reachability_prediction entities_player_can_reach_future_ball_positi
     b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
     struct game_state *game_state)
 {
-    struct ball_reachability_prediction prediction;
-    prediction.can_reach_it = false;
+    struct ball_reachability_prediction prediction = {.can_reach_it = false};
 
     const int steps_per_lookahead =
 	(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
@@ -643,97 +644,98 @@ struct entities {
 static void prepare_gfx(struct component_player *player, struct game_state *game_state)
 {
     // Stand frames
-    player->stand_frames[D_DOWN] =
+    player->stand_frames[SO_DOWN] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_front_0")->id;
-    player->stand_frames[D_UP] =
+    player->stand_frames[SO_UP] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_back_0")->id;
-    player->stand_frames[D_LEFT] =
+    player->stand_frames[SO_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_left_0")->id;
-    player->stand_frames[D_RIGHT] =
+    player->stand_frames[SO_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_right_0")->id;
-    player->stand_frames[D_DOWN_LEFT] =
+    player->stand_frames[SO_DOWN_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_front_left_0")
 	    ->id;
-    player->stand_frames[D_DOWN_RIGHT] =
+    player->stand_frames[SO_DOWN_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_front_right_0")
 	    ->id;
-    player->stand_frames[D_UP_LEFT] =
+    player->stand_frames[SO_UP_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_back_left_0")
 	    ->id;
-    player->stand_frames[D_UP_RIGHT] =
+    player->stand_frames[SO_UP_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_back_right_0")
 	    ->id;
 
     // Tackle frames
-    player->tackle_frames[D_DOWN] =
+    player->tackle_frames[SO_DOWN] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_front_0")
 	    ->id;
-    player->tackle_frames[D_UP] = assets_sprite_frame_get_by_name(
-				      game_state->assets.sprite_frame_cache, "player_tackle_back_0")
-				      ->id;
-    player->tackle_frames[D_LEFT] =
+    player->tackle_frames[SO_UP] =
+	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+					"player_tackle_back_0")
+	    ->id;
+    player->tackle_frames[SO_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_left_0")
 	    ->id;
-    player->tackle_frames[D_RIGHT] =
+    player->tackle_frames[SO_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_right_0")
 	    ->id;
-    player->tackle_frames[D_DOWN_LEFT] =
+    player->tackle_frames[SO_DOWN_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_front_left_0")
 	    ->id;
-    player->tackle_frames[D_DOWN_RIGHT] =
+    player->tackle_frames[SO_DOWN_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_front_right_0")
 	    ->id;
-    player->tackle_frames[D_UP_LEFT] =
+    player->tackle_frames[SO_UP_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_back_left_0")
 	    ->id;
-    player->tackle_frames[D_UP_RIGHT] =
+    player->tackle_frames[SO_UP_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"player_tackle_back_right_0")
 	    ->id;
 
     // Running animations
-    player->run_animations[D_DOWN] =
+    player->run_animations[SO_DOWN] =
 	entities_common_animation_id_from_name("player", "run_front", game_state);
-    player->run_animations[D_UP] =
+    player->run_animations[SO_UP] =
 	entities_common_animation_id_from_name("player", "run_back", game_state);
-    player->run_animations[D_LEFT] =
+    player->run_animations[SO_LEFT] =
 	entities_common_animation_id_from_name("player", "run_left", game_state);
-    player->run_animations[D_RIGHT] =
+    player->run_animations[SO_RIGHT] =
 	entities_common_animation_id_from_name("player", "run_right", game_state);
-    player->run_animations[D_DOWN_LEFT] =
+    player->run_animations[SO_DOWN_LEFT] =
 	entities_common_animation_id_from_name("player", "run_front_left", game_state);
-    player->run_animations[D_DOWN_RIGHT] =
+    player->run_animations[SO_DOWN_RIGHT] =
 	entities_common_animation_id_from_name("player", "run_front_right", game_state);
-    player->run_animations[D_UP_LEFT] =
+    player->run_animations[SO_UP_LEFT] =
 	entities_common_animation_id_from_name("player", "run_back_left", game_state);
-    player->run_animations[D_UP_RIGHT] =
+    player->run_animations[SO_UP_RIGHT] =
 	entities_common_animation_id_from_name("player", "run_back_right", game_state);
 
     // Fall animations
-    player->fall_animations[D_DOWN] =
+    player->fall_animations[SO_DOWN] =
 	entities_common_animation_id_from_name("player", "fall_front", game_state);
-    player->fall_animations[D_UP] =
+    player->fall_animations[SO_UP] =
 	entities_common_animation_id_from_name("player", "fall_back", game_state);
-    player->fall_animations[D_LEFT] =
+    player->fall_animations[SO_LEFT] =
 	entities_common_animation_id_from_name("player", "fall_left", game_state);
-    player->fall_animations[D_RIGHT] =
+    player->fall_animations[SO_RIGHT] =
 	entities_common_animation_id_from_name("player", "fall_right", game_state);
-    player->fall_animations[D_DOWN_LEFT] =
+    player->fall_animations[SO_DOWN_LEFT] =
 	entities_common_animation_id_from_name("player", "fall_front_left", game_state);
-    player->fall_animations[D_DOWN_RIGHT] =
+    player->fall_animations[SO_DOWN_RIGHT] =
 	entities_common_animation_id_from_name("player", "fall_front_right", game_state);
-    player->fall_animations[D_UP_LEFT] =
+    player->fall_animations[SO_UP_LEFT] =
 	entities_common_animation_id_from_name("player", "fall_back_left", game_state);
-    player->fall_animations[D_UP_RIGHT] =
+    player->fall_animations[SO_UP_RIGHT] =
 	entities_common_animation_id_from_name("player", "fall_back_right", game_state);
 }
 
@@ -742,51 +744,51 @@ static void prepare_goalie_gfx(struct component_player *player,
 			       struct game_state *game_state)
 {
     // Stand frames
-    player->stand_frames[D_DOWN] =
+    player->stand_frames[SO_DOWN] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "goalkeeper_front_0")
 	    ->id;
-    player->stand_frames[D_UP] =
+    player->stand_frames[SO_UP] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "goalkeeper_back_0")
 	    ->id;
-    player->stand_frames[D_LEFT] =
+    player->stand_frames[SO_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "goalkeeper_left_0")
 	    ->id;
-    player->stand_frames[D_RIGHT] =
+    player->stand_frames[SO_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "goalkeeper_right_0")
 	    ->id;
-    player->stand_frames[D_DOWN_LEFT] =
+    player->stand_frames[SO_DOWN_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"goalkeeper_front_left_0")
 	    ->id;
-    player->stand_frames[D_DOWN_RIGHT] =
+    player->stand_frames[SO_DOWN_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"goalkeeper_front_right_0")
 	    ->id;
-    player->stand_frames[D_UP_LEFT] =
+    player->stand_frames[SO_UP_LEFT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"goalkeeper_back_left_0")
 	    ->id;
-    player->stand_frames[D_UP_RIGHT] =
+    player->stand_frames[SO_UP_RIGHT] =
 	assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
 					"goalkeeper_back_right_0")
 	    ->id;
 
     // Running animations
-    player->run_animations[D_DOWN] =
+    player->run_animations[SO_DOWN] =
 	entities_common_animation_id_from_name("goalkeeper", "run_front", game_state);
-    player->run_animations[D_UP] =
+    player->run_animations[SO_UP] =
 	entities_common_animation_id_from_name("goalkeeper", "run_back", game_state);
-    player->run_animations[D_LEFT] =
+    player->run_animations[SO_LEFT] =
 	entities_common_animation_id_from_name("goalkeeper", "run_left", game_state);
-    player->run_animations[D_RIGHT] =
+    player->run_animations[SO_RIGHT] =
 	entities_common_animation_id_from_name("goalkeeper", "run_right", game_state);
-    player->run_animations[D_DOWN_LEFT] =
+    player->run_animations[SO_DOWN_LEFT] =
 	entities_common_animation_id_from_name("goalkeeper", "run_front_left", game_state);
-    player->run_animations[D_DOWN_RIGHT] =
+    player->run_animations[SO_DOWN_RIGHT] =
 	entities_common_animation_id_from_name("goalkeeper", "run_front_right", game_state);
-    player->run_animations[D_UP_LEFT] =
+    player->run_animations[SO_UP_LEFT] =
 	entities_common_animation_id_from_name("goalkeeper", "run_back_left", game_state);
-    player->run_animations[D_UP_RIGHT] =
+    player->run_animations[SO_UP_RIGHT] =
 	entities_common_animation_id_from_name("goalkeeper", "run_back_right", game_state);
 
     // Save frames

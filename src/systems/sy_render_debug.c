@@ -1,6 +1,30 @@
+#include "components.h"
 #include "entities.h"
 #include "game.h"
+#include "math_ext.h"
 #include <raymath.h>
+
+v2 project_vector_to_8_directions(Vector2 direction)
+{
+    static v2 direction_vectors[] = {{.x = 0, .y = -1},
+				     {.x = 0, .y = 1},
+				     {.x = -1, .y = 0},
+				     {.x = 1, .y = 0},
+				     {.x = -1, .y = -1},
+				     {.x = 1, .y = -1},
+				     {.x = -1, .y = 1},
+				     {.x = 1, .y = 1}};
+    f32 max_value = 0;
+    enum sprite_orientation selected_orientation = SO_DOWN;
+    for (u16 i = 0; i < 8; ++i) {
+	f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
+	if (tmp_value > max_value) {
+	    max_value = tmp_value;
+	    selected_orientation = i;
+	}
+    }
+    return direction_vectors[selected_orientation];
+}
 
 void systems_render_debug(struct game_state *game_state)
 {

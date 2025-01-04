@@ -1,3 +1,4 @@
+#include "components.h"
 #include "entities.h"
 #include "game.h"
 #include "input.h"
@@ -259,9 +260,10 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	    // Calculate frame to display
 	    v2 ball_velocity = V3_TO_V2(physics3d->velocity);
 	    if (Vector2Length(ball_velocity) > 3) {
-		enum direction pd = entities_common_calculate_direction(ball_velocity);
+		enum sprite_orientation sprite_orientation =
+		    entities_common_calculate_orientation(ball_velocity);
 		struct assets_animation *animation = assets_animation_get_by_id(
-		    game_state->assets.animation_cache, ball->roll_animations[pd]);
+		    game_state->assets.animation_cache, ball->roll_animations[sprite_orientation]);
 		f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;
 		f32 delay =
 		    (animation->delay *
@@ -272,7 +274,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		    sprite->frame_id = animation->frames[new_frame_id];
 		    ball->last_running_frame_idx = new_frame_id;
 		}
-		ball->last_direction = pd;
+		sprite->orientation = sprite_orientation;
 	    }
 	} break;
 	case BS_OUT_OF_PLAY: {

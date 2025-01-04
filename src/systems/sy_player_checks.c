@@ -1,4 +1,5 @@
 #include "components.h"
+#include "e_ball.h"
 #include "e_player.h"
 #include "entities.h"
 #include "football.h"
@@ -80,7 +81,21 @@ void systems_player_checks(struct game_state *game_state)
 	case PS_GOALIE:
 	case PS_THROW_IN:
 	case PS_HEADER:
-	case PS_SLIDING_TACKLE:
+	case PS_SLIDING_TACKLE: {
+	    b32 is_colliding_with_ball =
+		CheckCollisionCircles(transform->position,
+				      collider->colliders[0].props.circle.radius,
+				      ball_transform->position,
+				      ball_collider->colliders[0].props.circle.radius) &&
+		// Player height
+		ball_transform->virtual_height < game_state->constants.player_control_height;
+
+	    if (is_colliding_with_ball) {
+		player->is_colliding_with_ball = true;
+	    }
+
+	    break;
+	}
 	case PS_FALL:
 	case PS_COUNT:
 	    break;

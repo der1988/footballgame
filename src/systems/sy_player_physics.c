@@ -1,4 +1,5 @@
 #include "components.h"
+#include "e_ball.h"
 #include "entities.h"
 #include "football.h"
 #include "game.h"
@@ -29,6 +30,7 @@ void systems_player_physics(struct game_state *game_state)
 	DECLARE_ENTITY_COMPONENT(entity, physics);
 	DECLARE_ENTITY_COMPONENT(entity, player);
 	DECLARE_ENTITY_COMPONENT(entity, collider);
+	DECLARE_ENTITY_COMPONENT(entity, sprite);
 
 	struct state_machine_player *state_machine = player->state_machine;
 
@@ -121,6 +123,14 @@ void systems_player_physics(struct game_state *game_state)
 	    entities_player_apply_force(entity_id, force_to_apply, game_state);
 	    entities_player_apply_velocity(entity_id, game_state);
 
+	    if (player->is_colliding_with_ball) {
+		entities_ball_tackle(game_state->vars.ball_entity_id,
+				     entity_id,
+				     V2_TO_V3(Vector2Normalize(physics->velocity), 0),
+				     Vector2Length(physics->velocity) / physics->max_velocity,
+				     game_state);
+	    }
+
 	    break;
 	}
 	case PS_FALL: {
@@ -130,7 +140,7 @@ void systems_player_physics(struct game_state *game_state)
 	    if (!fall_state_data->animation_completed) {
 		struct assets_animation *animation =
 		    assets_animation_get_by_id(game_state->assets.animation_cache,
-					       player->fall_animations[player->last_direction]);
+					       player->fall_animations[sprite->orientation]);
 		f32 animation_completion =
 		    Clamp((game_state->time - fall_state_data->animation_start_time) /
 			      (animation->delay * animation->frames_count),

@@ -95,6 +95,7 @@ v fix goalkeeper back dive right high with ball
 * improve player ai
 * improve player selection system
 * implement tackle
+* collider offset should reflect the direction the entity is facing
 * implement teams
 * support multiple human players
 * refactor player selection to support multiple human players

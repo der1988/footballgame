@@ -1,10 +1,13 @@
 #include "components.h"
+#include "e_ball.h"
 #include "entities.h"
 #include "game.h"
 #include "layers.h"
 #include <math.h>
 #include <math_ext.h>
+#include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include "ai.h"
 
 void systems_player_on_the_ball(struct game_state *game_state)
@@ -33,6 +36,19 @@ void systems_player_on_the_ball(struct game_state *game_state)
 	// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
 
 	entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
+
+	f32 ball_speed = Vector3Length(ball_physics_3d->velocity);
+	if (ball_speed > game_state->constants.ball_max_velocity_to_gain_possession) {
+	    // Ball is too fast, we cannot control it
+	    // b32 deviate_trajectory = GetRandomValue(0, 100) % 2 == 0;
+	    b32 deviate_trajectory = true;
+	    if (deviate_trajectory) {
+		printf("deviating trajectory\n");
+		entities_ball_deviate_trajectory(
+		    game_state->vars.ball_entity_id, player_on_the_ball_entity_id, game_state);
+	    }
+	    return;
+	}
 
 	if (player_controls->shot > 0) {
 	    // Shot

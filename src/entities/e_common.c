@@ -1,3 +1,4 @@
+#include "components.h"
 #include "football.h"
 #include "math_ext.h"
 #include <assert.h>
@@ -22,7 +23,7 @@ assets_animation_id_t entities_common_animation_id_from_name(const char *entity_
     return animation->id;
 }
 
-enum direction entities_common_calculate_direction(Vector2 direction)
+enum sprite_orientation entities_common_calculate_orientation(Vector2 direction)
 {
     static Vector2 direction_vectors[] = {{.x = 0, .y = -1},
 					  {.x = 0, .y = 1},
@@ -33,15 +34,15 @@ enum direction entities_common_calculate_direction(Vector2 direction)
 					  {.x = -1, .y = 1},
 					  {.x = 1, .y = 1}};
     f32 max_value = 0;
-    enum direction selected_direction = D_DOWN;
+    enum sprite_orientation selected_orientation = SO_DOWN;
     for (u16 i = 0; i < 8; ++i) {
 	f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
 	if (tmp_value > max_value) {
 	    max_value = tmp_value;
-	    selected_direction = i;
+	    selected_orientation = i;
 	}
     }
-    return selected_direction;
+    return selected_orientation;
 }
 
 INLINE b32 entities_common_can_reach_position_in_time(v2 current_position,

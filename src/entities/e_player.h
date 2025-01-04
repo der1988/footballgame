@@ -31,7 +31,7 @@ static const char *state_machine_player_state_string[] = {
 declare_state_machine_enter_and_exit(player);
 
 struct state_machine_player_normal_data {
-    enum direction running_action_direction;
+    enum sprite_orientation running_action_orientation;
 };
 
 struct state_machine_player_tackle_data {
@@ -96,6 +96,7 @@ enum player_collider_type {
     PCT_PLAYER,
     PCT_GOALIE,
     PCT_DIVE,
+    PCT_TACKLE,
     PCT_COUNT
 };
 
