@@ -579,7 +579,7 @@
  "meta": {
   "app": "https://www.aseprite.org/",
   "version": "1.3.5-x64",
-  "image": "Player.png",
+  "image": "player.png",
   "format": "RGBA8888",
   "size": { "w": 488, "h": 488 },
   "scale": "1",
