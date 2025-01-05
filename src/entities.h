@@ -42,6 +42,11 @@
 // Forward declaration
 struct entity;
 
+struct entities {
+    struct entity **array;
+    u32 length;
+};
+
 // START - Common
 
 struct state_machine_running_action_state {

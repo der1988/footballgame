@@ -7,6 +7,7 @@
 #include "log.h"
 #include "math_ext.h"
 #include "game.h"
+#include "memory.h"
 #include "types.h"
 #include "sprite.h"
 #include "physics.h"
@@ -544,13 +545,13 @@ struct entity *entities_player_find_pass_target(struct game_state *game_state,
 		selected_entity = entity;
 		selected_score = score;
 
-		GLOGF_DEBUG(LS_GAME, "found valid pass target: %zu, %.2f", entity_id, score);
+		GLOGF_TRACE(LS_GAME, "found valid pass target: %zu, %.2f", entity_id, score);
 	    }
 	}
     }
     if (selected_entity != NULL) {
 	entities_player_selected_for_pass(selected_entity->header.id, game_state);
-	GLOGF_DEBUG(LS_GAME,
+	GLOGF_TRACE(LS_GAME,
 		    "selected pass target %zu with score %.2f",
 		    selected_entity->header.id,
 		    selected_score);
@@ -625,39 +626,48 @@ struct entity *entities_player_find_nearest_facing_opponent(struct game_state *g
     return NULL;
 }
 
-struct entities {
-    struct entity *array;
-    u32 length;
-};
+struct entities entities_player_find_tackled_opponents(struct game_state *game_state,
+						       struct entity *player_entity)
+{
+    const u8 max_tackled_players = 3;
+    struct entities tackled_players = {
+	.length = 0,
+	.array = memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE],
+				   sizeof(struct entity *) * max_tackled_players)};
+    struct entity_repository *entity_repository = game_state->entity_repository;
+    struct entity *opponent_entity;
+    u8 current_idx = 0;
+    for (usize opponent_entity_id = 0; opponent_entity_id < entity_repository->max_slots;
+	 ++opponent_entity_id) {
+	opponent_entity = entities_entity_get(game_state->entity_repository, opponent_entity_id);
+	if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER &&
+	    opponent_entity->player.state_machine->current_state == PS_NORMAL &&
+	    opponent_entity->player.team_side != player_entity->player.team_side) {
 
-// struct entities entities_player_find_colliding_opponents(struct game_state *game_state,
-// 							 struct entity *player_entity)
-// {
-//     struct entity_repository *entity_repository = game_state->entity_repository;
-//     struct entity *opponent_entity;
-//     for (usize opponent_entity_id = 0; opponent_entity_id < entity_repository->max_slots;
-// 	 ++opponent_entity_id) {
-// 	opponent_entity = entities_entity_get(game_state->entity_repository, opponent_entity_id);
-// 	if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER) {
-// 	    struct component_transform *transform = &opponent_entity->transform;
-//
-// 	    if (player_entity->header.id == opponent_entity_id ||
-// 		opponent_entity->player.team_side == player_entity->player.team_side) {
-// 		// If player is in our team or the player we are considering we skip
-// 		continue;
-// 	    }
-// 	    v2 to_opponent = Vector2Subtract(opponent_entity->transform.position,
-// 					     player_entity->transform.position);
-// 	    f32 angle = fabs(Vector2Angle(player_entity->physics.velocity, to_opponent) * RAD2DEG);
-//
-// 	    f32 distance = Vector2Distance(player_entity->transform.position, transform->position);
-// 	    if (distance < 100 && angle < 30) {
-// 		return opponent_entity;
-// 	    }
-// 	}
-//     }
-//     return NULL;
-// }
+	    const v2 opponent_collider_pos =
+		Vector2Add(opponent_entity->transform.position,
+			   opponent_entity->collider.colliders[PCT_PLAYER].props.circle.offset);
+	    const v2 player_collider_pos =
+		Vector2Add(player_entity->transform.position,
+			   player_entity->collider.colliders[PCT_TACKLE].props.circle.offset);
+
+	    const b32 is_tackled = CheckCollisionCircles(
+		player_collider_pos,
+		player_entity->collider.colliders[PCT_TACKLE].props.circle.radius,
+		opponent_collider_pos,
+		opponent_entity->collider.colliders[PCT_PLAYER].props.circle.radius);
+
+	    if (is_tackled) {
+		tackled_players.array[current_idx++] = opponent_entity;
+		tackled_players.length++;
+		if (tackled_players.length == max_tackled_players) {
+		    break;
+		}
+	    }
+	}
+    }
+    return tackled_players;
+}
 
 static void prepare_gfx(struct component_player *player, struct game_state *game_state)
 {

@@ -5,13 +5,14 @@
 #include "football.h"
 #include "game.h"
 #include "input.h"
+#include "log.h"
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
 #include "ai.h"
 #include "types.h"
 
-void systems_player_checks(struct game_state *game_state)
+void systems_player_collisions(struct game_state *game_state)
 {
     struct entity *ball_entity =
 	entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
@@ -90,6 +91,15 @@ void systems_player_checks(struct game_state *game_state)
 
 	    if (is_colliding_with_ball) {
 		player->is_colliding_with_ball = true;
+	    }
+	    struct entities entities = entities_player_find_tackled_opponents(game_state, entity);
+	    for (usize i = 0; i < entities.length; ++i) {
+		entities_player_state_machine_change_state_to(
+		    entities.array[i]->player.state_machine, PS_FALL, game_state);
+		GLOGF_INFO_CTX(LS_GAME,
+			       entities.array[i]->header.name,
+			       "player tackled by %s",
+			       entity->header.name);
 	    }
 
 	    break;

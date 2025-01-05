@@ -170,7 +170,7 @@ void systems_player_physics(struct game_state *game_state)
 	    entities_player_apply_velocity(entity_id, game_state);
 
 	    if (fall_state_data->animation_completed &&
-		HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 0.5f)) {
+		HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
 		entities_player_state_machine_change_state_to(
 		    player->state_machine, PS_NORMAL, game_state);
 		break;

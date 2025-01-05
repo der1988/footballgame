@@ -180,4 +180,7 @@ entity_id_t entities_player_find_nearest_teammate(struct game_state *game_state,
 struct entity *entities_player_find_nearest_facing_opponent(struct game_state *game_state,
 							    struct entity *player_entity);
 
+struct entities entities_player_find_tackled_opponents(struct game_state *game_state,
+						       struct entity *player_entity);
+
 #endif // !ENTITIES_PLAYER_H
