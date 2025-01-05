@@ -92,11 +92,12 @@ v support multiple input devices
 v move ai in its own system
 v why does player on the ball has its data in game_state directly? -> fixed it
 v fix goalkeeper back dive right high with ball
+v implement tackle
+v collider offset should reflect the direction the entity is facing
+v implement teams
+v implement player tripped animation
 * improve player ai
 * improve player selection system
-* implement tackle
-* collider offset should reflect the direction the entity is facing
-* implement teams
 * support multiple human players
 * refactor player selection to support multiple human players
 - goal is too small? proportional to ball instead of player?
@@ -113,5 +114,4 @@ v fix goalkeeper back dive right high with ball
 - implement network multiplayer
 - refactor the overlapping collision solver
 - don't make goalie rush to the ball if possession is hostile
-- implement player tripped animation
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
