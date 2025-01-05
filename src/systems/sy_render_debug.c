@@ -1,32 +1,8 @@
 #include "components.h"
 #include "entities.h"
 #include "game.h"
-#include "math_ext.h"
 #include "types.h"
-#include "sprite.h"
 #include <raymath.h>
-
-v2 project_vector_to_8_directions(Vector2 direction)
-{
-    static v2 direction_vectors[] = {{.x = 0, .y = -1},
-				     {.x = 0, .y = 1},
-				     {.x = -1, .y = 0},
-				     {.x = 1, .y = 0},
-				     {.x = -1, .y = -1},
-				     {.x = 1, .y = -1},
-				     {.x = -1, .y = 1},
-				     {.x = 1, .y = 1}};
-    f32 max_value = 0;
-    enum sprite_orientation selected_orientation = SO_DOWN;
-    for (u16 i = 0; i < 8; ++i) {
-	f32 tmp_value = Vector2ProjectScalar(direction_vectors[i], direction);
-	if (tmp_value > max_value) {
-	    max_value = tmp_value;
-	    selected_orientation = i;
-	}
-    }
-    return direction_vectors[selected_orientation];
-}
 
 void systems_render_debug(struct game_state *game_state)
 {
@@ -65,10 +41,8 @@ void systems_render_debug(struct game_state *game_state)
 		static color_t colliders_colors[] = {RED, VIOLET, PINK, YELLOW};
 		for (u16 i = 0; i < collider->num_colliders; ++i) {
 		    if (collider->colliders[i].shape == CS_CIRCLE) {
-			v2 offset_in_orientation_space = sprite_apply_offset_to_orientation(
-			    sprite->orientation, collider->colliders[i].props.circle.offset);
-
-			v2 pos = Vector2Add(transform->position, offset_in_orientation_space);
+			v2 pos = Vector2Add(transform->position,
+					    collider->colliders[i].props.circle.offset);
 			DrawCircleLinesV(
 			    pos, collider->colliders[i].props.circle.radius, colliders_colors[i]);
 		    } else if (collider->colliders[i].shape == CS_RECTANGLE) {

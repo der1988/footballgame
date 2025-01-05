@@ -60,7 +60,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 	    player_controls->steering = game_state->human_players[0].controls.steering;
 
 	    if (!entity->player.is_colliding_with_ball &&
-		team_idx_last_ball_possession != player->team_side &&
+		// team_idx_last_ball_possession != player->team_side &&
+		// TODO: (marco) is this what we want?
 		input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
 		entities_player_state_machine_change_state_to(
 		    player->state_machine, PS_SLIDING_TACKLE, game_state);

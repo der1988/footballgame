@@ -3,12 +3,14 @@
 #include "components.h"
 #include "entities.h"
 #include "football.h"
+#include "input.h"
 #include "log.h"
 #include "math_ext.h"
 #include "game.h"
 #include "types.h"
 #include "sprite.h"
 #include "physics.h"
+#include "collision.h"
 #include <assert.h>
 #include <raylib.h>
 #include <string.h>
@@ -131,9 +133,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	game_state->constants.player_control_radius;
 
     collider->colliders[PCT_TACKLE].shape = CS_CIRCLE;
-    collider->colliders[PCT_TACKLE].props.circle.offset = (v2){.y = -10};
-    collider->colliders[PCT_TACKLE].props.circle.radius =
-	game_state->constants.player_control_radius;
+    collider->colliders[PCT_TACKLE].props.circle.radius = 5;
 
     entities_player_state_machine_on_enter(entity, game_state);
 
@@ -223,9 +223,19 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
     case PS_THROW_IN:
     case PS_HEADER:
     case PS_SLIDING_TACKLE:
+    case PS_FALL:
+	// Reset charge
+	// TODO: (marco) refactor this to common code since it's done in multiple places
+	for (usize i = 0; i < MAX_INPUT_DEVICES; ++i) {
+	    if (game_state->human_players[i].controlled_player_entity_id == entity->header.id) {
+		game_state->human_players[i].controls.charge.ready =
+		    game_state->human_players[i].controls.charge.charging = false;
+		break;
+	    }
+	}
 	entity->sprite.frame_id = player->tackle_frames[sprite->orientation];
 	entity->player.state_machine->state_data.tackle.start_time = game_state->time;
-    case PS_FALL:
+	break;
     case PS_COUNT:
 	break;
     }
@@ -346,9 +356,11 @@ b32 entities_player_is_colliding_with_ball(struct entity *entity,
 	check_collision = CheckCollisionCircleRec(
 	    ball_pos, ball_radius, calculate_dive_collision_rectangle(player_position, collider));
 	break;
+    case PCT_TACKLE:
+	collider->props.circle.offset =
+	    ORIENTATION_TO_TACKLE_COLLIDER_OFFSET[entity->sprite.orientation];
     case PCT_PLAYER:
     case PCT_GOALIE:
-    case PCT_TACKLE:
 	check_collision =
 	    CheckCollisionCircles(ball_pos,
 				  ball_radius,
