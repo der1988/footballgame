@@ -77,10 +77,6 @@ void systems_player_collisions(struct game_state *game_state)
 
 	    break;
 	}
-	case PS_NONE:
-	case PS_GOALIE:
-	case PS_THROW_IN:
-	case PS_HEADER:
 	case PS_SLIDING_TACKLE: {
 	    const b32 is_colliding_with_ball = entities_player_is_colliding_with_ball(
 		entity,
@@ -104,7 +100,11 @@ void systems_player_collisions(struct game_state *game_state)
 
 	    break;
 	}
+	case PS_GOALIE:
+	case PS_THROW_IN:
+	case PS_HEADER:
 	case PS_FALL:
+	case PS_NONE:
 	case PS_COUNT:
 	    break;
 	}
