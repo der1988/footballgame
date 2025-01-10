@@ -96,6 +96,7 @@ v implement tackle
 v collider offset should reflect the direction the entity is facing
 v implement teams
 v implement player tripped animation
+v fixed ball bounces off incorrectly from south goal's posts
 * improve player ai
 * improve player selection system
 * support multiple human players
@@ -115,3 +116,4 @@ v implement player tripped animation
 - refactor the overlapping collision solver
 - don't make goalie rush to the ball if possession is hostile
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
+- fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
