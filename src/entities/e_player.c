@@ -23,7 +23,6 @@ static void prepare_gfx(struct component_player *player, struct game_state *game
 static void prepare_goalie_gfx(struct component_player *player,
 			       struct component_goalie *goalie,
 			       struct game_state *game_state);
-static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider);
 color_t *player_custom_palette(entity_id_t entity_id, struct game_state *game_state);
 void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state);
 void player_custom_after_draw(entity_id_t entity_id, struct game_state *game_state);
@@ -117,6 +116,8 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	sprite->after_draw = &player_custom_after_draw;
     }
 
+    enum pitch_side pitch_side = game_state->vars.teams[config.team_side].pitch_side;
+
     collider->num_colliders = PCT_COUNT;
     collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
 					    sizeof(struct collider) * collider->num_colliders);
@@ -125,9 +126,12 @@ struct entity *entities_player_create(struct player_config config, struct game_s
     collider->colliders[PCT_GOALIE].props.circle.radius = 6;
 
     collider->colliders[PCT_DIVE].shape = CS_RECTANGLE;
-    collider->colliders[PCT_DIVE].props.rectangle.offset = (v2){.x = -10, .y = -5};
     collider->colliders[PCT_DIVE].props.rectangle.size.x = 22;
     collider->colliders[PCT_DIVE].props.rectangle.size.y = 10;
+    collider->colliders[PCT_DIVE].props.rectangle.offset =
+	(v2){.x = 0,
+	     .y = 0 + (collider->colliders[PCT_DIVE].props.rectangle.size.y * 0.5f *
+		       (pitch_side == PSI_NORTH ? -1 : 1))};
 
     collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
     collider->colliders[PCT_PLAYER].props.circle.radius =
@@ -355,7 +359,10 @@ b32 entities_player_is_colliding_with_ball(struct entity *entity,
     switch (collider_type) {
     case PCT_DIVE:
 	check_collision = CheckCollisionCircleRec(
-	    ball_pos, ball_radius, calculate_dive_collision_rectangle(player_position, collider));
+	    ball_pos,
+	    ball_radius,
+	    calculate_collision_rectangle(
+		player_position, collider->props.rectangle.size, collider->props.rectangle.offset));
 	break;
     case PCT_TACKLE:
 	collider->props.circle.offset =
@@ -941,14 +948,6 @@ static void prepare_goalie_gfx(struct component_player *player,
 	animation_cache, "goalkeeper", "back_jump_parry_end", memory_arena_handle);
     goalie->jump_animations_end[PSI_SOUTH][ST_WITH_BALL] = assets_animation_id_from_name(
 	animation_cache, "goalkeeper", "back_jump_catch_end", memory_arena_handle);
-}
-
-static inline rect_t calculate_dive_collision_rectangle(v2 pos, struct collider *dive_collider)
-{
-    return (rect_t){.x = pos.x + dive_collider->props.rectangle.offset.x,
-		    .y = pos.y + dive_collider->props.rectangle.offset.y,
-		    .width = dive_collider->props.rectangle.size.x,
-		    .height = dive_collider->props.rectangle.size.y};
 }
 
 void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state)

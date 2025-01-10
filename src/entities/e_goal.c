@@ -52,8 +52,7 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
     collider->colliders[0].props.rectangle.size =
 	(v2){.x = game_state->vars.pitch.goal_width, .y = game_state->vars.pitch.goal_height};
     collider->colliders[0].props.rectangle.offset =
-	(v2){.x = -collider->colliders[0].props.rectangle.size.x / 2.0f,
-	     .y = -collider->colliders[0].props.rectangle.size.y};
+	(v2){.x = 0, .y = -collider->colliders[0].props.rectangle.size.y * 0.5f};
 
     // Initialise goal
     struct component_goal *goal = &entity->goal;

@@ -48,11 +48,12 @@ void systems_render_debug(struct game_state *game_state)
 		    } else if (collider->colliders[i].shape == CS_RECTANGLE) {
 			v2 pos = Vector2Add(transform->position,
 					    collider->colliders[i].props.rectangle.offset);
-			DrawRectangleLines(pos.x,
-					   pos.y,
-					   collider->colliders[i].props.rectangle.size.x,
-					   collider->colliders[i].props.rectangle.size.y,
-					   colliders_colors[i]);
+			DrawRectangleLines(
+			    pos.x - collider->colliders[i].props.rectangle.size.x * 0.5f,
+			    pos.y - collider->colliders[i].props.rectangle.size.y * 0.5f,
+			    collider->colliders[i].props.rectangle.size.x,
+			    collider->colliders[i].props.rectangle.size.y,
+			    colliders_colors[i]);
 		    }
 		}
 	    }

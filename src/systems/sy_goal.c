@@ -2,6 +2,7 @@
 #include "game.h"
 #include "log.h"
 #include "math_ext.h"
+#include "collision.h"
 #include <raymath.h>
 
 void systems_goal(struct game_state *game_state)
@@ -28,11 +29,10 @@ void systems_goal(struct game_state *game_state)
 	DECLARE_ENTITY_COMPONENT(entity, goal);
 	DECLARE_ENTITY_COMPONENT(entity, collider);
 
-	const rect_t goal_rectangle = {
-	    .x = transform->position.x + collider->colliders[0].props.rectangle.offset.x,
-	    .y = transform->position.y + collider->colliders[0].props.rectangle.offset.y,
-	    .width = collider->colliders[0].props.rectangle.size.x,
-	    .height = collider->colliders[0].props.rectangle.size.y};
+	const rect_t goal_rectangle =
+	    calculate_collision_rectangle(transform->position,
+					  collider->colliders[0].props.rectangle.size,
+					  collider->colliders[0].props.rectangle.offset);
 
 	if (game_state->vars.match.state == MS_GOAL) {
 	    if (((i == PSI_NORTH && ball_transform->position.y < goal_rectangle.y - 3) ||
@@ -82,8 +82,11 @@ void systems_goal(struct game_state *game_state)
 	    if (HAS_TIME_PASSED(game_state->time, goal->hit_left_post_time, 0.1f) &&
 		collision.point.x < (goal_rectangle.x + post_width + ball_radius)) {
 		// hit left post
-		f32 normalised_hit_point = Clamp(
-		    (collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width, -1, 1);
+		f32 normalised_hit_point =
+		    Clamp((collision.point.x - goal_rectangle.x - post_width * 0.5f) / post_width,
+			  -1,
+			  1) *
+		    (i == PSI_NORTH ? 1 : -1);
 		new_velocity.y *= -1;
 		new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
 							(v3){.y = 1},
@@ -103,7 +106,9 @@ void systems_goal(struct game_state *game_state)
 						  goal_rectangle.width + post_width * 0.5f) /
 						     post_width,
 						 -1,
-						 1);
+						 1) *
+					   (i == PSI_NORTH ? 1 : -1);
+		;
 		new_velocity.y *= -1;
 		new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
 							(v3){.y = 1},
@@ -122,7 +127,8 @@ void systems_goal(struct game_state *game_state)
 		    Clamp((collision.point.y - goal_rectangle.height + post_width) / post_width,
 			  -1,
 			  1) *
-		    -1;
+		    (i == PSI_NORTH ? -1 : 1);
+		;
 		new_velocity.x *= -1;
 		new_velocity = Vector3RotateByAxisAngle(Vector3Negate(new_velocity),
 							(v3){.x = 1},
