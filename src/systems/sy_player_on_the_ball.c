@@ -150,10 +150,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 		 * - speed: higher speed, harder to control the ball
 		 * - ball height: higher the ball, harder to control
 		 * - pitch conditions (TODO)
-		 * 
+		 *
 		 * Control difficulty determines the force that will applied to the ball, which
 		 * will be higher if difficulty is lower.
-		 * If difficulty is higher than what the player's quality allows, they will likely 
+		 * If difficulty is higher than what the player's quality allows, they will likely
 		 * lose the ball.
 		 */
 				f32 precision_control_max_seconds = 1.0f;
@@ -245,16 +245,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 		player_entity->player.kicked_ball = kicked_ball;
 
 		if (kicked_ball) {
-			for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-				struct human_player *human_player = &game_state->human_players[i];
-				// We can reset charge now: we already kicked the ball if needed
-				if (player_on_the_ball_entity_id == human_player->controlled_player_entity_id &&
-					human_player->controls.charge.ready) {
-					human_player->controls.charge.ready = human_player->controls.charge.charging =
-						false;
-					break;
-				}
-			}
+			game_input_player_charge_reset(game_state, player_on_the_ball_entity_id);
 		}
 	}
 }

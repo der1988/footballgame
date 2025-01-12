@@ -62,6 +62,10 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 		}
 		// TODO: this has to be fixed to support multiple human players
 		// e.g.: we need to check whether the player is already controlled by a human
-		human_player->controlled_player_entity_id = nearest_teammate_entity_id;
+		if (nearest_teammate_entity_id != human_player->controlled_player_entity_id) {
+			// human is controlling a new player compared to previous frame
+			game_input_charge_reset(human_player);
+			human_player->controlled_player_entity_id = nearest_teammate_entity_id;
+		}
 	}
 }

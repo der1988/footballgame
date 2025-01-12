@@ -3,6 +3,7 @@
 
 #include "assets.h"
 #include "football.h"
+#include "input.h"
 #include "memory.h"
 #include "types.h"
 #include "layers.h"
@@ -157,5 +158,21 @@ void game_loop(struct game_config config,
 			   memory_arena_handle_t *memory_arena);
 
 void game_set_next_scene(enum game_scene next_scene);
+
+INLINE void game_input_charge_reset(struct human_player *human_player)
+{
+	human_player->controls.charge.ready = human_player->controls.charge.charging = false;
+}
+
+INLINE void game_input_player_charge_reset(struct game_state *game_state,
+										   entity_id_t player_entity_id)
+{
+	for (usize i = 0; i < MAX_INPUT_DEVICES; ++i) {
+		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
+			game_input_charge_reset(&game_state->human_players[i]);
+			break;
+		}
+	}
+}
 
 #endif // !GAME_H

@@ -229,15 +229,7 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 	case PS_HEADER:
 	case PS_SLIDING_TACKLE:
 	case PS_FALL:
-		// Reset charge
-		// TODO: (marco) refactor this to common code since it's done in multiple places
-		for (usize i = 0; i < MAX_INPUT_DEVICES; ++i) {
-			if (game_state->human_players[i].controlled_player_entity_id == entity->header.id) {
-				game_state->human_players[i].controls.charge.ready =
-					game_state->human_players[i].controls.charge.charging = false;
-				break;
-			}
-		}
+		game_input_player_charge_reset(game_state, entity->header.id);
 		entity->sprite.frame_id = player->tackle_frames[sprite->orientation];
 		entity->player.state_machine->state_data.tackle.start_time = game_state->time;
 		break;
