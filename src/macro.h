@@ -10,21 +10,21 @@
 #define STRINGIFY(v) #v
 
 #define HAS_TIME_PASSED(current_time, saved_time, threshold)                                       \
-    ((current_time - saved_time) > threshold)
+	((current_time - saved_time) > threshold)
 #define IS_TIME_PASSED_IN_RANGE(current_time, saved_time, min, max)                                \
-    ((current_time - saved_time) > min && (current_time - saved_time) < max)
+	((current_time - saved_time) > min && (current_time - saved_time) < max)
 
-#define JSON_GET_INT(J, K)    cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
+#define JSON_GET_INT(J, K)	  cJSON_GetObjectItemCaseSensitive(J, K)->valueint;
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
 #define GOALIE_HOLD_OR_BOUNCE(V)                                                                   \
-    (V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
+	(V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
 #define VELOCITY_TO_KMH(V) (V / PIXELS_PER_METER * 3.6f)
 
 #define RESET_COMPONENT(c)                                                                         \
-    memset(((void *)player_controls) + sizeof(struct component_header),                            \
-	   0,                                                                                      \
-	   sizeof(*player_controls) - sizeof(struct component_header));
+	memset(((void *)player_controls) + sizeof(struct component_header),                            \
+		   0,                                                                                      \
+		   sizeof(*player_controls) - sizeof(struct component_header));
 
 #endif // !MACRO_H

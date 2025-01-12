@@ -10,320 +10,320 @@ void update(struct game_state *game_state, struct input *input);
 void draw(struct game_state *game_state);
 
 struct game_state *game_play_init(struct game_config game_config,
-				  struct assets assets,
-				  memory_arena_handle_t *memory_arena)
+								  struct assets assets,
+								  memory_arena_handle_t *memory_arena)
 {
-    GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
+	GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
 
-    time_t fixed_timestep = 1 / 480.0;
+	time_t fixed_timestep = 1 / 480.0;
 
-    // Push game state onto main memory arena
-    struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
-    game_state->current_time = GetTime();
-    game_state->accumulator = 0.0;
-    game_state->dt = fixed_timestep;
-    game_state->config = game_config;
-    game_state->assets = assets;
+	// Push game state onto main memory arena
+	struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
+	game_state->current_time = GetTime();
+	game_state->accumulator = 0.0;
+	game_state->dt = fixed_timestep;
+	game_state->config = game_config;
+	game_state->assets = assets;
 
-    // Push some memory for our own arenas onto main memory arena
-    void *game_memory = memory_arena_push(memory_arena, Megabytes(3));
-    game_state->memory_by_lifetime[MAL_LEVEL] =
-	memory_arena_create("level", game_memory, Megabytes(1));
-    game_state->memory_by_lifetime[MAL_UPDATE] =
-	memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
-    game_state->memory_by_lifetime[MAL_DRAW] =
-	memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
+	// Push some memory for our own arenas onto main memory arena
+	void *game_memory = memory_arena_push(memory_arena, Megabytes(3));
+	game_state->memory_by_lifetime[MAL_LEVEL] =
+		memory_arena_create("level", game_memory, Megabytes(1));
+	game_state->memory_by_lifetime[MAL_UPDATE] =
+		memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
+	game_state->memory_by_lifetime[MAL_DRAW] =
+		memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
 
-    // pitch in reality is 105m long
-    // pitch in game is 1080 pixels long
-    // 1m is ~10 pixels in game
-    // gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
-    game_state->constants =
-	(struct game_constants){.fixed_timestep = fixed_timestep,
-				.render_debug = false,
-				.input_stick_dead_zone = 0.05f,
-				// Coefficient of restitution
-				.ball_cr = 0.5f,
-				.ball_cr_against_post = 0.7f,
-				.pixels_per_meter = PIXELS_PER_METER,
-				.air_density = 1.21f,
-				.ball_cross_sectional_area = 0.038f,
-				.ball_drag_coefficient = 0.25f,
-				.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-				.ball_friction_on_pitch = 0.5f,
-				.ball_run_force = 40,
-				.ball_control_force = 30,
-				// This will translate to instant velocity, so 144km/h
-				.ball_shot_force = 40 * PIXELS_PER_METER,
-				.ball_shot_height = 0.20f,
-				.ball_pass_force = 30 * PIXELS_PER_METER,
-				.ball_long_pass_force = 24 * PIXELS_PER_METER,
-				.ball_long_pass_height = 1.0f,
-				.ball_tackle_force = 30 * PIXELS_PER_METER,
-				.ball_after_touch_delay_time = 0.1f,
-				.ball_after_touch_max_time = 0.6f,
-				.ball_after_touch_force = 150.0f,
-				// 36m/s seems fair, that would be 129km/h
-				.ball_max_velocity = 50 * PIXELS_PER_METER,
-				.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
-				.ball_lookaheads = 10,
-				.ball_lookahead_dts = 96,
-				.crossbar_height = 27,
-				.player_movement_force = 27000,
-				.player_movement_drag = 4166,
-				.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
-				// Fastest player should reach ~10.5m/s, slowest 7.8m/s
-				.player_run_max_velocity = 10.5f * PIXELS_PER_METER,
-				.player_control_radius = 6,
-				.player_control_height = 19,
-				.player_run_control_max_angle = 45,
-				// Elite goalie has 150ms reaction time
-				.goalie_dive_reaction_time = 0.150f,
-				.goalie_dive_force = 8500,
-				// TODO: This parameter should depend on goalie's quality
-				.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
-				// Minimum speed for goalie to dive is 54km/h
-				.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
-				.ai_enabled = true,
-				.shoot_aid_no_inertia = true,
-				.kick_charge_reset_time = 1.5f};
+	// pitch in reality is 105m long
+	// pitch in game is 1080 pixels long
+	// 1m is ~10 pixels in game
+	// gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
+	game_state->constants =
+		(struct game_constants){.fixed_timestep = fixed_timestep,
+								.render_debug = false,
+								.input_stick_dead_zone = 0.05f,
+								// Coefficient of restitution
+								.ball_cr = 0.5f,
+								.ball_cr_against_post = 0.7f,
+								.pixels_per_meter = PIXELS_PER_METER,
+								.air_density = 1.21f,
+								.ball_cross_sectional_area = 0.038f,
+								.ball_drag_coefficient = 0.25f,
+								.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
+								.ball_friction_on_pitch = 0.5f,
+								.ball_run_force = 40,
+								.ball_control_force = 30,
+								// This will translate to instant velocity, so 144km/h
+								.ball_shot_force = 40 * PIXELS_PER_METER,
+								.ball_shot_height = 0.20f,
+								.ball_pass_force = 30 * PIXELS_PER_METER,
+								.ball_long_pass_force = 24 * PIXELS_PER_METER,
+								.ball_long_pass_height = 1.0f,
+								.ball_tackle_force = 30 * PIXELS_PER_METER,
+								.ball_after_touch_delay_time = 0.1f,
+								.ball_after_touch_max_time = 0.6f,
+								.ball_after_touch_force = 150.0f,
+								// 36m/s seems fair, that would be 129km/h
+								.ball_max_velocity = 50 * PIXELS_PER_METER,
+								.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
+								.ball_lookaheads = 10,
+								.ball_lookahead_dts = 96,
+								.crossbar_height = 27,
+								.player_movement_force = 27000,
+								.player_movement_drag = 4166,
+								.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
+								// Fastest player should reach ~10.5m/s, slowest 7.8m/s
+								.player_run_max_velocity = 10.5f * PIXELS_PER_METER,
+								.player_control_radius = 6,
+								.player_control_height = 19,
+								.player_run_control_max_angle = 45,
+								// Elite goalie has 150ms reaction time
+								.goalie_dive_reaction_time = 0.150f,
+								.goalie_dive_force = 8500,
+								// TODO: This parameter should depend on goalie's quality
+								.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
+								// Minimum speed for goalie to dive is 54km/h
+								.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
+								.ai_enabled = true,
+								.shoot_aid_no_inertia = true,
+								.kick_charge_reset_time = 1.5f};
 
-    // Initialise entities repository
-    game_state->entity_repository =
-	entities_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
+	// Initialise entities repository
+	game_state->entity_repository =
+		entities_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    // Get pitch texture id
-    struct assets_texture *texture =
-	assets_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
-    assert(texture);
-    game_state->pitch_texture_id = texture->id;
+	// Get pitch texture id
+	struct assets_texture *texture =
+		assets_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
+	assert(texture);
+	game_state->pitch_texture_id = texture->id;
 
-    game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
+	game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    // Layers
-    game_state->layer_debug = layers_debug_create(game_state);
-    game_state->vars.is_debug_log_shown = true;
+	// Layers
+	game_state->layer_debug = layers_debug_create(game_state);
+	game_state->vars.is_debug_log_shown = true;
 
-    game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
-						   (f32)game_state->config.virtual_screen_height);
+	game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
+												   (f32)game_state->config.virtual_screen_height);
 
 #ifndef RUNNING_TEST
 
-    football_setup(game_state);
+	football_setup(game_state);
 
 #endif
 
-    game_state->initialised = true;
-    GLOG_INFO(LS_GAME, "gameplay initialisation complete");
+	game_state->initialised = true;
+	GLOG_INFO(LS_GAME, "gameplay initialisation complete");
 
-    return game_state;
+	return game_state;
 }
 
 void game_play_destroy(struct game_state *game_state)
 {
-    assert(game_state->initialised);
+	assert(game_state->initialised);
 
-    UnloadRenderTexture(game_state->render_texture);
+	UnloadRenderTexture(game_state->render_texture);
 
-    layers_debug_destroy(game_state->layer_debug);
+	layers_debug_destroy(game_state->layer_debug);
 
-    tweakui_destroy(game_state->tweakui);
+	tweakui_destroy(game_state->tweakui);
 
-    entities_repository_destroy(game_state->entity_repository);
+	entities_repository_destroy(game_state->entity_repository);
 
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
-    memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
+	memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
+	memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
+	memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
 
-    game_state->initialised = false;
-    GLOG_INFO(LS_GAME, "gameplay destruction complete");
+	game_state->initialised = false;
+	GLOG_INFO(LS_GAME, "gameplay destruction complete");
 }
 
 b32 game_play_update(struct game_state *game_state)
 {
-    assert(game_state->initialised);
+	assert(game_state->initialised);
 
-    b32 quit = false;
+	b32 quit = false;
 
-    time_t dt = game_state->constants.fixed_timestep;
+	time_t dt = game_state->constants.fixed_timestep;
 
-    if (game_state->vars.is_tweakui_shown) {
-	PollInputEvents();
-	quit = WindowShouldClose();
-	if (IsKeyReleased(KEY_P)) {
-	    game_state->vars.is_tweakui_shown = false;
+	if (game_state->vars.is_tweakui_shown) {
+		PollInputEvents();
+		quit = WindowShouldClose();
+		if (IsKeyReleased(KEY_P)) {
+			game_state->vars.is_tweakui_shown = false;
+		}
+	} else {
+		// Update game
+		f64 new_time = GetTime();
+		f64 frame_time = new_time - game_state->current_time;
+		f64 total_update_time = 0;
+		game_state->current_time = new_time;
+
+		if (frame_time > 1) {
+			frame_time = game_state->dt;
+		}
+
+		u32 physics_iterations = 0;
+		game_state->accumulator += frame_time;
+		while (game_state->accumulator > 0) {
+			PollInputEvents();
+			quit |= WindowShouldClose();
+
+			struct input input = input_handle(game_state);
+
+			f64 update_time = GetTime();
+
+			// Slow motion
+			game_state->vars.slow_motion = input.devices[0].buttons[IDBT_BUTTON_TRIGGER_LEFT].down;
+			if (game_state->vars.slow_motion) {
+				game_state->dt = dt * (game_state->vars.slow_motion ? 0.1 : 1);
+			} else {
+				game_state->dt = dt;
+			}
+			game_state->time += game_state->dt;
+
+			// Update game logic
+			update(game_state, &input);
+
+			total_update_time += GetTime() - update_time;
+
+			game_state->accumulator -= dt;
+
+			physics_iterations++;
+			game_state->physics_updates++;
+		}
+
+		game_state->frame_updates++;
+
+		if (physics_iterations > 0) {
+			layers_debug_queue_draw_text(game_state->layer_debug,
+										 TextFormat("Update time: %0.6f",
+													total_update_time / physics_iterations));
+			layers_debug_queue_draw_text(game_state->layer_debug,
+										 TextFormat("Physics/frame: %2d", physics_iterations));
+			layers_debug_queue_draw_text(game_state->layer_debug,
+										 TextFormat("Physics: %12d", game_state->physics_updates));
+			layers_debug_queue_draw_text(game_state->layer_debug,
+										 TextFormat("Frame: %14d", game_state->frame_updates));
+			layers_debug_queue_draw_text(game_state->layer_debug,
+										 TextFormat("FPS: %3.0f", 1 / frame_time));
+		}
 	}
-    } else {
-	// Update game
-	f64 new_time = GetTime();
-	f64 frame_time = new_time - game_state->current_time;
-	f64 total_update_time = 0;
-	game_state->current_time = new_time;
 
-	if (frame_time > 1) {
-	    frame_time = game_state->dt;
-	}
+	// Draw game
+	draw(game_state);
 
-	u32 physics_iterations = 0;
-	game_state->accumulator += frame_time;
-	while (game_state->accumulator > 0) {
-	    PollInputEvents();
-	    quit |= WindowShouldClose();
-
-	    struct input input = input_handle(game_state);
-
-	    f64 update_time = GetTime();
-
-	    // Slow motion
-	    game_state->vars.slow_motion = input.devices[0].buttons[IDBT_BUTTON_TRIGGER_LEFT].down;
-	    if (game_state->vars.slow_motion) {
-		game_state->dt = dt * (game_state->vars.slow_motion ? 0.1 : 1);
-	    } else {
-		game_state->dt = dt;
-	    }
-	    game_state->time += game_state->dt;
-
-	    // Update game logic
-	    update(game_state, &input);
-
-	    total_update_time += GetTime() - update_time;
-
-	    game_state->accumulator -= dt;
-
-	    physics_iterations++;
-	    game_state->physics_updates++;
-	}
-
-	game_state->frame_updates++;
-
-	if (physics_iterations > 0) {
-	    layers_debug_queue_draw_text(game_state->layer_debug,
-					 TextFormat("Update time: %0.6f",
-						    total_update_time / physics_iterations));
-	    layers_debug_queue_draw_text(game_state->layer_debug,
-					 TextFormat("Physics/frame: %2d", physics_iterations));
-	    layers_debug_queue_draw_text(game_state->layer_debug,
-					 TextFormat("Physics: %12d", game_state->physics_updates));
-	    layers_debug_queue_draw_text(game_state->layer_debug,
-					 TextFormat("Frame: %14d", game_state->frame_updates));
-	    layers_debug_queue_draw_text(game_state->layer_debug,
-					 TextFormat("FPS: %3.0f", 1 / frame_time));
-	}
-    }
-
-    // Draw game
-    draw(game_state);
-
-    return quit;
+	return quit;
 }
 
 void update(struct game_state *game_state, struct input *input)
 {
-    // These should be reset every update
-    memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
-    layers_debug_reset(game_state->layer_debug);
+	// These should be reset every update
+	memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
+	layers_debug_reset(game_state->layer_debug);
 
-    if (IsKeyReleased(KEY_P)) {
-	game_state->vars.is_tweakui_shown = true;
-    }
-    if (IsKeyReleased(KEY_C)) {
-	game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
-    }
+	if (IsKeyReleased(KEY_P)) {
+		game_state->vars.is_tweakui_shown = true;
+	}
+	if (IsKeyReleased(KEY_C)) {
+		game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
+	}
 
-    systems_controls(game_state, input);
-    systems_goalie(game_state);
-    systems_player_collisions(game_state);
-    systems_player_control_human(game_state, input);
-    systems_player_control_ai(game_state);
-    systems_player_on_the_ball(game_state);
-    systems_player_physics(game_state);
-    systems_player_selection(game_state, input);
-    systems_ball(game_state, input);
-    systems_goal(game_state);
-    systems_action(game_state);
-    systems_camera(game_state);
+	systems_controls(game_state, input);
+	systems_goalie(game_state);
+	systems_player_collisions(game_state);
+	systems_player_control_human(game_state, input);
+	systems_player_control_ai(game_state);
+	systems_player_on_the_ball(game_state);
+	systems_player_physics(game_state);
+	systems_player_selection(game_state, input);
+	systems_ball(game_state, input);
+	systems_goal(game_state);
+	systems_action(game_state);
+	systems_camera(game_state);
 }
 
 void draw(struct game_state *game_state)
 {
-    assert(game_state->initialised);
+	assert(game_state->initialised);
 
-    memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
+	memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 
-    struct component_transform *camera_transform =
-	&entities_entity_get(game_state->entity_repository, game_state->vars.camera_entity_id)
-	     ->transform;
+	struct component_transform *camera_transform =
+		&entities_entity_get(game_state->entity_repository, game_state->vars.camera_entity_id)
+			 ->transform;
 
-    // Round virtual space coordinates, keep decimals into screen space coordinates
-    f32 virtual_ratio =
-	(f32)game_state->config.screen_width / (f32)game_state->config.virtual_screen_width;
+	// Round virtual space coordinates, keep decimals into screen space coordinates
+	f32 virtual_ratio =
+		(f32)game_state->config.screen_width / (f32)game_state->config.virtual_screen_width;
 
-    game_state->virtual_camera.target.x = (u64)camera_transform->position.x;
-    game_state->camera.target.x =
-	camera_transform->position.x - game_state->virtual_camera.target.x;
-    game_state->camera.target.x *= virtual_ratio;
+	game_state->virtual_camera.target.x = (u64)camera_transform->position.x;
+	game_state->camera.target.x =
+		camera_transform->position.x - game_state->virtual_camera.target.x;
+	game_state->camera.target.x *= virtual_ratio;
 
-    game_state->virtual_camera.target.y = (u64)camera_transform->position.y;
-    game_state->camera.target.y =
-	camera_transform->position.y - game_state->virtual_camera.target.y;
-    game_state->camera.target.y *= virtual_ratio;
+	game_state->virtual_camera.target.y = (u64)camera_transform->position.y;
+	game_state->camera.target.y =
+		camera_transform->position.y - game_state->virtual_camera.target.y;
+	game_state->camera.target.y *= virtual_ratio;
 
-    texture_t pitch_texture =
-	assets_texture_get_by_id(game_state->assets.texture_cache, game_state->pitch_texture_id)
-	    ->texture;
+	texture_t pitch_texture =
+		assets_texture_get_by_id(game_state->assets.texture_cache, game_state->pitch_texture_id)
+			->texture;
 
-    BeginTextureMode(game_state->render_texture);
-    ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
+	BeginTextureMode(game_state->render_texture);
+	ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
 
-    BeginMode2D(game_state->virtual_camera);
+	BeginMode2D(game_state->virtual_camera);
 
-    f32 stretched_width = pitch_texture.width * 1.0f;
-    f32 stretched_height = pitch_texture.height * 1.0f;
-    DrawTexturePro(
-	pitch_texture,
-	(rect_t){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
-	(rect_t){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
-	Vector2Zero(),
-	0,
-	WHITE);
+	f32 stretched_width = pitch_texture.width * 1.0f;
+	f32 stretched_height = pitch_texture.height * 1.0f;
+	DrawTexturePro(
+		pitch_texture,
+		(rect_t){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
+		(rect_t){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
+		Vector2Zero(),
+		0,
+		WHITE);
 
-    systems_render(game_state);
-    systems_render_hud(game_state);
-    systems_render_debug(game_state);
+	systems_render(game_state);
+	systems_render_hud(game_state);
+	systems_render_debug(game_state);
 
-    EndMode2D();
+	EndMode2D();
 
-    EndTextureMode();
+	EndTextureMode();
 
-    BeginDrawing();
-    ClearBackground(BLACK);
+	BeginDrawing();
+	ClearBackground(BLACK);
 
-    // The target's height is flipped (in the source Rectangle), due to OpenGL reasons
-    rect_t source_rec = {0.0f,
-			 0.0f,
-			 (float)game_state->render_texture.texture.width,
-			 -(float)game_state->render_texture.texture.height};
-    rect_t dest_rec = {-virtual_ratio,
-		       -virtual_ratio,
-		       game_state->config.screen_width + (virtual_ratio * 2),
-		       game_state->config.screen_height + (virtual_ratio * 2)};
+	// The target's height is flipped (in the source Rectangle), due to OpenGL reasons
+	rect_t source_rec = {0.0f,
+						 0.0f,
+						 (float)game_state->render_texture.texture.width,
+						 -(float)game_state->render_texture.texture.height};
+	rect_t dest_rec = {-virtual_ratio,
+					   -virtual_ratio,
+					   game_state->config.screen_width + (virtual_ratio * 2),
+					   game_state->config.screen_height + (virtual_ratio * 2)};
 
-    v2 origin = Vector2Zero();
+	v2 origin = Vector2Zero();
 
-    BeginMode2D(game_state->camera);
-    DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
-    EndMode2D();
+	BeginMode2D(game_state->camera);
+	DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
+	EndMode2D();
 
-    layers_hud_draw(game_state);
+	layers_hud_draw(game_state);
 
-    if (game_state->vars.is_debug_log_shown) {
-	layers_debug_draw(game_state->layer_debug, game_state);
-    }
+	if (game_state->vars.is_debug_log_shown) {
+		layers_debug_draw(game_state->layer_debug, game_state);
+	}
 
-    // Tweak UI
-    if (game_state->vars.is_tweakui_shown) {
-	tweakui_draw(game_state->tweakui, game_state);
-    }
+	// Tweak UI
+	if (game_state->vars.is_tweakui_shown) {
+		tweakui_draw(game_state->tweakui, game_state);
+	}
 
-    EndDrawing();
+	EndDrawing();
 }

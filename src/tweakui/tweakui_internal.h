@@ -4,8 +4,8 @@
 #include "types.h"
 
 struct tweakui {
-    b32 initialised;
-    v2 window_size;
+	b32 initialised;
+	v2 window_size;
 };
 
 #endif

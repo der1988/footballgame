@@ -17,61 +17,61 @@ memory_arena_handle_t *g_main_memory_arena = NULL;
 
 void setUp(void)
 {
-    int width = 800;
-    int height = 600;
-    InitWindow(width, height, "Test Entity Repos");
+	int width = 800;
+	int height = 600;
+	InitWindow(width, height, "Test Entity Repos");
 
-    SetTargetFPS(60);
+	SetTargetFPS(60);
 
-    g_memory = malloc(Megabytes(10));
+	g_memory = malloc(Megabytes(10));
 
-    g_main_memory_arena = memory_arena_create("main", g_memory, Megabytes(4));
+	g_main_memory_arena = memory_arena_create("main", g_memory, Megabytes(4));
 
-    struct assets assets = assets_load_everything(g_main_memory_arena);
+	struct assets assets = assets_load_everything(g_main_memory_arena);
 
-    struct game_config game_config =
-	(struct game_config){.screen_width = width, .screen_height = height};
+	struct game_config game_config =
+		(struct game_config){.screen_width = width, .screen_height = height};
 
-    g_game_state = game_play_init(game_config, assets, g_main_memory_arena);
+	g_game_state = game_play_init(game_config, assets, g_main_memory_arena);
 }
 
 void tearDown(void)
 {
-    game_play_destroy(g_game_state);
+	game_play_destroy(g_game_state);
 
-    memory_arena_destroy(g_main_memory_arena);
+	memory_arena_destroy(g_main_memory_arena);
 
-    free(g_memory);
+	free(g_memory);
 
-    CloseWindow();
+	CloseWindow();
 }
 
 void test_entity()
 {
-    struct entity_repository *entity_repo = g_game_state->entity_repository;
-    struct entity *entity =
-	entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
-    TEST_ASSERT_NOT_NULL(entity);
-    entity_id_t entity_id = entity->header.id;
+	struct entity_repository *entity_repo = g_game_state->entity_repository;
+	struct entity *entity =
+		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+	TEST_ASSERT_NOT_NULL(entity);
+	entity_id_t entity_id = entity->header.id;
 
-    entity = entities_entity_get(entity_repo, entity_id);
-    TEST_ASSERT_NOT_NULL(entity);
+	entity = entities_entity_get(entity_repo, entity_id);
+	TEST_ASSERT_NOT_NULL(entity);
 
-    TEST_ASSERT(entity->transform.header.enabled);
-    TEST_ASSERT(entity->physics.header.enabled);
-    TEST_ASSERT(entity->sprite.header.enabled);
+	TEST_ASSERT(entity->transform.header.enabled);
+	TEST_ASSERT(entity->physics.header.enabled);
+	TEST_ASSERT(entity->sprite.header.enabled);
 
-    entities_entity_destroy(entity_repo, entity_id);
+	entities_entity_destroy(entity_repo, entity_id);
 
-    entity = entities_entity_get(entity_repo, entity_id);
-    TEST_ASSERT(!entity->header.alive);
+	entity = entities_entity_get(entity_repo, entity_id);
+	TEST_ASSERT(!entity->header.alive);
 }
 
 int main()
 {
-    UNITY_BEGIN();
+	UNITY_BEGIN();
 
-    RUN_TEST(test_entity);
+	RUN_TEST(test_entity);
 
-    return UNITY_END();
+	return UNITY_END();
 }
