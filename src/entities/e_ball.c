@@ -198,6 +198,7 @@ void entities_ball_set_position_and_velocity(entity_id_t ball_entity_id,
 	struct component_transform *transform = &entity->transform;
 	transform->position = V3_TO_V2(pos);
 	transform->virtual_height = pos.y;
+	entity->physics3d.accel = Vector3Zero();
 	entity->physics3d.velocity = velocity;
 	entity->ball.future_bounce.available = false;
 	entity->ball.future_reachable.available = false;
