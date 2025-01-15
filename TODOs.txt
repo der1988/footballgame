@@ -97,6 +97,12 @@ v collider offset should reflect the direction the entity is facing
 v implement teams
 v implement player tripped animation
 v fixed ball bounces off incorrectly from south goal's posts
+* implement ball possession based on time on the ball, using last touch time
+  it's important to offer two information:
+  - whether the player is touching the ball in this frame
+  - whether the player is in possession of the ball, which means:
+    + being the last to touch the ball
+    + being near the ball
 * improve player ai
 * improve player selection system
 * support multiple human players
