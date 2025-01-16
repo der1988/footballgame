@@ -34,6 +34,10 @@ struct state_machine_player_normal_data {
 	enum sprite_orientation running_action_orientation;
 };
 
+struct state_machine_running_action_state {
+	running_action_idx_t running_action_idx;
+};
+
 struct state_machine_player_tackle_data {
 	time_t start_time;
 	b32 touched_ball;

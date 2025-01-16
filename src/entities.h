@@ -47,21 +47,6 @@ struct entities {
 	u32 length;
 };
 
-// START - Common
-
-struct state_machine_running_action_state {
-	running_action_idx_t running_action_idx;
-};
-
-enum sprite_orientation entities_common_calculate_orientation(v2 direction);
-
-b32 entities_common_can_reach_position_in_time(v2 current_position,
-											   v2 position_to_reach,
-											   time_t time,
-											   f32 max_speed);
-
-// END - Common
-
 // START - Camera
 
 struct entity *entities_camera_create(struct game_state *game_state);
