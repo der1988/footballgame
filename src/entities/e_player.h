@@ -127,10 +127,17 @@ define_state_machine_functions(goalie);
 		sprite->header.enabled && player->header.enabled && goalie->header.enabled &&              \
 		collider->header.enabled)
 
-struct ball_reachability_prediction {
+struct player_ball_reachability_prediction {
 	b32 can_reach_it;
 	v3 future_pos;
 	time_t future_time;
+};
+
+enum player_ball_possession {
+
+	PBP_ON_THE_BALL,
+	PBP_IN_POSSESSION,
+	PBP_OFF_THE_BALL
 };
 
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
@@ -162,9 +169,13 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 
 void entities_player_gained_possession(struct entity *player_entity, struct game_state *game_state);
 
+enum player_ball_possession entities_player_ball_possession(struct entity *player_entity,
+															struct entity *ball_entity,
+															struct game_state *game_state);
+
 void entities_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state);
 
-struct ball_reachability_prediction entities_player_can_reach_future_ball_position(
+struct player_ball_reachability_prediction entities_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
 	f32 seeker_max_speed,
 	v3 *future_ball_positions,

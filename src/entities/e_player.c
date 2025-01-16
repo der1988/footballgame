@@ -442,19 +442,34 @@ void entities_player_gained_possession(struct entity *player_entity, struct game
 	player_entity->player.last_possession_time = game_state->time;
 }
 
+enum player_ball_possession entities_player_ball_possession(struct entity *player_entity,
+															struct entity *ball_entity,
+															struct game_state *game_state)
+{
+	if (player_entity->header.id == ball_entity->ball.last_touch_entity_id) {
+		if (ball_entity->ball.last_touch_time == game_state->time) {
+			return PBP_ON_THE_BALL;
+		} else {
+			return PBP_IN_POSSESSION;
+		}
+	} else {
+		return PBP_OFF_THE_BALL;
+	}
+}
+
 void entities_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state)
 {
 	player_entity->player.last_selected_for_pass_time = game_state->time;
 }
 
-struct ball_reachability_prediction entities_player_can_reach_future_ball_position(
+struct player_ball_reachability_prediction entities_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
 	f32 seeker_max_speed,
 	v3 *future_ball_positions,
 	b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
 	struct game_state *game_state)
 {
-	struct ball_reachability_prediction prediction = {.can_reach_it = false};
+	struct player_ball_reachability_prediction prediction = {.can_reach_it = false};
 
 	const int steps_per_lookahead =
 		(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *

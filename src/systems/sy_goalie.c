@@ -151,7 +151,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				// Calculate whether goalie can reach the ball using predicted positions
 				// TODO: don't rush to the ball if possession is hostile
 
-				const struct ball_reachability_prediction prediction =
+				const struct player_ball_reachability_prediction prediction =
 					entities_player_can_reach_future_ball_position(entity,
 																   exit_max_speed,
 																   ball->lookahead_positions,

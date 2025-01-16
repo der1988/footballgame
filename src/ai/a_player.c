@@ -20,7 +20,9 @@ enum whos_on_the_ball {
 };
 
 enum whos_on_the_ball identify_whos_on_the_ball(struct entity *player_entity,
+												struct entity *ball_entity,
 												struct game_state *game_state);
+
 v2 get_target_position_based_on_tactics(struct entity *entity,
 										v2 ball_position,
 										struct game_state *game_state);
@@ -46,7 +48,8 @@ enum player_ai_state ai_player_think(struct entity *entity,
 	if (ball_in_keeper_hands) {
 		ai_state = PAS_KEEP_POSITION;
 	} else {
-		enum whos_on_the_ball whos_on_the_ball = identify_whos_on_the_ball(entity, game_state);
+		enum whos_on_the_ball whos_on_the_ball =
+			identify_whos_on_the_ball(entity, ball_entity, game_state);
 
 		switch (whos_on_the_ball) {
 		case WOTB_PLAYER: {
@@ -124,7 +127,7 @@ enum player_ai_state ai_player_think(struct entity *entity,
 			// This player is the target of an automatic pass
 			// Let's move towards the ball
 			if (ball->pass_target_entity_id == entity->header.id) {
-				struct ball_reachability_prediction prediction =
+				struct player_ball_reachability_prediction prediction =
 					entities_player_can_reach_future_ball_position(
 						entity,
 						game_state->constants.player_run_max_velocity,
@@ -145,7 +148,7 @@ enum player_ai_state ai_player_think(struct entity *entity,
 				ai_state = PAS_ARRIVE_TO_POSITION;
 			} else if (game_state->vars.player_nearest_to_the_ball[entity->player.team_side] ==
 					   entity->header.id) {
-				struct ball_reachability_prediction prediction =
+				struct player_ball_reachability_prediction prediction =
 					entities_player_can_reach_future_ball_position(
 						entity,
 						game_state->constants.player_run_max_velocity,
@@ -175,9 +178,13 @@ enum player_ai_state ai_player_think(struct entity *entity,
 }
 
 enum whos_on_the_ball identify_whos_on_the_ball(struct entity *player_entity,
+												struct entity *ball_entity,
 												struct game_state *game_state)
 {
-	if (game_state->vars.player_on_the_ball_entity_id == player_entity->header.id) {
+	enum player_ball_possession player_ball_possession =
+		entities_player_ball_possession(player_entity, ball_entity, game_state);
+
+	if (player_ball_possession == PBP_ON_THE_BALL || player_ball_possession == PBP_IN_POSSESSION) {
 		return WOTB_PLAYER;
 	} else if (game_state->vars.player_on_the_ball_entity_id == EID_NOT_VALID) {
 		return WOTB_NO_ONE;
