@@ -188,10 +188,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			// Run force
 			const v2 force_to_apply = Vector2Scale(steering, force);
 
-			entities_player_apply_force(entity_id, force_to_apply, game_state);
-			entities_player_apply_velocity(entity_id, game_state);
+			entities_player_apply_force(entity, force_to_apply, game_state);
+			entities_player_apply_velocity(entity, game_state);
 
-			entities_player_calculate_running_frame(entity_id,
+			entities_player_calculate_running_frame(entity,
 													Vector2Subtract(ball_transform->position,
 																	transform->position),
 													5,
@@ -408,8 +408,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
 				force_to_apply = Vector2Scale(steering, 60000);
 			}
-			entities_player_apply_force(entity_id, force_to_apply, game_state);
-			entities_player_apply_velocity(entity_id, game_state);
+			entities_player_apply_force(entity, force_to_apply, game_state);
+			entities_player_apply_velocity(entity, game_state);
 
 			const b32 is_colliding_with_ball = entities_player_is_colliding_with_ball(
 				entity,

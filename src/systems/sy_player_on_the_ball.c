@@ -88,7 +88,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			player->last_kick_time = game_state->time;
 			v3 pass_direction;
 			struct entity *teammate_entity =
-				entities_player_find_pass_target(game_state, player_entity, 30, 300);
+				entities_player_find_pass_target(player_entity, 30, 300, game_state);
 			f32 power = player_controls->pass;
 			b32 automatic_pass = teammate_entity != NULL && player_controls->automatic_pass;
 			if (automatic_pass) {

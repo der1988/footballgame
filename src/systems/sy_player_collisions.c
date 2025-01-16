@@ -20,6 +20,7 @@ void systems_player_collisions(struct game_state *game_state)
 	UNUSED(ball_physics_3d);
 
 	game_state->vars.player_on_the_ball_entity_id = EID_NOT_VALID;
+	struct entity *player_on_the_ball_entity = NULL;
 
 	f32 min_distance_from_the_ball_possession = UINT32_MAX;
 	f32 min_distance_from_the_ball[TS_COUNT] = {UINT32_MAX, UINT32_MAX};
@@ -58,7 +59,7 @@ void systems_player_collisions(struct game_state *game_state)
 			if (is_colliding_with_ball &&
 				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f)) {
 				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
-					game_state->vars.player_on_the_ball_entity_id = entity_id;
+					player_on_the_ball_entity = entity;
 					min_distance_from_the_ball_possession = distance_from_the_ball;
 
 					ball->pass_target_entity_id = EID_NOT_VALID;
@@ -88,7 +89,7 @@ void systems_player_collisions(struct game_state *game_state)
 			if (is_colliding_with_ball) {
 				player->is_colliding_with_ball = true;
 			}
-			struct entities entities = entities_player_find_tackled_opponents(game_state, entity);
+			struct entities entities = entities_player_find_tackled_opponents(entity, game_state);
 			for (usize i = 0; i < entities.length; ++i) {
 				entities_player_state_machine_change_state_to(
 					entities.array[i]->player.state_machine, PS_FALL, game_state);
@@ -110,8 +111,8 @@ void systems_player_collisions(struct game_state *game_state)
 		}
 	}
 
-	if (game_state->vars.player_on_the_ball_entity_id != EID_NOT_VALID) {
-		entities_player_gained_possession(game_state->vars.player_on_the_ball_entity_id,
-										  game_state);
+	if (player_on_the_ball_entity) {
+		game_state->vars.player_on_the_ball_entity_id = player_on_the_ball_entity->header.id;
+		entities_player_gained_possession(player_on_the_ball_entity, game_state);
 	}
 }

@@ -147,12 +147,11 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	return entity;
 }
 
-void entities_player_apply_force(entity_id_t player_entity_id,
+void entities_player_apply_force(struct entity *player_entity,
 								 Vector2 force_to_apply,
 								 struct game_state *game_state)
 {
-	struct component_physics *physics =
-		&entities_entity_get(game_state->entity_repository, player_entity_id)->physics;
+	struct component_physics *physics = &player_entity->physics;
 
 	physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
@@ -164,24 +163,22 @@ void entities_player_apply_force(entity_id_t player_entity_id,
 	}
 }
 
-void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state)
+void entities_player_apply_velocity(struct entity *player_entity, struct game_state *game_state)
 {
-	struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-	struct component_physics *physics = &entity->physics;
-	struct component_transform *transform = &entity->transform;
+	struct component_physics *physics = &player_entity->physics;
+	struct component_transform *transform = &player_entity->transform;
 	transform->position =
 		Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
 }
 
-void entities_player_calculate_running_frame(entity_id_t player_entity_id,
+void entities_player_calculate_running_frame(struct entity *player_entity,
 											 v2 direction,
 											 f32 velocity_threshold,
 											 struct game_state *game_state)
 {
-	struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-	struct component_physics *physics = &entity->physics;
-	struct component_player *player = &entity->player;
-	struct component_sprite *sprite = &entity->sprite;
+	struct component_physics *physics = &player_entity->physics;
+	struct component_player *player = &player_entity->player;
+	struct component_sprite *sprite = &player_entity->sprite;
 
 	f32 player_speed = Vector2Length(physics->velocity);
 	if (Vector2Length(physics->velocity) > velocity_threshold) {
@@ -440,16 +437,14 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 	return should_dive;
 }
 
-void entities_player_gained_possession(entity_id_t player_entity_id, struct game_state *game_state)
+void entities_player_gained_possession(struct entity *player_entity, struct game_state *game_state)
 {
-	struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-	entity->player.last_possession_time = game_state->time;
+	player_entity->player.last_possession_time = game_state->time;
 }
 
-void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game_state *game_state)
+void entities_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state)
 {
-	struct entity *entity = entities_entity_get(game_state->entity_repository, player_entity_id);
-	entity->player.last_selected_for_pass_time = game_state->time;
+	player_entity->player.last_selected_for_pass_time = game_state->time;
 }
 
 struct ball_reachability_prediction entities_player_can_reach_future_ball_position(
@@ -483,10 +478,10 @@ struct ball_reachability_prediction entities_player_can_reach_future_ball_positi
 	return prediction;
 }
 
-struct entity *entities_player_find_pass_target(struct game_state *game_state,
-												struct entity *player_on_the_ball_entity,
+struct entity *entities_player_find_pass_target(struct entity *player_on_the_ball_entity,
 												f32 detection_angle,
-												f32 max_distance)
+												f32 max_distance,
+												struct game_state *game_state)
 {
 	b32 is_player_human_controlled = false;
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
@@ -549,7 +544,7 @@ struct entity *entities_player_find_pass_target(struct game_state *game_state,
 		}
 	}
 	if (selected_entity != NULL) {
-		entities_player_selected_for_pass(selected_entity->header.id, game_state);
+		entities_player_selected_for_pass(selected_entity, game_state);
 		GLOGF_TRACE(LS_GAME,
 					"selected pass target %zu with score %.2f",
 					selected_entity->header.id,
@@ -558,10 +553,10 @@ struct entity *entities_player_find_pass_target(struct game_state *game_state,
 	return selected_entity;
 }
 
-entity_id_t entities_player_find_nearest_teammate(struct game_state *game_state,
-												  entity_id_t player_to_not_select_entity_id,
+entity_id_t entities_player_find_nearest_teammate(entity_id_t player_to_not_select_entity_id,
 												  v2 position,
-												  enum team_side team_side)
+												  enum team_side team_side,
+												  struct game_state *game_state)
 {
 	struct entity *ball_entity =
 		entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
@@ -596,8 +591,8 @@ entity_id_t entities_player_find_nearest_teammate(struct game_state *game_state,
 	return selected_entity_id;
 }
 
-struct entity *entities_player_find_nearest_facing_opponent(struct game_state *game_state,
-															struct entity *player_entity)
+struct entity *entities_player_find_nearest_facing_opponent(struct entity *player_entity,
+															struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *opponent_entity;
@@ -625,8 +620,8 @@ struct entity *entities_player_find_nearest_facing_opponent(struct game_state *g
 	return NULL;
 }
 
-struct entities entities_player_find_tackled_opponents(struct game_state *game_state,
-													   struct entity *player_entity)
+struct entities entities_player_find_tackled_opponents(struct entity *player_entity,
+													   struct game_state *game_state)
 {
 	const u8 max_tackled_players = 3;
 	struct entities tackled_players = {

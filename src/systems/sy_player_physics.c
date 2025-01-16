@@ -90,11 +90,11 @@ void systems_player_physics(struct game_state *game_state)
 				player->current_max_velocity *
 				(game_state->vars.player_on_the_ball_entity_id == entity_id ? 1 : 1.1f);
 
-			entities_player_apply_force(entity_id, force_to_apply, game_state);
-			entities_player_apply_velocity(entity_id, game_state);
+			entities_player_apply_force(entity, force_to_apply, game_state);
+			entities_player_apply_velocity(entity, game_state);
 
 			// Calculate frame to display
-			entities_player_calculate_running_frame(entity_id, physics->velocity, 3, game_state);
+			entities_player_calculate_running_frame(entity, physics->velocity, 3, game_state);
 
 			break;
 		}
@@ -120,8 +120,8 @@ void systems_player_physics(struct game_state *game_state)
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;
 
-			entities_player_apply_force(entity_id, force_to_apply, game_state);
-			entities_player_apply_velocity(entity_id, game_state);
+			entities_player_apply_force(entity, force_to_apply, game_state);
+			entities_player_apply_velocity(entity, game_state);
 
 			if (player->is_colliding_with_ball) {
 				entities_ball_tackle(game_state->vars.ball_entity_id,
@@ -166,8 +166,8 @@ void systems_player_physics(struct game_state *game_state)
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;
 
-			entities_player_apply_force(entity_id, force_to_apply, game_state);
-			entities_player_apply_velocity(entity_id, game_state);
+			entities_player_apply_force(entity, force_to_apply, game_state);
+			entities_player_apply_velocity(entity, game_state);
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {

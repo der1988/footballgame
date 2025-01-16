@@ -131,18 +131,18 @@ struct ball_reachability_prediction {
 
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
 
-void entities_player_apply_force(entity_id_t player_entity_id,
+void entities_player_apply_force(struct entity *player_entity,
 								 Vector2 steering,
 								 struct game_state *game_state);
 
-void entities_player_apply_velocity(entity_id_t player_entity_id, struct game_state *game_state);
+void entities_player_apply_velocity(struct entity *player_entity, struct game_state *game_state);
 
-void entities_player_calculate_running_frame(entity_id_t player_entity_id,
+void entities_player_calculate_running_frame(struct entity *player_entity,
 											 v2 direction,
 											 f32 velocity_threshold,
 											 struct game_state *game_state);
 
-b32 entities_player_is_colliding_with_ball(struct entity *entity,
+b32 entities_player_is_colliding_with_ball(struct entity *player_entity,
 										   enum player_collider_type collider_type,
 										   v3 ball_position,
 										   f32 ball_radius,
@@ -156,9 +156,9 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 								f32 *dive_distance,
 								struct game_state *game_state);
 
-void entities_player_gained_possession(entity_id_t player_entity_id, struct game_state *game_state);
+void entities_player_gained_possession(struct entity *player_entity, struct game_state *game_state);
 
-void entities_player_selected_for_pass(entity_id_t player_entity_id, struct game_state *game_state);
+void entities_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state);
 
 struct ball_reachability_prediction entities_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
@@ -167,20 +167,20 @@ struct ball_reachability_prediction entities_player_can_reach_future_ball_positi
 	b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
 	struct game_state *game_state);
 
-struct entity *entities_player_find_pass_target(struct game_state *game_state,
-												struct entity *player_on_the_ball_entity,
+struct entity *entities_player_find_pass_target(struct entity *player_on_the_ball_entity,
 												f32 detection_angle,
-												f32 max_distance);
+												f32 max_distance,
+												struct game_state *game_state);
 
-entity_id_t entities_player_find_nearest_teammate(struct game_state *game_state,
-												  entity_id_t player_to_not_select_entity_id,
+entity_id_t entities_player_find_nearest_teammate(entity_id_t player_to_not_select_entity_id,
 												  v2 position,
-												  enum team_side team_side);
+												  enum team_side team_side,
+												  struct game_state *game_state);
 
-struct entity *entities_player_find_nearest_facing_opponent(struct game_state *game_state,
-															struct entity *player_entity);
+struct entity *entities_player_find_nearest_facing_opponent(struct entity *player_entity,
+															struct game_state *game_state);
 
-struct entities entities_player_find_tackled_opponents(struct game_state *game_state,
-													   struct entity *player_entity);
+struct entities entities_player_find_tackled_opponents(struct entity *player_entity,
+													   struct game_state *game_state);
 
 #endif // !ENTITIES_PLAYER_H
