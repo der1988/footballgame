@@ -39,10 +39,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 									 game_state->human_players[0].controlled_player_entity_id)
 					 ->transform;
 			entities_ball_set_position_and_velocity(
-				entity_id,
+				entity,
 				V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
-				Vector3Zero(),
-				game_state);
+				Vector3Zero());
 			football_match_change_state(game_state, MS_PLAY);
 			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
@@ -51,10 +50,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		// Test cross-bar
 		if (input->devices[0].buttons[IDBT_BUTTON_DPAD_DOWN].released) {
 			entities_ball_set_position_and_velocity(
-				entity_id,
+				entity,
 				(v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
-				Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f),
-				game_state);
+				Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f));
 			football_match_change_state(game_state, MS_PLAY);
 			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
@@ -63,10 +61,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		// Test cross
 		if (input->devices[0].buttons[IDBT_BUTTON_DPAD_UP].released) {
 			entities_ball_set_position_and_velocity(
-				entity_id,
+				entity,
 				(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
-				Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f),
-				game_state);
+				Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f));
 			football_match_change_state(game_state, MS_PLAY);
 			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
@@ -75,10 +72,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		// Test post
 		if (input->devices[0].buttons[IDBT_BUTTON_DPAD_RIGHT].released) {
 			entities_ball_set_position_and_velocity(
-				entity_id,
+				entity,
 				(v3){.x = game_state->vars.pitch.field.x + 358.6, .z = 300},
-				Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f),
-				game_state);
+				Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f));
 			football_match_change_state(game_state, MS_PLAY);
 			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
@@ -87,12 +83,11 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		// Test goalie jump
 		if (input->devices[0].buttons[IDBT_BUTTON_DPAD_LEFT].released) {
 			entities_ball_set_position_and_velocity(
-				entity_id,
+				entity,
 				(v3){.x = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.x,
 					 .y = 200,
 					 .z = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.y},
-				Vector3Zero(),
-				game_state);
+				Vector3Zero());
 			football_match_change_state(game_state, MS_PLAY);
 			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;

@@ -45,7 +45,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			if (deviate_trajectory) {
 				printf("deviating trajectory\n");
 				entities_ball_deviate_trajectory(
-					game_state->vars.ball_entity_id, player_on_the_ball_entity_id, game_state);
+					ball_entity, player_on_the_ball_entity_id, game_state);
 			}
 			return;
 		}
@@ -76,7 +76,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			} else if (angle < -max_angle) {
 				shot_direction = Vector2Normalize(Vector2Rotate(player_velocity, -max_angle));
 			}
-			entities_ball_shoot(game_state->vars.ball_entity_id,
+			entities_ball_shoot(ball_entity,
 								player_on_the_ball_entity_id,
 								shot_direction,
 								shot_height,
@@ -100,7 +100,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			} else {
 				pass_direction = Vector3Normalize(V2_TO_V3(player_controls->steering, 0));
 			}
-			entities_ball_short_pass(game_state->vars.ball_entity_id,
+			entities_ball_short_pass(ball_entity,
 									 player_on_the_ball_entity_id,
 									 pass_direction,
 									 power,
@@ -119,7 +119,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			} else if (angle < -max_angle) {
 				long_pass_direction = Vector2Normalize(Vector2Rotate(player_velocity, -max_angle));
 			}
-			entities_ball_long_pass(game_state->vars.ball_entity_id,
+			entities_ball_long_pass(ball_entity,
 									player_on_the_ball_entity_id,
 									long_pass_direction,
 									player_controls->long_pass,
@@ -188,7 +188,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// This threshold should depend on player quality.
 				// If difficulty is higher than the threshold the player will likely lose the ball.
 				if (control_difficulty < 0.7f)
-					entities_ball_control_precision(game_state->vars.ball_entity_id,
+					entities_ball_control_precision(ball_entity,
 													player_on_the_ball_entity_id,
 													player_velocity,
 													position_to_seek,
@@ -233,7 +233,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				f32 control_difficulty =
 					(speed_mult * 1 + ball_height_mult * 1 + player_quality_mult * 1) / 3.0f;
 
-				entities_ball_control_running(game_state->vars.ball_entity_id,
+				entities_ball_control_running(ball_entity,
 											  player_on_the_ball_entity_id,
 											  control_direction,
 											  player_velocity,

@@ -124,7 +124,7 @@ void systems_player_physics(struct game_state *game_state)
 			entities_player_apply_velocity(entity, game_state);
 
 			if (player->is_colliding_with_ball) {
-				entities_ball_tackle(game_state->vars.ball_entity_id,
+				entities_ball_tackle(ball_entity,
 									 entity_id,
 									 V2_TO_V3(Vector2Normalize(physics->velocity), 0),
 									 Vector2Length(physics->velocity) / physics->max_velocity,

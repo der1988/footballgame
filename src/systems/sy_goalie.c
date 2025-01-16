@@ -75,8 +75,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 				if (hold) {
 					// hold ball in hands
-					entities_ball_held_by_goalie(
-						game_state->vars.ball_entity_id, entity_id, game_state);
+					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
 					entities_goalie_state_machine_change_state_to(
 						goalie->state_machine, GS_HOLD_BALL, game_state);
 
@@ -101,12 +100,9 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 							game_state->constants.crossbar_height);
 					}
 
-					entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-															where_to_place_ball,
-															Vector3Scale(new_ball_velocity, 0.3f),
-															game_state);
-					entities_ball_saved_by_goalie(
-						game_state->vars.ball_entity_id, entity_id, game_state);
+					entities_ball_set_position_and_velocity(
+						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
+					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
 
 					// TODO: we should play some animation here and maybe transition to some stunned state
 				}
@@ -276,8 +272,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				jump_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
 
 				if (jump_state_data->ball_held) {
-					entities_ball_held_by_goalie(
-						game_state->vars.ball_entity_id, entity_id, game_state);
+					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
 					printf("ball held\n");
 				} else {
 					// Bounce ball
@@ -302,13 +297,11 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 							game_state->constants.crossbar_height - ball_radius);
 					}
 
-					entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
+					entities_ball_set_position_and_velocity(ball_entity,
 															where_to_place_ball,
 															Vector3Scale(new_ball_velocity,
-																		 10 * PIXELS_PER_METER),
-															game_state);
-					entities_ball_saved_by_goalie(
-						game_state->vars.ball_entity_id, entity_id, game_state);
+																		 10 * PIXELS_PER_METER));
+					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
 					printf("ball saved\n");
 				}
 
@@ -331,19 +324,16 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 								 1)) {
 				break;
 			}
-			entities_ball_back_in_play(game_state->vars.ball_entity_id, game_state);
+			entities_ball_back_in_play(ball_entity, game_state);
 			i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
 			const v2 new_ball_position = Vector2Add(
 				transform->position,
 				Vector2Scale((v2){.y = direction},
 							 goalie_collider->props.circle.offset.y +
 								 goalie_collider->props.circle.radius + ball_radius + 7));
-			entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-													V2_TO_V3(new_ball_position, 10),
-													Vector3Zero(),
-													game_state);
-			entities_ball_long_pass(
-				game_state->vars.ball_entity_id, entity_id, (v2){.y = direction}, 0.7f, game_state);
+			entities_ball_set_position_and_velocity(
+				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
+			entities_ball_long_pass(ball_entity, entity_id, (v2){.y = direction}, 0.7f, game_state);
 			entities_goalie_state_machine_change_state_to(
 				goalie->state_machine, GS_PROTECT_GOAL, game_state);
 			break;
@@ -437,8 +427,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				// TODO: if the ball hits the post and comes back we don't want to hold
 				// the ball
 				if (dive_state_data->ball_held) {
-					entities_ball_held_by_goalie(
-						game_state->vars.ball_entity_id, entity_id, game_state);
+					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
 				} else {
 					// Bounce ball
 					v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
@@ -463,12 +452,9 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 							game_state->constants.crossbar_height - ball_radius);
 					}
 
-					entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-															where_to_place_ball,
-															Vector3Scale(new_ball_velocity, 0.3f),
-															game_state);
-					entities_ball_saved_by_goalie(
-						game_state->vars.ball_entity_id, entity_id, game_state);
+					entities_ball_set_position_and_velocity(
+						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
+					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
 				}
 
 				goalie->last_save_time = game_state->time;

@@ -16,10 +16,10 @@ void football_match_change_state(struct game_state *game_state, enum match_state
 			entities_entity_get(game_state->entity_repository,
 								game_state->human_players[0].controlled_player_entity_id);
 		struct component_transform *transform = &entity->transform;
-		entities_ball_set_position_and_velocity(game_state->vars.ball_entity_id,
-												V2_TO_V3(transform->position, 30),
-												Vector3Zero(),
-												game_state);
+		struct entity *ball_entity =
+			entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+		entities_ball_set_position_and_velocity(
+			ball_entity, V2_TO_V3(transform->position, 30), Vector3Zero());
 		game_state->vars.match.state = MS_PLAY;
 		break;
 	}
