@@ -1,3 +1,4 @@
+#include "e_ball.h"
 #include "e_player.h"
 #include "entities.h"
 #include "game.h"
@@ -5,6 +6,7 @@
 #include "math_ext.h"
 #include "constants.h"
 #include "physics.h"
+#include "types.h"
 #include <stdio.h>
 
 static b32 protect_goal_predicate(v3 pos_to_check,
@@ -57,6 +59,11 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			game_state->constants.player_control_radius;
 		struct collider *goalie_collider = &collider->colliders[PCT_GOALIE];
 
+		entity_id_t player_in_possession_entity_id =
+			entities_ball_player_in_possession(ball_entity, game_state);
+		struct entity *player_in_possession_entity =
+			entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
+
 		switch (state_machine->current_state) {
 		case GS_NONE:
 			break;
@@ -74,12 +81,13 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				const b32 hold = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
 
 				if (hold) {
-					// hold ball in hands
+					// Hold ball in hands
 					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
 					entities_goalie_state_machine_change_state_to(
 						goalie->state_machine, GS_HOLD_BALL, game_state);
 
 				} else {
+					// Bounce ball
 					v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
 
 					// Project ball position back in the past using current velocity until it's not colliding anymore
@@ -128,56 +136,77 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				break;
 			}
 
-			// Calculate whether goalie can reach the ball at its next reachable position
-			const b32 should_seek_ball_at_reachable_pos =
-				!ball->is_on_the_ground && ball->future_reachable.available &&
-				physics_can_reach_position_in_time(transform->position,
-												   V3_TO_V2(ball->future_reachable.position),
-												   game_state->dt * ball->future_bounce.dts,
-												   exit_max_speed) &&
-				football_pitch_is_position_inside_penalty_area(
-					V3_TO_V2(ball->future_reachable.position), pitch_side, game_state);
-
-			if (should_seek_ball_at_reachable_pos) {
-				// seek ball future bounce position
-				physics->max_velocity = exit_max_speed;
-				force = game_state->constants.player_movement_force * 2;
-
-				destination = V3_TO_V2(ball->future_reachable.position);
-				direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
+			if (player_in_possession_entity_id != EID_NOT_VALID &&
+				player_in_possession_entity->player.team_side != entity->player.team_side) {
+				// Opponent has the ball: let's protect goal
+				physics->max_velocity = game_state->constants.player_run_max_velocity;
+				force = game_state->constants.player_movement_force;
+				direction =
+					Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
+				destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
 				steering = steering_arrive(
 					transform->position, physics->velocity, physics->max_velocity, destination, 10);
+
 			} else {
-				// Calculate whether goalie can reach the ball using predicted positions
-				// TODO: don't rush to the ball if possession is hostile
+				// Calculate whether goalie can reach the ball at its next reachable position
+				const b32 should_seek_ball_at_reachable_pos =
+					!ball->is_on_the_ground && ball->future_reachable.available &&
+					physics_can_reach_position_in_time(transform->position,
+													   V3_TO_V2(ball->future_reachable.position),
+													   game_state->dt * ball->future_bounce.dts,
+													   exit_max_speed) &&
+					football_pitch_is_position_inside_penalty_area(
+						V3_TO_V2(ball->future_reachable.position), pitch_side, game_state);
 
-				const struct player_ball_reachability_prediction prediction =
-					entities_player_can_reach_future_ball_position(entity,
-																   exit_max_speed,
-																   ball->lookahead_positions,
-																   protect_goal_predicate,
-																   game_state);
-
-				if (prediction.can_reach_it) {
+				if (should_seek_ball_at_reachable_pos) {
+					// seek ball future bounce position
 					physics->max_velocity = exit_max_speed;
-					force = game_state->constants.player_movement_force * 1;
+					force = game_state->constants.player_movement_force * 2;
 
-					destination = V3_TO_V2(prediction.future_pos);
+					destination = V3_TO_V2(ball->future_reachable.position);
 					direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
-					steering = steering_seek(
-						transform->position, physics->velocity, physics->max_velocity, destination);
-				} else {
-					// ball isn't within reach, let's protect goal
-					physics->max_velocity = game_state->constants.player_run_max_velocity;
-					force = game_state->constants.player_movement_force;
-					direction =
-						Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
-					destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
 					steering = steering_arrive(transform->position,
 											   physics->velocity,
 											   physics->max_velocity,
 											   destination,
 											   10);
+				} else {
+					// Calculate whether goalie can reach the ball using predicted positions
+					const b32 is_opponent_in_possession =
+						player_in_possession_entity_id != EID_NOT_VALID &&
+						player_in_possession_entity->player.team_side != entity->player.team_side;
+
+					const struct player_ball_reachability_prediction prediction =
+						entities_player_can_reach_future_ball_position(entity,
+																	   exit_max_speed,
+																	   ball->lookahead_positions,
+																	   protect_goal_predicate,
+																	   game_state);
+
+					if (prediction.can_reach_it && !is_opponent_in_possession) {
+						physics->max_velocity = exit_max_speed;
+						force = game_state->constants.player_movement_force * 1;
+
+						destination = V3_TO_V2(prediction.future_pos);
+						direction =
+							Vector2Normalize(Vector2Subtract(destination, transform->position));
+						steering = steering_seek(transform->position,
+												 physics->velocity,
+												 physics->max_velocity,
+												 destination);
+					} else {
+						// ball isn't within reach, let's protect goal
+						physics->max_velocity = game_state->constants.player_run_max_velocity;
+						force = game_state->constants.player_movement_force;
+						direction = Vector2Normalize(
+							Vector2Subtract(ball_transform->position, goal_center));
+						destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
+						steering = steering_arrive(transform->position,
+												   physics->velocity,
+												   physics->max_velocity,
+												   destination,
+												   10);
+					}
 				}
 			}
 
