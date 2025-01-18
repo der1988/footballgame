@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include <string.h>
 #include "game.h"
 
@@ -238,7 +239,6 @@ void entities_ball_control_running(struct entity *ball_entity,
 {
 	struct component_transform *transform = &ball_entity->transform;
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
-	struct component_ball *ball = &ball_entity->ball;
 
 	f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
 	v3 velocity_to_add = Vector3Scale(
@@ -438,7 +438,7 @@ entity_id_t entities_ball_player_in_possession(struct entity *ball_entity,
 	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
 		HAS_TIME_PASSED(
 			game_state->time, ball_entity->ball.last_player_possession_change_time, 0.2f) &&
-		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 0.5f)) {
+		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f)) {
 		return ball_entity->ball.last_touch_entity_id;
 	} else {
 		return EID_NOT_VALID;
