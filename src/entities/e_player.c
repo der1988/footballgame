@@ -227,6 +227,12 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 	case PS_SLIDING_TACKLE:
 	case PS_FALL:
 		game_input_player_charge_reset(game_state, entity->header.id);
+		struct entity *ball_entity =
+			entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {
+			// Falling player had the ball, so let's reset touch time to make it clear player is no longer in possession
+			ball_entity->ball.last_touch_time = 0;
+		}
 		entity->sprite.frame_id = player->tackle_frames[sprite->orientation];
 		entity->player.state_machine->state_data.tackle.start_time = game_state->time;
 		break;
