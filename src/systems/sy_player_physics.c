@@ -87,8 +87,10 @@ void systems_player_physics(struct game_state *game_state)
 			}
 			// Player without the ball is 10% faster than the same player with the ball
 			physics->max_velocity =
-				player->current_max_velocity *
-				(game_state->vars.player_on_the_ball_entity_id == entity_id ? 1 : 1.1f);
+				player->current_max_velocity * ((ball->last_touch_entity_id == entity_id &&
+												 ball->last_touch_time == game_state->time) ?
+													1 :
+													1.1f);
 
 			entities_player_apply_force(entity, force_to_apply, game_state);
 			entities_player_apply_velocity(entity, game_state);

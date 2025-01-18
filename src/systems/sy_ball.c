@@ -43,7 +43,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
 				Vector3Zero());
 			football_match_change_state(game_state, MS_PLAY);
-			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
 		}
 
@@ -54,7 +53,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				(v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
 				Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f));
 			football_match_change_state(game_state, MS_PLAY);
-			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
 		}
 
@@ -65,7 +63,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
 				Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f));
 			football_match_change_state(game_state, MS_PLAY);
-			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
 		}
 
@@ -76,7 +73,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				(v3){.x = game_state->vars.pitch.field.x + 358.6, .z = 300},
 				Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f));
 			football_match_change_state(game_state, MS_PLAY);
-			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
 		}
 
@@ -89,7 +85,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 					 .z = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.y},
 				Vector3Zero());
 			football_match_change_state(game_state, MS_PLAY);
-			entities_ball_set_last_touch(ball, EID_NOT_VALID, game_state);
 			return;
 		}
 

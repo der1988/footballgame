@@ -9,6 +9,7 @@
 #include <raymath.h>
 #include <stdio.h>
 #include "ai.h"
+#include "types.h"
 
 void systems_player_on_the_ball(struct game_state *game_state)
 {
@@ -18,7 +19,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 	UNUSED(ball_physics_3d);
 	UNUSED(ball_collider);
 
-	const entity_id_t player_on_the_ball_entity_id = game_state->vars.player_on_the_ball_entity_id;
+	// Player can control the ball only if he's colliding with it in this frame
+	const entity_id_t player_on_the_ball_entity_id =
+		entities_ball_player_on_the_ball(ball_entity, game_state);
 
 	b32 kicked_ball = false;
 	if (player_on_the_ball_entity_id != EID_NOT_VALID) {
@@ -34,8 +37,6 @@ void systems_player_on_the_ball(struct game_state *game_state)
 		v2 normalized_velocity = Vector2Normalize(player_velocity);
 		f32 steering_magnitude = Vector2Length(player_controls->steering);
 		// b32 just_got_control = ball->last_player_on_the_ball_entity_id != player_on_the_ball->id;
-
-		entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
 
 		f32 ball_speed = Vector3Length(ball_physics_3d->velocity);
 		if (ball_speed > game_state->constants.ball_max_velocity_to_gain_possession) {
@@ -189,7 +190,6 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// If difficulty is higher than the threshold the player will likely lose the ball.
 				if (control_difficulty < 0.7f)
 					entities_ball_control_precision(ball_entity,
-													player_on_the_ball_entity_id,
 													player_velocity,
 													position_to_seek,
 													control_difficulty,
@@ -234,7 +234,6 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					(speed_mult * 1 + ball_height_mult * 1 + player_quality_mult * 1) / 3.0f;
 
 				entities_ball_control_running(ball_entity,
-											  player_on_the_ball_entity_id,
 											  control_direction,
 											  player_velocity,
 											  control_difficulty,

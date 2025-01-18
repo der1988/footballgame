@@ -19,7 +19,6 @@ void systems_player_collisions(struct game_state *game_state)
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_physics_3d);
 
-	game_state->vars.player_on_the_ball_entity_id = EID_NOT_VALID;
 	struct entity *player_on_the_ball_entity = NULL;
 
 	f32 min_distance_from_the_ball_possession = UINT32_MAX;
@@ -41,6 +40,7 @@ void systems_player_collisions(struct game_state *game_state)
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;
 
+		// Reset variables
 		player->is_colliding_with_ball = false;
 		player->kicked_ball = false;
 
@@ -112,7 +112,7 @@ void systems_player_collisions(struct game_state *game_state)
 	}
 
 	if (player_on_the_ball_entity) {
-		game_state->vars.player_on_the_ball_entity_id = player_on_the_ball_entity->header.id;
+		entities_ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
 		entities_player_gained_possession(player_on_the_ball_entity, game_state);
 	}
 }

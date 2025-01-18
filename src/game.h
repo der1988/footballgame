@@ -107,7 +107,6 @@ struct game_vars {
 	struct match match;
 	struct pitch pitch;
 	struct team teams[TS_COUNT];
-	entity_id_t player_on_the_ball_entity_id;
 	entity_id_t player_nearest_to_the_ball[TS_COUNT];
 	entity_id_t camera_entity_id;
 	entity_id_t ball_entity_id;

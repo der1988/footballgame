@@ -97,6 +97,7 @@ v collider offset should reflect the direction the entity is facing
 v implement teams
 v implement player tripped animation
 v fixed ball bounces off incorrectly from south goal's posts
+v auto pass not working anymore after fiddling with touch system
 * implement ball possession based on time on the ball, using last touch time
   it's important to offer two information:
   - whether the player is touching the ball in this frame

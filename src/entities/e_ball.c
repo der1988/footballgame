@@ -182,11 +182,19 @@ void entities_ball_set_last_touch(struct component_ball *ball,
 								  struct game_state *game_state)
 {
 	UNUSED(game_state);
-	ball->last_touch_entity_id = player_entity_id;
-	if (player_entity_id == EID_NOT_VALID)
+
+	if (player_entity_id == EID_NOT_VALID) {
 		ball->last_touch_time = 0;
-	else
+		ball->last_player_possession_change_time = 0;
+	} else {
+		if (ball->last_touch_entity_id != player_entity_id) {
+			// Possession changed!
+			ball->last_player_possession_change_time = game_state->time;
+		}
 		ball->last_touch_time = game_state->time;
+	}
+
+	ball->last_touch_entity_id = player_entity_id;
 }
 
 void entities_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity)
@@ -203,7 +211,6 @@ void entities_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos,
 }
 
 void entities_ball_control_precision(struct entity *ball_entity,
-									 entity_id_t player_on_the_ball_entity_id,
 									 v2 player_velocity,
 									 v2 position_to_seek,
 									 f32 difficulty,
@@ -211,7 +218,6 @@ void entities_ball_control_precision(struct entity *ball_entity,
 {
 	struct component_transform *transform = &ball_entity->transform;
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
-	struct component_ball *ball = &ball_entity->ball;
 
 	// The more the difficulty of the control, the less force will be applied to the ball.
 	// This means it will be easier for another player to steal the ball.
@@ -222,11 +228,9 @@ void entities_ball_control_precision(struct entity *ball_entity,
 				Vector3Subtract(V2_TO_V3(position_to_seek, 0),
 								V2_TO_V3(transform->position, transform->virtual_height))),
 			math_ext_split_lerp(game_state->constants.ball_control_force, 0.5f, 1 - difficulty)));
-	entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
 }
 
 void entities_ball_control_running(struct entity *ball_entity,
-								   entity_id_t player_on_the_ball_entity_id,
 								   v2 control_direction,
 								   v2 player_velocity,
 								   f32 difficulty,
@@ -241,7 +245,6 @@ void entities_ball_control_running(struct entity *ball_entity,
 		Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
 		math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
 	physics3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
-	entities_ball_set_last_touch(ball, player_on_the_ball_entity_id, game_state);
 }
 
 void entities_ball_shoot(struct entity *ball_entity,
@@ -300,7 +303,6 @@ void entities_ball_shoot(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-	entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
 	ball->subject_to_after_touch = true;
 	ball->selected_after_touch_side = Vector2Zero();
 }
@@ -326,7 +328,6 @@ void entities_ball_short_pass(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-	entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
 }
 
 void entities_ball_long_pass(struct entity *ball_entity,
@@ -348,7 +349,6 @@ void entities_ball_long_pass(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-	entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
 	ball->subject_to_after_touch = true;
 	ball->selected_after_touch_side = Vector2Zero();
 }
@@ -370,7 +370,6 @@ void entities_ball_tackle(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-	entities_ball_set_last_touch(ball, kicker_entity_id, game_state);
 }
 
 void entities_ball_deviate_trajectory(struct entity *ball_entity,
@@ -396,7 +395,6 @@ void entities_ball_deviate_trajectory(struct entity *ball_entity,
 									game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = player_entity_id;
-	entities_ball_set_last_touch(ball, player_entity_id, game_state);
 }
 
 void entities_ball_held_by_goalie(struct entity *ball_entity,
@@ -432,4 +430,28 @@ void entities_ball_in_goal(struct entity *ball_entity)
 
 	ball->subject_to_after_touch = false;
 	ball->selected_after_touch_side = Vector2Zero();
+}
+
+entity_id_t entities_ball_player_in_possession(struct entity *ball_entity,
+											   struct game_state *game_state)
+{
+	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
+		HAS_TIME_PASSED(
+			game_state->time, ball_entity->ball.last_player_possession_change_time, 0.2f) &&
+		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 0.5f)) {
+		return ball_entity->ball.last_touch_entity_id;
+	} else {
+		return EID_NOT_VALID;
+	}
+}
+
+entity_id_t entities_ball_player_on_the_ball(struct entity *ball_entity,
+											 struct game_state *game_state)
+{
+	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
+		ball_entity->ball.last_touch_time == game_state->time) {
+		return ball_entity->ball.last_touch_entity_id;
+	} else {
+		return EID_NOT_VALID;
+	}
 }

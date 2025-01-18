@@ -36,13 +36,11 @@ define_state_machine_functions(ball);
 struct entity *entities_ball_create(struct ball_config config, struct game_state *game_state);
 void entities_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity);
 void entities_ball_control_precision(struct entity *ball_entity,
-									 entity_id_t player_on_the_ball_entity_id,
 									 v2 player_velocity,
 									 v2 position_to_seek,
 									 f32 difficulty,
 									 struct game_state *game_state);
 void entities_ball_control_running(struct entity *ball_entity,
-								   entity_id_t player_on_the_ball_entity_id,
 								   v2 control_direction,
 								   v2 player_velocity,
 								   f32 difficulty,
@@ -83,5 +81,9 @@ void entities_ball_in_goal(struct entity *ball_entity);
 void entities_ball_set_last_touch(struct component_ball *ball,
 								  entity_id_t player_on_the_ball_entity_id,
 								  struct game_state *game_state);
+entity_id_t entities_ball_player_in_possession(struct entity *ball_entity,
+											   struct game_state *game_state);
+entity_id_t entities_ball_player_on_the_ball(struct entity *ball_entity,
+											 struct game_state *game_state);
 
 #endif // !ENTITIES_BALL_H
