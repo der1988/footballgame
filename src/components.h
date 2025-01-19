@@ -173,7 +173,7 @@ struct component_ball {
 	// Touch
 	time_t last_touch_time;
 	entity_id_t last_touch_entity_id;
-	time_t last_player_possession_change_time;
+	time_t first_player_possession_time;
 
 	// After touch
 	b32 subject_to_after_touch;

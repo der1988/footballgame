@@ -186,11 +186,12 @@ void entities_ball_set_last_touch(struct component_ball *ball,
 
 	if (player_entity_id == EID_NOT_VALID) {
 		ball->last_touch_time = 0;
-		ball->last_player_possession_change_time = 0;
+		ball->first_player_possession_time = 0;
 	} else {
-		if (ball->last_touch_entity_id != player_entity_id) {
-			// Possession changed!
-			ball->last_player_possession_change_time = game_state->time;
+		if (ball->last_touch_entity_id != player_entity_id ||
+			HAS_TIME_PASSED(game_state->time, ball->last_touch_time, 0.5f)) {
+			// Possession changed or a lot of time passed from last possession of the same player, so it counts as a new one
+			ball->first_player_possession_time = game_state->time;
 		}
 		ball->last_touch_time = game_state->time;
 	}
@@ -436,8 +437,7 @@ entity_id_t entities_ball_player_in_possession(struct entity *ball_entity,
 											   struct game_state *game_state)
 {
 	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
-		HAS_TIME_PASSED(
-			game_state->time, ball_entity->ball.last_player_possession_change_time, 0.2f) &&
+		HAS_TIME_PASSED(game_state->time, ball_entity->ball.first_player_possession_time, 0.1f) &&
 		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f) &&
 		ball_entity->ball.last_touch_time > ball_entity->ball.last_kick_time) {
 		return ball_entity->ball.last_touch_entity_id;
