@@ -5,6 +5,7 @@
 #include "football.h"
 #include "input.h"
 #include "memory.h"
+#include "render.h"
 #include "types.h"
 #include "layers.h"
 #include "tweakui.h"
@@ -115,6 +116,26 @@ struct game_vars {
 	b32 is_tweakui_shown;
 };
 
+struct game_gfx {
+	struct player {
+		assets_sprite_frame_id_t stand_frames[SO_COUNT];
+		assets_animation_id_t run_animations[SO_COUNT];
+		assets_sprite_frame_id_t tackle_frames[SO_COUNT];
+		assets_animation_id_t fall_animations[SO_COUNT];
+	} player;
+
+	struct goalie {
+		assets_sprite_frame_id_t stand_frames[SO_COUNT];
+		assets_animation_id_t run_animations[SO_COUNT];
+		assets_sprite_frame_id_t save_frames[PSI_COUNT][ST_COUNT];
+		assets_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
+		assets_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];
+		assets_animation_id_t dive_animations_end[PSI_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
+		assets_animation_id_t jump_animations_start[PSI_COUNT];
+		assets_animation_id_t jump_animations_end[PSI_COUNT][ST_COUNT];
+	} goalie;
+};
+
 struct game_state {
 	b32 initialised;
 	time_t current_time;
@@ -126,6 +147,7 @@ struct game_state {
 	struct game_config config;
 	struct game_constants constants;
 	struct game_vars vars;
+	struct game_gfx gfx;
 	struct human_player human_players[MAX_HUMAN_PLAYERS];
 	memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
 	struct assets assets;

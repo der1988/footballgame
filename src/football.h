@@ -234,6 +234,24 @@ enum team_side {
 	TS_COUNT
 };
 
+enum save_direction {
+	SD_LEFT,
+	SD_RIGHT,
+	SD_COUNT
+};
+
+enum save_height {
+	SH_HIGH,
+	SH_LOW,
+	SH_COUNT
+};
+
+enum save_type {
+	ST_WITHOUT_BALL,
+	ST_WITH_BALL,
+	ST_COUNT
+};
+
 struct team_formation_position *football_tactics_get_team_formation(enum team_formation formation);
 
 struct team_formation_position *

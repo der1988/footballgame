@@ -11,6 +11,18 @@ enum sprite_layer {
 	SL_SOUTH_GOAL = 20
 };
 
+enum sprite_orientation {
+	SO_UP,
+	SO_DOWN,
+	SO_LEFT,
+	SO_RIGHT,
+	SO_UP_LEFT,
+	SO_UP_RIGHT,
+	SO_DOWN_LEFT,
+	SO_DOWN_RIGHT,
+	SO_COUNT
+};
+
 void render_sprite_draw(struct assets_sprite_frame *sprite_frame,
 						v2 position,
 						f32 rotation,

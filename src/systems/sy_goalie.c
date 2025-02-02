@@ -243,7 +243,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 			if (!jump_state_data->animation_first_phase_completed) {
 				struct assets_animation *animation = assets_animation_get_by_id(
-					game_state->assets.animation_cache, goalie->jump_animations_start[pitch_side]);
+					game_state->assets.animation_cache,
+					game_state->gfx.goalie.jump_animations_start[pitch_side]);
 				f32 animation_completion =
 					Clamp((game_state->time - jump_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),
@@ -268,7 +269,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				}
 				struct assets_animation *animation = assets_animation_get_by_id(
 					game_state->assets.animation_cache,
-					goalie->jump_animations_end[pitch_side][jump_state_data->ball_held]);
+					game_state->gfx.goalie
+						.jump_animations_end[pitch_side][jump_state_data->ball_held]);
 				f32 animation_completion =
 					Clamp((game_state->time - jump_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),
@@ -376,7 +378,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			if (!dive_state_data->animation_first_phase_completed) {
 				struct assets_animation *animation = assets_animation_get_by_id(
 					game_state->assets.animation_cache,
-					goalie->dive_animations_start[pitch_side][direction][goalie->dive_height]);
+					game_state->gfx.goalie
+						.dive_animations_start[pitch_side][direction][goalie->dive_height]);
 				f32 animation_completion =
 					Clamp((game_state->time - dive_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),
@@ -401,8 +404,9 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				}
 				struct assets_animation *animation = assets_animation_get_by_id(
 					game_state->assets.animation_cache,
-					goalie->dive_animations_end[pitch_side][direction][goalie->dive_height]
-											   [dive_state_data->ball_held]);
+					game_state->gfx.goalie
+						.dive_animations_end[pitch_side][direction][goalie->dive_height]
+											[dive_state_data->ball_held]);
 				f32 animation_completion =
 					Clamp((game_state->time - dive_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),

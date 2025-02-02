@@ -140,9 +140,9 @@ void systems_player_physics(struct game_state *game_state)
 				&player->state_machine->state_data.fall;
 
 			if (!fall_state_data->animation_completed) {
-				struct assets_animation *animation =
-					assets_animation_get_by_id(game_state->assets.animation_cache,
-											   player->fall_animations[sprite->orientation]);
+				struct assets_animation *animation = assets_animation_get_by_id(
+					game_state->assets.animation_cache,
+					game_state->gfx.player.fall_animations[sprite->orientation]);
 				f32 animation_completion =
 					Clamp((game_state->time - fall_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),

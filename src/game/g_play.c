@@ -3,6 +3,7 @@
 #include "systems.h"
 #include "input.h"
 #include "game.h"
+#include "gfx.h"
 #include <assert.h>
 #include <raymath.h>
 
@@ -33,6 +34,10 @@ struct game_state *game_play_init(struct game_config game_config,
 		memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_DRAW] =
 		memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
+
+	// Prepare GFX
+	prepare_player_gfx(game_state);
+	prepare_goalie_gfx(game_state);
 
 	// pitch in reality is 105m long
 	// pitch in game is 1080 pixels long
