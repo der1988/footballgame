@@ -19,6 +19,9 @@ void systems_player_physics(struct game_state *game_state)
 	UNUSED(ball);
 	UNUSED(ball_collider);
 
+	entity_id_t player_in_possession_entity_id =
+		entities_ball_player_in_possession(ball_entity, game_state);
+
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
 		if (!entities_is_entity_alive_and_has_components(
@@ -85,12 +88,9 @@ void systems_player_physics(struct game_state *game_state)
 				player->current_max_velocity =
 					fmaxf(initial_max_velocity, player->current_max_velocity);
 			}
-			// Player without the ball is 10% faster than the same player with the ball
-			physics->max_velocity =
-				player->current_max_velocity * ((ball->last_touch_entity_id == entity_id &&
-												 ball->last_touch_time == game_state->time) ?
-													1 :
-													1.1f);
+			// Player without the ball is 15% faster than the same player with the ball
+			physics->max_velocity = player->current_max_velocity *
+									(player_in_possession_entity_id == entity_id ? 1 : 1.15f);
 
 			entities_player_apply_force(entity, force_to_apply, game_state);
 			entities_player_apply_velocity(entity, game_state);
