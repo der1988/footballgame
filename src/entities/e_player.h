@@ -149,6 +149,8 @@ void entities_player_apply_force(struct entity *player_entity,
 void entities_player_apply_velocity(struct entity *player_entity, struct game_state *game_state);
 
 void entities_player_calculate_running_frame(struct entity *player_entity,
+											 assets_sprite_frame_id_t *stand_frames,
+											 assets_animation_id_t *run_animations,
 											 v2 direction,
 											 f32 velocity_threshold,
 											 struct game_state *game_state);

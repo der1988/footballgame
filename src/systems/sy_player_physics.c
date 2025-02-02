@@ -96,7 +96,12 @@ void systems_player_physics(struct game_state *game_state)
 			entities_player_apply_velocity(entity, game_state);
 
 			// Calculate frame to display
-			entities_player_calculate_running_frame(entity, physics->velocity, 3, game_state);
+			entities_player_calculate_running_frame(entity,
+													game_state->gfx.player.stand_frames,
+													game_state->gfx.player.run_animations,
+													physics->velocity,
+													3,
+													game_state);
 
 			break;
 		}

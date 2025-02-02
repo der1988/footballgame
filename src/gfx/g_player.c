@@ -1,6 +1,6 @@
 #include "game.h"
 
-void prepare_player_gfx(struct game_state *game_state)
+void gfx_player_prepare(struct game_state *game_state)
 {
 	assets_animation_cache_t *animation_cache = game_state->assets.animation_cache;
 	memory_arena_handle_t *memory_arena_handle = game_state->memory_by_lifetime[MAL_UPDATE];

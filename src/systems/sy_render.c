@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 struct sprite_to_draw {
-	entity_id_t entity_id;
+	struct entity *entity;
 	struct assets_sprite_frame *sprite_frame;
 	struct assets_texture *texture;
 	enum sprite_layer layer;
@@ -22,8 +22,8 @@ struct sprite_to_draw {
 	v2 shadow_offset;
 	v2 shadow_scale;
 	color_t shadow_color;
-	void (*before_draw)(entity_id_t, struct game_state *);
-	void (*after_draw)(entity_id_t, struct game_state *);
+	void (*before_draw)(struct entity *, struct game_state *);
+	void (*after_draw)(struct entity *, struct game_state *);
 };
 
 static i32 cmp_sprite_order(const void *s1, const void *s2)
@@ -85,7 +85,7 @@ void systems_render(struct game_state *game_state)
 		v2 shadow_offset = sprite->shadow_offset;
 
 		*current_idx = (struct sprite_to_draw){
-			.entity_id = entity_id,
+			.entity = entity,
 			.sprite_frame = sprite_frame,
 			.layer = sprite->layer,
 			.order_in_layer = sprite->order_in_layer,
@@ -135,7 +135,7 @@ void systems_render(struct game_state *game_state)
 	for (usize i = 0; i < total_sprites; ++i) {
 		struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
 		if (sprite_to_draw->before_draw) {
-			sprite_to_draw->before_draw(sprite_to_draw->entity_id, game_state);
+			sprite_to_draw->before_draw(sprite_to_draw->entity, game_state);
 		}
 		render_sprite_draw(sprite_to_draw->sprite_frame,
 						   Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
@@ -147,7 +147,7 @@ void systems_render(struct game_state *game_state)
 						   sprite_to_draw->pivot_override,
 						   sprite_to_draw->texture);
 		if (sprite_to_draw->after_draw) {
-			sprite_to_draw->after_draw(sprite_to_draw->entity_id, game_state);
+			sprite_to_draw->after_draw(sprite_to_draw->entity, game_state);
 		}
 	}
 }

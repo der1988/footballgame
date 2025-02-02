@@ -12,6 +12,7 @@
 #include "sprite.h"
 #include "physics.h"
 #include "collision.h"
+#include "gfx.h"
 #include <assert.h>
 #include <raylib.h>
 #include <string.h>
@@ -19,9 +20,8 @@
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);
 
-color_t *player_custom_palette(entity_id_t entity_id, struct game_state *game_state);
-void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state);
-void player_custom_after_draw(entity_id_t entity_id, struct game_state *game_state);
+void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
+void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
 
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state)
 {
@@ -163,6 +163,8 @@ void entities_player_apply_velocity(struct entity *player_entity, struct game_st
 }
 
 void entities_player_calculate_running_frame(struct entity *player_entity,
+											 assets_sprite_frame_id_t *stand_frames,
+											 assets_animation_id_t *run_animations,
 											 v2 direction,
 											 f32 velocity_threshold,
 											 struct game_state *game_state)
@@ -174,9 +176,8 @@ void entities_player_calculate_running_frame(struct entity *player_entity,
 	f32 player_speed = Vector2Length(physics->velocity);
 	if (Vector2Length(physics->velocity) > velocity_threshold) {
 		enum sprite_orientation sprite_orientation = sprite_calculate_orientation(direction);
-		struct assets_animation *animation =
-			assets_animation_get_by_id(game_state->assets.animation_cache,
-									   game_state->gfx.player.run_animations[sprite_orientation]);
+		struct assets_animation *animation = assets_animation_get_by_id(
+			game_state->assets.animation_cache, run_animations[sprite_orientation]);
 
 		f32 max_player_velocity = game_state->constants.player_run_max_velocity;
 		f32 player_speed_ratio = player_speed / max_player_velocity;
@@ -190,7 +191,7 @@ void entities_player_calculate_running_frame(struct entity *player_entity,
 		}
 		sprite->orientation = sprite_orientation;
 	} else {
-		sprite->frame_id = game_state->gfx.player.stand_frames[sprite->orientation];
+		sprite->frame_id = stand_frames[sprite->orientation];
 	}
 }
 
@@ -676,10 +677,8 @@ struct entities entities_player_find_tackled_opponents(struct entity *player_ent
 	return tackled_players;
 }
 
-void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_state)
+void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
-	struct entity *entity = entities_entity_get(game_state->entity_repository, entity_id);
-
 	u32 *palette =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], sizeof(u32) * 3 * 10);
 
@@ -724,9 +723,9 @@ void player_custom_begin_draw(entity_id_t entity_id, struct game_state *game_sta
 	BeginShaderMode(assets_shader->shader);
 }
 
-void player_custom_after_draw(entity_id_t entity_id, struct game_state *game_state)
+void player_custom_after_draw(struct entity *entity, struct game_state *game_state)
 {
-	UNUSED(entity_id);
+	UNUSED(entity);
 	UNUSED(game_state);
 
 	EndShaderMode();

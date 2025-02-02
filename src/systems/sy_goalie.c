@@ -217,6 +217,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			entities_player_apply_velocity(entity, game_state);
 
 			entities_player_calculate_running_frame(entity,
+													game_state->gfx.goalie.stand_frames,
+													game_state->gfx.goalie.run_animations,
 													Vector2Subtract(ball_transform->position,
 																	transform->position),
 													5,

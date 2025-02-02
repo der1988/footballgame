@@ -1,6 +1,6 @@
 #include "game.h"
 
-void prepare_goalie_gfx(struct game_state *game_state)
+void gfx_goalie_prepare(struct game_state *game_state)
 {
 	struct goalie *goalie = &game_state->gfx.goalie;
 
