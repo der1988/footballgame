@@ -99,13 +99,13 @@ v implement player tripped animation
 v fixed ball bounces off incorrectly from south goal's posts
 v auto pass not working anymore after fiddling with touch system
 v player gfx should be centralised as it's the same for every player
-* implement ball possession based on time on the ball, using last touch time
+v implement ball possession based on time on the ball, using last touch time
   it's important to offer two information:
   - whether the player is touching the ball in this frame
   - whether the player is in possession of the ball, which means:
     + being the last to touch the ball
     + being near the ball
-* improve player ai
+v improve player ai
 * improve player selection system
 * support multiple human players
 * refactor player selection to support multiple human players
