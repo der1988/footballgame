@@ -32,7 +32,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 		v2 player_position = player_entity->transform.position;
 		v2 player_velocity = player_entity->physics.velocity;
-		enum pitch_side player_pitch_side = game_state->vars.teams[player->team_side].pitch_side;
+		enum pitch_side player_pitch_side =
+			game_state->vars.teams[player->team_side].play_context.pitch_side;
 		f32 player_speed = Vector2Length(player_velocity);
 		v2 normalized_velocity = Vector2Normalize(player_velocity);
 		f32 steering_magnitude = Vector2Length(player_controls->steering);

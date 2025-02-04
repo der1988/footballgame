@@ -77,10 +77,10 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				ai_state = PAS_KEEP_POSITION;
 				break;
 			}
-			v2 goal_center =
-				game_state->vars.pitch
-					.goal[game_state->vars.teams[1 - player_entity->player.team_side].pitch_side]
-					.center;
+			v2 goal_center = game_state->vars.pitch
+								 .goal[game_state->vars.teams[1 - player_entity->player.team_side]
+										   .play_context.pitch_side]
+								 .center;
 			f32 distance_from_goal =
 				Vector2Distance(goal_center, player_entity->transform.position);
 			if (distance_from_goal < 250) {
@@ -133,8 +133,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			break;
 		}
 		case WOTB_OPPONENT: {
-			if (game_state->vars.player_nearest_to_the_ball[player_entity->player.team_side] ==
-				player_entity->header.id) {
+			if (game_state->vars.teams[player_entity->player.team_side]
+					.play_context.player_nearest_to_the_ball == player_entity->header.id) {
 				// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
 				ai_state = PAS_SEEK_POSITION;
 				*target_position = ball_transform->position;
@@ -156,8 +156,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					   Vector2Distance(transform->position, ball->future_bounce.position) < 50) {
 				*target_position = ball->future_bounce.position;
 				ai_state = PAS_ARRIVE_TO_POSITION;
-			} else if (game_state->vars.player_nearest_to_the_ball[player_entity->player.team_side] ==
-					   player_entity->header.id) {
+			} else if (game_state->vars.teams[player_entity->player.team_side]
+						   .play_context.player_nearest_to_the_ball == player_entity->header.id) {
 				struct player_ball_reachability_prediction prediction =
 					entities_player_can_reach_future_ball_position(
 						player_entity,

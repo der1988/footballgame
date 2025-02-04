@@ -222,10 +222,8 @@ static struct team_formation_position TeamFormations[TF_COUNT][10] = {
 		},
 	}};
 
-struct team {
+struct team_info {
 	char *name;
-	enum pitch_side pitch_side;
-	enum team_formation formation;
 };
 
 enum team_side {

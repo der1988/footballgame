@@ -41,10 +41,12 @@ void football_setup(struct game_state *game_state)
 	}
 
 	game_state->vars.teams[0] =
-		(struct team){.name = "New Team", .pitch_side = PSI_NORTH, .formation = TF_433};
+		(struct team){(struct team_info){.name = "New Team"},
+					  (struct team_play_context){.pitch_side = PSI_NORTH, .formation = TF_433}};
 
 	game_state->vars.teams[1] =
-		(struct team){.name = "Muppets", .pitch_side = PSI_SOUTH, .formation = TF_433};
+		(struct team){(struct team_info){.name = "Muppets"},
+					  (struct team_play_context){.pitch_side = PSI_SOUTH, .formation = TF_433}};
 
 	struct entity *player_entity = entities_player_create(
 		(struct player_config){

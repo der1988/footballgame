@@ -104,11 +104,20 @@ struct human_player {
 	entity_id_t controlled_player_entity_id;
 };
 
+struct team_play_context {
+	enum pitch_side pitch_side;
+	enum team_formation formation;
+	entity_id_t player_nearest_to_the_ball;
+	entity_id_t player_in_charge_of_pressing;
+};
+
 struct game_vars {
 	struct match match;
 	struct pitch pitch;
-	struct team teams[TS_COUNT];
-	entity_id_t player_nearest_to_the_ball[TS_COUNT];
+	struct team {
+		struct team_info info;
+		struct team_play_context play_context;
+	} teams[TS_COUNT];
 	entity_id_t camera_entity_id;
 	entity_id_t ball_entity_id;
 	b32 slow_motion;

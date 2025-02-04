@@ -144,7 +144,8 @@ v2 get_target_position_based_on_tactics(struct entity *entity,
 	v2 default_pos = team_formation_position->position[TM_DEFAULT];
 	v2 target_pos;
 
-	enum pitch_side player_pitch_side = game_state->vars.teams[entity->player.team_side].pitch_side;
+	enum pitch_side player_pitch_side =
+		game_state->vars.teams[entity->player.team_side].play_context.pitch_side;
 
 	if (player_pitch_side == PSI_SOUTH) {
 		if (ball_normalized_pos.y < 0.5f) {

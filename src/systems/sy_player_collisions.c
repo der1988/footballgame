@@ -61,16 +61,14 @@ void systems_player_collisions(struct game_state *game_state)
 				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
 					player_on_the_ball_entity = entity;
 					min_distance_from_the_ball_possession = distance_from_the_ball;
-
-					ball->pass_target_entity_id = EID_NOT_VALID;
 				}
 			} else {
 				player->control_ball = true;
 				player->time_spent_in_precision_control = 0;
 
 				if (distance_from_the_ball < min_distance_from_the_ball[entity->player.team_side]) {
-					game_state->vars.player_nearest_to_the_ball[entity->player.team_side] =
-						entity_id;
+					game_state->vars.teams[entity->player.team_side]
+						.play_context.player_nearest_to_the_ball = entity_id;
 					min_distance_from_the_ball[entity->player.team_side] = distance_from_the_ball;
 				}
 			}
@@ -112,6 +110,8 @@ void systems_player_collisions(struct game_state *game_state)
 	}
 
 	if (player_on_the_ball_entity) {
+		// TODO: (marco) should we move the following line into entities_ball_set_last_touch function?
+		ball->pass_target_entity_id = EID_NOT_VALID;
 		entities_ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
 		entities_player_gained_possession(player_on_the_ball_entity, game_state);
 	}

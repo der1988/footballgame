@@ -107,7 +107,7 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 		sprite->after_draw = &player_custom_after_draw;
 	}
 
-	enum pitch_side pitch_side = game_state->vars.teams[config.team_side].pitch_side;
+	enum pitch_side pitch_side = game_state->vars.teams[config.team_side].play_context.pitch_side;
 
 	collider->num_colliders = PCT_COUNT;
 	collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
@@ -289,7 +289,7 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 		entity->goalie.state_machine->state_data.hold_ball.hold_start_time = game_state->time;
 		entity->sprite.frame_id =
 			game_state->gfx.goalie.save_frames[game_state->vars.teams[entity->player.team_side]
-												   .pitch_side][ST_WITH_BALL];
+												   .play_context.pitch_side][ST_WITH_BALL];
 		break;
 	}
 	case GS_JUMP: {
@@ -528,13 +528,12 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 			f32 angle = fabs(Vector2Angle(selected_direction, to_player) * RAD2DEG);
 			time_low_prec_t last_time_selected_for_pass =
 				entity->player.last_selected_for_pass_time;
-			b32 nearer_to_goal =
-				game_state->vars.teams[player_on_the_ball_entity->player.team_side].pitch_side ==
-						PSI_NORTH ?
-					(entity->transform.position.y >
-					 player_on_the_ball_entity->transform.position.y) :
-					(entity->transform.position.y <
-					 player_on_the_ball_entity->transform.position.y);
+			b32 nearer_to_goal = game_state->vars.teams[player_on_the_ball_entity->player.team_side]
+											 .play_context.pitch_side == PSI_NORTH ?
+									 (entity->transform.position.y >
+									  player_on_the_ball_entity->transform.position.y) :
+									 (entity->transform.position.y <
+									  player_on_the_ball_entity->transform.position.y);
 
 			f32 score = 0;
 			if (!is_player_human_controlled) {
