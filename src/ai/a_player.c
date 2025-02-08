@@ -90,10 +90,9 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				if (angle < 30) {
 					*kick_decision = PAKD_SHOOT;
 					*kick_power = 0.5f + 0.5f * GetRandomValue(1, 100) / 100.f;
-					v2 shoot_target = goal_center;
-					shoot_target.x += GetRandomValue(-60, 60);
-					*target_position = Vector2Normalize(
-						Vector2Subtract(shoot_target, player_entity->transform.position));
+					v2 shoot_target = Vector2Zero();
+					shoot_target.x += GetRandomValue(-60, 60) / 60.f;
+					*target_position = shoot_target;
 				} else {
 					*target_position = Vector2Normalize(
 						Vector2Subtract(goal_center, player_entity->transform.position));
@@ -107,12 +106,12 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					// Facing an opponent and we have someone to pass to, let's pass
 					*kick_decision = PAKD_PASS;
 					*kick_power = 0.1f;
-					*target_position = Vector2Subtract(teammate_entity->transform.position,
-													   player_entity->transform.position);
+					*target_position = Vector2Normalize(Vector2Subtract(
+						teammate_entity->transform.position, player_entity->transform.position));
 				} else {
 					*kick_decision = PAKD_NO_KICK;
-					*target_position =
-						Vector2Subtract(goal_center, player_entity->transform.position);
+					*target_position = Vector2Normalize(
+						Vector2Subtract(goal_center, player_entity->transform.position));
 				}
 			}
 			ai_state = PAS_SET_STEERING;
