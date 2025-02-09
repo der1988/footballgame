@@ -20,10 +20,6 @@
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);
 
-static b32 is_pass_trajectory_clear(v2 passer_position,
-									v2 target_position,
-									enum team_side opposing_team,
-									struct game_state *game_state);
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
 
@@ -547,11 +543,11 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 									  player_on_the_ball_entity->transform.position.y);
 
 			// Check if pass trajectory is clear
-			b32 clear_trajectory =
-				is_pass_trajectory_clear(player_on_the_ball_entity->transform.position,
-										 potential_pass_target_entity->transform.position,
-										 1 - potential_pass_target_entity->player.team_side,
-										 game_state);
+			b32 clear_trajectory = entities_player_is_trajectory_clear(
+				player_on_the_ball_entity->transform.position,
+				potential_pass_target_entity->transform.position,
+				1 - potential_pass_target_entity->player.team_side,
+				game_state);
 
 			f32 score = 0;
 			if (!is_player_human_controlled) {
@@ -692,11 +688,10 @@ struct entities entities_player_find_tackled_opponents(struct entity *player_ent
 	return tackled_players;
 }
 
-// Helper function to check if pass trajectory is blocked by opponents
-static b32 is_pass_trajectory_clear(v2 passer_position,
-									v2 target_position,
-									enum team_side opposing_team,
-									struct game_state *game_state)
+b32 entities_player_is_trajectory_clear(v2 passer_position,
+										v2 target_position,
+										enum team_side opposing_team,
+										struct game_state *game_state)
 {
 	v2 pass_start = passer_position;
 	v2 pass_end = target_position;

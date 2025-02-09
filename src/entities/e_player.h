@@ -200,4 +200,9 @@ struct entity *entities_player_find_nearest_facing_opponent(struct entity *playe
 struct entities entities_player_find_tackled_opponents(struct entity *player_entity,
 													   struct game_state *game_state);
 
+b32 entities_player_is_trajectory_clear(v2 passer_position,
+										v2 target_position,
+										enum team_side opposing_team,
+										struct game_state *game_state);
+
 #endif // !ENTITIES_PLAYER_H
