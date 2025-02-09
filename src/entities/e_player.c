@@ -20,6 +20,10 @@
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);
 
+static b32 is_pass_trajectory_clear(v2 passer_position,
+									v2 target_position,
+									enum team_side opposing_team,
+									struct game_state *game_state);
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
 
@@ -508,15 +512,18 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
 	f32 selected_score = 0;
-	struct entity *entity;
+	struct entity *potential_pass_target_entity;
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-		entity = entities_entity_get(game_state->entity_repository, entity_id);
-		if (entity->header.alive && entity->header.type == ET_PLAYER) {
+		potential_pass_target_entity =
+			entities_entity_get(game_state->entity_repository, entity_id);
+		if (potential_pass_target_entity->header.alive &&
+			potential_pass_target_entity->header.type == ET_PLAYER) {
 
-			struct component_transform *transform = &entity->transform;
+			struct component_transform *transform = &potential_pass_target_entity->transform;
 
 			if (player_on_the_ball_entity->header.id == entity_id ||
-				player_on_the_ball_entity->player.team_side != entity->player.team_side) {
+				player_on_the_ball_entity->player.team_side !=
+					potential_pass_target_entity->player.team_side) {
 				// We don't want to pass to ourselves nor to the other team, right?
 				continue;
 			}
@@ -526,33 +533,42 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 				Vector2Subtract(transform->position, player_on_the_ball_entity->transform.position);
 			f32 distance_from_player_sqr = Vector2LengthSqr(to_player);
 			f32 angle = fabs(Vector2Angle(selected_direction, to_player) * RAD2DEG);
+
+			if (angle > detection_angle)
+				continue;
+
 			time_low_prec_t last_time_selected_for_pass =
-				entity->player.last_selected_for_pass_time;
+				potential_pass_target_entity->player.last_selected_for_pass_time;
 			b32 nearer_to_goal = game_state->vars.teams[player_on_the_ball_entity->player.team_side]
 											 .play_context.pitch_side == PSI_NORTH ?
-									 (entity->transform.position.y >
+									 (potential_pass_target_entity->transform.position.y >
 									  player_on_the_ball_entity->transform.position.y) :
-									 (entity->transform.position.y <
+									 (potential_pass_target_entity->transform.position.y <
 									  player_on_the_ball_entity->transform.position.y);
+
+			// Check if pass trajectory is clear
+			b32 clear_trajectory =
+				is_pass_trajectory_clear(player_on_the_ball_entity->transform.position,
+										 potential_pass_target_entity->transform.position,
+										 1 - potential_pass_target_entity->player.team_side,
+										 game_state);
 
 			f32 score = 0;
 			if (!is_player_human_controlled) {
-				score = 3 * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
-				score += 2 * (1 - Clamp01(angle / detection_angle));
-				score += 5 * Clamp01((game_state->time - last_time_selected_for_pass) / 1.f);
-				score += 4 * nearer_to_goal;
-				score /= 14;
+				score =
+					0.2f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
+				score += 0.35f * Clamp01((game_state->time - last_time_selected_for_pass) / 1.f);
+				score += 0.2f * nearer_to_goal;
+				score += 0.25f * clear_trajectory;
 			} else {
-				score = 1 * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
-				score += 2 * (1 - Clamp01(angle / detection_angle));
-				score /= 3;
+				score =
+					0.33f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
+				score += 0.67f * clear_trajectory;
 			}
 
 			if (score > selected_score) {
-				selected_entity = entity;
+				selected_entity = potential_pass_target_entity;
 				selected_score = score;
-
-				GLOGF_TRACE(LS_GAME, "found valid pass target: %zu, %.2f", entity_id, score);
 			}
 		}
 	}
@@ -675,6 +691,50 @@ struct entities entities_player_find_tackled_opponents(struct entity *player_ent
 	}
 	return tackled_players;
 }
+
+// Helper function to check if pass trajectory is blocked by opponents
+static b32 is_pass_trajectory_clear(v2 passer_position,
+									v2 target_position,
+									enum team_side opposing_team,
+									struct game_state *game_state)
+{
+	v2 pass_start = passer_position;
+	v2 pass_end = target_position;
+	v2 pass_direction = Vector2Normalize(Vector2Subtract(pass_end, pass_start));
+	f32 pass_distance = Vector2Distance(pass_start, pass_end);
+
+	// Check for opponents along the pass trajectory
+	for (usize entity_id = 0; entity_id < game_state->entity_repository->max_slots; ++entity_id) {
+		struct entity *opponent = entities_entity_get(game_state->entity_repository, entity_id);
+
+		if (!opponent->header.alive || opponent->header.type != ET_PLAYER ||
+			opponent->player.team_side != opposing_team) {
+			continue;
+		}
+
+		// Calculate opponent's distance to pass line
+		v2 to_opponent = Vector2Subtract(opponent->transform.position, pass_start);
+		f32 projection_length = Vector2DotProduct(to_opponent, pass_direction);
+
+		// Only check opponents between passer and target
+		if (projection_length <= 0 || projection_length >= pass_distance) {
+			continue;
+		}
+
+		// Calculate perpendicular distance from opponent to pass line
+		v2 projected_point =
+			Vector2Add(pass_start, Vector2Scale(pass_direction, projection_length));
+		f32 perp_distance = Vector2Distance(opponent->transform.position, projected_point);
+
+		// Define interception radius (adjust as needed)
+		f32 interception_radius = 20.0f;
+
+		if (perp_distance < interception_radius) {
+			return false; // Pass trajectory is blocked
+		}
+	}
+	return true; // Pass trajectory is clear
+};
 
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
