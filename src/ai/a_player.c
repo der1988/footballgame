@@ -49,6 +49,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	b32 ball_in_keeper_hands = ball->state_machine->current_state == BS_GK_HANDS;
 
+	entity_id_t player_on_the_ball_entity_id =
+		entities_ball_player_on_the_ball(ball_entity, game_state);
 	entity_id_t player_in_possession_entity_id =
 		entities_ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
@@ -77,6 +79,13 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				ai_state = PAS_KEEP_POSITION;
 				break;
 			}
+			if (player_on_the_ball_entity_id == EID_NOT_VALID) {
+				// We are not on the ball, so we just chase it to gain control again
+				ai_state = PAS_SEEK_POSITION;
+				*target_position = ball_transform->position;
+				break;
+			}
+
 			v2 goal_center = game_state->vars.pitch
 								 .goal[game_state->vars.teams[1 - player_entity->player.team_side]
 										   .play_context.pitch_side]
