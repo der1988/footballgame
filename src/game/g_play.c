@@ -238,6 +238,7 @@ void update(struct game_state *game_state, struct input *input)
 	systems_controls(game_state, input);
 	systems_goalie(game_state);
 	systems_player_collisions(game_state);
+	systems_team_pressing(game_state);
 	systems_player_control_human(game_state, input);
 	systems_player_control_ai(game_state);
 	systems_player_on_the_ball(game_state);

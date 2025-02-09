@@ -133,7 +133,9 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		}
 		case WOTB_OPPONENT: {
 			if (game_state->vars.teams[player_entity->player.team_side]
-					.play_context.player_nearest_to_the_ball == player_entity->header.id) {
+						.play_context.player_nearest_to_the_ball == player_entity->header.id ||
+				game_state->vars.teams[player_entity->player.team_side]
+						.play_context.player_in_charge_of_pressing == player_entity->header.id) {
 				// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
 				ai_state = PAS_SEEK_POSITION;
 				*target_position = ball_transform->position;

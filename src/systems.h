@@ -13,6 +13,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 void systems_player_control_ai(struct game_state *game_state);
 void systems_player_physics(struct game_state *game_state);
 void systems_player_on_the_ball(struct game_state *game_state);
+void systems_team_pressing(struct game_state *game_state);
 void systems_goal(struct game_state *game_state);
 void systems_goalie(struct game_state *game_state);
 void systems_action(struct game_state *game_state);

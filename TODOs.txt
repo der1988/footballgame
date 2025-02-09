@@ -106,6 +106,9 @@ v implement ball possession based on time on the ball, using last touch time
     + being the last to touch the ball
     + being near the ball
 v improve player ai
+v when team does not have the ball we need a player always seeking the ball
+  - if team is human controlled the seeker will be in addition to the controlled player
+  - if team is cpu controlled two players will seek the ball
 * improve player selection system
 * support multiple human players
 * refactor player selection to support multiple human players
@@ -125,6 +128,3 @@ v improve player ai
 - don't make goalie rush to the ball if possession is hostile
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
 - fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
-- when team does not have the ball we need a player always seeking the ball
-  - if team is human controlled the seeker will be in addition to the controlled player
-  - if team is cpu controlled two players will seek the ball
