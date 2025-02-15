@@ -15,6 +15,7 @@
 #include "gfx.h"
 #include <assert.h>
 #include <raylib.h>
+#include <raymath.h>
 #include <string.h>
 
 implement_state_machine_functions(player);
@@ -333,18 +334,41 @@ void entities_goalie_state_machine_on_exit(struct entity *entity, struct game_st
 	}
 }
 
-b32 entities_player_is_colliding_with_ball(struct entity *entity,
-										   enum player_collider_type collider_type,
-										   v3 ball_position,
-										   f32 ball_radius,
-										   f32 max_height)
+struct collision_information
+entities_player_is_colliding_with_ball(struct entity *entity,
+									   enum player_collider_type collider_type,
+									   v3 ball_position,
+									   v3 ball_velocity,
+									   f32 ball_radius,
+									   f32 max_height)
 {
 	const v2 player_position = entity->transform.position;
 	const v2 ball_pos = V3_TO_V2(ball_position);
 	b32 check_collision = false;
 	struct collider *collider = &entity->collider.colliders[collider_type];
 
+	v2 collision_direction = Vector2Zero();
+	f32 collision_force = 0;
+
 	switch (collider_type) {
+	case PCT_TACKLE:
+		collider->props.circle.offset =
+			ORIENTATION_TO_TACKLE_COLLIDER_OFFSET[entity->sprite.orientation];
+		check_collision =
+			CheckCollisionCircles(ball_pos,
+								  ball_radius,
+								  Vector2Add(player_position, collider->props.circle.offset),
+								  collider->props.circle.radius);
+		if (check_collision) {
+			// Collision direction is calculated from player position
+			collision_direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
+			// Collision force depends on how aligned are the velocities of ball and player
+			collision_force =
+				(1 + -Vector2ProjectScalar(Vector2Normalize(V3_TO_V2(ball_velocity)),
+										   Vector2Normalize(entity->physics.velocity))) *
+				0.5f;
+		}
+		break;
 	case PCT_DIVE:
 		check_collision = CheckCollisionCircleRec(
 			ball_pos,
@@ -352,9 +376,6 @@ b32 entities_player_is_colliding_with_ball(struct entity *entity,
 			calculate_collision_rectangle(
 				player_position, collider->props.rectangle.size, collider->props.rectangle.offset));
 		break;
-	case PCT_TACKLE:
-		collider->props.circle.offset =
-			ORIENTATION_TO_TACKLE_COLLIDER_OFFSET[entity->sprite.orientation];
 	case PCT_PLAYER:
 	case PCT_GOALIE:
 		check_collision =
@@ -367,7 +388,11 @@ b32 entities_player_is_colliding_with_ball(struct entity *entity,
 		break;
 	}
 
-	return check_collision && ball_position.y < max_height;
+	if (check_collision && ball_position.y < max_height) {
+		return (struct collision_information){
+			.is_colliding = true, .direction = collision_direction, .force = collision_force};
+	}
+	return (struct collision_information){.is_colliding = false};
 }
 
 b32 entities_player_should_dive(struct entity *goalie_entity,
@@ -393,14 +418,15 @@ b32 entities_player_should_dive(struct entity *goalie_entity,
 	for (u16 i = 0; i < lookaheads; ++i) {
 		v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
 
-		const b32 is_colliding_with_ball =
+		const struct collision_information collision_information =
 			entities_player_is_colliding_with_ball(goalie_entity,
 												   PCT_GOALIE,
 												   pos_to_check,
+												   ball_entity->physics3d.velocity,
 												   ball_radius,
 												   game_state->constants.crossbar_height);
 
-		if (is_colliding_with_ball) {
+		if (collision_information.is_colliding) {
 			// Ball is coming our direction, let's wait
 			break;
 		}

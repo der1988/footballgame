@@ -46,17 +46,19 @@ void systems_player_collisions(struct game_state *game_state)
 
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
-			const b32 is_colliding_with_ball = entities_player_is_colliding_with_ball(
-				entity,
-				PCT_PLAYER,
-				V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-				ball_collider->colliders[0].props.circle.radius,
-				game_state->constants.player_control_height);
+			const struct collision_information collision_with_ball_info =
+				entities_player_is_colliding_with_ball(
+					entity,
+					PCT_PLAYER,
+					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+					ball_entity->physics3d.velocity,
+					ball_collider->colliders[0].props.circle.radius,
+					game_state->constants.player_control_height);
 
 			const f32 distance_from_the_ball =
 				Vector2DistanceSqr(transform->position, ball_transform->position);
 
-			if (is_colliding_with_ball &&
+			if (collision_with_ball_info.is_colliding &&
 				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f)) {
 				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
 					player_on_the_ball_entity = entity;
@@ -72,20 +74,24 @@ void systems_player_collisions(struct game_state *game_state)
 					min_distance_from_the_ball[entity->player.team_side] = distance_from_the_ball;
 				}
 			}
-			player->is_colliding_with_ball = is_colliding_with_ball;
+			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
 
 			break;
 		}
 		case PS_SLIDING_TACKLE: {
-			const b32 is_colliding_with_ball = entities_player_is_colliding_with_ball(
-				entity,
-				PCT_TACKLE,
-				V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-				ball_collider->colliders[0].props.circle.radius,
-				game_state->constants.player_control_height);
+			const struct collision_information collision_with_ball_info =
+				entities_player_is_colliding_with_ball(
+					entity,
+					PCT_TACKLE,
+					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+					ball_entity->physics3d.velocity,
+					ball_collider->colliders[0].props.circle.radius,
+					game_state->constants.player_control_height);
 
-			if (is_colliding_with_ball) {
+			if (collision_with_ball_info.is_colliding) {
 				player->is_colliding_with_ball = true;
+				player->collision_direction = collision_with_ball_info.direction;
+				player->collision_force = collision_with_ball_info.force;
 			}
 			struct entities entities = entities_player_find_tackled_opponents(entity, game_state);
 			for (usize i = 0; i < entities.length; ++i) {

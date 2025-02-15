@@ -7,6 +7,7 @@
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
+#include <stdio.h>
 #include "ai.h"
 #include "types.h"
 
@@ -131,11 +132,13 @@ void systems_player_physics(struct game_state *game_state)
 			entities_player_apply_velocity(entity, game_state);
 
 			if (player->is_colliding_with_ball) {
-				entities_ball_tackle(ball_entity,
-									 entity_id,
-									 V2_TO_V3(Vector2Normalize(physics->velocity), 0),
-									 Vector2Length(physics->velocity) / physics->max_velocity,
-									 game_state);
+				entities_ball_tackle(
+					ball_entity,
+					entity_id,
+					V2_TO_V3(player->collision_direction, 0),
+					Vector2Length(Vector2Scale(physics->velocity, player->collision_force)) /
+						physics->max_velocity,
+					game_state);
 			}
 
 			break;

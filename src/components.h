@@ -124,6 +124,8 @@ struct component_player {
 	u8 team_formation_position_idx;
 	enum team_side team_side;
 	b32 is_colliding_with_ball;
+	v2 collision_direction;
+	f32 collision_force;
 	b32 kicked_ball;
 };
 

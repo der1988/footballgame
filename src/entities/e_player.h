@@ -140,6 +140,12 @@ enum player_ball_possession {
 	PBP_OFF_THE_BALL
 };
 
+struct collision_information {
+	b32 is_colliding;
+	v2 direction;
+	f32 force;
+};
+
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
 
 void entities_player_apply_force(struct entity *player_entity,
@@ -155,11 +161,13 @@ void entities_player_calculate_running_frame(struct entity *player_entity,
 											 f32 velocity_threshold,
 											 struct game_state *game_state);
 
-b32 entities_player_is_colliding_with_ball(struct entity *player_entity,
-										   enum player_collider_type collider_type,
-										   v3 ball_position,
-										   f32 ball_radius,
-										   f32 max_height);
+struct collision_information
+entities_player_is_colliding_with_ball(struct entity *player_entity,
+									   enum player_collider_type collider_type,
+									   v3 ball_position,
+									   v3 ball_velocity,
+									   f32 ball_radius,
+									   f32 max_height);
 
 b32 entities_player_should_dive(struct entity *goalie_entity,
 								struct entity *ball_entity,

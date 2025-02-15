@@ -363,7 +363,7 @@ void entities_ball_tackle(struct entity *ball_entity,
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
 
-	physics3d->velocity = Vector3Zero();
+	// physics3d->velocity = Vector3Zero(); // Why should we reset velocity??
 	physics3d->accel = Vector3Add(
 		physics3d->accel,
 		Vector3Scale(direction,
