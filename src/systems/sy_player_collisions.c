@@ -128,7 +128,6 @@ void systems_player_collisions(struct game_state *game_state)
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
 					game_state->constants.player_control_height * 0.5f);
-			player->muffled_tackle = !collision_with_ball_info.is_colliding;
 
 			if (!collision_with_ball_info.is_colliding) {
 				collider = &player_entity->collider.colliders[PCT_TACKLE_2];

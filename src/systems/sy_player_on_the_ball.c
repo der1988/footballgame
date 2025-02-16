@@ -263,9 +263,6 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			f32 tackle_force =
 				Vector2Length(Vector2Scale(player_physics->velocity, player->collision_force)) /
 				player_physics->max_velocity;
-			if (player->muffled_tackle) {
-				tackle_force = 0.25f;
-			}
 
 			printf("tackle force: %.2f\n", tackle_force);
 			entities_ball_tackle(ball_entity,
