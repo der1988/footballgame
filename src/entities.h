@@ -26,7 +26,7 @@
 
 #define FOR_EACH_ENTITY(item, entity_repo)                                                         \
 	struct entity *item = entity_repo->entities;                                                   \
-	for (usize item##_id = 0; entity_id < entity_repo->max_slots; ++item##_id, item++)
+	for (usize item##_id = 0; item##_id < entity_repo->max_slots; ++item##_id, item++)
 
 #define DECLARE_ENTITY_COMPONENT_EXT(entity, type, name)                                           \
 	struct component_##type *name = &entity->type
