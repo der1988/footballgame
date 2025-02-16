@@ -128,3 +128,5 @@ v when team does not have the ball we need a player always seeking the ball
 - don't make goalie rush to the ball if possession is hostile
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
 - fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
+- ball deviation has to happen just once per collision
+- tackle logic (as in changing state of tackled players) should run in its own system and the tackling logic should be run in the on the ball system to prevent other players to interact with ball
