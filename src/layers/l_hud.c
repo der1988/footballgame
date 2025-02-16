@@ -8,5 +8,5 @@ void layers_hud_draw(struct game_state *game_state)
 						 .width = 300 * p1_charge->power,
 						 .height = 20};
 	if (p1_charge->charging || p1_charge->ready)
-		DrawRectangleRec(charge_box, WHITE);
+		DrawRectangleRec(charge_box, p1_charge->power > 0.8f ? RED : WHITE);
 }
