@@ -79,14 +79,25 @@ void systems_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_SLIDING_TACKLE: {
-			const struct collision_information collision_with_ball_info =
+			struct collision_information collision_with_ball_info =
 				entities_player_is_colliding_with_ball(
 					entity,
-					PCT_TACKLE,
+					PCT_TACKLE_1,
+					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+					ball_entity->physics3d.velocity,
+					ball_collider->colliders[0].props.circle.radius,
+					game_state->constants.player_control_height * 0.5f);
+			player->muffled_tackle = !collision_with_ball_info.is_colliding;
+
+			if (!collision_with_ball_info.is_colliding) {
+				collision_with_ball_info = entities_player_is_colliding_with_ball(
+					entity,
+					PCT_TACKLE_2,
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
 					game_state->constants.player_control_height);
+			}
 
 			if (collision_with_ball_info.is_colliding) {
 				player->is_colliding_with_ball = true;

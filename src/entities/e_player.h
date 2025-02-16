@@ -100,7 +100,8 @@ enum player_collider_type {
 	PCT_PLAYER,
 	PCT_GOALIE,
 	PCT_DIVE,
-	PCT_TACKLE,
+	PCT_TACKLE_1,
+	PCT_TACKLE_2,
 	PCT_COUNT
 };
 

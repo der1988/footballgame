@@ -129,8 +129,11 @@ struct entity *entities_player_create(struct player_config config, struct game_s
 	collider->colliders[PCT_PLAYER].props.circle.radius =
 		game_state->constants.player_control_radius;
 
-	collider->colliders[PCT_TACKLE].shape = CS_CIRCLE;
-	collider->colliders[PCT_TACKLE].props.circle.radius = 5;
+	collider->colliders[PCT_TACKLE_1].shape = CS_CIRCLE;
+	collider->colliders[PCT_TACKLE_1].props.circle.radius = 5;
+	collider->colliders[PCT_TACKLE_2].shape = CS_CIRCLE;
+	collider->colliders[PCT_TACKLE_2].props.circle.radius = 5;
+	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
 
 	entities_player_state_machine_on_enter(entity, game_state);
 
@@ -219,6 +222,10 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 	case PS_THROW_IN:
 	case PS_HEADER:
 	case PS_SLIDING_TACKLE:
+		game_input_player_charge_reset(game_state, entity->header.id);
+		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
+		entity->player.state_machine->state_data.tackle.start_time = game_state->time;
+		break;
 	case PS_FALL:
 		game_input_player_charge_reset(game_state, entity->header.id);
 		struct entity *ball_entity =
@@ -227,8 +234,6 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 			// Falling player had the ball, so let's reset touch time to make it clear player is no longer in possession
 			ball_entity->ball.last_touch_time = 0;
 		}
-		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
-		entity->player.state_machine->state_data.tackle.start_time = game_state->time;
 		break;
 	case PS_COUNT:
 		break;
@@ -351,9 +356,10 @@ entities_player_is_colliding_with_ball(struct entity *entity,
 	f32 collision_force = 0;
 
 	switch (collider_type) {
-	case PCT_TACKLE:
+	case PCT_TACKLE_1:
 		collider->props.circle.offset =
 			ORIENTATION_TO_TACKLE_COLLIDER_OFFSET[entity->sprite.orientation];
+	case PCT_TACKLE_2:
 		check_collision =
 			CheckCollisionCircles(ball_pos,
 								  ball_radius,
@@ -694,11 +700,11 @@ struct entities entities_player_find_tackled_opponents(struct entity *player_ent
 						   opponent_entity->collider.colliders[PCT_PLAYER].props.circle.offset);
 			const v2 player_collider_pos =
 				Vector2Add(player_entity->transform.position,
-						   player_entity->collider.colliders[PCT_TACKLE].props.circle.offset);
+						   player_entity->collider.colliders[PCT_TACKLE_1].props.circle.offset);
 
 			const b32 is_tackled = CheckCollisionCircles(
 				player_collider_pos,
-				player_entity->collider.colliders[PCT_TACKLE].props.circle.radius,
+				player_entity->collider.colliders[PCT_TACKLE_1].props.circle.radius,
 				opponent_collider_pos,
 				opponent_entity->collider.colliders[PCT_PLAYER].props.circle.radius);
 

@@ -127,6 +127,7 @@ struct component_player {
 	v2 collision_direction;
 	f32 collision_force;
 	b32 kicked_ball;
+	b32 muffled_tackle;
 };
 
 struct component_player_controls {
