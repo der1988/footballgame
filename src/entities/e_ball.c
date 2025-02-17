@@ -224,11 +224,10 @@ void entities_ball_control_precision(struct entity *ball_entity,
 	// The more the difficulty of the control, the less force will be applied to the ball.
 	// This means it will be easier for another player to steal the ball.
 	physics3d->velocity = Vector3Add(
-		V2_TO_V3(player_velocity, 0),
+		V2_TO_V3(player_velocity, physics3d->velocity.y), // To keep ball existing vertical velocity
 		Vector3Scale(
 			Vector3Normalize(
-				Vector3Subtract(V2_TO_V3(position_to_seek, 0),
-								V2_TO_V3(transform->position, transform->virtual_height))),
+				Vector3Subtract(V2_TO_V3(position_to_seek, 0), V2_TO_V3(transform->position, 0))),
 			math_ext_split_lerp(game_state->constants.ball_control_force, 0.5f, 1 - difficulty)));
 }
 
@@ -238,14 +237,13 @@ void entities_ball_control_running(struct entity *ball_entity,
 								   f32 difficulty,
 								   struct game_state *game_state)
 {
-	struct component_transform *transform = &ball_entity->transform;
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 
-	f32 vertical_force = transform->virtual_height > 10 ? 0 : 0.5f;
-	v3 velocity_to_add = Vector3Scale(
-		Vector3Add(Vector3Normalize(V2_TO_V3(control_direction, 0)), (v3){.y = vertical_force}),
-		math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
-	physics3d->velocity = Vector3Add(V2_TO_V3(player_velocity, 0), velocity_to_add);
+	v3 velocity_to_add =
+		Vector3Scale(V2_TO_V3(Vector2Normalize(control_direction), 0),
+					 math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
+	physics3d->velocity =
+		Vector3Add(V2_TO_V3(player_velocity, physics3d->velocity.y), velocity_to_add);
 }
 
 void entities_ball_shoot(struct entity *ball_entity,
