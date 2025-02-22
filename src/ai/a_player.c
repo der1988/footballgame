@@ -125,7 +125,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				struct entity *opponent_entity =
 					entities_player_find_nearest_facing_opponent(player_entity, game_state);
 				struct entity *teammate_entity =
-					entities_player_find_pass_target(player_entity, 60, 300, game_state);
+					entities_player_find_pass_target(player_entity, 35, 300, game_state);
 				if (opponent_entity && teammate_entity) {
 					// Facing an opponent and we have someone to pass to, let's pass
 					*kick_decision = PAKD_PASS;
