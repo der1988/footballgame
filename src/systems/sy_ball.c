@@ -117,59 +117,60 @@ void systems_ball(struct game_state *game_state, struct input *input)
 
 			// After touch
 			f32 after_touch_time = (game_state->time - ball->last_kick_time);
-			// TODO: the following has to be fixed but I can't be bothered to do that now:
-			// we want the human player that kicked the ball to be able to control after touch.
-			// Also we'd like CPU controlled players to be able to control after touch in some
-			// way.
+			// TODO: we'd like CPU controlled players to also be able to control after touch in some way.
 			if (ball->subject_to_after_touch &&
 				after_touch_time > game_state->constants.ball_after_touch_delay_time) {
-				v2 input = game_state->human_players[0].controls.steering;
-				v2 ball_2d_vel = V3_TO_V2(velocity);
-				v2 ball_2d_vel_perp = Vector2Perp(ball_2d_vel);
-				v2 after_touch_side = Vector2Zero();
-				f32 after_touch_pressure =
-					Vector2ProjectExt(ball_2d_vel_perp, input, &after_touch_side);
-				b32 apply_after_touch = true;
+				struct human_player *human_player =
+					game_input_human_player(game_state, ball->last_kicker_entity_id);
+				if (human_player) {
+					v2 input = human_player->controls.steering;
+					v2 ball_2d_vel = V3_TO_V2(velocity);
+					v2 ball_2d_vel_perp = Vector2Perp(ball_2d_vel);
+					v2 after_touch_side = Vector2Zero();
+					f32 after_touch_pressure =
+						Vector2ProjectExt(ball_2d_vel_perp, input, &after_touch_side);
+					b32 apply_after_touch = true;
 
-				if (ball->selected_after_touch_side.x == 0 &&
-					ball->selected_after_touch_side.y == 0) {
-					// After touch side not selected yet
-					if (fabsf(after_touch_pressure) > 0.25f) {
-						// We need some after touch to be actually applied
-						ball->selected_after_touch_side = after_touch_side;
-					} else {
-						apply_after_touch = false;
+					if (ball->selected_after_touch_side.x == 0 &&
+						ball->selected_after_touch_side.y == 0) {
+						// After touch side not selected yet
+						if (fabsf(after_touch_pressure) > 0.25f) {
+							// We need some after touch to be actually applied
+							ball->selected_after_touch_side = after_touch_side;
+						} else {
+							apply_after_touch = false;
+						}
+					} else if (!is_applied_after_touch_same_side(ball->selected_after_touch_side,
+																 after_touch_side)) {
+						// If player changed side of after touch we keep applying the first one
+						// we've seen
+						after_touch_side = ball->selected_after_touch_side;
 					}
-				} else if (!is_applied_after_touch_same_side(ball->selected_after_touch_side,
-															 after_touch_side)) {
-					// If player changed side of after touch we keep applying the first one
-					// we've seen
-					after_touch_side = ball->selected_after_touch_side;
-				}
 
-				if (apply_after_touch) {
-					// Make it 3D
-					v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
+					if (apply_after_touch) {
+						// Make it 3D
+						v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
 
-					// After touch force decays exponentially with time.
-					// Formula is:
-					// 1 - clamp((time_since_ball_kicked - after_touch_delay)^2 /
-					// (max_after_touch_time - after_touch_delay)^2, 0, 1)
-					f32 force =
-						1 - Clamp(powf((after_touch_time -
-										game_state->constants.ball_after_touch_delay_time),
-									   2) /
-									  powf((game_state->constants.ball_after_touch_max_time -
+						// After touch force decays exponentially with time.
+						// Formula is:
+						// 1 - clamp((time_since_ball_kicked - after_touch_delay)^2 /
+						// (max_after_touch_time - after_touch_delay)^2, 0, 1)
+						f32 force =
+							1 - Clamp(powf((after_touch_time -
 											game_state->constants.ball_after_touch_delay_time),
-										   2),
-								  0,
-								  1);
+										   2) /
+										  powf((game_state->constants.ball_after_touch_max_time -
+												game_state->constants.ball_after_touch_delay_time),
+											   2),
+									  0,
+									  1);
 
-					// Apply it
-					accel = Vector3Add(
-						accel,
-						Vector3Scale(after_touch_direction,
-									 game_state->constants.ball_after_touch_force * force));
+						// Apply it
+						accel = Vector3Add(
+							accel,
+							Vector3Scale(after_touch_direction,
+										 game_state->constants.ball_after_touch_force * force));
+					}
 				}
 			}
 

@@ -99,6 +99,7 @@ struct device_controls {
 };
 
 struct human_player {
+	human_id_t id;
 	enum team_side team_side;
 	struct device_controls controls;
 	entity_id_t controlled_player_entity_id;
@@ -203,6 +204,17 @@ INLINE void game_input_player_charge_reset(struct game_state *game_state,
 			break;
 		}
 	}
+}
+
+INLINE struct human_player *game_input_human_player(struct game_state *game_state,
+													entity_id_t player_entity_id)
+{
+	for (usize i = 0; i < MAX_INPUT_DEVICES; ++i) {
+		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
+			return &game_state->human_players[i];
+		}
+	}
+	return NULL;
 }
 
 #endif // !GAME_H
