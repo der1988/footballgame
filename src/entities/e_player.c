@@ -584,10 +584,10 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 			f32 score = 0;
 			if (!is_player_human_controlled) {
 				score =
-					0.2f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
-				score += 0.35f * Clamp01((game_state->time - last_time_selected_for_pass) / 1.f);
-				score += 0.2f * nearer_to_goal;
-				score += 0.25f * clear_trajectory;
+					0.15f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
+				score += 0.5f * Clamp01((game_state->time - last_time_selected_for_pass) / 1.f);
+				score += 0.15f * nearer_to_goal;
+				score += 0.2f * clear_trajectory;
 			} else {
 				score =
 					0.33f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
@@ -600,7 +600,7 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 			}
 		}
 	}
-	if (selected_entity != NULL) {
+	if (selected_entity) {
 		entities_player_selected_for_pass(selected_entity, game_state);
 		GLOGF_TRACE(LS_GAME,
 					"selected pass target %zu with score %.2f",
