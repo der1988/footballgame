@@ -2,10 +2,13 @@
 #define ENTITIES_PLAYER_H
 
 #include "components.h"
+#include "football.h"
 #include "state_machine.h"
 #include "types.h"
 
+// Forward declarations
 struct entity;
+struct list_entity_ids;
 
 struct player_config {
 	v2 position;
@@ -147,6 +150,11 @@ struct collision_information {
 	f32 force;
 };
 
+struct nearest_player {
+	struct entity *entity;
+	f32 distance;
+};
+
 struct entity *entities_player_create(struct player_config config, struct game_state *game_state);
 
 void entities_player_apply_force(struct entity *player_entity,
@@ -198,16 +206,16 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 												f32 max_distance,
 												struct game_state *game_state);
 
-entity_id_t entities_player_find_nearest_teammate(entity_id_t player_to_not_select_entity_id,
-												  v2 position,
-												  enum team_side team_side,
-												  struct game_state *game_state);
+struct nearest_player *entities_player_find_nearest_player(v2 position,
+														   enum team_side team_side,
+														   struct list_entity_ids exclusion_list,
+														   struct game_state *game_state);
 
-struct entity *entities_player_find_nearest_facing_opponent(struct entity *player_entity,
+struct nearest_player *entities_player_find_nearest_facing_opponent(struct entity *player_entity,
+																	struct game_state *game_state);
+
+struct list_entities entities_player_find_tackled_opponents(struct entity *player_entity,
 															struct game_state *game_state);
-
-struct entities entities_player_find_tackled_opponents(struct entity *player_entity,
-													   struct game_state *game_state);
 
 b32 entities_player_is_trajectory_clear(v2 passer_position,
 										v2 target_position,

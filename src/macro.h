@@ -27,4 +27,6 @@
 		   0,                                                                                      \
 		   sizeof(*player_controls) - sizeof(struct component_header));
 
+#define OPPONENT_TEAM_SIDE(t) 1 - t
+
 #endif // !MACRO_H

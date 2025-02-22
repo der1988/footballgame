@@ -610,46 +610,8 @@ struct entity *entities_player_find_pass_target(struct entity *player_on_the_bal
 	return selected_entity;
 }
 
-entity_id_t entities_player_find_nearest_teammate(entity_id_t player_to_not_select_entity_id,
-												  v2 position,
-												  enum team_side team_side,
-												  struct game_state *game_state)
-{
-	struct entity *ball_entity =
-		entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
-	struct component_ball *ball = &ball_entity->ball;
-
-	struct entity_repository *entity_repository = game_state->entity_repository;
-	entity_id_t selected_entity_id = EID_NOT_VALID;
-	f32 selected_distance = UINT32_MAX;
-	struct entity *entity;
-	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-		entity = entities_entity_get(game_state->entity_repository, entity_id);
-		if (entity->header.alive && entity->header.type == ET_PLAYER) {
-			struct component_transform *transform = &entity->transform;
-			struct component_goalie *goalie = &entity->goalie;
-
-			if (player_to_not_select_entity_id == entity_id ||
-				entity->player.team_side != team_side ||
-				(goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
-				ball->pass_target_entity_id == entity_id) {
-				// If player is the one on the ball or a goalie or the destination of the pass let's
-				// skip
-				continue;
-			}
-
-			f32 distance = Vector2Distance(position, transform->position);
-			if (distance < selected_distance) {
-				selected_entity_id = entity_id;
-				selected_distance = distance;
-			}
-		}
-	}
-	return selected_entity_id;
-}
-
-struct entity *entities_player_find_nearest_facing_opponent(struct entity *player_entity,
-															struct game_state *game_state)
+struct nearest_player *entities_player_find_nearest_facing_opponent(struct entity *player_entity,
+																	struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *opponent_entity;
@@ -670,21 +632,23 @@ struct entity *entities_player_find_nearest_facing_opponent(struct entity *playe
 
 			f32 distance = Vector2Distance(player_entity->transform.position, transform->position);
 			if (distance < 100 && angle < 30) {
-				return opponent_entity;
+				struct nearest_player *nearest_player = memory_arena_push(
+					game_state->memory_by_lifetime[MAL_UPDATE], sizeof(struct nearest_player));
+				nearest_player->entity = opponent_entity;
+				nearest_player->distance = distance;
+				return nearest_player;
 			}
 		}
 	}
 	return NULL;
 }
 
-struct entities entities_player_find_tackled_opponents(struct entity *player_entity,
-													   struct game_state *game_state)
+struct list_entities entities_player_find_tackled_opponents(struct entity *player_entity,
+															struct game_state *game_state)
 {
 	const u8 max_tackled_players = 3;
-	struct entities tackled_players = {
-		.length = 0,
-		.array = memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE],
-								   sizeof(struct entity *) * max_tackled_players)};
+	LIST_ENTITIES_CREATE(
+		tackled_players, max_tackled_players, game_state->memory_by_lifetime[MAL_UPDATE]);
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *opponent_entity;
 	u8 current_idx = 0;
@@ -709,15 +673,61 @@ struct entities entities_player_find_tackled_opponents(struct entity *player_ent
 				opponent_entity->collider.colliders[PCT_PLAYER].props.circle.radius);
 
 			if (is_tackled) {
-				tackled_players.array[current_idx++] = opponent_entity;
-				tackled_players.length++;
-				if (tackled_players.length == max_tackled_players) {
+				LIST_ADD(tackled_players, opponent_entity)
+				if (tackled_players.count == max_tackled_players) {
 					break;
 				}
 			}
 		}
 	}
 	return tackled_players;
+}
+
+struct nearest_player *entities_player_find_nearest_player(v2 position,
+														   enum team_side team_side,
+														   struct list_entity_ids exclusion_list,
+														   struct game_state *game_state)
+{
+	struct entity_repository *entity_repository = game_state->entity_repository;
+	struct entity *selected_entity = NULL;
+	f32 selected_distance = UINT32_MAX;
+	struct entity *entity;
+	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+		entity = entities_entity_get(game_state->entity_repository, entity_id);
+		if (entity->header.alive && entity->header.type == ET_PLAYER) {
+			struct component_transform *transform = &entity->transform;
+			struct component_goalie *goalie = &entity->goalie;
+
+			b32 should_be_excluded = false;
+			LIST_ITERATE(entity_id_t, excluded_entity_id, exclusion_list)
+			{
+				if (entity->header.id == excluded_entity_id) {
+					should_be_excluded = true;
+					continue;
+				}
+			}
+
+			if (entity->player.team_side != team_side ||
+				(goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
+				should_be_excluded) {
+				// If player is an opponent or a goalie or is in exclusion list let's skip it
+				continue;
+			}
+
+			f32 distance = Vector2Distance(position, transform->position);
+			if (distance < selected_distance) {
+				selected_entity = entity;
+				selected_distance = distance;
+			}
+		}
+	}
+	assert(selected_entity);
+
+	struct nearest_player *nearest_player = memory_arena_push(
+		game_state->memory_by_lifetime[MAL_UPDATE], sizeof(struct nearest_player));
+	nearest_player->entity = selected_entity;
+	nearest_player->distance = selected_distance;
+	return nearest_player;
 }
 
 b32 entities_player_is_trajectory_clear(v2 passer_position,

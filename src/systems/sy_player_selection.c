@@ -1,4 +1,5 @@
 #include "e_ball.h"
+#include "e_player.h"
 #include "entities.h"
 #include "football.h"
 #include "game.h"
@@ -66,8 +67,13 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			 player_in_possession_entity->player.kicked_ball) ||
 			player_in_possession_exists_and_its_not_in_our_team ||
 			player_in_possession_entity_id == EID_NOT_VALID) {
-			new_controlled_player_entity_id = entities_player_find_nearest_teammate(
-				player_to_avoid_entity_id, epicenter, human_player->team_side, game_state);
+			LIST_ENTITY_IDS_CREATE(exclusion_list, 1, game_state->memory_by_lifetime[MAL_UPDATE]);
+			LIST_ADD(exclusion_list, player_to_avoid_entity_id);
+
+			struct nearest_player *nearest_player = entities_player_find_nearest_player(
+				epicenter, human_player->team_side, exclusion_list, game_state);
+			// nearest_player is always valid
+			new_controlled_player_entity_id = nearest_player->entity->header.id;
 		}
 		// TODO: this has to be fixed to support multiple human players
 		// e.g.: we need to check whether the player is already controlled by a human

@@ -2,6 +2,7 @@
 #define ENTITIES_H
 
 #include "components.h"
+#include "memory.h"
 #include "types.h"
 
 #include "entities/e_ball.h"
@@ -28,6 +29,25 @@
 	struct entity *item = entity_repo->entities;                                                   \
 	for (usize item##_id = 0; item##_id < entity_repo->max_slots; ++item##_id, item++)
 
+#define LIST_ENTITIES_CREATE(list_name, list_size, arena)                                          \
+	struct entity **array = memory_arena_push(arena, sizeof(struct entity *) * list_size);         \
+	struct list_entities list_name = {.array = array, .count = 0, .size = list_size};
+
+#define LIST_ENTITY_IDS_CREATE(list_name, list_size, arena)                                        \
+	entity_id_t *array = memory_arena_push(arena, sizeof(entity_id_t) * list_size);                \
+	struct list_entity_ids list_name = {.array = array, .count = 0, .size = list_size};
+
+#define LIST_ENTITIES_EMPTY	  (struct list_entities){.array = NULL, .count = 0, .size = 0}
+#define LIST_ENTITY_IDS_EMPTY (struct list_entity_ids){.array = NULL, .count = 0, .size = 0}
+
+#define LIST_ADD(list, item)                                                                       \
+	assert(list.count < list.size);                                                                \
+	list.array[list.count++] = item;
+
+#define LIST_ITERATE(type, item, list)                                                             \
+	type item;                                                                                     \
+	for (usize i = 0; i < list.count; ++i, item = list.array[i])
+
 #define DECLARE_ENTITY_COMPONENT_EXT(entity, type, name)                                           \
 	struct component_##type *name = &entity->type
 
@@ -42,9 +62,16 @@
 // Forward declaration
 struct entity;
 
-struct entities {
+struct list_entities {
 	struct entity **array;
-	u32 length;
+	usize count;
+	usize size;
+};
+
+struct list_entity_ids {
+	entity_id_t *array;
+	usize count;
+	usize size;
 };
 
 // START - Camera

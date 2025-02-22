@@ -130,3 +130,4 @@ v fix broken after touch
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
 - fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
 - ball deviation has to happen just once per collision
+- when goalie has the ball players should move towards the center of the pitch

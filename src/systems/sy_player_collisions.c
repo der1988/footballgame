@@ -34,10 +34,12 @@ void systems_player_collisions(struct game_state *game_state)
 
 		switch (state_machine->current_state) {
 		case PS_SLIDING_TACKLE: {
-			struct entities entities = entities_player_find_tackled_opponents(entity, game_state);
-			for (usize i = 0; i < entities.length; ++i) {
+			struct list_entities entities =
+				entities_player_find_tackled_opponents(entity, game_state);
+			LIST_ITERATE(struct entity *, tackled_player_entity, entities)
+			{
 				entities_player_state_machine_change_state_to(
-					entities.array[i]->player.state_machine, PS_FALL, game_state);
+					tackled_player_entity->player.state_machine, PS_FALL, game_state);
 				GLOGF_INFO_CTX(LS_GAME,
 							   entities.array[i]->header.name,
 							   "player tackled by %s",

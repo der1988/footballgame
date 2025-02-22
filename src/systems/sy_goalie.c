@@ -1,7 +1,9 @@
 #include "e_ball.h"
 #include "e_player.h"
 #include "entities.h"
+#include "football.h"
 #include "game.h"
+#include "macro.h"
 #include "steering.h"
 #include "math_ext.h"
 #include "constants.h"
@@ -145,9 +147,17 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				break;
 			}
 
-			if (player_in_possession_entity_id != EID_NOT_VALID &&
-				player_in_possession_entity->player.team_side != entity->player.team_side) {
-				// Opponent has the ball: let's protect goal
+			struct nearest_player *nearest_player_to_the_ball =
+				entities_player_find_nearest_player(ball_transform->position,
+													OPPONENT_TEAM_SIDE(entity->player.team_side),
+													LIST_ENTITY_IDS_EMPTY,
+													game_state);
+
+			if ((player_in_possession_entity_id != EID_NOT_VALID &&
+				 player_in_possession_entity->player.team_side != entity->player.team_side) ||
+				(nearest_player_to_the_ball->entity->player.team_side != entity->player.team_side &&
+				 nearest_player_to_the_ball->distance < 100)) {
+				// Opponent has the ball or is the nearest to the ball: let's protect goal
 				physics->max_velocity = game_state->constants.player_run_max_velocity;
 				force = game_state->constants.player_movement_force;
 				direction =
