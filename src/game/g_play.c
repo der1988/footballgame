@@ -67,7 +67,7 @@ struct game_state *game_play_init(struct game_config game_config,
 								.ball_tackle_force = 1 * PIXELS_PER_METER,
 								.ball_after_touch_delay_time = 0.1f,
 								.ball_after_touch_max_time = 0.6f,
-								.ball_after_touch_force = 150.0f,
+								.ball_after_touch_force = 300.0f,
 								// 36m/s seems fair, that would be 129km/h
 								.ball_max_velocity = 36 * PIXELS_PER_METER,
 								.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,

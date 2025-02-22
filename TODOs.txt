@@ -109,16 +109,17 @@ v improve player ai
 v when team does not have the ball we need a player always seeking the ball
   - if team is human controlled the seeker will be in addition to the controlled player
   - if team is cpu controlled two players will seek the ball
+v tackle logic (as in changing state of tackled players) should run in its own system and the tackling logic should be run in the on the ball system to prevent other players to interact with ball
 * improve player selection system
 * support multiple human players
 * refactor player selection to support multiple human players
+* fix broken after touch
 - goal is too small? proportional to ball instead of player?
 - use r1 to dribble?
 - use r1 to make the player stop the ball?
 - use pass when you don't have the ball to chase the ball?
 - shot height should depend on starting height of the ball
 - implement header
-- fix broken after touch
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
 - goalie should not exit all the time
@@ -129,4 +130,3 @@ v when team does not have the ball we need a player always seeking the ball
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
 - fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
 - ball deviation has to happen just once per collision
-- tackle logic (as in changing state of tackled players) should run in its own system and the tackling logic should be run in the on the ball system to prevent other players to interact with ball
