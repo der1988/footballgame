@@ -700,7 +700,7 @@ struct nearest_player *entities_player_find_nearest_player(v2 position,
 			struct component_goalie *goalie = &entity->goalie;
 
 			b32 should_be_excluded = false;
-			LIST_ITERATE(entity_id_t, excluded_entity_id, exclusion_list)
+			LIST_ITERATE(excluded_entity_id, exclusion_list)
 			{
 				if (entity->header.id == excluded_entity_id) {
 					should_be_excluded = true;

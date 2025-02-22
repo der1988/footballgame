@@ -69,9 +69,10 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			player_in_possession_entity_id == EID_NOT_VALID) {
 			LIST_CREATE(struct list_entity_ids,
 						exclusion_list,
-						1,
+						2,
 						game_state->memory_by_lifetime[MAL_UPDATE]);
 			LIST_ADD(exclusion_list, player_to_avoid_entity_id);
+			LIST_ADD(exclusion_list, ball->pass_target_entity_id);
 
 			struct nearest_player *nearest_player = entities_player_find_nearest_player(
 				epicenter, human_player->team_side, exclusion_list, game_state);

@@ -36,7 +36,7 @@ void systems_player_collisions(struct game_state *game_state)
 		case PS_SLIDING_TACKLE: {
 			struct list_entities entities =
 				entities_player_find_tackled_opponents(entity, game_state);
-			LIST_ITERATE(struct entity *, tackled_player_entity, entities)
+			LIST_ITERATE(tackled_player_entity, entities)
 			{
 				entities_player_state_machine_change_state_to(
 					tackled_player_entity->player.state_machine, PS_FALL, game_state);
