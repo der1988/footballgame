@@ -29,13 +29,9 @@
 	struct entity *item = entity_repo->entities;                                                   \
 	for (usize item##_id = 0; item##_id < entity_repo->max_slots; ++item##_id, item++)
 
-#define LIST_ENTITIES_CREATE(list_name, list_size, arena)                                          \
-	struct entity **array = memory_arena_push(arena, sizeof(struct entity *) * list_size);         \
-	struct list_entities list_name = {.array = array, .count = 0, .size = list_size};
-
-#define LIST_ENTITY_IDS_CREATE(list_name, list_size, arena)                                        \
-	entity_id_t *array = memory_arena_push(arena, sizeof(entity_id_t) * list_size);                \
-	struct list_entity_ids list_name = {.array = array, .count = 0, .size = list_size};
+#define LIST_CREATE(list_type, list_name, list_size, arena)                                        \
+	list_type list_name = {.array = NULL, .count = 0, .size = list_size};                          \
+	list_name.array = memory_arena_push(arena, sizeof(list_name.array[0]) * list_size);
 
 #define LIST_ENTITIES_EMPTY	  (struct list_entities){.array = NULL, .count = 0, .size = 0}
 #define LIST_ENTITY_IDS_EMPTY (struct list_entity_ids){.array = NULL, .count = 0, .size = 0}

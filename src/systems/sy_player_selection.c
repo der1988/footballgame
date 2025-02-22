@@ -67,7 +67,10 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			 player_in_possession_entity->player.kicked_ball) ||
 			player_in_possession_exists_and_its_not_in_our_team ||
 			player_in_possession_entity_id == EID_NOT_VALID) {
-			LIST_ENTITY_IDS_CREATE(exclusion_list, 1, game_state->memory_by_lifetime[MAL_UPDATE]);
+			LIST_CREATE(struct list_entity_ids,
+						exclusion_list,
+						1,
+						game_state->memory_by_lifetime[MAL_UPDATE]);
 			LIST_ADD(exclusion_list, player_to_avoid_entity_id);
 
 			struct nearest_player *nearest_player = entities_player_find_nearest_player(

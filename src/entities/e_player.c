@@ -647,11 +647,12 @@ struct list_entities entities_player_find_tackled_opponents(struct entity *playe
 															struct game_state *game_state)
 {
 	const u8 max_tackled_players = 3;
-	LIST_ENTITIES_CREATE(
-		tackled_players, max_tackled_players, game_state->memory_by_lifetime[MAL_UPDATE]);
+	LIST_CREATE(struct list_entities,
+				tackled_players,
+				max_tackled_players,
+				game_state->memory_by_lifetime[MAL_UPDATE]);
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *opponent_entity;
-	u8 current_idx = 0;
 	for (usize opponent_entity_id = 0; opponent_entity_id < entity_repository->max_slots;
 		 ++opponent_entity_id) {
 		opponent_entity = entities_entity_get(game_state->entity_repository, opponent_entity_id);
