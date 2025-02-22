@@ -4,8 +4,10 @@
 #include "entities.h"
 #include "football.h"
 #include "math_ext.h"
+#include "steering.h"
 #include "types.h"
 #include "game.h"
+#include <math.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
@@ -159,8 +161,12 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				game_state->vars.teams[player_entity->player.team_side]
 						.play_context.player_in_charge_of_pressing == player_entity->header.id) {
 				// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
-				ai_state = PAS_SEEK_POSITION;
-				*target_position = ball_transform->position;
+				ai_state = PAS_SET_STEERING;
+				*target_position = steering_pursuit(player_entity->transform.position,
+													player_entity->physics.velocity,
+													player_entity->physics.max_velocity,
+													ball_transform->position,
+													V3_TO_V2(ball_physics_3d->velocity));
 			} else {
 				// We are not the nearest to the player with the ball, so let's mind our business
 				// and move based on the tactics of the team
