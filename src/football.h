@@ -9,6 +9,9 @@ struct game_state;
 
 enum match_state {
 	MS_KICKOFF,
+	MS_HALF_TIME,
+	MS_EXTRA_TIME,
+	MS_PENALTIES,
 	MS_PLAY,
 	MS_GOAL,
 	MS_THROW_IN,
@@ -19,8 +22,17 @@ enum match_state {
 	MS_COUNT
 };
 
-static const char *match_state_to_string[MS_COUNT] = {
-	"kickoff", "play", "goal", "throw_in", "goal_kick", "corner_kick", "penalty_kick", "free_kick"};
+static const char *match_state_to_string[MS_COUNT] = {"kickoff",
+													  "half_time",
+													  "extra_time",
+													  "penalties",
+													  "play",
+													  "goal",
+													  "throw_in",
+													  "goal_kick",
+													  "corner_kick",
+													  "penalty_kick",
+													  "free_kick"};
 
 struct match {
 	enum match_state state;
@@ -110,7 +122,7 @@ struct team_formation_position {
 	enum style_of_play style_of_play;
 };
 
-static struct team_formation_position TeamFormations[TF_COUNT][10] = {
+static struct team_formation_position team_formations[TF_COUNT][10] = {
 	// TF_433
 	{
 		{
