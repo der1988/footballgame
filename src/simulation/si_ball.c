@@ -38,9 +38,26 @@ void sim_ball_physics(v3 *out_position,
 		*out_on_the_ground = false;
 		accel = Vector3Add(accel, game_state->constants.gravity_force);
 	} else {
-		// If it's on the pitch we apply a hacky drag
-		velocity.x += velocity.x * -game_state->constants.ball_friction_on_pitch * game_state->dt;
-		velocity.z += velocity.z * -game_state->constants.ball_friction_on_pitch * game_state->dt;
+		// Calculate rolling resistance based on velocity and surface properties
+		v2 horizontal_velocity = {velocity.x, velocity.z};
+		f32 speed = Vector3Length(velocity);
+
+		// Rolling resistance coefficient varies with speed
+		f32 rolling_resistance = 5 * (1.0f + speed * 0.001f); // Increases slightly with speed
+
+		// Normal force for rolling resistance calculation
+		f32 normal_force = mass * 9.81f; // Using gravity constant
+
+		// Rolling resistance force
+		f32 resistance_force = rolling_resistance * normal_force;
+
+		// Calculate deceleration from rolling resistance
+		f32 deceleration = resistance_force / mass;
+
+		// Apply deceleration in direction opposing motion
+		v2 direction = Vector2Scale(Vector2Normalize(horizontal_velocity), -1.0f);
+		accel.x += direction.x * deceleration;
+		accel.z += direction.y * deceleration;
 	}
 
 	// Apply acceleration...
