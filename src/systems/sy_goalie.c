@@ -164,7 +164,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					  ball->future_bounce.position,
 					  game_state->vars.teams[entity->player.team_side].play_context.pitch_side,
 					  game_state))) &&
-				player_in_possession_entity_id == EID_NOT_VALID &&
+				player_in_possession_entity_id == EID_NOT_VALID && ball_velocity < 250 &&
 				nearest_opponent_to_the_ball->distance > 10) {
 				// We will chase the ball if all the following conditions are true:
 				// - nearest opponent is reasonable far from the ball
