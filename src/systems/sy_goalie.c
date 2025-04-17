@@ -149,31 +149,29 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				break;
 			}
 
-			struct nearest_player *nearest_player_to_the_ball =
+			struct nearest_player *nearest_opponent_to_the_ball =
 				entities_player_find_nearest_player(ball_transform->position,
 													OPPONENT_TEAM_SIDE(entity->player.team_side),
 													LIST_ENTITY_IDS_EMPTY,
 													game_state);
 
-			if (ball_distance_from_goal > 200 || ball_velocity > 80 ||
-				(player_in_possession_entity_id != EID_NOT_VALID &&
-				 player_in_possession_entity->player.team_side != entity->player.team_side) ||
-				(nearest_player_to_the_ball->entity->player.team_side != entity->player.team_side &&
-				 nearest_player_to_the_ball->distance < 10)) {
-				// We will protect the goal if one of these conditions is true:
-				// - opponent has the ball
-				// - opponent is the nearest to the ball
-				// - ball distance from goal is high
-				// - ball velocity is high
-				physics->max_velocity = game_state->constants.player_run_max_velocity;
-				force = game_state->constants.player_movement_force;
-				direction =
-					Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
-				destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
-				steering = steering_arrive(
-					transform->position, physics->velocity, physics->max_velocity, destination, 10);
+			if ((football_pitch_is_position_inside_penalty_area(
+					 ball_transform->position,
+					 game_state->vars.teams[entity->player.team_side].play_context.pitch_side,
+					 game_state) ||
+				 (ball->future_bounce.available &&
+				  football_pitch_is_position_inside_penalty_area(
+					  ball->future_bounce.position,
+					  game_state->vars.teams[entity->player.team_side].play_context.pitch_side,
+					  game_state))) &&
+				player_in_possession_entity_id == EID_NOT_VALID &&
+				nearest_opponent_to_the_ball->distance > 10) {
+				// We will chase the ball if all the following conditions are true:
+				// - nearest opponent is reasonable far from the ball
+				// - no player in possession of the ball
+				// - ball is in the penalty box or ball future bounce is in the penalty box
+				// - ball velocity is low
 
-			} else {
 				// Calculate whether goalie can reach the ball at its next reachable position
 				const b32 should_seek_ball_at_reachable_pos =
 					!ball->is_on_the_ground && ball->future_reachable.available &&
@@ -234,6 +232,16 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 												   10);
 					}
 				}
+			} else {
+				// Protect goal
+
+				physics->max_velocity = game_state->constants.player_run_max_velocity;
+				force = game_state->constants.player_movement_force;
+				direction =
+					Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
+				destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
+				steering = steering_arrive(
+					transform->position, physics->velocity, physics->max_velocity, destination, 10);
 			}
 
 			// Run force
