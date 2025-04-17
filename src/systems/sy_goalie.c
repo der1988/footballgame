@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "physics.h"
 #include "types.h"
+#include <raymath.h>
 #include <stdio.h>
 
 static b32 protect_goal_predicate(v3 pos_to_check,
@@ -58,6 +59,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		const v3 ball_position = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 		const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 		const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
+		const f32 ball_distance_from_goal = Vector2Distance(goal_center, V3_TO_V2(ball_position));
 
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;
@@ -153,11 +155,16 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 													LIST_ENTITY_IDS_EMPTY,
 													game_state);
 
-			if ((player_in_possession_entity_id != EID_NOT_VALID &&
+			if (ball_distance_from_goal > 200 || ball_velocity > 80 ||
+				(player_in_possession_entity_id != EID_NOT_VALID &&
 				 player_in_possession_entity->player.team_side != entity->player.team_side) ||
 				(nearest_player_to_the_ball->entity->player.team_side != entity->player.team_side &&
-				 nearest_player_to_the_ball->distance < 100)) {
-				// Opponent has the ball or is the nearest to the ball: let's protect goal
+				 nearest_player_to_the_ball->distance < 10)) {
+				// We will protect the goal if one of these conditions is true:
+				// - opponent has the ball
+				// - opponent is the nearest to the ball
+				// - ball distance from goal is high
+				// - ball velocity is high
 				physics->max_velocity = game_state->constants.player_run_max_velocity;
 				force = game_state->constants.player_movement_force;
 				direction =
@@ -326,7 +333,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 				if (jump_state_data->ball_held) {
 					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
-					printf("ball held\n");
 				} else {
 					// Bounce ball
 					v3 new_ball_velocity =
@@ -359,7 +365,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 															Vector3Scale(new_ball_velocity,
 																		 10 * PIXELS_PER_METER));
 					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
-					printf("ball saved\n");
 				}
 
 				goalie->last_save_time = game_state->time;
