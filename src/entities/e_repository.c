@@ -33,7 +33,7 @@ static entity_id_t find_empty_slot(struct entity_repository *entity_repo)
 	return id;
 }
 
-static void empty_slot(struct entity_repository *entity_repo, entity_id_t id)
+static void free_slot(struct entity_repository *entity_repo, entity_id_t id)
 {
 	entity_repo->entities[id].header.alive = false;
 	entity_repo->available_slots++;
@@ -86,7 +86,7 @@ struct entity *entities_entity_init(struct entity_repository *handle,
 
 void entities_entity_destroy(struct entity_repository *handle, entity_id_t id)
 {
-	empty_slot(handle, id);
+	free_slot(handle, id);
 
 	GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].header.name, "entity destroyed");
 }
