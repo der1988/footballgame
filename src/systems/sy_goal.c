@@ -20,11 +20,6 @@ void systems_goal(struct game_state *game_state)
 		struct entity *entity =
 			entities_entity_get(game_state->entity_repository, game_state->vars.pitch.goal[i].id);
 
-		if (!entities_is_entity_alive_and_has_components(
-				entity, 4, C_TRANSFORM, C_SPRITE, C_GOAL, C_COLLIDER)) {
-			continue;
-		}
-
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, goal);
 		DECLARE_ENTITY_COMPONENT(entity, collider);
