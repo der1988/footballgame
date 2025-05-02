@@ -24,7 +24,7 @@ enum sprite_orientation {
 	SO_COUNT
 };
 
-void render_sprite_draw(struct assets_sprite_frame *sprite_frame,
+void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 						v2 position,
 						f32 rotation,
 						v2 scale,
@@ -32,9 +32,9 @@ void render_sprite_draw(struct assets_sprite_frame *sprite_frame,
 						b32 flipX,
 						b32 flipY,
 						v2 pivot_override,
-						struct assets_texture *assets_texture);
+						struct asset_texture *assets_texture);
 
-void render_sprite_draw_debug_frame(struct assets_sprite_frame *sprite_frame,
+void render_sprite_draw_debug_frame(struct asset_sprite_frame *sprite_frame,
 									v2 position,
 									f32 rotation,
 									v2 scale,

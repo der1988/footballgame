@@ -1,6 +1,6 @@
 #include "action.h"
 #include "game.h"
-#include "entities.h"
+#include "entity_repository.h"
 
 void action_run(struct action_runner *action_runner, entity_id_t id, struct game_state *game_state)
 {

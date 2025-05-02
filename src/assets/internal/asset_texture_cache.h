@@ -3,9 +3,9 @@
 
 #include "types.h"
 
-struct assets_texture_cache {
+struct asset_texture_cache {
 	b32 initialised;
-	struct assets_texture *cache;
+	struct asset_texture *cache;
 	u32 count;
 };
 

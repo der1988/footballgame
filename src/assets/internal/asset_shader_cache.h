@@ -4,10 +4,10 @@
 #include "types.h"
 #include "memory.h"
 
-struct assets_shader_cache {
+struct asset_shader_cache {
 	b32 initialised;
 	memory_arena_handle_t *memory_arena_handle;
-	struct assets_shader *cache;
+	struct asset_shader *cache;
 	u32 count;
 };
 

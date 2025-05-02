@@ -3,7 +3,7 @@
 #include <raymath.h>
 #include "math_ext.h"
 
-void render_sprite_draw(struct assets_sprite_frame *sprite_frame,
+void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 						v2 position,
 						f32 rotation,
 						v2 scale,
@@ -11,7 +11,7 @@ void render_sprite_draw(struct assets_sprite_frame *sprite_frame,
 						b32 flipX,
 						b32 flipY,
 						v2 pivot_override,
-						struct assets_texture *assets_texture)
+						struct asset_texture *assets_texture)
 {
 	Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 
@@ -46,11 +46,8 @@ void render_sprite_draw(struct assets_sprite_frame *sprite_frame,
 	DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
 }
 
-void render_sprite_draw_debug_frame(struct assets_sprite_frame *sprite_frame,
-									v2 position,
-									f32 rotation,
-									v2 scale,
-									v2 pivot_override)
+void render_sprite_draw_debug_frame(
+	struct asset_sprite_frame *sprite_frame, v2 position, f32 rotation, v2 scale, v2 pivot_override)
 {
 	Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
 

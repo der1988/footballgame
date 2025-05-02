@@ -20,7 +20,7 @@ int main()
 	memory_arena_handle_t *main_memory_arena = memory_arena_create("main", memory, Megabytes(64));
 
 	// Load assets
-	struct assets assets = assets_load_everything(main_memory_arena);
+	struct assets assets = asset_manager_load_everything(main_memory_arena);
 
 	struct game_config game_config = (struct game_config){
 		.screen_width = GetScreenWidth(),
@@ -34,7 +34,7 @@ int main()
 	// De-Initialization
 	//--------------------------------------------------------------------------------------
 
-	assets_destroy_everything(assets);
+	asset_manager_destroy_everything(assets);
 
 	memory_arena_destroy(main_memory_arena);
 

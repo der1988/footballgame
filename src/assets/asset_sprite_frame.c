@@ -13,16 +13,16 @@
 
 static u32 const MAX_SPRITE_FRAMES = 2000;
 
-assets_sprite_frame_cache_t *
-assets_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
+asset_sprite_frame_cache_t *
+asset_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
-	assets_sprite_frame_cache_t *handle =
-		memory_arena_push(memory_arena_handle, sizeof(assets_sprite_frame_cache_t));
+	asset_sprite_frame_cache_t *handle =
+		memory_arena_push(memory_arena_handle, sizeof(asset_sprite_frame_cache_t));
 	assert(handle);
 
 	handle->memory_arena_handle = memory_arena_handle;
 	handle->cache = memory_arena_push(memory_arena_handle,
-									  sizeof(struct assets_sprite_frame) * MAX_SPRITE_FRAMES);
+									  sizeof(struct asset_sprite_frame) * MAX_SPRITE_FRAMES);
 	handle->count = 0;
 	if (handle->cache == NULL) {
 		GLOG_ERROR(LS_ASSETS, "sprite frame cache initialisation failed");
@@ -35,7 +35,7 @@ assets_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
 	return handle;
 }
 
-void assets_sprite_frame_cache_destroy(assets_sprite_frame_cache_t *handle)
+void asset_sprite_frame_cache_destroy(asset_sprite_frame_cache_t *handle)
 {
 	assert(handle->initialised);
 	handle->cache = NULL;
@@ -44,21 +44,21 @@ void assets_sprite_frame_cache_destroy(assets_sprite_frame_cache_t *handle)
 	GLOG_INFO(LS_ASSETS, "sprite frame cache destroyed");
 }
 
-i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle,
-										const u32 texture_id,
-										const char *filename)
+i32 asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
+									   const u32 texture_id,
+									   const char *filename)
 {
 	assert(handle->initialised);
 
 	usize loaded = 0;
-	struct assets_sprite_frame *sprite_frames =
+	struct asset_sprite_frame *sprite_frames =
 		texture_packer_load_from_json(filename, texture_id, handle->count, &loaded);
 	assert(loaded <= (MAX_SPRITE_FRAMES - handle->count));
 
 	if (sprite_frames) {
 		memcpy(&handle->cache[handle->count],
 			   sprite_frames,
-			   sizeof(struct assets_sprite_frame) * loaded);
+			   sizeof(struct asset_sprite_frame) * loaded);
 		free(sprite_frames);
 		handle->count += loaded;
 		GLOGF_INFO_CTX(LS_ASSETS,
@@ -74,12 +74,12 @@ i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle,
 	return loaded;
 }
 
-struct assets_sprite_frame *assets_sprite_frame_get_by_name(assets_sprite_frame_cache_t *handle,
-															const char *name)
+struct asset_sprite_frame *asset_sprite_frame_get_by_name(asset_sprite_frame_cache_t *handle,
+														  const char *name)
 {
 	assert(handle->initialised);
 
-	struct assets_sprite_frame *sprite_frame = NULL;
+	struct asset_sprite_frame *sprite_frame = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
 		sprite_frame = &handle->cache[i];
 		if (strcmp(sprite_frame->name, name) == 0) {
@@ -89,8 +89,8 @@ struct assets_sprite_frame *assets_sprite_frame_get_by_name(assets_sprite_frame_
 	return NULL;
 }
 
-struct assets_sprite_frame *assets_sprite_frame_get_by_id(assets_sprite_frame_cache_t *handle,
-														  const assets_sprite_frame_id_t id)
+struct asset_sprite_frame *asset_sprite_frame_get_by_id(asset_sprite_frame_cache_t *handle,
+														const asset_sprite_frame_id_t id)
 {
 	assert(handle->initialised);
 	return &handle->cache[id];

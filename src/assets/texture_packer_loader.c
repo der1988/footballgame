@@ -5,12 +5,12 @@
 #include <string.h>
 #include "log.h"
 
-struct assets_sprite_frame *texture_packer_load_from_json(const char *filename,
-														  const u32 texture_id,
-														  const usize initial_sprite_frame_id,
-														  usize *count)
+struct asset_sprite_frame *texture_packer_load_from_json(const char *filename,
+														 const u32 texture_id,
+														 const usize initial_sprite_frame_id,
+														 usize *count)
 {
-	assets_sprite_frame_id_t current_sprite_frame_id = initial_sprite_frame_id;
+	asset_sprite_frame_id_t current_sprite_frame_id = initial_sprite_frame_id;
 	*count = 0;
 
 	char *content;
@@ -44,8 +44,8 @@ struct assets_sprite_frame *texture_packer_load_from_json(const char *filename,
 	}
 
 	*count = cJSON_GetArraySize(frames);
-	struct assets_sprite_frame *sprite_frames = malloc(sizeof(struct assets_sprite_frame) * *count);
-	struct assets_sprite_frame *current_sprite_frame = sprite_frames;
+	struct asset_sprite_frame *sprite_frames = malloc(sizeof(struct asset_sprite_frame) * *count);
+	struct asset_sprite_frame *current_sprite_frame = sprite_frames;
 
 	const cJSON *sprite_frame = NULL;
 	cJSON_ArrayForEach(sprite_frame, frames)
@@ -80,7 +80,7 @@ struct assets_sprite_frame *texture_packer_load_from_json(const char *filename,
 			pivot_y = JSON_GET_DOUBLE(pivot, "y");
 		}
 
-		struct assets_sprite_frame *sprite_frame = current_sprite_frame++;
+		struct asset_sprite_frame *sprite_frame = current_sprite_frame++;
 		sprite_frame->id = current_sprite_frame_id++;
 		strncpy(sprite_frame->name, name, SPRITE_FRAME_NAME_MAX_SIZE);
 		sprite_frame->frame = (Rectangle){frame_x, frame_y, frame_w, frame_h};

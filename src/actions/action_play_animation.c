@@ -1,5 +1,5 @@
 #include "action_play_animation.h"
-#include "entities.h"
+#include "entity_repository.h"
 #include "game.h"
 #include <math.h>
 
@@ -14,15 +14,15 @@ void action_play_animation_update(struct action_runner *action_runner,
 		action_runner->completed = true;
 	}
 	struct component_sprite *sprite = &entity_get(game_state->entity_repository, id)->sprite;
-	struct assets_animation *animation =
-		assets_animation_get_by_id(game_state->assets.animation_cache, action->animation_id);
+	struct asset_animation *animation =
+		asset_animation_get_by_id(game_state->assets.animation_cache, action->animation_id);
 	u16 frame_to_show_idx = floorf(h * (animation->frames_count - 1));
-	assets_sprite_frame_id_t frame_id = animation->frames[frame_to_show_idx];
+	asset_sprite_frame_id_t frame_id = animation->frames[frame_to_show_idx];
 	sprite->frame_id = frame_id;
 }
 
 struct action_play_animation *
-action_play_animation_create(struct assets_animation *animation,
+action_play_animation_create(struct asset_animation *animation,
 							 b32 loop,
 							 float speed,
 							 memory_arena_handle_t *memory_arena_handle)

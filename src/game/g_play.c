@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "entity_repository.h"
 #include "log.h"
 #include "systems.h"
 #include "input.h"
@@ -95,11 +95,11 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	// Initialise entities repository
 	game_state->entity_repository =
-		entities_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
+		entity_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	// Get pitch texture id
 	game_state->pitch_texture =
-		assets_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
+		asset_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
 	assert(game_state->pitch_texture);
 
 	game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -133,7 +133,7 @@ void game_play_destroy(struct game_state *game_state)
 
 	tweakui_destroy(game_state->tweakui);
 
-	entities_repository_destroy(game_state->entity_repository);
+	entity_repository_destroy(game_state->entity_repository);
 
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);

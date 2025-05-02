@@ -1,6 +1,6 @@
 #include "entity_ball.h"
 #include "entity_player.h"
-#include "entities.h"
+#include "entity_repository.h"
 #include "football.h"
 #include "game.h"
 #include "types.h"
@@ -25,7 +25,8 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 		epicenter = ball->future_bounce.position;
 	}
 
-	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
+	entity_id_t player_in_possession_entity_id =
+		entity_ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 

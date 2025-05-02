@@ -10,22 +10,19 @@
 	};
 
 #define define_state_machine_functions(ENTITY_TYPE)                                                \
-	void ENTITY_TYPE##_state_machine_change_state_to(                                              \
+	void entity_##ENTITY_TYPE##_state_machine_change_state_to(                                     \
 		struct state_machine_##ENTITY_TYPE *state_machine,                                         \
 		enum state_machine_##ENTITY_TYPE##_state state,                                            \
-		struct game_state *game_state);                                                            \
-	void ENTITY_TYPE##_state_machine_on_enter(struct entity *entity,                               \
-											  struct game_state *game_state);                      \
-	void ENTITY_TYPE##_state_machine_on_exit(struct entity *entity, struct game_state *game_state);
+		struct game_state *game_state);
 
-#define declare_state_machine_enter_and_exit(ENTITY_NAME)                                          \
-	void state_machine_##ENTITY_NAME##_on_enter(struct entity *ENTITY_NAME,                        \
-												struct game_state *game_state);                    \
-	void state_machine_##ENTITY_NAME##_on_exit(struct entity *ENTITY_NAME,                         \
-											   struct game_state *game_state);
+#define forward_declare_state_machine_functions(ENTITY_TYPE)                                       \
+	static void ENTITY_TYPE##_state_machine_on_enter(struct entity *entity,                        \
+													 struct game_state *game_state);               \
+	static void ENTITY_TYPE##_state_machine_on_exit(struct entity *entity,                         \
+													struct game_state *game_state);
 
 #define implement_state_machine_functions(ENTITY_TYPE)                                             \
-	void ENTITY_TYPE##_state_machine_change_state_to(                                              \
+	void entity_##ENTITY_TYPE##_state_machine_change_state_to(                                     \
 		struct state_machine_##ENTITY_TYPE *state_machine,                                         \
 		enum state_machine_##ENTITY_TYPE##_state state,                                            \
 		struct game_state *game_state)                                                             \

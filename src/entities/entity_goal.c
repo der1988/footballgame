@@ -1,4 +1,6 @@
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_goal.h"
+#include "entity_goal_net.h"
 #include "log.h"
 #include <assert.h>
 #include <raymath.h>
@@ -26,8 +28,8 @@ struct entity *goal_create(struct goal_config config, struct game_state *game_st
 	struct component_sprite *sprite = &entity->sprite;
 	sprite->header.enabled = true;
 	char *posts_frame_name = "posts_0";
-	struct assets_sprite_frame *sprite_frame =
-		assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, posts_frame_name);
+	struct asset_sprite_frame *sprite_frame =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, posts_frame_name);
 	assert(sprite_frame != NULL);
 	sprite->frame_id = sprite_frame->id;
 	sprite->color = WHITE;

@@ -1,6 +1,7 @@
 #include "components.h"
+#include "entity_repository.h"
 #include "entity_ball.h"
-#include "entities.h"
+#include "entity_player.h"
 #include "football.h"
 #include "game.h"
 #include "input.h"
@@ -19,7 +20,8 @@ void systems_player_physics(struct game_state *game_state)
 	UNUSED(ball);
 	UNUSED(ball_collider);
 
-	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
+	entity_id_t player_in_possession_entity_id =
+		entity_ball_player_in_possession(ball_entity, game_state);
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
@@ -91,16 +93,16 @@ void systems_player_physics(struct game_state *game_state)
 			physics->max_velocity = player->current_max_velocity *
 									(player_in_possession_entity_id == entity_id ? 1 : 1.15f);
 
-			player_physics_apply_force(entity, force_to_apply, game_state);
-			player_physics_apply_velocity(entity, game_state);
+			entity_player_physics_apply_force(entity, force_to_apply, game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
 
 			// Calculate frame to display
-			player_anim_calculate_running_frame(entity,
-												game_state->gfx.player.stand_frames,
-												game_state->gfx.player.run_animations,
-												physics->velocity,
-												3,
-												game_state);
+			entity_player_anim_calculate_running_frame(entity,
+													   game_state->gfx.player.stand_frames,
+													   game_state->gfx.player.run_animations,
+													   physics->velocity,
+													   3,
+													   game_state);
 
 			break;
 		}
@@ -118,15 +120,16 @@ void systems_player_physics(struct game_state *game_state)
 				force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
 											  7500); // TODO: this should depend on type of pitch
 			} else if (HAS_TIME_PASSED(game_state->time, tackle_state_data->start_time, 0.5f)) {
-				player_state_machine_change_state_to(player->state_machine, PS_NORMAL, game_state);
+				entity_player_state_machine_change_state_to(
+					player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;
 
-			player_physics_apply_force(entity, force_to_apply, game_state);
-			player_physics_apply_velocity(entity, game_state);
+			entity_player_physics_apply_force(entity, force_to_apply, game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
 
 			break;
 		}
@@ -135,7 +138,7 @@ void systems_player_physics(struct game_state *game_state)
 				&player->state_machine->state_data.fall;
 
 			if (!fall_state_data->animation_completed) {
-				struct assets_animation *animation = assets_animation_get_by_id(
+				struct asset_animation *animation = asset_animation_get_by_id(
 					game_state->assets.animation_cache,
 					game_state->gfx.player.fall_animations[sprite->orientation]);
 				f32 animation_completion =
@@ -163,12 +166,13 @@ void systems_player_physics(struct game_state *game_state)
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;
 
-			player_physics_apply_force(entity, force_to_apply, game_state);
-			player_physics_apply_velocity(entity, game_state);
+			entity_player_physics_apply_force(entity, force_to_apply, game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
-				player_state_machine_change_state_to(player->state_machine, PS_NORMAL, game_state);
+				entity_player_state_machine_change_state_to(
+					player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 

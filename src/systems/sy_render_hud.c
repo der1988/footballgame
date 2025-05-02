@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "entity_repository.h"
 #include "game.h"
 #include "constants.h"
 #include "types.h"

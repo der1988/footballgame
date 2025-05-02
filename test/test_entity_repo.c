@@ -1,5 +1,5 @@
 #include "components.h"
-#include "entities.h"
+#include "entity_repository.h"
 #include "game.h"
 #include "types.h"
 #include "unity/unity.h"

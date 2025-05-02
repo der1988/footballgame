@@ -1,4 +1,5 @@
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_ball.h"
 #include "math_ext.h"
 #include "log.h"
 #include "game.h"
@@ -16,7 +17,7 @@ void football_match_change_state(struct game_state *game_state, enum match_state
 			entity_get(game_state->entity_repository,
 					   game_state->human_players[0].controlled_player_entity_id);
 		struct component_transform *transform = &entity->transform;
-		ball_set_position_and_velocity(
+		entity_ball_set_position_and_velocity(
 			game_state->vars.ball_entity, V2_TO_V3(transform->position, 30), Vector3Zero());
 		game_state->vars.match.state = MS_PLAY;
 		break;

@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "entity_repository.h"
 #include "log.h"
 #include <assert.h>
 #include <stdio.h>
@@ -39,7 +39,7 @@ static void free_slot(struct entity_repository *entity_repo, entity_id_t id)
 	entity_repo->available_slots++;
 }
 
-struct entity_repository *entities_repository_init(memory_arena_handle_t *memory_arena_handle)
+struct entity_repository *entity_repository_init(memory_arena_handle_t *memory_arena_handle)
 {
 	struct entity_repository *handle =
 		memory_arena_push(memory_arena_handle, sizeof(struct entity_repository));
@@ -55,7 +55,7 @@ struct entity_repository *entities_repository_init(memory_arena_handle_t *memory
 	return handle;
 }
 
-void entities_repository_destroy(struct entity_repository *handle)
+void entity_repository_destroy(struct entity_repository *handle)
 {
 	assert(handle->initialised);
 	handle->initialised = false;

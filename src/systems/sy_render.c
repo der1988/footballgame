@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "entity_repository.h"
 #include "game.h"
 #include <assert.h>
 #include <raymath.h>
@@ -6,8 +6,8 @@
 
 struct sprite_to_draw {
 	struct entity *entity;
-	struct assets_sprite_frame *sprite_frame;
-	struct assets_texture *texture;
+	struct asset_sprite_frame *sprite_frame;
+	struct asset_texture *texture;
 	enum sprite_layer layer;
 	i16 order_in_layer;
 	color_t color;
@@ -66,16 +66,16 @@ void systems_render(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, sprite);
 
-		struct assets_sprite_frame *sprite_frame =
-			assets_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache, sprite->frame_id);
+		struct asset_sprite_frame *sprite_frame =
+			asset_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache, sprite->frame_id);
 		assert(sprite_frame);
 
 		Vector2 position = transform->position;
 		f32 rotation = transform->rotation;
 		Vector2 scale = transform->scale;
 		components_transform_calculate_absolute(transform, &position, &rotation, &scale);
-		struct assets_texture *texture =
-			assets_texture_get_by_id(game_state->assets.texture_cache, sprite_frame->texture_id);
+		struct asset_texture *texture =
+			asset_texture_get_by_id(game_state->assets.texture_cache, sprite_frame->texture_id);
 		assert(texture);
 
 		// Shadow

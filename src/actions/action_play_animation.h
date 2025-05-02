@@ -7,12 +7,12 @@
 // Plays an animation at a specific speed
 struct action_play_animation {
 	struct action base;
-	assets_animation_id_t animation_id;
+	asset_animation_id_t animation_id;
 	f32 speed;
 };
 
 struct action_play_animation *
-action_play_animation_create(struct assets_animation *animation,
+action_play_animation_create(struct asset_animation *animation,
 							 b32 loop,
 							 float speed,
 							 memory_arena_handle_t *memory_arena_handle);

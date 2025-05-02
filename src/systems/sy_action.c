@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "entity_repository.h"
 #include "game.h"
 
 void systems_action(struct game_state *game_state)

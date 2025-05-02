@@ -5,9 +5,6 @@
 #include "memory.h"
 #include "types.h"
 
-#include "entity_ball.h"
-#include "entity_player.h"
-
 #define MAX_ENTITIES		 100
 #define ENTITY_NAME_MAX_SIZE 20
 
@@ -53,12 +50,6 @@
 
 #define DECLARE_ENTITY_COMPONENT(entity, type) DECLARE_ENTITY_COMPONENT_EXT(entity, type, type)
 
-#define DECLARE_BALL_ENTITY_COMPONENTS(entity)                                                     \
-	DECLARE_ENTITY_COMPONENT_EXT(entity, transform, ball_transform);                               \
-	DECLARE_ENTITY_COMPONENT_EXT(entity, physics3d, ball_physics_3d);                              \
-	DECLARE_ENTITY_COMPONENT_EXT(entity, collider, ball_collider);                                 \
-	DECLARE_ENTITY_COMPONENT_EXT(entity, ball, ball)
-
 // Forward declaration
 struct entity;
 
@@ -74,29 +65,6 @@ struct list_entity_ids {
 	usize size;
 };
 
-// START - Camera
-
-struct entity *camera_create(struct game_state *game_state);
-
-// END - Camera
-
-// START - Goal
-
-struct goal_config {
-	enum pitch_side side;
-	v2 center;
-};
-
-struct entity *goal_create(struct goal_config config, struct game_state *game_state);
-
-// END - Goal
-
-// START - Goal net
-
-struct entity *goal_net_create(struct game_state *game_state);
-
-// END - Goal net
-
 enum entity_type {
 	ET_CAMERA,
 	ET_BALL,
@@ -105,6 +73,7 @@ enum entity_type {
 	ET_GOAL_NET,
 	ET_COUNT
 };
+
 static const char *entity_type_to_string[ET_COUNT] = {
 	"camera", "ball", "player", "goal", "goal_net"};
 
@@ -141,8 +110,8 @@ struct entity_repository {
 	u32 last_used_slot;
 };
 
-struct entity_repository *entities_repository_init(memory_arena_handle_t *memory_arena_handle);
-void entities_repository_destroy(struct entity_repository *handle);
+struct entity_repository *entity_repository_init(memory_arena_handle_t *memory_arena_handle);
+void entity_repository_destroy(struct entity_repository *handle);
 
 struct entity *entity_init(struct entity_repository *handle,
 						   enum entity_type type,

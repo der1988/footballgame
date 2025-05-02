@@ -1,5 +1,7 @@
 #include "components.h"
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_ball.h"
+#include "entity_player.h"
 #include "football.h"
 #include "game.h"
 #include "input.h"

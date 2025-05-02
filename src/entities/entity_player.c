@@ -1,11 +1,13 @@
 #include "components.h"
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_player.h"
 #include "football.h"
 #include "input.h"
 #include "log.h"
 #include "math_ext.h"
 #include "game.h"
 #include "memory.h"
+#include "state_machine.h"
 #include "types.h"
 #include "sprite.h"
 #include "physics.h"
@@ -16,13 +18,16 @@
 #include <raymath.h>
 #include <string.h>
 
+forward_declare_state_machine_functions(player);
+forward_declare_state_machine_functions(goalie);
+
 implement_state_machine_functions(player);
 implement_state_machine_functions(goalie);
 
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
 
-struct entity *player_create(struct player_config config, struct game_state *game_state)
+struct entity *entity_player_create(struct player_config config, struct game_state *game_state)
 {
 	struct entity *entity = entity_init(game_state->entity_repository, ET_PLAYER, "player_%02d");
 
@@ -47,8 +52,8 @@ struct entity *player_create(struct player_config config, struct game_state *gam
 
 	// Initialise sprite
 	char *player_frame_name = "player_front_0";
-	struct assets_sprite_frame *sprite_frame =
-		assets_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, player_frame_name);
+	struct asset_sprite_frame *sprite_frame =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, player_frame_name);
 	assert(sprite_frame != NULL);
 	struct component_sprite *sprite = &entity->sprite;
 	sprite->header.enabled = true;
@@ -139,9 +144,9 @@ struct entity *player_create(struct player_config config, struct game_state *gam
 	return entity;
 }
 
-void player_physics_apply_force(struct entity *player_entity,
-								Vector2 force_to_apply,
-								struct game_state *game_state)
+void entity_player_physics_apply_force(struct entity *player_entity,
+									   Vector2 force_to_apply,
+									   struct game_state *game_state)
 {
 	struct component_physics *physics = &player_entity->physics;
 
@@ -155,7 +160,8 @@ void player_physics_apply_force(struct entity *player_entity,
 	}
 }
 
-void player_physics_apply_velocity(struct entity *player_entity, struct game_state *game_state)
+void entity_player_physics_apply_velocity(struct entity *player_entity,
+										  struct game_state *game_state)
 {
 	struct component_physics *physics = &player_entity->physics;
 	struct component_transform *transform = &player_entity->transform;
@@ -163,12 +169,12 @@ void player_physics_apply_velocity(struct entity *player_entity, struct game_sta
 		Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
 }
 
-void player_anim_calculate_running_frame(struct entity *player_entity,
-										 assets_sprite_frame_id_t *stand_frames,
-										 assets_animation_id_t *run_animations,
-										 v2 direction,
-										 f32 velocity_threshold,
-										 struct game_state *game_state)
+void entity_player_anim_calculate_running_frame(struct entity *player_entity,
+												asset_sprite_frame_id_t *stand_frames,
+												asset_animation_id_t *run_animations,
+												v2 direction,
+												f32 velocity_threshold,
+												struct game_state *game_state)
 {
 	struct component_physics *physics = &player_entity->physics;
 	struct component_player *player = &player_entity->player;
@@ -177,7 +183,7 @@ void player_anim_calculate_running_frame(struct entity *player_entity,
 	f32 player_speed = Vector2Length(physics->velocity);
 	if (Vector2Length(physics->velocity) > velocity_threshold) {
 		enum sprite_orientation sprite_orientation = sprite_calculate_orientation(direction);
-		struct assets_animation *animation = assets_animation_get_by_id(
+		struct asset_animation *animation = asset_animation_get_by_id(
 			game_state->assets.animation_cache, run_animations[sprite_orientation]);
 
 		f32 max_player_velocity = game_state->constants.player_run_max_velocity;
@@ -196,7 +202,7 @@ void player_anim_calculate_running_frame(struct entity *player_entity,
 	}
 }
 
-void player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+static void player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -236,7 +242,7 @@ void player_state_machine_on_enter(struct entity *entity, struct game_state *gam
 	}
 }
 
-void player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+static void player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -260,7 +266,7 @@ void player_state_machine_on_exit(struct entity *entity, struct game_state *game
 	}
 }
 
-void goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+static void goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	struct state_machine_goalie *state_machine = entity->goalie.state_machine;
 
@@ -305,7 +311,7 @@ void goalie_state_machine_on_enter(struct entity *entity, struct game_state *gam
 	}
 }
 
-void goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+static void goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	struct state_machine_goalie *state_machine = entity->goalie.state_machine;
 
@@ -335,12 +341,13 @@ void goalie_state_machine_on_exit(struct entity *entity, struct game_state *game
 	}
 }
 
-struct collision_information player_is_colliding_with_ball(struct entity *entity,
-														   enum player_collider_type collider_type,
-														   v3 ball_position,
-														   v3 ball_velocity,
-														   f32 ball_radius,
-														   f32 max_height)
+struct collision_information
+entity_player_is_colliding_with_ball(struct entity *entity,
+									 enum player_collider_type collider_type,
+									 v3 ball_position,
+									 v3 ball_velocity,
+									 f32 ball_radius,
+									 f32 max_height)
 {
 	const v2 player_position = entity->transform.position;
 	const v2 ball_pos = V3_TO_V2(ball_position);
@@ -396,13 +403,13 @@ struct collision_information player_is_colliding_with_ball(struct entity *entity
 	return (struct collision_information){.is_colliding = false};
 }
 
-b32 player_goalie_should_dive(struct entity *goalie_entity,
-							  struct entity *ball_entity,
-							  enum save_direction *dive_direction,
-							  enum save_height *dive_height,
-							  f32 *dive_speed,
-							  f32 *dive_distance,
-							  struct game_state *game_state)
+b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
+									 struct entity *ball_entity,
+									 enum save_direction *dive_direction,
+									 enum save_height *dive_height,
+									 f32 *dive_speed,
+									 f32 *dive_distance,
+									 struct game_state *game_state)
 {
 	b32 should_dive = false;
 	const f32 ball_radius = ball_entity->collider.colliders[0].props.circle.radius;
@@ -420,12 +427,12 @@ b32 player_goalie_should_dive(struct entity *goalie_entity,
 		v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
 
 		const struct collision_information collision_information =
-			player_is_colliding_with_ball(goalie_entity,
-										  PCT_GOALIE,
-										  pos_to_check,
-										  ball_entity->physics3d.velocity,
-										  ball_radius,
-										  game_state->constants.crossbar_height);
+			entity_player_is_colliding_with_ball(goalie_entity,
+												 PCT_GOALIE,
+												 pos_to_check,
+												 ball_entity->physics3d.velocity,
+												 ball_radius,
+												 game_state->constants.crossbar_height);
 
 		if (collision_information.is_colliding) {
 			// Ball is coming our direction, let's wait
@@ -463,14 +470,14 @@ b32 player_goalie_should_dive(struct entity *goalie_entity,
 	return should_dive;
 }
 
-void player_gained_possession(struct entity *player_entity, struct game_state *game_state)
+void entity_player_gained_possession(struct entity *player_entity, struct game_state *game_state)
 {
 	player_entity->player.last_possession_time = game_state->time;
 }
 
-enum player_ball_possession player_ball_possession(struct entity *player_entity,
-												   struct entity *ball_entity,
-												   struct game_state *game_state)
+enum player_ball_possession entity_player_ball_possession(struct entity *player_entity,
+														  struct entity *ball_entity,
+														  struct game_state *game_state)
 {
 	if (player_entity->header.id == ball_entity->ball.last_touch_entity_id) {
 		if (ball_entity->ball.last_touch_time == game_state->time) {
@@ -483,12 +490,12 @@ enum player_ball_possession player_ball_possession(struct entity *player_entity,
 	}
 }
 
-void player_selected_for_pass(struct entity *player_entity, struct game_state *game_state)
+void entity_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state)
 {
 	player_entity->player.last_selected_for_pass_time = game_state->time;
 }
 
-struct player_ball_reachability_prediction player_can_reach_future_ball_position(
+struct player_ball_reachability_prediction entity_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
 	f32 seeker_max_speed,
 	v3 *future_ball_positions,
@@ -519,10 +526,10 @@ struct player_ball_reachability_prediction player_can_reach_future_ball_position
 	return prediction;
 }
 
-struct entity *player_find_pass_target(struct entity *player_on_the_ball_entity,
-									   f32 detection_angle,
-									   f32 max_distance,
-									   struct game_state *game_state)
+struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
+											  f32 detection_angle,
+											  f32 max_distance,
+											  struct game_state *game_state)
 {
 	b32 is_player_human_controlled = false;
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
@@ -569,11 +576,11 @@ struct entity *player_find_pass_target(struct entity *player_on_the_ball_entity,
 									  player_on_the_ball_entity->transform.position.y);
 
 			// Check if pass trajectory is clear
-			b32 clear_trajectory =
-				player_is_trajectory_clear(player_on_the_ball_entity->transform.position,
-										   potential_pass_target_entity->transform.position,
-										   1 - potential_pass_target_entity->player.team_side,
-										   game_state);
+			b32 clear_trajectory = entity_player_is_trajectory_clear(
+				player_on_the_ball_entity->transform.position,
+				potential_pass_target_entity->transform.position,
+				1 - potential_pass_target_entity->player.team_side,
+				game_state);
 
 			f32 score = 0;
 			if (!is_player_human_controlled) {
@@ -595,7 +602,7 @@ struct entity *player_find_pass_target(struct entity *player_on_the_ball_entity,
 		}
 	}
 	if (selected_entity) {
-		player_selected_for_pass(selected_entity, game_state);
+		entity_player_selected_for_pass(selected_entity, game_state);
 		GLOGF_TRACE(LS_GAME,
 					"selected pass target %zu with score %.2f",
 					selected_entity->header.id,
@@ -604,8 +611,8 @@ struct entity *player_find_pass_target(struct entity *player_on_the_ball_entity,
 	return selected_entity;
 }
 
-struct nearest_player *player_find_nearest_facing_opponent(struct entity *player_entity,
-														   struct game_state *game_state)
+struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity *player_entity,
+																  struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *opponent_entity;
@@ -637,8 +644,8 @@ struct nearest_player *player_find_nearest_facing_opponent(struct entity *player
 	return NULL;
 }
 
-struct list_entities player_find_tackled_opponents(struct entity *player_entity,
-												   struct game_state *game_state)
+struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,
+														  struct game_state *game_state)
 {
 	const u8 max_tackled_players = 3;
 	LIST_CREATE(struct list_entities,
@@ -725,10 +732,10 @@ struct nearest_player *find_nearest_player(v2 position,
 	return nearest_player;
 }
 
-b32 player_is_trajectory_clear(v2 passer_position,
-							   v2 target_position,
-							   enum team_side opposing_team,
-							   struct game_state *game_state)
+b32 entity_player_is_trajectory_clear(v2 passer_position,
+									  v2 target_position,
+									  enum team_side opposing_team,
+									  struct game_state *game_state)
 {
 	v2 pass_start = passer_position;
 	v2 pass_end = target_position;
@@ -806,8 +813,8 @@ void player_custom_begin_draw(struct entity *entity, struct game_state *game_sta
 		0,
 	};
 
-	struct assets_shader *assets_shader =
-		assets_shader_get_by_name(game_state->assets.shader_cache, "shader_palette");
+	struct asset_shader *assets_shader =
+		asset_shader_get_by_name(game_state->assets.shader_cache, "shader_palette");
 	u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
 	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC3, 7);
 

@@ -4,10 +4,10 @@
 #include "types.h"
 #include "memory.h"
 
-struct assets_sprite_frame_cache {
+struct asset_sprite_frame_cache {
 	b32 initialised;
 	memory_arena_handle_t *memory_arena_handle;
-	struct assets_sprite_frame *cache;
+	struct asset_sprite_frame *cache;
 	u32 count;
 };
 

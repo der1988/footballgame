@@ -1,5 +1,5 @@
-#ifndef ENTITIES_PLAYER_H
-#define ENTITIES_PLAYER_H
+#ifndef ENTITY_PLAYER_H
+#define ENTITY_PLAYER_H
 
 #include "components.h"
 #include "football.h"
@@ -31,8 +31,6 @@ enum state_machine_player_state {
 
 static const char *state_machine_player_state_string[] = {
 	"none", "normal", "throw_in", "header", "tackle", "fall", "goalie"};
-
-declare_state_machine_enter_and_exit(player);
 
 struct state_machine_player_normal_data {
 	enum sprite_orientation running_action_orientation;
@@ -75,8 +73,6 @@ enum state_machine_goalie_state {
 
 static const char *state_machine_goalie_state_string[] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
-
-declare_state_machine_enter_and_exit(goalie);
 
 struct state_machine_goalie_hold_ball_data {
 	time_t hold_start_time;
@@ -156,70 +152,72 @@ struct nearest_player {
 	f32 distance;
 };
 
-struct entity *player_create(struct player_config config, struct game_state *game_state);
+struct entity *entity_player_create(struct player_config config, struct game_state *game_state);
 
-void player_physics_apply_force(struct entity *player_entity,
-								Vector2 steering,
-								struct game_state *game_state);
+void entity_player_physics_apply_force(struct entity *player_entity,
+									   Vector2 steering,
+									   struct game_state *game_state);
 
-void player_physics_apply_velocity(struct entity *player_entity, struct game_state *game_state);
+void entity_player_physics_apply_velocity(struct entity *player_entity,
+										  struct game_state *game_state);
 
-void player_anim_calculate_running_frame(struct entity *player_entity,
-										 assets_sprite_frame_id_t *stand_frames,
-										 assets_animation_id_t *run_animations,
-										 v2 direction,
-										 f32 velocity_threshold,
-										 struct game_state *game_state);
+void entity_player_anim_calculate_running_frame(struct entity *player_entity,
+												asset_sprite_frame_id_t *stand_frames,
+												asset_animation_id_t *run_animations,
+												v2 direction,
+												f32 velocity_threshold,
+												struct game_state *game_state);
 
-struct collision_information player_is_colliding_with_ball(struct entity *player_entity,
-														   enum player_collider_type collider_type,
-														   v3 ball_position,
-														   v3 ball_velocity,
-														   f32 ball_radius,
-														   f32 max_height);
+struct collision_information
+entity_player_is_colliding_with_ball(struct entity *player_entity,
+									 enum player_collider_type collider_type,
+									 v3 ball_position,
+									 v3 ball_velocity,
+									 f32 ball_radius,
+									 f32 max_height);
 
-b32 player_goalie_should_dive(struct entity *goalie_entity,
-							  struct entity *ball_entity,
-							  enum save_direction *dive_direction,
-							  enum save_height *dive_height,
-							  f32 *dive_speed,
-							  f32 *dive_distance,
-							  struct game_state *game_state);
+b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
+									 struct entity *ball_entity,
+									 enum save_direction *dive_direction,
+									 enum save_height *dive_height,
+									 f32 *dive_speed,
+									 f32 *dive_distance,
+									 struct game_state *game_state);
 
-void player_gained_possession(struct entity *player_entity, struct game_state *game_state);
+void entity_player_gained_possession(struct entity *player_entity, struct game_state *game_state);
 
-enum player_ball_possession player_ball_possession(struct entity *player_entity,
-												   struct entity *ball_entity,
-												   struct game_state *game_state);
+enum player_ball_possession entity_player_ball_possession(struct entity *player_entity,
+														  struct entity *ball_entity,
+														  struct game_state *game_state);
 
-void player_selected_for_pass(struct entity *player_entity, struct game_state *game_state);
+void entity_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state);
 
-struct player_ball_reachability_prediction player_can_reach_future_ball_position(
+struct player_ball_reachability_prediction entity_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
 	f32 seeker_max_speed,
 	v3 *future_ball_positions,
 	b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
 	struct game_state *game_state);
 
-struct entity *player_find_pass_target(struct entity *player_on_the_ball_entity,
-									   f32 detection_angle,
-									   f32 max_distance,
-									   struct game_state *game_state);
+struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
+											  f32 detection_angle,
+											  f32 max_distance,
+											  struct game_state *game_state);
 
 struct nearest_player *find_nearest_player(v2 position,
 										   enum team_side team_side,
 										   struct list_entity_ids exclusion_list,
 										   struct game_state *game_state);
 
-struct nearest_player *player_find_nearest_facing_opponent(struct entity *player_entity,
-														   struct game_state *game_state);
+struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity *player_entity,
+																  struct game_state *game_state);
 
-struct list_entities player_find_tackled_opponents(struct entity *player_entity,
-												   struct game_state *game_state);
+struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,
+														  struct game_state *game_state);
 
-b32 player_is_trajectory_clear(v2 passer_position,
-							   v2 target_position,
-							   enum team_side opposing_team,
-							   struct game_state *game_state);
+b32 entity_player_is_trajectory_clear(v2 passer_position,
+									  v2 target_position,
+									  enum team_side opposing_team,
+									  struct game_state *game_state);
 
-#endif // !ENTITIES_PLAYER_H
+#endif // !ENTITY_PLAYER_H

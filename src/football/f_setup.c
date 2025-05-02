@@ -1,4 +1,8 @@
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_player.h"
+#include "entity_ball.h"
+#include "entity_camera.h"
+#include "entity_goal.h"
 #include "football.h"
 #include "game.h"
 
@@ -48,7 +52,7 @@ void football_setup(struct game_state *game_state)
 		(struct team){(struct team_info){.name = "Muppets"},
 					  (struct team_play_context){.pitch_side = PSI_SOUTH, .formation = TF_433}};
 
-	struct entity *player_entity = player_create(
+	struct entity *player_entity = entity_player_create(
 		(struct player_config){
 			.position = football_pitch_position_normalized_to_abs(
 				game_state->vars.pitch.field,
@@ -61,33 +65,37 @@ void football_setup(struct game_state *game_state)
 	for (usize i = 1; i < 10; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
 		pos.y = 1 - pos.y;
-		player_create((struct player_config){.position = football_pitch_position_normalized_to_abs(
-												 game_state->vars.pitch.field, pos),
-											 .team_side = TS_HOME,
-											 .team_formation_position_idx = i},
-					  game_state);
+		entity_player_create((struct player_config){.position =
+														football_pitch_position_normalized_to_abs(
+															game_state->vars.pitch.field, pos),
+													.team_side = TS_HOME,
+													.team_formation_position_idx = i},
+							 game_state);
 	}
 
 	// Team 2
 	for (usize i = 0; i < 10; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
-		player_create((struct player_config){.position = football_pitch_position_normalized_to_abs(
-												 game_state->vars.pitch.field, pos),
-											 .team_side = TS_AWAY,
-											 .team_formation_position_idx = i},
-					  game_state);
+		entity_player_create((struct player_config){.position =
+														football_pitch_position_normalized_to_abs(
+															game_state->vars.pitch.field, pos),
+													.team_side = TS_AWAY,
+													.team_formation_position_idx = i},
+							 game_state);
 	}
 
-	player_create((struct player_config){.is_goalie = true,
-										 .position = game_state->vars.pitch.goal[PSI_NORTH].center,
-										 .team_side = TS_HOME},
-				  game_state);
-	player_create((struct player_config){.is_goalie = true,
-										 .position = game_state->vars.pitch.goal[PSI_SOUTH].center,
-										 .team_side = TS_AWAY},
-				  game_state);
+	entity_player_create((struct player_config){.is_goalie = true,
+												.position =
+													game_state->vars.pitch.goal[PSI_NORTH].center,
+												.team_side = TS_HOME},
+						 game_state);
+	entity_player_create((struct player_config){.is_goalie = true,
+												.position =
+													game_state->vars.pitch.goal[PSI_SOUTH].center,
+												.team_side = TS_AWAY},
+						 game_state);
 
-	struct entity *ball_entity = ball_create(
+	struct entity *ball_entity = entity_ball_create(
 		(struct ball_config){.position = game_state->vars.pitch.midfield_spot}, game_state);
 	game_state->vars.ball_entity = ball_entity;
 

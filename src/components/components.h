@@ -55,7 +55,7 @@ struct component_sprite {
 	enum sprite_layer layer;
 	i16 order_in_layer;
 	v2 pivot_override;
-	assets_sprite_frame_id_t frame_id;
+	asset_sprite_frame_id_t frame_id;
 	b32 draw_shadow;
 	color_t shadow_color;
 	v2 shadow_offset;
@@ -176,7 +176,7 @@ struct component_ball {
 	// Animation
 	u16 last_running_frame_idx;
 	time_t last_frame_update_time;
-	assets_sprite_frame_id_t roll_animations[SO_COUNT];
+	asset_sprite_frame_id_t roll_animations[SO_COUNT];
 };
 
 struct component_goal {

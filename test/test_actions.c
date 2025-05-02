@@ -1,8 +1,12 @@
 #include "memory.h"
-#include "assets.h"
-#include "actions.h"
+#include "asset_manager.h"
+#include "action_change_color.h"
+#include "action_play_animation.h"
+#include "action_rotate_to.h"
+#include "action_toggle_boolean.h"
+#include "action_tween_float_from_to.h"
 #include "components.h"
-#include "entities.h"
+#include "entity_repository.h"
 #include "game.h"
 #include "systems.h"
 #include "types.h"
@@ -35,7 +39,7 @@ void setUp(void)
 
 	g_main_memory_arena = memory_arena_create("main", g_memory, Megabytes(4));
 
-	struct assets assets = assets_load_everything(g_main_memory_arena);
+	struct assets assets = asset_manager_load_everything(g_main_memory_arena);
 
 	struct game_config game_config =
 		(struct game_config){.screen_width = width, .screen_height = height};
@@ -57,7 +61,7 @@ void tearDown(void)
 void test_action_change_color_from_to()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -66,7 +70,7 @@ void test_action_change_color_from_to()
 	// Action component is not enabled by default for player entity
 	component_action->header.enabled = true;
 
-	struct action_change_color_from_to *action = actions_change_color_from_to_create(
+	struct action_change_color_from_to *action = action_change_color_from_to_create(
 		1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
@@ -91,7 +95,7 @@ void test_action_change_color_from_to()
 void test_action_animation()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -100,10 +104,10 @@ void test_action_animation()
 	// Action component is not enabled by default for player entity
 	component_action->header.enabled = true;
 
-	struct assets_animation *animation =
-		assets_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
+	struct asset_animation *animation =
+		asset_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
-	struct action_play_animation *action = actions_play_animation_create(
+	struct action_play_animation *action = action_play_animation_create(
 		animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
@@ -121,8 +125,8 @@ void test_action_animation()
 	}
 
 	TEST_ASSERT(component_action->running_actions[running_idx].completed);
-	struct assets_sprite_frame *expected_sprite_frame =
-		assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
+	struct asset_sprite_frame *expected_sprite_frame =
+		asset_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
 	// Test half play speed
@@ -144,7 +148,7 @@ void test_action_animation()
 
 	TEST_ASSERT(component_action->running_actions[running_idx].completed);
 	expected_sprite_frame =
-		assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
+		asset_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
 	// Test double play speed
@@ -166,7 +170,7 @@ void test_action_animation()
 
 	TEST_ASSERT(component_action->running_actions[running_idx].completed);
 	expected_sprite_frame =
-		assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
+		asset_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 }
 
@@ -224,8 +228,8 @@ void test_action_spawn()
 	// Action component is not enabled by default for player entity
 	component_action->header.enabled = true;
 
-	struct assets_animation *animation =
-		assets_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
+	struct asset_animation *animation =
+		asset_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
 	struct action_play_animation *action_1 = actions_play_animation_create(
 		animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -253,8 +257,8 @@ void test_action_spawn()
 
 	TEST_ASSERT(component_action->running_actions[action_spawn_idx].completed);
 
-	struct assets_sprite_frame *expected_sprite_frame =
-		assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
+	struct asset_sprite_frame *expected_sprite_frame =
+		asset_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
 	Color expected_color = WHITE;
@@ -276,8 +280,8 @@ void test_multiple_parallel_actions()
 	// Action component is not enabled by default for player entity
 	component_action->header.enabled = true;
 
-	struct assets_animation *animation =
-		assets_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
+	struct asset_animation *animation =
+		asset_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
 	struct action_play_animation *action_1 = actions_play_animation_create(
 		animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -306,8 +310,8 @@ void test_multiple_parallel_actions()
 	}
 
 	TEST_ASSERT(component_action->running_actions[animation_idx].completed);
-	struct assets_sprite_frame *expected_sprite_frame =
-		assets_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
+	struct asset_sprite_frame *expected_sprite_frame =
+		asset_sprite_frame_get_by_name(g_game_state->assets.sprite_frame_cache, "ball_left_3");
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
 	TEST_ASSERT(component_action->running_actions[change_color_idx].completed);

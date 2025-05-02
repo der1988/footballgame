@@ -2,7 +2,8 @@
 #include "layers_internal.h"
 #include "log.h"
 #include "game.h"
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_ball.h"
 #include <assert.h>
 #include <raylib.h>
 #include <string.h>

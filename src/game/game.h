@@ -128,21 +128,21 @@ struct game_vars {
 
 struct game_gfx {
 	struct player {
-		assets_sprite_frame_id_t stand_frames[SO_COUNT];
-		assets_animation_id_t run_animations[SO_COUNT];
-		assets_sprite_frame_id_t tackle_frames[SO_COUNT];
-		assets_animation_id_t fall_animations[SO_COUNT];
+		asset_sprite_frame_id_t stand_frames[SO_COUNT];
+		asset_animation_id_t run_animations[SO_COUNT];
+		asset_sprite_frame_id_t tackle_frames[SO_COUNT];
+		asset_animation_id_t fall_animations[SO_COUNT];
 	} player;
 
 	struct goalie {
-		assets_sprite_frame_id_t stand_frames[SO_COUNT];
-		assets_animation_id_t run_animations[SO_COUNT];
-		assets_sprite_frame_id_t save_frames[PSI_COUNT][ST_COUNT];
-		assets_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
-		assets_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];
-		assets_animation_id_t dive_animations_end[PSI_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
-		assets_animation_id_t jump_animations_start[PSI_COUNT];
-		assets_animation_id_t jump_animations_end[PSI_COUNT][ST_COUNT];
+		asset_sprite_frame_id_t stand_frames[SO_COUNT];
+		asset_animation_id_t run_animations[SO_COUNT];
+		asset_sprite_frame_id_t save_frames[PSI_COUNT][ST_COUNT];
+		asset_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
+		asset_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];
+		asset_animation_id_t dive_animations_end[PSI_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
+		asset_animation_id_t jump_animations_start[PSI_COUNT];
+		asset_animation_id_t jump_animations_end[PSI_COUNT][ST_COUNT];
 	} goalie;
 };
 
@@ -164,7 +164,7 @@ struct game_state {
 	struct entity_repository *entity_repository;
 	tweakui_t *tweakui;
 	layers_debug_t *layer_debug;
-	struct assets_texture *pitch_texture;
+	struct asset_texture *pitch_texture;
 	render_texture_t render_texture;
 	camera2d_t camera;
 	camera2d_t virtual_camera;

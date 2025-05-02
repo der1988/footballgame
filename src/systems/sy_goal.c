@@ -1,4 +1,5 @@
-#include "entities.h"
+#include "entity_repository.h"
+#include "entity_ball.h"
 #include "game.h"
 #include "log.h"
 #include "math_ext.h"
@@ -142,7 +143,7 @@ void systems_goal(struct game_state *game_state)
 				v3 new_position =
 					Vector3Add(collision.point, Vector3Scale(new_velocity, game_state->dt));
 
-				ball_set_position_and_velocity(ball_entity, new_position, new_velocity);
+				entity_ball_set_position_and_velocity(ball_entity, new_position, new_velocity);
 				GLOGF_INFO(LS_GAME,
 						   "hit post at %.2f, %.2f, %.2f",
 						   collision.point.x,
@@ -159,7 +160,7 @@ void systems_goal(struct game_state *game_state)
 			}
 
 			if (scored) {
-				ball_in_goal(ball_entity);
+				entity_ball_in_goal(ball_entity);
 				football_match_change_state(game_state, MS_GOAL);
 				GLOGF_INFO(LS_GAME,
 						   "goal at %.2f, %.2f, %.2f",
