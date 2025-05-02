@@ -5,8 +5,8 @@
 #include "memory.h"
 #include "types.h"
 
-#include "entities/e_ball.h"
-#include "entities/e_player.h"
+#include "entity_ball.h"
+#include "entity_player.h"
 
 #define MAX_ENTITIES 100
 

@@ -1,4 +1,4 @@
-#include "actions.h"
+#include "action_toggle_boolean.h"
 #include "macro.h"
 
 void actions_toggle_boolean_update(struct action_runner *action_runner,

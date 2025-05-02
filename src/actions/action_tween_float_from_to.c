@@ -1,4 +1,4 @@
-#include "actions.h"
+#include "action_tween_float_from_to.h"
 #include "game.h"
 
 void actions_tween_float_from_to_update(struct action_runner *action_runner,

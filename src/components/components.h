@@ -1,7 +1,7 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
-#include "actions.h"
+#include "action.h"
 #include "assets.h"
 #include "football.h"
 #include "render.h"

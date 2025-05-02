@@ -1,4 +1,3 @@
-#include "e_player.h"
 #include "assets.h"
 #include "components.h"
 #include "entities.h"

@@ -1,5 +1,5 @@
-#include "e_ball.h"
-#include "e_player.h"
+#include "entity_ball.h"
+#include "entity_player.h"
 #include "entities.h"
 #include "football.h"
 #include "game.h"

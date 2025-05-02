@@ -1,5 +1,5 @@
 #include "components.h"
-#include "e_ball.h"
+#include "entity_ball.h"
 #include "entities.h"
 #include "game.h"
 #include "layers.h"
