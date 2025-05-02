@@ -106,8 +106,8 @@ static struct assets_animation *load_from_json(const char *filename,
 			usize frames_count = 0;
 			char *frames = NULL;
 			char *frame = NULL;
-			char frame_name_format[MAX_STRING_SIZE];
-			char frame_name[MAX_STRING_SIZE];
+			char frame_name_format[ANIMATION_FRAME_MAX_SIZE];
+			char frame_name[ANIMATION_FRAME_MAX_SIZE];
 			for (frames = animation_frames;; frames = NULL) {
 				frame = strtok(frames, ",");
 
@@ -216,9 +216,9 @@ assets_animation_id_t assets_animation_id_from_name(assets_animation_cache_t *ha
 													memory_arena_handle_t *memory_arena_handle)
 {
 	// Scratch buffer
-	char *final_animation = memory_arena_push(memory_arena_handle, MAX_STRING_SIZE);
+	char *final_animation = memory_arena_push(memory_arena_handle, ANIMATION_NAME_MAX_SIZE);
 
-	snprintf(final_animation, MAX_STRING_SIZE, "%s_%s", name, animation_name);
+	snprintf(final_animation, ANIMATION_NAME_MAX_SIZE, "%s_%s", name, animation_name);
 	struct assets_animation *animation = assets_animation_get_by_name(handle, final_animation);
 	assert(animation);
 

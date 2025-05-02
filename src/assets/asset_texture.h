@@ -4,7 +4,7 @@
 #include "types.h"
 #include "memory.h"
 
-#define MAX_STRING_SIZE 50
+#define TEXTURE_NAME_MAX_SIZE 50
 
 // Texture Cache
 typedef u32 assets_texture_id_t;
@@ -13,7 +13,7 @@ typedef struct assets_texture_cache assets_texture_cache_t;
 
 struct assets_texture {
 	assets_texture_id_t id;
-	char name[MAX_STRING_SIZE];
+	char name[TEXTURE_NAME_MAX_SIZE];
 	texture_t texture;
 };
 

@@ -4,14 +4,17 @@
 #include "types.h"
 #include "asset_sprite_frame.h"
 
-#define MAX_STRING_SIZE 50
+// Entity name is 20 chars, animation name should be 30 chars at most
+#define ANIMATION_NAME_MAX_SIZE 80
+// Entity name is 20 chars, animation prefix should be 30 chars at most
+#define ANIMATION_FRAME_MAX_SIZE 80
 
 // Animation Cache
 typedef u32 assets_animation_id_t;
 
 struct assets_animation {
 	assets_animation_id_t id;
-	char name[MAX_STRING_SIZE];
+	char name[ANIMATION_NAME_MAX_SIZE];
 	f32 delay;
 	assets_sprite_frame_id_t *frames;
 	u16 frames_count;

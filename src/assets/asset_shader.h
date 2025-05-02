@@ -4,7 +4,8 @@
 #include "types.h"
 #include "memory.h"
 
-#define MAX_STRING_SIZE 50
+#define SHADER_NAME_MAX_SIZE	 50
+#define SHADER_FILENAME_MAX_SIZE 50
 
 // Shader Cache
 typedef u32 assets_shader_id_t;
@@ -13,9 +14,9 @@ typedef struct assets_shader_cache assets_shader_cache_t;
 
 struct assets_shader {
 	assets_shader_id_t id;
-	char name[MAX_STRING_SIZE];
-	char vs_filename[MAX_STRING_SIZE];
-	char fs_filename[MAX_STRING_SIZE];
+	char name[SHADER_NAME_MAX_SIZE];
+	char vs_filename[SHADER_FILENAME_MAX_SIZE];
+	char fs_filename[SHADER_FILENAME_MAX_SIZE];
 	shader_t shader;
 };
 

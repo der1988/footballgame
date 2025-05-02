@@ -46,12 +46,12 @@ struct assets_shader *assets_shader_load(assets_shader_cache_t *handle,
 		assets_shader = &handle->cache[handle->count];
 		assets_shader->id = handle->count;
 		assets_shader->shader = shader;
-		strncpy(assets_shader->name, name, MAX_STRING_SIZE);
+		strncpy(assets_shader->name, name, SHADER_NAME_MAX_SIZE);
 		if (vs_filename) {
-			strncpy(assets_shader->vs_filename, vs_filename, MAX_STRING_SIZE);
+			strncpy(assets_shader->vs_filename, vs_filename, SHADER_FILENAME_MAX_SIZE);
 		}
 		if (fs_filename) {
-			strncpy(assets_shader->fs_filename, fs_filename, MAX_STRING_SIZE);
+			strncpy(assets_shader->fs_filename, fs_filename, SHADER_FILENAME_MAX_SIZE);
 		}
 		handle->count++;
 		GLOGF_INFO_CTX(LS_ASSETS,

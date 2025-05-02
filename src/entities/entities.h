@@ -9,7 +9,7 @@
 #include "entity_player.h"
 
 #define MAX_ENTITIES		 100
-#define ENTITY_NAME_MAX_SIZE 50
+#define ENTITY_NAME_MAX_SIZE 20
 
 #define ENTITY_TYPE_TO_BIT_MASK(TYPE) (1 << TYPE)
 #define ENTITY_TYPE_ALL_BIT_MASK	  0xFFFFFFFFFFFFFFFF

@@ -41,7 +41,7 @@ struct assets_texture *assets_texture_load(assets_texture_cache_t *handle, const
 		assets_texture = &handle->cache[handle->count];
 		assets_texture->id = handle->count;
 		assets_texture->texture = texture;
-		strncpy(assets_texture->name, filename, MAX_STRING_SIZE);
+		strncpy(assets_texture->name, filename, TEXTURE_NAME_MAX_SIZE);
 		handle->count++;
 		GLOGF_INFO_CTX(LS_ASSETS,
 					   filename,
