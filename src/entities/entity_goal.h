@@ -5,4 +5,4 @@ struct goal_config {
 	v2 center;
 };
 
-struct entity *goal_create(struct goal_config config, struct game_state *game_state);
+struct entity *entity_goal_create(struct goal_config config, struct game_state *game_state);

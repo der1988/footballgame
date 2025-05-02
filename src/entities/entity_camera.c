@@ -3,7 +3,7 @@
 #include <raymath.h>
 #include "game.h"
 
-struct entity *camera_create(struct game_state *game_state)
+struct entity *entity_camera_create(struct game_state *game_state)
 {
 	struct entity *entity = entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
 

@@ -6,7 +6,7 @@
 #include <raymath.h>
 #include "game.h"
 
-struct entity *goal_create(struct goal_config config, struct game_state *game_state)
+struct entity *entity_goal_create(struct goal_config config, struct game_state *game_state)
 {
 	struct entity *entity = entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
@@ -19,7 +19,7 @@ struct entity *goal_create(struct goal_config config, struct game_state *game_st
 	transform->position = config.center;
 
 	// Create goal net
-	struct entity *goal_net_entity = goal_net_create(game_state);
+	struct entity *goal_net_entity = entity_goal_net_create(game_state);
 	struct component_transform *goal_net_transform = &goal_net_entity->transform;
 	goal_net_transform->parent = transform;
 	goal_net_transform->position = Vector2Zero();

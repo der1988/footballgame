@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "game.h"
 
-struct entity *goal_net_create(struct game_state *game_state)
+struct entity *entity_goal_net_create(struct game_state *game_state)
 {
 	struct entity *entity = entity_init(game_state->entity_repository, ET_GOAL, "goal_net_%02d");
 
