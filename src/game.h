@@ -164,7 +164,7 @@ struct game_state {
 	struct entity_repository *entity_repository;
 	tweakui_t *tweakui;
 	layers_debug_t *layer_debug;
-	assets_texture_id_t pitch_texture_id;
+	struct assets_texture *pitch_texture;
 	render_texture_t render_texture;
 	camera2d_t camera;
 	camera2d_t virtual_camera;

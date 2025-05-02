@@ -98,10 +98,9 @@ struct game_state *game_play_init(struct game_config game_config,
 		entities_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	// Get pitch texture id
-	struct assets_texture *texture =
+	game_state->pitch_texture =
 		assets_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
-	assert(texture);
-	game_state->pitch_texture_id = texture->id;
+	assert(game_state->pitch_texture);
 
 	game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
@@ -272,9 +271,7 @@ void draw(struct game_state *game_state)
 		camera_transform->position.y - game_state->virtual_camera.target.y;
 	game_state->camera.target.y *= virtual_ratio;
 
-	texture_t pitch_texture =
-		assets_texture_get_by_id(game_state->assets.texture_cache, game_state->pitch_texture_id)
-			->texture;
+	texture_t pitch_texture = game_state->pitch_texture->texture;
 
 	BeginTextureMode(game_state->render_texture);
 	ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
