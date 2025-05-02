@@ -1,4 +1,3 @@
-#include "assets.h"
 #include "entities.h"
 #include "types.h"
 #include "math_ext.h"

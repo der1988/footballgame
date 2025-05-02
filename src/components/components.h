@@ -2,7 +2,7 @@
 #define COMPONENTS_H
 
 #include "action.h"
-#include "assets.h"
+#include "asset_sprite_frame.h"
 #include "football.h"
 #include "render.h"
 #include "constants.h"

@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "assets.h"
+#include "asset_manager.h"
 #include "football.h"
 #include "input.h"
 #include "memory.h"

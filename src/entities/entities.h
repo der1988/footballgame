@@ -8,7 +8,8 @@
 #include "entity_ball.h"
 #include "entity_player.h"
 
-#define MAX_ENTITIES 100
+#define MAX_ENTITIES		 100
+#define ENTITY_NAME_MAX_SIZE 50
 
 #define ENTITY_TYPE_TO_BIT_MASK(TYPE) (1 << TYPE)
 #define ENTITY_TYPE_ALL_BIT_MASK	  0xFFFFFFFFFFFFFFFF
@@ -110,7 +111,7 @@ static const char *entity_type_to_string[ET_COUNT] = {
 struct entity_header {
 	b32 alive;
 	entity_id_t id;
-	char name[MaxStringSize];
+	char name[ENTITY_NAME_MAX_SIZE];
 	enum entity_type type;
 };
 

@@ -1,4 +1,3 @@
-#include "assets.h"
 #include "components.h"
 #include "entities.h"
 #include "football.h"

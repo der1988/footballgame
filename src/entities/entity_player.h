@@ -5,6 +5,7 @@
 #include "football.h"
 #include "state_machine.h"
 #include "types.h"
+#include "asset_animation.h"
 
 // Forward declarations
 struct entity;

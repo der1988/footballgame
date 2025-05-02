@@ -1,5 +1,5 @@
-#include "assets_internal.h"
-#include "assets.h"
+#include "internal/asset_shader_cache.h"
+#include "asset_shader.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"
@@ -46,12 +46,12 @@ struct assets_shader *assets_shader_load(assets_shader_cache_t *handle,
 		assets_shader = &handle->cache[handle->count];
 		assets_shader->id = handle->count;
 		assets_shader->shader = shader;
-		strncpy(assets_shader->name, name, MaxStringSize);
+		strncpy(assets_shader->name, name, MAX_STRING_SIZE);
 		if (vs_filename) {
-			strncpy(assets_shader->vs_filename, vs_filename, MaxStringSize);
+			strncpy(assets_shader->vs_filename, vs_filename, MAX_STRING_SIZE);
 		}
 		if (fs_filename) {
-			strncpy(assets_shader->fs_filename, fs_filename, MaxStringSize);
+			strncpy(assets_shader->fs_filename, fs_filename, MAX_STRING_SIZE);
 		}
 		handle->count++;
 		GLOGF_INFO_CTX(LS_ASSETS,

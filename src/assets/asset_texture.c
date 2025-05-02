@@ -1,5 +1,5 @@
-#include "assets_internal.h"
-#include "assets.h"
+#include "internal/asset_texture_cache.h"
+#include "asset_texture.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"
@@ -41,7 +41,7 @@ struct assets_texture *assets_texture_load(assets_texture_cache_t *handle, const
 		assets_texture = &handle->cache[handle->count];
 		assets_texture->id = handle->count;
 		assets_texture->texture = texture;
-		strncpy(assets_texture->name, filename, MaxStringSize);
+		strncpy(assets_texture->name, filename, MAX_STRING_SIZE);
 		handle->count++;
 		GLOGF_INFO_CTX(LS_ASSETS,
 					   filename,

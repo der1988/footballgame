@@ -1,4 +1,5 @@
-#include "assets.h"
+#include "asset_sprite_frame.h"
+#include "asset_texture.h"
 #include <raymath.h>
 #include "math_ext.h"
 

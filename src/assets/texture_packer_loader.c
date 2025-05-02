@@ -1,4 +1,4 @@
-#include "assets.h"
+#include "asset_sprite_frame.h"
 #include "libs/cJSON/cJSON.h"
 #include "macro.h"
 #include <stdlib.h>
@@ -82,7 +82,7 @@ struct assets_sprite_frame *texture_packer_load_from_json(const char *filename,
 
 		struct assets_sprite_frame *sprite_frame = current_sprite_frame++;
 		sprite_frame->id = current_sprite_frame_id++;
-		strncpy(sprite_frame->name, name, MaxStringSize);
+		strncpy(sprite_frame->name, name, SPRITE_FRAME_NAME_MAX_SIZE);
 		sprite_frame->frame = (Rectangle){frame_x, frame_y, frame_w, frame_h};
 		sprite_frame->trimmed = trimmed;
 		sprite_frame->rotated = rotated;

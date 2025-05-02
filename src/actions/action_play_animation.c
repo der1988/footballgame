@@ -1,5 +1,4 @@
 #include "action_play_animation.h"
-#include "assets.h"
 #include "entities.h"
 #include "game.h"
 #include <math.h>
