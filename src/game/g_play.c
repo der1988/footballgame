@@ -256,9 +256,7 @@ void draw(struct game_state *game_state)
 
 	memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 
-	struct component_transform *camera_transform =
-		&entities_entity_get(game_state->entity_repository, game_state->vars.camera_entity_id)
-			 ->transform;
+	struct component_transform *camera_transform = &game_state->vars.camera_entity->transform;
 
 	// Round virtual space coordinates, keep decimals into screen space coordinates
 	f32 virtual_ratio =

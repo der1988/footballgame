@@ -100,7 +100,7 @@ void football_setup(struct game_state *game_state)
 	struct component_target *camera_target = &camera_entity->target;
 	camera->camera = CAM_MAIN;
 	camera_target->entity_id = ball_entity->header.id;
-	game_state->vars.camera_entity_id = camera_entity->header.id;
+	game_state->vars.camera_entity = camera_entity;
 
 	game_state->camera.zoom = 1;
 	game_state->camera.rotation = 0;

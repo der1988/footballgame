@@ -119,7 +119,7 @@ struct game_vars {
 		struct team_info info;
 		struct team_play_context play_context;
 	} teams[TS_COUNT];
-	entity_id_t camera_entity_id;
+	struct entity *camera_entity;
 	struct entity *ball_entity;
 	b32 slow_motion;
 	b32 is_debug_log_shown;
