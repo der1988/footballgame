@@ -5,8 +5,10 @@
 #include <string.h>
 #include "log.h"
 
-struct assets_sprite_frame *assets_texture_packer_load_from_json(
-	const char *filename, const u32 texture_id, const usize initial_sprite_frame_id, usize *count)
+struct assets_sprite_frame *texture_packer_load_from_json(const char *filename,
+														  const u32 texture_id,
+														  const usize initial_sprite_frame_id,
+														  usize *count)
 {
 	assets_sprite_frame_id_t current_sprite_frame_id = initial_sprite_frame_id;
 	*count = 0;

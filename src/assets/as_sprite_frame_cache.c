@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "types.h"
 #include "log.h"
+#include "texture_packer_loader.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,7 @@ i32 assets_sprite_frames_load_from_json(assets_sprite_frame_cache_t *handle,
 
 	usize loaded = 0;
 	struct assets_sprite_frame *sprite_frames =
-		assets_texture_packer_load_from_json(filename, texture_id, handle->count, &loaded);
+		texture_packer_load_from_json(filename, texture_id, handle->count, &loaded);
 	assert(loaded <= (MAX_SPRITE_FRAMES - handle->count));
 
 	if (sprite_frames) {

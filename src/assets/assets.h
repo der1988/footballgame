@@ -52,10 +52,6 @@ struct assets_sprite_frame *assets_sprite_frame_get_by_name(assets_sprite_frame_
 struct assets_sprite_frame *assets_sprite_frame_get_by_id(assets_sprite_frame_cache_t *handle,
 														  const assets_sprite_frame_id_t id);
 
-// Texture Packer Helper
-struct assets_sprite_frame *assets_texture_packer_load_from_json(
-	const char *filename, const u32 texture_id, const usize initial_sprite_frame_id, usize *count);
-
 // Animation Cache
 typedef u32 assets_animation_id_t;
 
