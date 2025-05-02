@@ -3,7 +3,7 @@
 #include "e_ball.h"
 #include "game.h"
 #include "input.h"
-#include "simulation.h"
+#include "physics/physics.h"
 #include "math_ext.h"
 #include "sprite.h"
 
@@ -171,14 +171,14 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		b32 on_the_ground;
 		b32 bounced;
 		f32 ball_radius = collider->colliders[0].props.circle.radius;
-		sim_ball_physics(&position,
-						 &velocity,
-						 accel,
-						 physics3d->mass,
-						 ball_radius,
-						 &on_the_ground,
-						 &bounced,
-						 game_state);
+		physics_ball_simulation(&position,
+								&velocity,
+								accel,
+								physics3d->mass,
+								ball_radius,
+								&on_the_ground,
+								&bounced,
+								game_state);
 		ball->future_bounce.available = false;
 		ball->future_reachable.available = false;
 		ball->is_on_the_ground = on_the_ground && !bounced;
@@ -207,14 +207,14 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		for (u16 i = 0; i < lookaheads; ++i) {
 			// 10 dt steps (100 in slow motion)
 			for (u16 j = 0; j < lookahead_dts; ++j) {
-				sim_ball_physics(&lookahead_position,
-								 &lookahead_velocity,
-								 Vector3Zero(),
-								 physics3d->mass,
-								 ball_radius,
-								 &lookahead_on_the_ground,
-								 &lookahead_bounced,
-								 game_state);
+				physics_ball_simulation(&lookahead_position,
+										&lookahead_velocity,
+										Vector3Zero(),
+										physics3d->mass,
+										ball_radius,
+										&lookahead_on_the_ground,
+										&lookahead_bounced,
+										game_state);
 				if (!ball->future_bounce.available && lookahead_bounced) {
 					ball->future_bounce.available = true;
 					ball->future_bounce.position = V3_TO_V2(lookahead_position);

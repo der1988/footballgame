@@ -2,14 +2,14 @@
 #include "types.h"
 #include <raymath.h>
 
-void sim_ball_physics(v3 *out_position,
-					  v3 *out_velocity,
-					  v3 accel,
-					  f32 mass,
-					  f32 radius,
-					  b32 *out_on_the_ground,
-					  b32 *out_bounced,
-					  struct game_state *game_state)
+void physics_ball_simulation(v3 *out_position,
+							 v3 *out_velocity,
+							 v3 accel,
+							 f32 mass,
+							 f32 radius,
+							 b32 *out_on_the_ground,
+							 b32 *out_bounced,
+							 struct game_state *game_state)
 {
 	v3 position = *out_position;
 	v3 velocity = *out_velocity;
