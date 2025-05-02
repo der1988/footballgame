@@ -1,9 +1,9 @@
 #include "action_tween_float_from_to.h"
 #include "game.h"
 
-void actions_tween_float_from_to_update(struct action_runner *action_runner,
-										entity_id_t id,
-										struct game_state *game_state)
+void action_tween_float_from_to_update(struct action_runner *action_runner,
+									   entity_id_t id,
+									   struct game_state *game_state)
 {
 	UNUSED(id);
 
@@ -18,7 +18,7 @@ void actions_tween_float_from_to_update(struct action_runner *action_runner,
 	*action->value = action->from + (action->to - action->from) * h;
 }
 
-struct action_tween_float_from_to *actions_tween_float_from_to_create(
+struct action_tween_float_from_to *action_tween_float_from_to_create(
 	f32 duration, b32 loop, f32 *value, f32 from, f32 to, memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_tween_float_from_to *action =
@@ -27,7 +27,7 @@ struct action_tween_float_from_to *actions_tween_float_from_to_create(
 		.base = (struct action){.type = AT_TWEEN_FLOAT_FROM_TO,
 								.duration = duration,
 								.loop = loop,
-								.update = actions_tween_float_from_to_update},
+								.update = action_tween_float_from_to_update},
 		.value = value,
 		.from = from,
 		.to = to,

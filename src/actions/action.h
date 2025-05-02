@@ -42,11 +42,9 @@ struct action {
 	void (*update)(struct action_runner *, entity_id_t, struct game_state *game_state);
 };
 
-void actions_action_run(struct action_runner *action_runner,
-						entity_id_t id,
-						struct game_state *game_state);
-void actions_action_stop(running_action_idx_t running_action_idx,
-						 entity_id_t id,
-						 struct game_state *game_state);
+void action_run(struct action_runner *action_runner, entity_id_t id, struct game_state *game_state);
+void action_stop(running_action_idx_t running_action_idx,
+				 entity_id_t id,
+				 struct game_state *game_state);
 
 #endif // !ACTION_H

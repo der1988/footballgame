@@ -11,11 +11,11 @@ struct action_spawn {
 	struct action_runner actions[];
 };
 
-struct action_spawn *actions_spawn_create(memory_arena_handle_t *memory_arena_handle,
-										  u32 count,
-										  ...);
-void actions_spawn_update(struct action_runner *action_runner,
-						  entity_id_t id,
-						  struct game_state *game_state);
+struct action_spawn *action_spawn_create(memory_arena_handle_t *memory_arena_handle,
+										 u32 count,
+										 ...);
+void action_spawn_update(struct action_runner *action_runner,
+						 entity_id_t id,
+						 struct game_state *game_state);
 
 #endif // !ACTION_SEQUENCE_H

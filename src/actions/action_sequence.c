@@ -2,9 +2,9 @@
 #include "macro.h"
 #include <stdarg.h>
 
-void actions_sequence_start(struct action_runner *action_runner,
-							entity_id_t id,
-							struct game_state *game_state)
+void action_sequence_start(struct action_runner *action_runner,
+						   entity_id_t id,
+						   struct game_state *game_state)
 {
 	UNUSED(id);
 	UNUSED(game_state);
@@ -17,15 +17,15 @@ void actions_sequence_start(struct action_runner *action_runner,
 	}
 }
 
-void actions_sequence_update(struct action_runner *action_runner,
-							 entity_id_t id,
-							 struct game_state *game_state)
+void action_sequence_update(struct action_runner *action_runner,
+							entity_id_t id,
+							struct game_state *game_state)
 {
 	struct action_sequence *action_sequence = (struct action_sequence *)action_runner->action;
 
 	usize i = 0;
 	for (i = 0; i < action_sequence->count; ++i) {
-		actions_action_run(&action_sequence->actions[i], id, game_state);
+		action_run(&action_sequence->actions[i], id, game_state);
 		if (!action_sequence->actions[i].completed) {
 			break;
 		}
@@ -36,17 +36,17 @@ void actions_sequence_update(struct action_runner *action_runner,
 	}
 }
 
-struct action_sequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
-												u32 count,
-												...)
+struct action_sequence *action_sequence_create(memory_arena_handle_t *memory_arena_handle,
+											   u32 count,
+											   ...)
 {
 	struct action_sequence *action_sequence = memory_arena_push(
 		memory_arena_handle, sizeof(struct action_sequence) + sizeof(struct action_runner) * count);
 	*action_sequence = (struct action_sequence){
 		.base = (struct action){.type = AT_SEQUENCE,
 								.loop = false,
-								.start = actions_sequence_start,
-								.update = actions_sequence_update},
+								.start = action_sequence_start,
+								.update = action_sequence_update},
 	};
 
 	f32 total_duration = 0;

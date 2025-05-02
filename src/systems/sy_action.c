@@ -20,7 +20,7 @@ void systems_action(struct game_state *game_state)
 					// to interested parties to check for action completion.
 					action->running_actions[j].action = NULL;
 				} else {
-					actions_action_run(action_runner, entity_id, game_state);
+					action_run(action_runner, entity_id, game_state);
 				}
 			}
 		}

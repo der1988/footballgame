@@ -1,9 +1,9 @@
 #include "action_toggle_boolean.h"
 #include "macro.h"
 
-void actions_toggle_boolean_update(struct action_runner *action_runner,
-								   entity_id_t id,
-								   struct game_state *game_state)
+void action_toggle_boolean_update(struct action_runner *action_runner,
+								  entity_id_t id,
+								  struct game_state *game_state)
 {
 	UNUSED(id);
 	UNUSED(game_state);
@@ -14,7 +14,7 @@ void actions_toggle_boolean_update(struct action_runner *action_runner,
 	*action->value = !*action->value;
 }
 
-struct action_toggle_boolean *actions_toggle_boolean_create(
+struct action_toggle_boolean *action_toggle_boolean_create(
 	f32 duration, b32 loop, b32 *value, memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_toggle_boolean *action = memory_arena_push(memory_arena_handle, sizeof(*action));
@@ -22,7 +22,7 @@ struct action_toggle_boolean *actions_toggle_boolean_create(
 		.base = (struct action){.type = AT_TOGGLE_BOOLEAN,
 								.duration = duration,
 								.loop = loop,
-								.update = actions_toggle_boolean_update},
+								.update = action_toggle_boolean_update},
 		.value = value,
 	};
 	return action;

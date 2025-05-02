@@ -13,14 +13,14 @@ struct action_tween_float_from_to {
 };
 
 struct action_tween_float_from_to *
-actions_tween_float_from_to_create(f32 duration,
-								   b32 loop,
-								   f32 *value,
-								   f32 from,
-								   f32 to,
-								   memory_arena_handle_t *memory_arena_handle);
-void actions_tween_float_from_to_update(struct action_runner *action_runner,
-										entity_id_t id,
-										struct game_state *game_state);
+action_tween_float_from_to_create(f32 duration,
+								  b32 loop,
+								  f32 *value,
+								  f32 from,
+								  f32 to,
+								  memory_arena_handle_t *memory_arena_handle);
+void action_tween_float_from_to_update(struct action_runner *action_runner,
+									   entity_id_t id,
+									   struct game_state *game_state);
 
 #endif // !ACTION_TWEEN_FLOAT_FROM_TO_H

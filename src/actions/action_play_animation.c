@@ -4,9 +4,9 @@
 #include "game.h"
 #include <math.h>
 
-void actions_play_animation_update(struct action_runner *action_runner,
-								   entity_id_t id,
-								   struct game_state *game_state)
+void action_play_animation_update(struct action_runner *action_runner,
+								  entity_id_t id,
+								  struct game_state *game_state)
 {
 	struct action_play_animation *action = (struct action_play_animation *)action_runner->action;
 	f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
@@ -23,17 +23,17 @@ void actions_play_animation_update(struct action_runner *action_runner,
 }
 
 struct action_play_animation *
-actions_play_animation_create(struct assets_animation *animation,
-							  b32 loop,
-							  float speed,
-							  memory_arena_handle_t *memory_arena_handle)
+action_play_animation_create(struct assets_animation *animation,
+							 b32 loop,
+							 float speed,
+							 memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_play_animation *action = memory_arena_push(memory_arena_handle, sizeof(*action));
 	*action = (struct action_play_animation){
 		.base = (struct action){.type = AT_PLAY_ANIMATION,
 								.duration = (animation->delay * animation->frames_count / speed),
 								.loop = loop,
-								.update = actions_play_animation_update},
+								.update = action_play_animation_update},
 		.animation_id = animation->id,
 		.speed = speed};
 	return action;

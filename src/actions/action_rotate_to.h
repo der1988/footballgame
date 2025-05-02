@@ -12,12 +12,10 @@ struct action_rotate_to {
 	f32 diff;
 };
 
-struct action_rotate_to *actions_rotate_to_create(f32 duration,
-												  b32 loop,
-												  f32 to,
-												  memory_arena_handle_t *memory_arena_handle);
-void actions_rotate_to_update(struct action_runner *action_runner,
-							  entity_id_t id,
-							  struct game_state *game_state);
+struct action_rotate_to *
+action_rotate_to_create(f32 duration, b32 loop, f32 to, memory_arena_handle_t *memory_arena_handle);
+void action_rotate_to_update(struct action_runner *action_runner,
+							 entity_id_t id,
+							 struct game_state *game_state);
 
 #endif // !ACTION_ROTATE_TO_H

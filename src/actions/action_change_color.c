@@ -3,9 +3,9 @@
 #include "gfx.h"
 #include "game.h"
 
-void actions_change_color_from_to_update(struct action_runner *action_runner,
-										 entity_id_t id,
-										 struct game_state *game_state)
+void action_change_color_from_to_update(struct action_runner *action_runner,
+										entity_id_t id,
+										struct game_state *game_state)
 {
 	struct action_change_color_from_to *action =
 		(struct action_change_color_from_to *)action_runner->action;
@@ -18,7 +18,7 @@ void actions_change_color_from_to_update(struct action_runner *action_runner,
 	sprite->color = gfx_color_lerp(action->from, action->to, h);
 }
 
-struct action_change_color_from_to *actions_change_color_from_to_create(
+struct action_change_color_from_to *action_change_color_from_to_create(
 	f32 duration, b32 loop, Color from, Color to, memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_change_color_from_to *action =
@@ -27,7 +27,7 @@ struct action_change_color_from_to *actions_change_color_from_to_create(
 		.base = (struct action){.type = AT_CHANGE_COLOR_FROM_TO,
 								.duration = duration,
 								.loop = loop,
-								.update = actions_change_color_from_to_update},
+								.update = action_change_color_from_to_update},
 		.from = from,
 		.to = to,
 	};

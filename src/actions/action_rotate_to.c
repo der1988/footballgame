@@ -3,9 +3,9 @@
 #include "entities.h"
 #include <math.h>
 
-void actions_rotate_to_update(struct action_runner *action_runner,
-							  entity_id_t id,
-							  struct game_state *game_state)
+void action_rotate_to_update(struct action_runner *action_runner,
+							 entity_id_t id,
+							 struct game_state *game_state)
 {
 	struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
 
@@ -20,9 +20,9 @@ void actions_rotate_to_update(struct action_runner *action_runner,
 	entity->transform.rotation = action->from + action->diff * h;
 }
 
-void actions_rotate_to_start(struct action_runner *action_runner,
-							 entity_id_t id,
-							 struct game_state *game_state)
+void action_rotate_to_start(struct action_runner *action_runner,
+							entity_id_t id,
+							struct game_state *game_state)
 {
 	struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
 
@@ -46,15 +46,15 @@ void actions_rotate_to_start(struct action_runner *action_runner,
 }
 
 struct action_rotate_to *
-actions_rotate_to_create(f32 duration, b32 loop, f32 to, memory_arena_handle_t *memory_arena_handle)
+action_rotate_to_create(f32 duration, b32 loop, f32 to, memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_rotate_to *action = memory_arena_push(memory_arena_handle, sizeof(*action));
 
 	*action = (struct action_rotate_to){.base = (struct action){.type = AT_ROTATE_TO,
 																.duration = duration,
 																.loop = loop,
-																.start = actions_rotate_to_start,
-																.update = actions_rotate_to_update},
+																.start = action_rotate_to_start,
+																.update = action_rotate_to_update},
 										.to = to};
 	return action;
 }

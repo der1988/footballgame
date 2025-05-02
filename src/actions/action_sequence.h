@@ -11,11 +11,11 @@ struct action_sequence {
 	struct action_runner actions[];
 };
 
-struct action_sequence *actions_sequence_create(memory_arena_handle_t *memory_arena_handle,
-												u32 count,
-												...);
-void actions_sequence_update(struct action_runner *action_runner,
-							 entity_id_t id,
-							 struct game_state *game_state);
+struct action_sequence *action_sequence_create(memory_arena_handle_t *memory_arena_handle,
+											   u32 count,
+											   ...);
+void action_sequence_update(struct action_runner *action_runner,
+							entity_id_t id,
+							struct game_state *game_state);
 
 #endif // !ACTION_SEQUENCE_H
