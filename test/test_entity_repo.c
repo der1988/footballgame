@@ -1,5 +1,7 @@
+#include "asset_manager.h"
 #include "components.h"
 #include "entity_repository.h"
+#include "entity_player.h"
 #include "game.h"
 #include "types.h"
 #include "unity/unity.h"
@@ -27,7 +29,7 @@ void setUp(void)
 
 	g_main_memory_arena = memory_arena_create("main", g_memory, Megabytes(4));
 
-	struct assets assets = assets_load_everything(g_main_memory_arena);
+	struct assets assets = asset_manager_load_everything(g_main_memory_arena);
 
 	struct game_config game_config =
 		(struct game_config){.screen_width = width, .screen_height = height};
@@ -50,20 +52,20 @@ void test_entity()
 {
 	struct entity_repository *entity_repo = g_game_state->entity_repository;
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
-	entity = entities_entity_get(entity_repo, entity_id);
+	entity = entity_get(entity_repo, entity_id);
 	TEST_ASSERT_NOT_NULL(entity);
 
 	TEST_ASSERT(entity->transform.header.enabled);
 	TEST_ASSERT(entity->physics.header.enabled);
 	TEST_ASSERT(entity->sprite.header.enabled);
 
-	entities_entity_destroy(entity_repo, entity_id);
+	entity_destroy(entity_repo, entity_id);
 
-	entity = entities_entity_get(entity_repo, entity_id);
+	entity = entity_get(entity_repo, entity_id);
 	TEST_ASSERT(!entity->header.alive);
 }
 

@@ -1,5 +1,5 @@
-#ifndef ACTION_SEQUENCE_H
-#define ACTION_SEQUENCE_H
+#ifndef ACTION_SPAWN_H
+#define ACTION_SPAWN_H
 
 #include "action.h"
 #include "memory.h"

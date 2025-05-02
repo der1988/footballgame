@@ -1,5 +1,7 @@
 #include "memory.h"
 #include "asset_manager.h"
+#include "action_sequence.h"
+#include "action_spawn.h"
 #include "action_change_color.h"
 #include "action_play_animation.h"
 #include "action_rotate_to.h"
@@ -7,6 +9,7 @@
 #include "action_tween_float_from_to.h"
 #include "components.h"
 #include "entity_repository.h"
+#include "entity_player.h"
 #include "game.h"
 #include "systems.h"
 #include "types.h"
@@ -130,7 +133,7 @@ void test_action_animation()
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
 	// Test half play speed
-	action = actions_play_animation_create(
+	action = action_play_animation_create(
 		animation, false, 0.5f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_idx = components_action_run(entity_id, (struct action *)action, g_game_state);
@@ -152,7 +155,7 @@ void test_action_animation()
 	TEST_ASSERT_EQUAL_UINT(expected_sprite_frame->id, component_sprite->frame_id);
 
 	// Test double play speed
-	action = actions_play_animation_create(
+	action = action_play_animation_create(
 		animation, false, 2.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_idx = components_action_run(entity_id, (struct action *)action, g_game_state);
@@ -177,7 +180,7 @@ void test_action_animation()
 void test_action_sequence()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -188,11 +191,11 @@ void test_action_sequence()
 
 	memory_arena_handle_t *memory_arena_handle = g_game_state->memory_by_lifetime[MAL_LEVEL];
 	struct action_change_color_from_to *action_1 =
-		actions_change_color_from_to_create(1, false, WHITE, BLACK, memory_arena_handle);
+		action_change_color_from_to_create(1, false, WHITE, BLACK, memory_arena_handle);
 	struct action_change_color_from_to *action_2 =
-		actions_change_color_from_to_create(1, false, BLACK, RED, memory_arena_handle);
+		action_change_color_from_to_create(1, false, BLACK, RED, memory_arena_handle);
 	struct action_sequence *action_sequence =
-		actions_sequence_create(memory_arena_handle, 2, action_1, action_2);
+		action_sequence_create(memory_arena_handle, 2, action_1, action_2);
 
 	running_action_idx_t running_idx =
 		components_action_run(entity_id, (struct action *)action_sequence, g_game_state);
@@ -219,7 +222,7 @@ void test_action_sequence()
 void test_action_spawn()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -231,14 +234,14 @@ void test_action_spawn()
 	struct asset_animation *animation =
 		asset_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
-	struct action_play_animation *action_1 = actions_play_animation_create(
+	struct action_play_animation *action_1 = action_play_animation_create(
 		animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-	struct action_change_color_from_to *action_2 = actions_change_color_from_to_create(
+	struct action_change_color_from_to *action_2 = action_change_color_from_to_create(
 		action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	struct action_spawn *action_spawn =
-		actions_spawn_create(g_game_state->memory_by_lifetime[MAL_LEVEL], 2, action_1, action_2);
+		action_spawn_create(g_game_state->memory_by_lifetime[MAL_LEVEL], 2, action_1, action_2);
 
 	running_action_idx_t action_spawn_idx =
 		components_action_run(entity_id, (struct action *)action_spawn, g_game_state);
@@ -271,7 +274,7 @@ void test_action_spawn()
 void test_multiple_parallel_actions()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -283,10 +286,10 @@ void test_multiple_parallel_actions()
 	struct asset_animation *animation =
 		asset_animation_get_by_name(g_game_state->assets.animation_cache, "ball_left");
 
-	struct action_play_animation *action_1 = actions_play_animation_create(
+	struct action_play_animation *action_1 = action_play_animation_create(
 		animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-	struct action_change_color_from_to *action_2 = actions_change_color_from_to_create(
+	struct action_change_color_from_to *action_2 = action_change_color_from_to_create(
 		action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t animation_idx =
@@ -325,7 +328,7 @@ void test_multiple_parallel_actions()
 void test_action_pause()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -334,7 +337,7 @@ void test_action_pause()
 	// Action component is not enabled by default for player entity
 	component_action->header.enabled = true;
 
-	struct action_change_color_from_to *action = actions_change_color_from_to_create(
+	struct action_change_color_from_to *action = action_change_color_from_to_create(
 		1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
@@ -377,7 +380,7 @@ void test_action_pause()
 void test_action_tween_float_from_to()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -386,7 +389,7 @@ void test_action_tween_float_from_to()
 	component_action->header.enabled = true;
 
 	f32 value = 0.0f;
-	struct action_tween_float_from_to *action = actions_tween_float_from_to_create(
+	struct action_tween_float_from_to *action = action_tween_float_from_to_create(
 		1, false, &value, 22.2f, 65.4f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
@@ -407,7 +410,7 @@ void test_action_tween_float_from_to()
 void test_action_rotate_to()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -418,7 +421,7 @@ void test_action_rotate_to()
 
 	transform->rotation = 720.0f;
 	struct action_rotate_to *action =
-		actions_rotate_to_create(1, false, 74.3f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
+		action_rotate_to_create(1, false, 74.3f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
 		components_action_run(entity_id, (struct action *)action, g_game_state);
@@ -438,7 +441,7 @@ void test_action_rotate_to()
 void test_action_toggle_boolean()
 {
 	struct entity *entity =
-		entities_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
+		entity_player_create((struct player_config){.position = Vector2Zero()}, g_game_state);
 	TEST_ASSERT_NOT_NULL(entity);
 	entity_id_t entity_id = entity->header.id;
 
@@ -447,8 +450,8 @@ void test_action_toggle_boolean()
 	component_action->header.enabled = true;
 
 	b32 value = false;
-	struct action_toggle_boolean *action = actions_toggle_boolean_create(
-		1, false, &value, g_game_state->memory_by_lifetime[MAL_LEVEL]);
+	struct action_toggle_boolean *action =
+		action_toggle_boolean_create(1, false, &value, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
 		components_action_run(entity_id, (struct action *)action, g_game_state);
