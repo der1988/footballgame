@@ -8,7 +8,7 @@
 #include "constants.h"
 #include "types.h"
 
-#define MaxConcurrentActions 5
+#define MAX_CONCURRENT_ACTIONS 5
 
 // Forward declarations
 struct entity;
@@ -66,7 +66,7 @@ struct component_sprite {
 
 struct component_action {
 	struct component_header header;
-	struct action_runner running_actions[MaxConcurrentActions];
+	struct action_runner running_actions[MAX_CONCURRENT_ACTIONS];
 };
 
 struct component_target {
@@ -199,16 +199,16 @@ struct component_goalie {
 	time_t last_save_time;
 };
 
-running_action_idx_t components_action_run(entity_id_t id,
-										   struct action *action,
-										   struct game_state *game_state);
-void components_action_stop(entity_id_t id,
-							running_action_idx_t running_action_idx,
-							struct game_state *game_state);
+running_action_idx_t component_action_run(entity_id_t id,
+										  struct action *action,
+										  struct game_state *game_state);
+void component_action_stop(entity_id_t id,
+						   running_action_idx_t running_action_idx,
+						   struct game_state *game_state);
 
-void components_transform_calculate_absolute(struct component_transform *transform,
-											 v2 *position,
-											 f32 *rotation,
-											 v2 *scale);
+void component_transform_local_to_world(struct component_transform *transform,
+										v2 *position,
+										f32 *rotation,
+										v2 *scale);
 
 #endif // !COMPONENTS

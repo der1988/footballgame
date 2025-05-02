@@ -77,7 +77,7 @@ void test_action_change_color_from_to()
 		1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action, g_game_state);
+		component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -114,7 +114,7 @@ void test_action_animation()
 		animation, false, 1.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action, g_game_state);
+		component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -136,7 +136,7 @@ void test_action_animation()
 	action = action_play_animation_create(
 		animation, false, 0.5f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-	running_idx = components_action_run(entity_id, (struct action *)action, g_game_state);
+	running_idx = component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -158,7 +158,7 @@ void test_action_animation()
 	action = action_play_animation_create(
 		animation, false, 2.0f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
-	running_idx = components_action_run(entity_id, (struct action *)action, g_game_state);
+	running_idx = component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -198,7 +198,7 @@ void test_action_sequence()
 		action_sequence_create(memory_arena_handle, 2, action_1, action_2);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action_sequence, g_game_state);
+		component_action_run(entity_id, (struct action *)action_sequence, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action_sequence->base.duration / g_game_state->dt) + 1;
@@ -244,7 +244,7 @@ void test_action_spawn()
 		action_spawn_create(g_game_state->memory_by_lifetime[MAL_LEVEL], 2, action_1, action_2);
 
 	running_action_idx_t action_spawn_idx =
-		components_action_run(entity_id, (struct action *)action_spawn, g_game_state);
+		component_action_run(entity_id, (struct action *)action_spawn, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action_spawn->base.duration / g_game_state->dt) + 1;
@@ -293,9 +293,9 @@ void test_multiple_parallel_actions()
 		action_1->base.duration, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t animation_idx =
-		components_action_run(entity_id, (struct action *)action_1, g_game_state);
+		component_action_run(entity_id, (struct action *)action_1, g_game_state);
 	running_action_idx_t change_color_idx =
-		components_action_run(entity_id, (struct action *)action_2, g_game_state);
+		component_action_run(entity_id, (struct action *)action_2, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action_1->base.duration / g_game_state->dt) + 1;
@@ -341,7 +341,7 @@ void test_action_pause()
 		1, false, BLACK, WHITE, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action, g_game_state);
+		component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -393,7 +393,7 @@ void test_action_tween_float_from_to()
 		1, false, &value, 22.2f, 65.4f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action, g_game_state);
+		component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -424,7 +424,7 @@ void test_action_rotate_to()
 		action_rotate_to_create(1, false, 74.3f, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action, g_game_state);
+		component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
@@ -454,7 +454,7 @@ void test_action_toggle_boolean()
 		action_toggle_boolean_create(1, false, &value, g_game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	running_action_idx_t running_idx =
-		components_action_run(entity_id, (struct action *)action, g_game_state);
+		component_action_run(entity_id, (struct action *)action, g_game_state);
 
 	g_game_state->dt = DT;
 	g_game_state->time = g_game_state->dt;
