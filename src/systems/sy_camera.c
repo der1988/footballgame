@@ -23,7 +23,7 @@ void systems_camera(struct game_state *game_state)
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				entity, 4, C_TRANSFORM, C_PHYSICS, C_TARGET, C_CAMERA)) {
 			continue;
 		}
@@ -33,8 +33,7 @@ void systems_camera(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, physics);
 		DECLARE_ENTITY_COMPONENT(entity, camera);
 
-		struct entity *target_entity =
-			entities_entity_get(game_state->entity_repository, target->entity_id);
+		struct entity *target_entity = entity_get(game_state->entity_repository, target->entity_id);
 		struct component_transform *target_transform = &target_entity->transform;
 		struct component_physics3d *target_physics = &target_entity->physics3d;
 

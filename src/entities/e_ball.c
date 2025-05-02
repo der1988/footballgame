@@ -82,14 +82,14 @@ struct entity *ball_create(struct ball_config config, struct game_state *game_st
 
 	ball_prepare_gfx(ball, game_state);
 
-	entities_ball_state_machine_on_enter(entity, game_state);
+	ball_state_machine_on_enter(entity, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "ball created");
 
 	return entity;
 }
 
-void entities_ball_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+void ball_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -122,7 +122,7 @@ void entities_ball_state_machine_on_enter(struct entity *entity, struct game_sta
 	}
 }
 
-void entities_ball_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+void ball_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -409,7 +409,7 @@ void ball_held_by_goalie(struct entity *ball_entity,
 
 	ball_set_last_touch(ball, goalie_entity_id, game_state);
 
-	entities_ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
+	ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
 }
 
 void ball_saved_by_goalie(struct entity *ball_entity,
@@ -425,7 +425,7 @@ void ball_back_in_play(struct entity *ball_entity, struct game_state *game_state
 {
 	struct component_ball *ball = &ball_entity->ball;
 
-	entities_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
+	ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }
 
 void ball_in_goal(struct entity *ball_entity)

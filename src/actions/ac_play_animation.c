@@ -14,8 +14,7 @@ void actions_play_animation_update(struct action_runner *action_runner,
 		h = 1;
 		action_runner->completed = true;
 	}
-	struct component_sprite *sprite =
-		&entities_entity_get(game_state->entity_repository, id)->sprite;
+	struct component_sprite *sprite = &entity_get(game_state->entity_repository, id)->sprite;
 	struct assets_animation *animation =
 		assets_animation_get_by_id(game_state->assets.animation_cache, action->animation_id);
 	u16 frame_to_show_idx = floorf(h * (animation->frames_count - 1));

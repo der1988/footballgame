@@ -107,7 +107,7 @@ void layers_debug_draw(layers_debug_t *handle, struct game_state *game_state)
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 			continue;
 		}

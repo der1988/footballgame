@@ -23,7 +23,7 @@ void systems_player_physics(struct game_state *game_state)
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 			continue;
 		}
@@ -118,8 +118,7 @@ void systems_player_physics(struct game_state *game_state)
 				force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
 											  7500); // TODO: this should depend on type of pitch
 			} else if (HAS_TIME_PASSED(game_state->time, tackle_state_data->start_time, 0.5f)) {
-				entities_player_state_machine_change_state_to(
-					player->state_machine, PS_NORMAL, game_state);
+				player_state_machine_change_state_to(player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
@@ -169,8 +168,7 @@ void systems_player_physics(struct game_state *game_state)
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
-				entities_player_state_machine_change_state_to(
-					player->state_machine, PS_NORMAL, game_state);
+				player_state_machine_change_state_to(player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 

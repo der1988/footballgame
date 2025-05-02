@@ -53,7 +53,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	entity_id_t player_on_the_ball_entity_id = ball_player_on_the_ball(ball_entity, game_state);
 	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
-		entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
+		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
 	if (ball_in_keeper_hands) {
 		ai_state = PAS_KEEP_POSITION;

@@ -9,7 +9,7 @@ void systems_render_debug(struct game_state *game_state)
 	if (game_state->constants.render_debug) {
 		FOR_EACH_ENTITY(entity, game_state->entity_repository)
 		{
-			if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
+			if (!entity_is_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
 				continue;
 			}
 

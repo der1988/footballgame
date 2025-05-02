@@ -28,7 +28,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			continue;
 		}
 
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 			continue;
 		}
@@ -42,7 +42,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		RESET_COMPONENT(player_controls);
 
 		struct entity *last_entity_that_touched_ball =
-			entities_entity_get(game_state->entity_repository, ball->last_touch_entity_id);
+			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
 
 		enum team_side team_idx_last_ball_possession =
 			last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_side :
@@ -63,7 +63,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				team_idx_last_ball_possession != player->team_side &&
 				// TODO: (marco) is this what we want?
 				input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
-				entities_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					player->state_machine, PS_SLIDING_TACKLE, game_state);
 			} else {
 				if (game_state->human_players[0].controls.charge.ready) {

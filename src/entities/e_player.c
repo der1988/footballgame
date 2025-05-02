@@ -99,7 +99,7 @@ struct entity *player_create(struct player_config config, struct game_state *gam
 		goalie->state_machine = state_machine;
 		player_state_machine->current_state = PS_GOALIE;
 
-		entities_goalie_state_machine_on_enter(entity, game_state);
+		goalie_state_machine_on_enter(entity, game_state);
 	} else {
 		player_state_machine->current_state = PS_NORMAL;
 
@@ -134,7 +134,7 @@ struct entity *player_create(struct player_config config, struct game_state *gam
 	collider->colliders[PCT_TACKLE_2].props.circle.radius = 5;
 	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
 
-	entities_player_state_machine_on_enter(entity, game_state);
+	player_state_machine_on_enter(entity, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "player created");
 
@@ -198,7 +198,7 @@ void player_anim_calculate_running_frame(struct entity *player_entity,
 	}
 }
 
-void entities_player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+void player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -238,7 +238,7 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 	}
 }
 
-void entities_player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+void player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -262,7 +262,7 @@ void entities_player_state_machine_on_exit(struct entity *entity, struct game_st
 	}
 }
 
-void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+void goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	struct state_machine_goalie *state_machine = entity->goalie.state_machine;
 
@@ -307,7 +307,7 @@ void entities_goalie_state_machine_on_enter(struct entity *entity, struct game_s
 	}
 }
 
-void entities_goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+void goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	struct state_machine_goalie *state_machine = entity->goalie.state_machine;
 
@@ -539,8 +539,7 @@ struct entity *player_find_pass_target(struct entity *player_on_the_ball_entity,
 	f32 selected_score = 0;
 	struct entity *potential_pass_target_entity;
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-		potential_pass_target_entity =
-			entities_entity_get(game_state->entity_repository, entity_id);
+		potential_pass_target_entity = entity_get(game_state->entity_repository, entity_id);
 		if (potential_pass_target_entity->header.alive &&
 			potential_pass_target_entity->header.type == ET_PLAYER) {
 
@@ -614,7 +613,7 @@ struct nearest_player *player_find_nearest_facing_opponent(struct entity *player
 	struct entity *opponent_entity;
 	for (usize opponent_entity_id = 0; opponent_entity_id < entity_repository->max_slots;
 		 ++opponent_entity_id) {
-		opponent_entity = entities_entity_get(game_state->entity_repository, opponent_entity_id);
+		opponent_entity = entity_get(game_state->entity_repository, opponent_entity_id);
 		if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER) {
 			struct component_transform *transform = &opponent_entity->transform;
 
@@ -652,7 +651,7 @@ struct list_entities player_find_tackled_opponents(struct entity *player_entity,
 	struct entity *opponent_entity;
 	for (usize opponent_entity_id = 0; opponent_entity_id < entity_repository->max_slots;
 		 ++opponent_entity_id) {
-		opponent_entity = entities_entity_get(game_state->entity_repository, opponent_entity_id);
+		opponent_entity = entity_get(game_state->entity_repository, opponent_entity_id);
 		if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER &&
 			opponent_entity->player.state_machine->current_state == PS_NORMAL &&
 			opponent_entity->player.team_side != player_entity->player.team_side) {
@@ -691,7 +690,7 @@ struct nearest_player *find_nearest_player(v2 position,
 	f32 selected_distance = UINT32_MAX;
 	struct entity *entity;
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-		entity = entities_entity_get(game_state->entity_repository, entity_id);
+		entity = entity_get(game_state->entity_repository, entity_id);
 		if (entity->header.alive && entity->header.type == ET_PLAYER) {
 			struct component_transform *transform = &entity->transform;
 			struct component_goalie *goalie = &entity->goalie;
@@ -740,7 +739,7 @@ b32 player_is_trajectory_clear(v2 passer_position,
 
 	// Check for opponents along the pass trajectory
 	for (usize entity_id = 0; entity_id < game_state->entity_repository->max_slots; ++entity_id) {
-		struct entity *opponent = entities_entity_get(game_state->entity_repository, entity_id);
+		struct entity *opponent = entity_get(game_state->entity_repository, entity_id);
 
 		if (!opponent->header.alive || opponent->header.type != ET_PLAYER ||
 			opponent->player.team_side != opposing_team) {

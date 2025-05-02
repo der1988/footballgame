@@ -59,7 +59,7 @@ void systems_render(struct game_state *game_state)
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
 
-		if (!entities_is_entity_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
+		if (!entity_is_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
 			continue;
 		}
 

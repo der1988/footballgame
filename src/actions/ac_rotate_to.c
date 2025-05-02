@@ -9,7 +9,7 @@ void actions_rotate_to_update(struct action_runner *action_runner,
 {
 	struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
 
-	struct entity *entity = entities_entity_get(game_state->entity_repository, id);
+	struct entity *entity = entity_get(game_state->entity_repository, id);
 
 	f32 h = (game_state->time - action_runner->start_time) / action_runner->action->duration;
 	if (h >= 1) {
@@ -26,7 +26,7 @@ void actions_rotate_to_start(struct action_runner *action_runner,
 {
 	struct action_rotate_to *action = (struct action_rotate_to *)action_runner->action;
 
-	struct entity *entity = entities_entity_get(game_state->entity_repository, id);
+	struct entity *entity = entity_get(game_state->entity_repository, id);
 
 	f32 start_angle = entity->transform.rotation;
 	if (start_angle > 0)

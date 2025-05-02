@@ -146,8 +146,8 @@ void entities_repository_destroy(struct entity_repository *handle);
 struct entity *entity_init(struct entity_repository *handle,
 						   enum entity_type type,
 						   char *name_format);
-void entities_entity_destroy(struct entity_repository *handle, entity_id_t id);
-struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t id);
-b32 entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...);
+void entity_destroy(struct entity_repository *handle, entity_id_t id);
+struct entity *entity_get(struct entity_repository *handle, entity_id_t id);
+b32 entity_is_alive_and_has_components(struct entity *entity, u32 count, ...);
 
 #endif

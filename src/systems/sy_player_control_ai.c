@@ -35,7 +35,7 @@ void systems_player_control_ai(struct game_state *game_state)
 			continue;
 		}
 
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 			continue;
 		}

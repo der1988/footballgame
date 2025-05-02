@@ -23,7 +23,7 @@ void systems_player_collisions(struct game_state *game_state)
 	// Handle tackles
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 			continue;
 		}
@@ -37,7 +37,7 @@ void systems_player_collisions(struct game_state *game_state)
 			struct list_entities entities = player_find_tackled_opponents(entity, game_state);
 			LIST_ITERATE(tackled_player_entity, entities)
 			{
-				entities_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					tackled_player_entity->player.state_machine, PS_FALL, game_state);
 				GLOGF_INFO_CTX(LS_GAME,
 							   entities.array[i]->header.name,
@@ -65,7 +65,7 @@ void systems_player_collisions(struct game_state *game_state)
 
 	FOR_EACH_ENTITY(player_entity, game_state->entity_repository)
 	{
-		if (!entities_is_entity_alive_and_has_components(
+		if (!entity_is_alive_and_has_components(
 				player_entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
 			continue;
 		}

@@ -27,7 +27,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 
 	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
-		entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
+		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		struct human_player *human_player = &game_state->human_players[i];
@@ -55,7 +55,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 		if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
 			ball->last_kicker_entity_id != EID_NOT_VALID && player_in_possession_entity) {
 			struct entity *last_kicker_entity =
-				entities_entity_get(game_state->entity_repository, ball->last_kicker_entity_id);
+				entity_get(game_state->entity_repository, ball->last_kicker_entity_id);
 
 			if (last_kicker_entity->player.team_side ==
 				player_in_possession_entity->player.team_side) {

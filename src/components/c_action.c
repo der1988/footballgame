@@ -10,7 +10,7 @@ running_action_idx_t components_action_run(entity_id_t id,
 {
 	assert(action);
 
-	struct entity *entity = entities_entity_get(game_state->entity_repository, id);
+	struct entity *entity = entity_get(game_state->entity_repository, id);
 
 	assert(entity->action.header.enabled);
 	struct action_runner *action_runner = NULL;
@@ -39,7 +39,7 @@ void components_action_stop(entity_id_t id,
 							running_action_idx_t running_action_idx,
 							struct game_state *game_state)
 {
-	struct entity *entity = entities_entity_get(game_state->entity_repository, id);
+	struct entity *entity = entity_get(game_state->entity_repository, id);
 
 	entity->action.running_actions[running_action_idx].action = NULL;
 }

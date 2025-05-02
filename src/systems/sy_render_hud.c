@@ -12,7 +12,7 @@ void systems_render_hud(struct game_state *game_state)
 		entity_id_t selected_player_entity_id =
 			game_state->human_players[i].controlled_player_entity_id;
 		struct entity *entity =
-			entities_entity_get(game_state->entity_repository, selected_player_entity_id);
+			entity_get(game_state->entity_repository, selected_player_entity_id);
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 
 		if (entity != NULL && entity->header.alive && transform->header.enabled) {

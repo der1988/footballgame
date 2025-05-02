@@ -5,7 +5,7 @@ void systems_action(struct game_state *game_state)
 {
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (!entities_is_entity_alive_and_has_components(entity, 1, C_ACTION)) {
+		if (!entity_is_alive_and_has_components(entity, 1, C_ACTION)) {
 			continue;
 		}
 

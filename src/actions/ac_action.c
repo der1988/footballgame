@@ -33,7 +33,6 @@ void actions_action_stop(running_action_idx_t running_action_idx,
 						 entity_id_t id,
 						 struct game_state *game_state)
 {
-	entities_entity_get(game_state->entity_repository, id)
-		->action.running_actions[running_action_idx]
-		.action = NULL;
+	entity_get(game_state->entity_repository, id)->action.running_actions[running_action_idx].action =
+		NULL;
 }

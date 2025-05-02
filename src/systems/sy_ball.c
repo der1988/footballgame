@@ -30,8 +30,8 @@ void systems_ball(struct game_state *game_state, struct input *input)
 
 	if (input->devices[0].buttons[IDBT_BUTTON_START].released) {
 		struct component_transform *p1_transform =
-			&entities_entity_get(game_state->entity_repository,
-								 game_state->human_players[0].controlled_player_entity_id)
+			&entity_get(game_state->entity_repository,
+						game_state->human_players[0].controlled_player_entity_id)
 				 ->transform;
 		ball_set_position_and_velocity(ball_entity,
 									   V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}),

@@ -25,7 +25,7 @@ struct entity *entities_player_select_press_player(struct entity *ball_entity,
 	v3 *ball_future_positions = ball_entity->ball.lookahead_positions;
 
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-		entity = entities_entity_get(game_state->entity_repository, entity_id);
+		entity = entity_get(game_state->entity_repository, entity_id);
 
 		if (!entity->header.alive || entity->header.type != ET_PLAYER ||
 			entity->player.state_machine->current_state != PS_NORMAL ||
@@ -86,7 +86,7 @@ void systems_team_pressing(struct game_state *game_state)
 
 	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
-		entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
+		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 	if (player_in_possession_entity) {
 		enum team_side team_in_possession = player_in_possession_entity->player.team_side;
 		entities_player_select_press_player(ball_entity, 1 - team_in_possession, 250.f, game_state);

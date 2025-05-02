@@ -84,20 +84,20 @@ struct entity *entity_init(struct entity_repository *handle,
 	return entity;
 }
 
-void entities_entity_destroy(struct entity_repository *handle, entity_id_t id)
+void entity_destroy(struct entity_repository *handle, entity_id_t id)
 {
 	free_slot(handle, id);
 
 	GLOG_INFO_CTX(LS_ENTITIES, handle->entities[id].header.name, "entity destroyed");
 }
 
-struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t id)
+struct entity *entity_get(struct entity_repository *handle, entity_id_t id)
 {
 	assert(handle->initialised);
 	return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;
 }
 
-b32 entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...)
+b32 entity_is_alive_and_has_components(struct entity *entity, u32 count, ...)
 {
 	if (!entity->header.alive) {
 		return false;
