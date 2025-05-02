@@ -21,8 +21,8 @@ void systems_player_control_ai(struct game_state *game_state)
 {
 	UNUSED(memset);
 
-	struct entity *ball_entity =
-		entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+	struct entity *ball_entity = game_state->vars.ball_entity;
+
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_physics_3d);
 	UNUSED(ball_collider);

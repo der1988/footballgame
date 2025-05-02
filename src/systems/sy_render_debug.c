@@ -60,9 +60,7 @@ void systems_render_debug(struct game_state *game_state)
 		}
 
 		// Ball debug
-		struct component_ball *ball =
-			&entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id)
-				 ->ball;
+		struct component_ball *ball = &game_state->vars.ball_entity->ball;
 		for (u8 i = 0; i < 25; ++i) {
 			DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
 		}

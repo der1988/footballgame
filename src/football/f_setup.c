@@ -93,7 +93,7 @@ void football_setup(struct game_state *game_state)
 
 	struct entity *ball_entity = entities_ball_create(
 		(struct ball_config){.position = game_state->vars.pitch.midfield_spot}, game_state);
-	game_state->vars.ball_entity_id = ball_entity->header.id;
+	game_state->vars.ball_entity = ball_entity;
 
 	struct entity *camera_entity = entities_camera_create(game_state);
 	struct component_camera *camera = &camera_entity->camera;

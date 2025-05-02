@@ -18,14 +18,13 @@ static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
 
 void systems_ball(struct game_state *game_state, struct input *input)
 {
-	struct entity *entity =
-		entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+	struct entity *ball_entity = game_state->vars.ball_entity;
 
-	DECLARE_ENTITY_COMPONENT(entity, transform);
-	DECLARE_ENTITY_COMPONENT(entity, physics3d);
-	DECLARE_ENTITY_COMPONENT(entity, sprite);
-	DECLARE_ENTITY_COMPONENT(entity, ball);
-	DECLARE_ENTITY_COMPONENT(entity, collider);
+	DECLARE_ENTITY_COMPONENT(ball_entity, transform);
+	DECLARE_ENTITY_COMPONENT(ball_entity, physics3d);
+	DECLARE_ENTITY_COMPONENT(ball_entity, sprite);
+	DECLARE_ENTITY_COMPONENT(ball_entity, ball);
+	DECLARE_ENTITY_COMPONENT(ball_entity, collider);
 
 	struct state_machine_ball *state_machine = ball->state_machine;
 
@@ -35,7 +34,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 								 game_state->human_players[0].controlled_player_entity_id)
 				 ->transform;
 		entities_ball_set_position_and_velocity(
-			entity,
+			ball_entity,
 			V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
 			Vector3Zero());
 		football_match_change_state(game_state, MS_PLAY);
@@ -45,7 +44,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	// Test cross-bar
 	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_DOWN].released) {
 		entities_ball_set_position_and_velocity(
-			entity,
+			ball_entity,
 			(v3){.x = game_state->vars.pitch.field.x + 340, .z = 300},
 			Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f));
 		football_match_change_state(game_state, MS_PLAY);
@@ -55,7 +54,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	// Test cross
 	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_UP].released) {
 		entities_ball_set_position_and_velocity(
-			entity,
+			ball_entity,
 			(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
 			Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f));
 		football_match_change_state(game_state, MS_PLAY);
@@ -65,7 +64,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	// Test post
 	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_RIGHT].released) {
 		entities_ball_set_position_and_velocity(
-			entity,
+			ball_entity,
 			(v3){.x = game_state->vars.pitch.field.x + 358.6, .z = 300},
 			Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f));
 		football_match_change_state(game_state, MS_PLAY);
@@ -75,7 +74,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	// Test goalie jump
 	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_LEFT].released) {
 		entities_ball_set_position_and_velocity(
-			entity,
+			ball_entity,
 			(v3){.x = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.x,
 				 .y = 200,
 				 .z = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.y},
@@ -92,7 +91,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		game_state->layer_debug,
 		TextFormat("%-8s %02d pos: [%7.2f, %7.2f, %7.2f] vel: [%6.2f, %6.2f, %6.2f] speed: %6.2f",
 				   "Ball",
-				   game_state->vars.ball_entity_id,
+				   game_state->vars.ball_entity,
 				   transform->position.x,
 				   transform->virtual_height,
 				   transform->position.y,

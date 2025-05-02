@@ -228,8 +228,7 @@ void entities_player_state_machine_on_enter(struct entity *entity, struct game_s
 		break;
 	case PS_FALL:
 		game_input_player_charge_reset(game_state, entity->header.id);
-		struct entity *ball_entity =
-			entities_entity_get(game_state->entity_repository, game_state->vars.ball_entity_id);
+		struct entity *ball_entity = game_state->vars.ball_entity;
 		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {
 			// Falling player had the ball, so let's reset touch time to make it clear player is no longer in possession
 			ball_entity->ball.last_touch_time = 0;
