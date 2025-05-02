@@ -50,8 +50,8 @@ void systems_camera(struct game_state *game_state)
 				camera->offset.y *= 0.997f;
 			}
 
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("Camera offset y: %.2f", camera->offset.y));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("Camera offset y: %.2f", camera->offset.y));
 			steering = steering_arrive(transform->position,
 									   physics->velocity,
 									   physics->max_velocity,

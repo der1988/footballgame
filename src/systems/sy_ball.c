@@ -88,7 +88,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	sprite->layer = transform->position.y < game_state->vars.pitch.field.y ? SL_NORTH_GOAL :
 																			 SL_PLAYERS_AND_BALL;
 
-	layers_debug_queue_draw_text(
+	layer_debug_queue_draw_text(
 		game_state->layer_debug,
 		TextFormat("%-8s %02d pos: [%7.2f, %7.2f, %7.2f] vel: [%6.2f, %6.2f, %6.2f] speed: %6.2f",
 				   "Ball",

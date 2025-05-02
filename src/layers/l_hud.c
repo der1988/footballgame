@@ -1,6 +1,6 @@
 #include "game.h"
 
-void layers_hud_draw(struct game_state *game_state)
+void layer_hud_draw(struct game_state *game_state)
 {
 	struct action_charge *p1_charge = &game_state->human_players[0].controls.charge;
 	rect_t charge_box = {.x = 150,

@@ -10,7 +10,7 @@ struct draw_text_request {
 	char text[100];
 };
 
-struct layers_debug {
+struct layer_debug {
 	b32 initialised;
 	v2 log_position;
 	v2 radar_position;

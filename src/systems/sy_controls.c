@@ -32,8 +32,8 @@ void systems_controls(struct game_state *game_state, struct input *input)
 		if (input->devices[0].buttons[button_type].down) {
 			p1_charge->power += 2 * game_state->dt;
 			p1_charge->power = Clamp(p1_charge->power, 0, 1.0f);
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("p1_charge: %.2f", p1_charge->power));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("p1_charge: %.2f", p1_charge->power));
 		} else {
 			p1_charge->ended = game_state->time;
 			p1_charge->ready = true;

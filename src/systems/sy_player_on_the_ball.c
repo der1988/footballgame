@@ -150,7 +150,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 						player_speed > game_state->constants.player_run_max_velocity * 0.7f) {
 						player->control_ball = false;
 					}
-					layers_debug_queue_draw_text(
+					layer_debug_queue_draw_text(
 						game_state->layer_debug,
 						TextFormat("prec_ctrl: %.2f", player->time_spent_in_precision_control));
 					/*

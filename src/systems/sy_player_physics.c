@@ -182,7 +182,7 @@ void systems_player_physics(struct game_state *game_state)
 			break;
 		}
 		if (state_machine->current_state != PS_GOALIE) {
-			layers_debug_queue_draw_text(
+			layer_debug_queue_draw_text(
 				game_state->layer_debug,
 				TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %5.2f state: %s",
 						   "Player",

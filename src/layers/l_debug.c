@@ -11,10 +11,10 @@
 
 #define MAX_FONTS 8
 
-layers_debug_t *layers_debug_create(struct game_state *game_state)
+layer_debug_t *layer_debug_create(struct game_state *game_state)
 {
-	layers_debug_t *handle =
-		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(layers_debug_t));
+	layer_debug_t *handle =
+		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(layer_debug_t));
 	handle->initialised = true;
 
 	handle->log_position = (v2){.x = 10, .y = 600};
@@ -32,7 +32,7 @@ layers_debug_t *layers_debug_create(struct game_state *game_state)
 	return handle;
 }
 
-void layers_debug_destroy(layers_debug_t *handle)
+void layer_debug_destroy(layer_debug_t *handle)
 {
 	assert(handle->initialised);
 
@@ -43,14 +43,14 @@ void layers_debug_destroy(layers_debug_t *handle)
 	GLOG_INFO(LS_LAYERS, "layer debug destroyed");
 }
 
-void layers_debug_reset(layers_debug_t *handle)
+void layer_debug_reset(layer_debug_t *handle)
 {
 	assert(handle->initialised);
 	handle->queued_requests = 0;
 	GLOG_TRACE(LS_LAYERS, "layer debug destroyed");
 }
 
-void layers_debug_queue_draw_text(layers_debug_t *handle, const char *text)
+void layer_debug_queue_draw_text(layer_debug_t *handle, const char *text)
 {
 	if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS) {
 		struct draw_text_request *dtr =
@@ -69,7 +69,7 @@ static inline v2 to_radar_position(v2 pos, rect_t pitch_rect, v2 radar_pos, f32 
 	return Vector2Add(radar_relative_pos, radar_pos);
 }
 
-void layers_debug_draw(layers_debug_t *handle, struct game_state *game_state)
+void layer_debug_draw(layer_debug_t *handle, struct game_state *game_state)
 {
 	struct draw_text_request *dtr;
 	for (usize i = 0; i < handle->queued_requests; ++i) {

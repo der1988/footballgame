@@ -105,7 +105,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	// Layers
-	game_state->layer_debug = layers_debug_create(game_state);
+	game_state->layer_debug = layer_debug_create(game_state);
 	game_state->vars.is_debug_log_shown = true;
 
 	game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
@@ -129,7 +129,7 @@ void game_play_destroy(struct game_state *game_state)
 
 	UnloadRenderTexture(game_state->render_texture);
 
-	layers_debug_destroy(game_state->layer_debug);
+	layer_debug_destroy(game_state->layer_debug);
 
 	tweakui_destroy(game_state->tweakui);
 
@@ -201,17 +201,17 @@ b32 game_play_update(struct game_state *game_state)
 		game_state->frame_updates++;
 
 		if (physics_iterations > 0) {
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("Update time: %0.6f",
-													total_update_time / physics_iterations));
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("Physics/frame: %2d", physics_iterations));
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("Physics: %12d", game_state->physics_updates));
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("Frame: %14d", game_state->frame_updates));
-			layers_debug_queue_draw_text(game_state->layer_debug,
-										 TextFormat("FPS: %3.0f", 1 / frame_time));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("Update time: %0.6f",
+												   total_update_time / physics_iterations));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("Physics/frame: %2d", physics_iterations));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("Physics: %12d", game_state->physics_updates));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("Frame: %14d", game_state->frame_updates));
+			layer_debug_queue_draw_text(game_state->layer_debug,
+										TextFormat("FPS: %3.0f", 1 / frame_time));
 		}
 	}
 
@@ -225,7 +225,7 @@ void update(struct game_state *game_state, struct input *input)
 {
 	// These should be reset every update
 	memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
-	layers_debug_reset(game_state->layer_debug);
+	layer_debug_reset(game_state->layer_debug);
 
 	if (IsKeyReleased(KEY_P)) {
 		game_state->vars.is_tweakui_shown = true;
@@ -315,10 +315,10 @@ void draw(struct game_state *game_state)
 	DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
 	EndMode2D();
 
-	layers_hud_draw(game_state);
+	layer_hud_draw(game_state);
 
 	if (game_state->vars.is_debug_log_shown) {
-		layers_debug_draw(game_state->layer_debug, game_state);
+		layer_debug_draw(game_state->layer_debug, game_state);
 	}
 
 	// Tweak UI
