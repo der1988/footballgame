@@ -8,8 +8,6 @@
 #include "asset_sprite_frame.h"
 #include "asset_texture.h"
 
-#define MaxStringSize 50
-
 struct assets {
 	assets_texture_cache_t *texture_cache;
 	assets_sprite_frame_cache_t *sprite_frame_cache;
