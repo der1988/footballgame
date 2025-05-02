@@ -1,4 +1,5 @@
 #include "game.h"
+#include "as_manager.h"
 #include <stdlib.h>
 
 int main()
