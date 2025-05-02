@@ -1,8 +1,8 @@
 #ifndef SPRITES_H
 #define SPRITES_H
 
-#include "asset_sprite_frame.h"
-#include "asset_texture.h"
+#include "as_sprite_frame.h"
+#include "as_texture.h"
 
 enum sprite_layer {
 	SL_BACKGROUND = -100,

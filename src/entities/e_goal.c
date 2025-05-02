@@ -1,6 +1,6 @@
-#include "entity_repository.h"
-#include "entity_goal.h"
-#include "entity_goal_net.h"
+#include "entities.h"
+#include "e_goal.h"
+#include "e_goal_net.h"
 #include "log.h"
 #include <assert.h>
 #include <raymath.h>

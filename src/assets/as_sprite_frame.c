@@ -1,5 +1,5 @@
-#include "internal/asset_sprite_frame_cache.h"
-#include "asset_sprite_frame.h"
+#include "internal/as_sprite_frame_cache.h"
+#include "as_sprite_frame.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"

@@ -1,5 +1,5 @@
-#include "action_play_animation.h"
-#include "entity_repository.h"
+#include "ac_play_animation.h"
+#include "entities.h"
 #include "game.h"
 #include <math.h>
 

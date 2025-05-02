@@ -1,5 +1,5 @@
-#include "entity_repository.h"
-#include "entity_ball.h"
+#include "entities.h"
+#include "e_ball.h"
 #include "math_ext.h"
 #include "log.h"
 #include "game.h"

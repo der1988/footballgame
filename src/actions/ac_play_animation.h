@@ -2,7 +2,7 @@
 #define ACTION_PLAY_ANIMATION_H
 
 #include "action.h"
-#include "asset_animation.h"
+#include "as_animation.h"
 
 // Plays an animation at a specific speed
 struct action_play_animation {

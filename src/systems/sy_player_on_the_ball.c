@@ -1,7 +1,7 @@
 #include "components.h"
-#include "entity_repository.h"
-#include "entity_ball.h"
-#include "entity_player.h"
+#include "entities.h"
+#include "e_ball.h"
+#include "e_player.h"
 #include "game.h"
 #include "layers.h"
 #include <math.h>

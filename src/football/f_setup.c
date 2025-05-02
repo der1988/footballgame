@@ -1,8 +1,8 @@
-#include "entity_repository.h"
-#include "entity_player.h"
-#include "entity_ball.h"
-#include "entity_camera.h"
-#include "entity_goal.h"
+#include "entities.h"
+#include "e_player.h"
+#include "e_ball.h"
+#include "e_camera.h"
+#include "e_goal.h"
 #include "football.h"
 #include "game.h"
 

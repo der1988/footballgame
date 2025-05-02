@@ -3,10 +3,10 @@
 
 #include "memory.h"
 
-#include "asset_animation.h"
-#include "asset_shader.h"
-#include "asset_sprite_frame.h"
-#include "asset_texture.h"
+#include "as_animation.h"
+#include "as_shader.h"
+#include "as_sprite_frame.h"
+#include "as_texture.h"
 
 struct assets {
 	asset_texture_cache_t *texture_cache;

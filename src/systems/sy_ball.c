@@ -1,6 +1,6 @@
 #include "components.h"
-#include "entity_repository.h"
-#include "entity_ball.h"
+#include "entities.h"
+#include "e_ball.h"
 #include "game.h"
 #include "input.h"
 #include "simulation.h"

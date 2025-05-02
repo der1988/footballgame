@@ -1,5 +1,5 @@
-#ifndef ENTITY_REPOSITORY_H
-#define ENTITY_REPOSITORY_H
+#ifndef ENTITIES_H
+#define ENTITIES_H
 
 #include "components.h"
 #include "memory.h"
@@ -120,4 +120,4 @@ void entity_destroy(struct entity_repository *handle, entity_id_t id);
 struct entity *entity_get(struct entity_repository *handle, entity_id_t id);
 b32 entity_is_alive_and_has_components(struct entity *entity, u32 count, ...);
 
-#endif // !ENTITY_REPOSITORY_H
+#endif // !ENTITIES_H

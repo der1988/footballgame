@@ -2,7 +2,7 @@
 #define ASSET_ANIMATION_H
 
 #include "types.h"
-#include "asset_sprite_frame.h"
+#include "as_sprite_frame.h"
 
 // Entity name is 20 chars, animation name should be 30 chars at most
 #define ANIMATION_NAME_MAX_SIZE 80

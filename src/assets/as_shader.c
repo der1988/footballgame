@@ -1,5 +1,5 @@
-#include "internal/asset_shader_cache.h"
-#include "asset_shader.h"
+#include "internal/as_shader_cache.h"
+#include "as_shader.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"

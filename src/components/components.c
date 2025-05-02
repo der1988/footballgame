@@ -1,5 +1,5 @@
 #include "components.h"
-#include "entity_repository.h"
+#include "entities.h"
 #include "types.h"
 #include "log.h"
 #include <assert.h>

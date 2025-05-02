@@ -1,5 +1,5 @@
-#include "internal/asset_animation_cache.h"
-#include "asset_animation.h"
+#include "internal/as_animation_cache.h"
+#include "as_animation.h"
 #include "libs/cJSON/cJSON.h"
 #include "memory.h"
 #include "types.h"

@@ -1,5 +1,5 @@
-#include "internal/asset_texture_cache.h"
-#include "asset_texture.h"
+#include "internal/as_texture_cache.h"
+#include "as_texture.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"

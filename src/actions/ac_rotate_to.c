@@ -1,6 +1,6 @@
-#include "action_rotate_to.h"
+#include "ac_rotate_to.h"
 #include "game.h"
-#include "entity_repository.h"
+#include "entities.h"
 #include <math.h>
 
 void action_rotate_to_update(struct action_runner *action_runner,

@@ -1,6 +1,6 @@
 #include "components.h"
-#include "entity_repository.h"
-#include "entity_player.h"
+#include "entities.h"
+#include "e_player.h"
 #include "football.h"
 #include "input.h"
 #include "log.h"

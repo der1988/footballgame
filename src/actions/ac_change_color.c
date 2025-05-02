@@ -1,5 +1,5 @@
-#include "action_change_color.h"
-#include "entity_repository.h"
+#include "ac_change_color.h"
+#include "entities.h"
 #include "gfx.h"
 #include "game.h"
 
