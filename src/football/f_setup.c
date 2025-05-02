@@ -2,7 +2,7 @@
 #include "football.h"
 #include "game.h"
 
-static struct goal setup_goal(entity_id_t id,
+static struct goal setup_goal(struct entity *entity,
 							  enum pitch_side side,
 							  v2 center,
 							  u16 width,
@@ -31,7 +31,7 @@ void football_setup(struct game_state *game_state)
 		struct entity *goal_entity = entities_goal_create(
 			(struct goal_config){.side = i, .center = goal_center}, game_state);
 
-		game_state->vars.pitch.goal[i] = setup_goal(goal_entity->header.id,
+		game_state->vars.pitch.goal[i] = setup_goal(goal_entity,
 													i,
 													goal_center,
 													game_state->vars.pitch.goal_width,
@@ -116,7 +116,7 @@ void football_setup(struct game_state *game_state)
 		.id = 0, .controlled_player_entity_id = player_entity->header.id, .team_side = TS_HOME};
 }
 
-static struct goal setup_goal(entity_id_t id,
+static struct goal setup_goal(struct entity *entity,
 							  enum pitch_side side,
 							  v2 center,
 							  u16 width,
@@ -125,7 +125,7 @@ static struct goal setup_goal(entity_id_t id,
 							  u16 penalty_box_height)
 {
 	struct goal goal = (struct goal){
-		.id = id,
+		.entity = entity,
 		.center = center,
 		.penalty_box = (rect_t){.x = 165,
 								.y = center.y - (side == PSI_NORTH ? 0 : penalty_box_height),

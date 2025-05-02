@@ -16,8 +16,7 @@ void systems_goal(struct game_state *game_state)
 
 	// First let's check if it's a goal
 	for (usize i = 0; i < PSI_COUNT; ++i) {
-		struct entity *entity =
-			entities_entity_get(game_state->entity_repository, game_state->vars.pitch.goal[i].id);
+		struct entity *entity = game_state->vars.pitch.goal[i].entity;
 
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, goal);

@@ -55,7 +55,7 @@ enum pitch_side {
 };
 
 struct goal {
-	entity_id_t id;
+	struct entity *entity;
 	v3 goal_quad_points[4];
 	v2 center;
 	rect_t penalty_box;
