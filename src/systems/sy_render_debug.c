@@ -20,7 +20,7 @@ void systems_render_debug(struct game_state *game_state)
 			v2 position = transform->position;
 			f32 rotation = transform->rotation;
 			v2 scale = transform->scale;
-			trasform_local_to_world(transform, &position, &rotation, &scale);
+			component_transform_local_to_world(transform, &position, &rotation, &scale);
 
 			// TODO(marco): not great but I haven't found a better way to do it yet
 			position.y -= transform->virtual_height;

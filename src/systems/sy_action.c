@@ -1,3 +1,4 @@
+#include "components.h"
 #include "entity_repository.h"
 #include "game.h"
 
@@ -11,7 +12,7 @@ void systems_action(struct game_state *game_state)
 
 		DECLARE_ENTITY_COMPONENT(entity, action);
 
-		for (usize j = 0; j < MaxConcurrentActions; ++j) {
+		for (usize j = 0; j < MAX_CONCURRENT_ACTIONS; ++j) {
 			struct action_runner *action_runner = &action->running_actions[j];
 			if (action_runner && action_runner->action) {
 				if (action_runner->completed) {

@@ -33,7 +33,7 @@ void football_setup(struct game_state *game_state)
 				 .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height * i};
 
 		struct entity *goal_entity =
-			goal_create((struct goal_config){.side = i, .center = goal_center}, game_state);
+			entity_goal_create((struct goal_config){.side = i, .center = goal_center}, game_state);
 
 		game_state->vars.pitch.goal[i] = setup_goal(goal_entity,
 													i,
@@ -99,7 +99,7 @@ void football_setup(struct game_state *game_state)
 		(struct ball_config){.position = game_state->vars.pitch.midfield_spot}, game_state);
 	game_state->vars.ball_entity = ball_entity;
 
-	struct entity *camera_entity = camera_create(game_state);
+	struct entity *camera_entity = entity_camera_create(game_state);
 	struct component_camera *camera = &camera_entity->camera;
 	struct component_target *camera_target = &camera_entity->target;
 	camera->camera = CAM_MAIN;

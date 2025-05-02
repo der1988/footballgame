@@ -73,7 +73,7 @@ void systems_render(struct game_state *game_state)
 		Vector2 position = transform->position;
 		f32 rotation = transform->rotation;
 		Vector2 scale = transform->scale;
-		trasform_local_to_world(transform, &position, &rotation, &scale);
+		component_transform_local_to_world(transform, &position, &rotation, &scale);
 		struct asset_texture *texture =
 			asset_texture_get_by_id(game_state->assets.texture_cache, sprite_frame->texture_id);
 		assert(texture);
