@@ -34,8 +34,7 @@ void systems_player_collisions(struct game_state *game_state)
 
 		switch (state_machine->current_state) {
 		case PS_SLIDING_TACKLE: {
-			struct list_entities entities =
-				entities_player_find_tackled_opponents(entity, game_state);
+			struct list_entities entities = player_find_tackled_opponents(entity, game_state);
 			LIST_ITERATE(tackled_player_entity, entities)
 			{
 				entities_player_state_machine_change_state_to(
@@ -87,13 +86,13 @@ void systems_player_collisions(struct game_state *game_state)
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
 			const struct collision_information collision_with_ball_info =
-				entities_player_is_colliding_with_ball(
-					player_entity,
-					PCT_PLAYER,
-					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-					ball_entity->physics3d.velocity,
-					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height);
+				player_is_colliding_with_ball(player_entity,
+											  PCT_PLAYER,
+											  V2_TO_V3(ball_transform->position,
+													   ball_transform->virtual_height),
+											  ball_entity->physics3d.velocity,
+											  ball_collider->colliders[0].props.circle.radius,
+											  game_state->constants.player_control_height);
 
 			const f32 distance_from_the_ball =
 				Vector2DistanceSqr(transform->position, ball_transform->position);
@@ -122,18 +121,17 @@ void systems_player_collisions(struct game_state *game_state)
 		}
 		case PS_SLIDING_TACKLE: {
 			struct collider *collider = &player_entity->collider.colliders[PCT_TACKLE_1];
-			struct collision_information collision_with_ball_info =
-				entities_player_is_colliding_with_ball(
-					player_entity,
-					PCT_TACKLE_1,
-					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-					ball_entity->physics3d.velocity,
-					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height * 0.5f);
+			struct collision_information collision_with_ball_info = player_is_colliding_with_ball(
+				player_entity,
+				PCT_TACKLE_1,
+				V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+				ball_entity->physics3d.velocity,
+				ball_collider->colliders[0].props.circle.radius,
+				game_state->constants.player_control_height * 0.5f);
 
 			if (!collision_with_ball_info.is_colliding) {
 				collider = &player_entity->collider.colliders[PCT_TACKLE_2];
-				collision_with_ball_info = entities_player_is_colliding_with_ball(
+				collision_with_ball_info = player_is_colliding_with_ball(
 					player_entity,
 					PCT_TACKLE_2,
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
@@ -170,7 +168,7 @@ void systems_player_collisions(struct game_state *game_state)
 	if (player_on_the_ball_entity) {
 		// TODO: (marco) should we move the following line into entities_ball_set_last_touch function?
 		ball->pass_target_entity_id = EID_NOT_VALID;
-		entities_ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
-		entities_player_gained_possession(player_on_the_ball_entity, game_state);
+		ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
+		player_gained_possession(player_on_the_ball_entity, game_state);
 	}
 }

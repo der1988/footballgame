@@ -3,10 +3,9 @@
 #include <raymath.h>
 #include "game.h"
 
-struct entity *entities_camera_create(struct game_state *game_state)
+struct entity *camera_create(struct game_state *game_state)
 {
-	struct entity *entity =
-		entities_entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
+	struct entity *entity = entity_init(game_state->entity_repository, ET_CAMERA, "camera_%02d");
 
 	// Initialise transform
 	struct component_transform *transform = &entity->transform;

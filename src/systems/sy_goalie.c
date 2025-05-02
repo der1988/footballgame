@@ -65,7 +65,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		struct collider *goalie_collider = &collider->colliders[PCT_GOALIE];
 
 		entity_id_t player_in_possession_entity_id =
-			entities_ball_player_in_possession(ball_entity, game_state);
+			ball_player_in_possession(ball_entity, game_state);
 		struct entity *player_in_possession_entity =
 			entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
@@ -74,12 +74,12 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			break;
 		case GS_PROTECT_GOAL: {
 			struct collision_information collision_with_ball_info =
-				entities_player_is_colliding_with_ball(entity,
-													   PCT_GOALIE,
-													   ball_position,
-													   ball_entity->physics3d.velocity,
-													   ball_radius,
-													   game_state->constants.crossbar_height);
+				player_is_colliding_with_ball(entity,
+											  PCT_GOALIE,
+											  ball_position,
+											  ball_entity->physics3d.velocity,
+											  ball_radius,
+											  game_state->constants.crossbar_height);
 			if (collision_with_ball_info.is_colliding) {
 
 				// Choose whether to bounce or hold the ball
@@ -90,7 +90,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 				if (hold) {
 					// Hold ball in hands
-					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
+					ball_held_by_goalie(ball_entity, entity_id, game_state);
 					entities_goalie_state_machine_change_state_to(
 						goalie->state_machine, GS_HOLD_BALL, game_state);
 
@@ -109,20 +109,19 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 							where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
 
 						struct collision_information collision_information =
-							entities_player_is_colliding_with_ball(
-								entity,
-								PCT_GOALIE,
-								where_to_place_ball,
-								new_ball_velocity,
-								ball_radius,
-								game_state->constants.crossbar_height);
+							player_is_colliding_with_ball(entity,
+														  PCT_GOALIE,
+														  where_to_place_ball,
+														  new_ball_velocity,
+														  ball_radius,
+														  game_state->constants.crossbar_height);
 
 						still_colliding_with_ball = collision_information.is_colliding;
 					}
 
-					entities_ball_set_position_and_velocity(
+					ball_set_position_and_velocity(
 						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
-					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
+					ball_saved_by_goalie(ball_entity, entity_id, game_state);
 
 					// TODO: we should play some animation here and maybe transition to some stunned state
 				}
@@ -149,10 +148,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			}
 
 			struct nearest_player *nearest_opponent_to_the_ball =
-				entities_player_find_nearest_player(ball_transform->position,
-													OPPONENT_TEAM_SIDE(entity->player.team_side),
-													LIST_ENTITY_IDS_EMPTY,
-													game_state);
+				find_nearest_player(ball_transform->position,
+									OPPONENT_TEAM_SIDE(entity->player.team_side),
+									LIST_ENTITY_IDS_EMPTY,
+									game_state);
 
 			if ((football_pitch_is_position_inside_penalty_area(
 					 ball_transform->position,
@@ -200,11 +199,11 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						player_in_possession_entity->player.team_side != entity->player.team_side;
 
 					const struct player_ball_reachability_prediction prediction =
-						entities_player_can_reach_future_ball_position(entity,
-																	   exit_max_speed,
-																	   ball->lookahead_positions,
-																	   protect_goal_predicate,
-																	   game_state);
+						player_can_reach_future_ball_position(entity,
+															  exit_max_speed,
+															  ball->lookahead_positions,
+															  protect_goal_predicate,
+															  game_state);
 
 					if (prediction.can_reach_it && !is_opponent_in_possession) {
 						physics->max_velocity = exit_max_speed;
@@ -246,25 +245,25 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			// Run force
 			const v2 force_to_apply = Vector2Scale(steering, force);
 
-			entities_player_apply_force(entity, force_to_apply, game_state);
-			entities_player_apply_velocity(entity, game_state);
+			player_physics_apply_force(entity, force_to_apply, game_state);
+			player_physics_apply_velocity(entity, game_state);
 
-			entities_player_calculate_running_frame(entity,
-													game_state->gfx.goalie.stand_frames,
-													game_state->gfx.goalie.run_animations,
-													Vector2Subtract(ball_transform->position,
-																	transform->position),
-													5,
-													game_state);
+			player_anim_calculate_running_frame(entity,
+												game_state->gfx.goalie.stand_frames,
+												game_state->gfx.goalie.run_animations,
+												Vector2Subtract(ball_transform->position,
+																transform->position),
+												5,
+												game_state);
 
 			if (ball_velocity > game_state->constants.goalie_dive_min_ball_velocity &&
-				entities_player_should_dive(entity,
-											ball_entity,
-											&goalie->dive_direction,
-											&goalie->dive_height,
-											&goalie->dive_speed,
-											&goalie->dive_distance,
-											game_state)) {
+				player_goalie_should_dive(entity,
+										  ball_entity,
+										  &goalie->dive_direction,
+										  &goalie->dive_height,
+										  &goalie->dive_speed,
+										  &goalie->dive_distance,
+										  game_state)) {
 				// Only dive if ball velocity is higher than 36km/h
 				entities_goalie_state_machine_change_state_to(
 					goalie->state_machine, GS_DIVE, game_state);
@@ -322,12 +321,12 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			}
 
 			const struct collision_information collision_with_ball_info =
-				entities_player_is_colliding_with_ball(entity,
-													   PCT_GOALIE,
-													   ball_position,
-													   ball_entity->physics3d.velocity,
-													   ball_radius,
-													   game_state->constants.crossbar_height);
+				player_is_colliding_with_ball(entity,
+											  PCT_GOALIE,
+											  ball_position,
+											  ball_entity->physics3d.velocity,
+											  ball_radius,
+											  game_state->constants.crossbar_height);
 
 			if (!jump_state_data->ball_saved &&
 				HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
@@ -339,7 +338,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				jump_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity);
 
 				if (jump_state_data->ball_held) {
-					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
+					ball_held_by_goalie(ball_entity, entity_id, game_state);
 				} else {
 					// Bounce ball
 					v3 new_ball_velocity =
@@ -356,22 +355,22 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 							where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
 
 						struct collision_information collision_information =
-							entities_player_is_colliding_with_ball(
-								entity,
-								PCT_GOALIE,
-								where_to_place_ball,
-								new_ball_velocity,
-								ball_radius,
-								game_state->constants.crossbar_height - ball_radius);
+							player_is_colliding_with_ball(entity,
+														  PCT_GOALIE,
+														  where_to_place_ball,
+														  new_ball_velocity,
+														  ball_radius,
+														  game_state->constants.crossbar_height -
+															  ball_radius);
 
 						still_colliding_with_ball = collision_information.is_colliding;
 					}
 
-					entities_ball_set_position_and_velocity(ball_entity,
-															where_to_place_ball,
-															Vector3Scale(new_ball_velocity,
-																		 10 * PIXELS_PER_METER));
-					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
+					ball_set_position_and_velocity(ball_entity,
+												   where_to_place_ball,
+												   Vector3Scale(new_ball_velocity,
+																10 * PIXELS_PER_METER));
+					ball_saved_by_goalie(ball_entity, entity_id, game_state);
 				}
 
 				goalie->last_save_time = game_state->time;
@@ -393,16 +392,16 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 								 1)) {
 				break;
 			}
-			entities_ball_back_in_play(ball_entity, game_state);
+			ball_back_in_play(ball_entity, game_state);
 			i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
 			const v2 new_ball_position = Vector2Add(
 				transform->position,
 				Vector2Scale((v2){.y = direction},
 							 goalie_collider->props.circle.offset.y +
 								 goalie_collider->props.circle.radius + ball_radius + 7));
-			entities_ball_set_position_and_velocity(
+			ball_set_position_and_velocity(
 				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
-			entities_ball_long_pass(ball_entity, entity_id, (v2){.y = direction}, 0.7f, game_state);
+			ball_long_pass(ball_entity, entity_id, (v2){.y = direction}, 0.7f, game_state);
 			entities_goalie_state_machine_change_state_to(
 				goalie->state_machine, GS_PROTECT_GOAL, game_state);
 			break;
@@ -469,17 +468,16 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
 				force_to_apply = Vector2Scale(steering, 60000);
 			}
-			entities_player_apply_force(entity, force_to_apply, game_state);
-			entities_player_apply_velocity(entity, game_state);
+			player_physics_apply_force(entity, force_to_apply, game_state);
+			player_physics_apply_velocity(entity, game_state);
 
 			const struct collision_information collision_with_ball_info =
-				entities_player_is_colliding_with_ball(entity,
-													   PCT_DIVE,
-													   ball_position,
-													   ball_entity->physics3d.velocity,
-													   ball_radius,
-													   game_state->constants.crossbar_height -
-														   ball_radius);
+				player_is_colliding_with_ball(entity,
+											  PCT_DIVE,
+											  ball_position,
+											  ball_entity->physics3d.velocity,
+											  ball_radius,
+											  game_state->constants.crossbar_height - ball_radius);
 
 			if (!dive_state_data->ball_saved &&
 				HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
@@ -500,7 +498,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				// TODO: if the ball hits the post and comes back we don't want to hold
 				// the ball
 				if (dive_state_data->ball_held) {
-					entities_ball_held_by_goalie(ball_entity, entity_id, game_state);
+					ball_held_by_goalie(ball_entity, entity_id, game_state);
 				} else {
 					// Bounce ball
 					v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
@@ -518,20 +516,20 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 							where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
 
 						struct collision_information collision_information =
-							entities_player_is_colliding_with_ball(
-								entity,
-								PCT_DIVE,
-								where_to_place_ball,
-								new_ball_velocity,
-								ball_radius,
-								game_state->constants.crossbar_height - ball_radius);
+							player_is_colliding_with_ball(entity,
+														  PCT_DIVE,
+														  where_to_place_ball,
+														  new_ball_velocity,
+														  ball_radius,
+														  game_state->constants.crossbar_height -
+															  ball_radius);
 
 						still_colliding_with_ball = collision_information.is_colliding;
 					}
 
-					entities_ball_set_position_and_velocity(
+					ball_set_position_and_velocity(
 						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
-					entities_ball_saved_by_goalie(ball_entity, entity_id, game_state);
+					ball_saved_by_goalie(ball_entity, entity_id, game_state);
 				}
 
 				goalie->last_save_time = game_state->time;

@@ -19,8 +19,7 @@ void systems_player_physics(struct game_state *game_state)
 	UNUSED(ball);
 	UNUSED(ball_collider);
 
-	entity_id_t player_in_possession_entity_id =
-		entities_ball_player_in_possession(ball_entity, game_state);
+	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
@@ -92,16 +91,16 @@ void systems_player_physics(struct game_state *game_state)
 			physics->max_velocity = player->current_max_velocity *
 									(player_in_possession_entity_id == entity_id ? 1 : 1.15f);
 
-			entities_player_apply_force(entity, force_to_apply, game_state);
-			entities_player_apply_velocity(entity, game_state);
+			player_physics_apply_force(entity, force_to_apply, game_state);
+			player_physics_apply_velocity(entity, game_state);
 
 			// Calculate frame to display
-			entities_player_calculate_running_frame(entity,
-													game_state->gfx.player.stand_frames,
-													game_state->gfx.player.run_animations,
-													physics->velocity,
-													3,
-													game_state);
+			player_anim_calculate_running_frame(entity,
+												game_state->gfx.player.stand_frames,
+												game_state->gfx.player.run_animations,
+												physics->velocity,
+												3,
+												game_state);
 
 			break;
 		}
@@ -127,8 +126,8 @@ void systems_player_physics(struct game_state *game_state)
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;
 
-			entities_player_apply_force(entity, force_to_apply, game_state);
-			entities_player_apply_velocity(entity, game_state);
+			player_physics_apply_force(entity, force_to_apply, game_state);
+			player_physics_apply_velocity(entity, game_state);
 
 			break;
 		}
@@ -165,8 +164,8 @@ void systems_player_physics(struct game_state *game_state)
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;
 
-			entities_player_apply_force(entity, force_to_apply, game_state);
-			entities_player_apply_velocity(entity, game_state);
+			player_physics_apply_force(entity, force_to_apply, game_state);
+			player_physics_apply_velocity(entity, game_state);
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {

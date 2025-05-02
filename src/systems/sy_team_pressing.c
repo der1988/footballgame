@@ -84,8 +84,7 @@ void systems_team_pressing(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball_entity;
 
-	entity_id_t player_in_possession_entity_id =
-		entities_ball_player_in_possession(ball_entity, game_state);
+	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
 		entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
 	if (player_in_possession_entity) {

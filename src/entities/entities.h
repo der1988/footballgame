@@ -75,7 +75,7 @@ struct list_entity_ids {
 
 // START - Camera
 
-struct entity *entities_camera_create(struct game_state *game_state);
+struct entity *camera_create(struct game_state *game_state);
 
 // END - Camera
 
@@ -86,13 +86,13 @@ struct goal_config {
 	v2 center;
 };
 
-struct entity *entities_goal_create(struct goal_config config, struct game_state *game_state);
+struct entity *goal_create(struct goal_config config, struct game_state *game_state);
 
 // END - Goal
 
 // START - Goal net
 
-struct entity *entities_goal_net_create(struct game_state *game_state);
+struct entity *goal_net_create(struct game_state *game_state);
 
 // END - Goal net
 
@@ -143,9 +143,9 @@ struct entity_repository {
 struct entity_repository *entities_repository_init(memory_arena_handle_t *memory_arena_handle);
 void entities_repository_destroy(struct entity_repository *handle);
 
-struct entity *entities_entity_init(struct entity_repository *handle,
-									enum entity_type type,
-									char *name_format);
+struct entity *entity_init(struct entity_repository *handle,
+						   enum entity_type type,
+						   char *name_format);
 void entities_entity_destroy(struct entity_repository *handle, entity_id_t id);
 struct entity *entities_entity_get(struct entity_repository *handle, entity_id_t id);
 b32 entities_is_entity_alive_and_has_components(struct entity *entity, u32 count, ...);

@@ -33,57 +33,55 @@ union state_machine_ball_state_data {
 define_state_machine(ball);
 define_state_machine_functions(ball);
 
-struct entity *entities_ball_create(struct ball_config config, struct game_state *game_state);
-void entities_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity);
-void entities_ball_control_precision(struct entity *ball_entity,
-									 v2 player_velocity,
-									 v2 position_to_seek,
-									 f32 difficulty,
-									 struct game_state *game_state);
-void entities_ball_control_running(struct entity *ball_entity,
-								   v2 control_direction,
-								   v2 player_velocity,
-								   f32 difficulty,
-								   struct game_state *game_state);
-void entities_ball_shoot(struct entity *ball_entity,
-						 entity_id_t kicker_entity_id,
-						 v2 direction,
-						 f32 height,
-						 f32 power,
-						 struct game_state *game_state);
-void entities_ball_short_pass(struct entity *ball_entity,
-							  entity_id_t kicker_entity_id,
-							  v3 direction,
-							  f32 power,
-							  b32 auto_pass,
-							  struct game_state *game_state);
-void entities_ball_long_pass(struct entity *ball_entity,
-							 entity_id_t kicker_entity_id,
-							 v2 direction,
-							 f32 power,
-							 struct game_state *game_state);
-void entities_ball_tackle(struct entity *ball_entity,
-						  entity_id_t tackling_entity_id,
-						  v3 direction,
-						  f32 power,
+struct entity *ball_create(struct ball_config config, struct game_state *game_state);
+void ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity);
+void ball_control_precision(struct entity *ball_entity,
+							v2 player_velocity,
+							v2 position_to_seek,
+							f32 difficulty,
+							struct game_state *game_state);
+void ball_control_running(struct entity *ball_entity,
+						  v2 control_direction,
+						  v2 player_velocity,
+						  f32 difficulty,
 						  struct game_state *game_state);
-void entities_ball_deviate_trajectory(struct entity *ball_entity,
-									  entity_id_t player_entity_id,
-									  struct game_state *game_state);
-void entities_ball_held_by_goalie(struct entity *ball_entity,
-								  entity_id_t goalie_entity_id,
-								  struct game_state *game_state);
-void entities_ball_saved_by_goalie(struct entity *ball_entity,
-								   entity_id_t goalie_entity_id,
-								   struct game_state *game_state);
-void entities_ball_back_in_play(struct entity *ball_entity, struct game_state *game_state);
-void entities_ball_in_goal(struct entity *ball_entity);
-void entities_ball_set_last_touch(struct component_ball *ball,
-								  entity_id_t player_on_the_ball_entity_id,
-								  struct game_state *game_state);
-entity_id_t entities_ball_player_in_possession(struct entity *ball_entity,
-											   struct game_state *game_state);
-entity_id_t entities_ball_player_on_the_ball(struct entity *ball_entity,
-											 struct game_state *game_state);
+void ball_shoot(struct entity *ball_entity,
+				entity_id_t kicker_entity_id,
+				v2 direction,
+				f32 height,
+				f32 power,
+				struct game_state *game_state);
+void ball_short_pass(struct entity *ball_entity,
+					 entity_id_t kicker_entity_id,
+					 v3 direction,
+					 f32 power,
+					 b32 auto_pass,
+					 struct game_state *game_state);
+void ball_long_pass(struct entity *ball_entity,
+					entity_id_t kicker_entity_id,
+					v2 direction,
+					f32 power,
+					struct game_state *game_state);
+void ball_tackle(struct entity *ball_entity,
+				 entity_id_t tackling_entity_id,
+				 v3 direction,
+				 f32 power,
+				 struct game_state *game_state);
+void ball_deviate_trajectory(struct entity *ball_entity,
+							 entity_id_t player_entity_id,
+							 struct game_state *game_state);
+void ball_held_by_goalie(struct entity *ball_entity,
+						 entity_id_t goalie_entity_id,
+						 struct game_state *game_state);
+void ball_saved_by_goalie(struct entity *ball_entity,
+						  entity_id_t goalie_entity_id,
+						  struct game_state *game_state);
+void ball_back_in_play(struct entity *ball_entity, struct game_state *game_state);
+void ball_in_goal(struct entity *ball_entity);
+void ball_set_last_touch(struct component_ball *ball,
+						 entity_id_t player_on_the_ball_entity_id,
+						 struct game_state *game_state);
+entity_id_t ball_player_in_possession(struct entity *ball_entity, struct game_state *game_state);
+entity_id_t ball_player_on_the_ball(struct entity *ball_entity, struct game_state *game_state);
 
 #endif // !ENTITIES_BALL_H

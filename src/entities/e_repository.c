@@ -62,9 +62,9 @@ void entities_repository_destroy(struct entity_repository *handle)
 	GLOG_INFO(LS_ENTITIES, "entities repository destroyed");
 }
 
-struct entity *entities_entity_init(struct entity_repository *handle,
-									enum entity_type type,
-									char *name_format)
+struct entity *entity_init(struct entity_repository *handle,
+						   enum entity_type type,
+						   char *name_format)
 {
 	assert(handle->initialised && handle->available_slots > 0);
 

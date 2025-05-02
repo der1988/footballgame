@@ -4,10 +4,9 @@
 #include <raymath.h>
 #include "game.h"
 
-struct entity *entities_goal_create(struct goal_config config, struct game_state *game_state)
+struct entity *goal_create(struct goal_config config, struct game_state *game_state)
 {
-	struct entity *entity =
-		entities_entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
+	struct entity *entity = entity_init(game_state->entity_repository, ET_GOAL, "goal_%02d");
 
 	// Initialise transform
 	struct component_transform *transform = &entity->transform;
@@ -18,7 +17,7 @@ struct entity *entities_goal_create(struct goal_config config, struct game_state
 	transform->position = config.center;
 
 	// Create goal net
-	struct entity *goal_net_entity = entities_goal_net_create(game_state);
+	struct entity *goal_net_entity = goal_net_create(game_state);
 	struct component_transform *goal_net_transform = &goal_net_entity->transform;
 	goal_net_transform->parent = transform;
 	goal_net_transform->position = Vector2Zero();

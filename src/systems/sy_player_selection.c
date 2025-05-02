@@ -25,8 +25,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 		epicenter = ball->future_bounce.position;
 	}
 
-	entity_id_t player_in_possession_entity_id =
-		entities_ball_player_in_possession(ball_entity, game_state);
+	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
 		entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
@@ -74,8 +73,8 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			LIST_ADD(exclusion_list, player_to_avoid_entity_id);
 			LIST_ADD(exclusion_list, ball->pass_target_entity_id);
 
-			struct nearest_player *nearest_player = entities_player_find_nearest_player(
-				epicenter, human_player->team_side, exclusion_list, game_state);
+			struct nearest_player *nearest_player =
+				find_nearest_player(epicenter, human_player->team_side, exclusion_list, game_state);
 			// nearest_player is always valid
 			new_controlled_player_entity_id = nearest_player->entity->header.id;
 		}

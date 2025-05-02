@@ -50,10 +50,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	b32 ball_in_keeper_hands = ball->state_machine->current_state == BS_GK_HANDS;
 
-	entity_id_t player_on_the_ball_entity_id =
-		entities_ball_player_on_the_ball(ball_entity, game_state);
-	entity_id_t player_in_possession_entity_id =
-		entities_ball_player_in_possession(ball_entity, game_state);
+	entity_id_t player_on_the_ball_entity_id = ball_player_on_the_ball(ball_entity, game_state);
+	entity_id_t player_in_possession_entity_id = ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
 		entities_entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
@@ -122,9 +120,9 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				}
 			} else {
 				struct entity *opponent_entity =
-					entities_player_find_nearest_facing_opponent(player_entity, game_state);
+					player_find_nearest_facing_opponent(player_entity, game_state);
 				struct entity *teammate_entity =
-					entities_player_find_pass_target(player_entity, 35, 300, game_state);
+					player_find_pass_target(player_entity, 35, 300, game_state);
 				if (opponent_entity && teammate_entity) {
 					// Facing an opponent and we have someone to pass to, let's pass
 					*kick_decision = PAKD_PASS;
@@ -187,7 +185,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			} else if (game_state->vars.teams[player_entity->player.team_side]
 						   .play_context.player_nearest_to_the_ball == player_entity->header.id) {
 				struct player_ball_reachability_prediction prediction =
-					entities_player_can_reach_future_ball_position(
+					player_can_reach_future_ball_position(
 						player_entity,
 						game_state->constants.player_run_max_velocity,
 						ball->lookahead_positions,
@@ -238,12 +236,11 @@ v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
 {
 	// Let's move towards the ball
 	struct player_ball_reachability_prediction prediction =
-		entities_player_can_reach_future_ball_position(
-			player_entity,
-			game_state->constants.player_run_max_velocity,
-			ball_entity->ball.lookahead_positions,
-			NULL,
-			game_state);
+		player_can_reach_future_ball_position(player_entity,
+											  game_state->constants.player_run_max_velocity,
+											  ball_entity->ball.lookahead_positions,
+											  NULL,
+											  game_state);
 	v3 ball_future_pos;
 	if (prediction.can_reach_it)
 		ball_future_pos = prediction.future_pos;
