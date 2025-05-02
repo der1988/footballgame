@@ -12,7 +12,7 @@
 
 static u32 const MAX_SHADERS = 10;
 
-asset_shader_cache_t *assets_shader_cache_create(memory_arena_handle_t *memory_arena_handle)
+asset_shader_cache_t *asset_shader_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
 	asset_shader_cache_t *handle =
 		memory_arena_push(memory_arena_handle, sizeof(asset_shader_cache_t));

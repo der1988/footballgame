@@ -122,7 +122,7 @@ void test_shader_cache()
 	memory_arena_handle_t *memory_arena_handle =
 		memory_arena_create("test_arena", buffer, Megabytes(1));
 
-	asset_shader_cache_t *handle = assets_shader_cache_create(memory_arena_handle);
+	asset_shader_cache_t *handle = asset_shader_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);
 	struct asset_shader *assets_shader =
 		asset_shader_load(handle, "player", "res/shaders/base.vert", "res/shaders/base.frag");

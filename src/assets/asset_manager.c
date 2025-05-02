@@ -8,7 +8,7 @@ struct assets asset_manager_load_everything(memory_arena_handle_t *memory_arena)
 	asset_texture_cache_t *texture_cache = asset_texture_cache_create(memory_arena);
 	asset_sprite_frame_cache_t *sprite_frame_cache = asset_sprite_frame_cache_create(memory_arena);
 	asset_animation_cache_t *animation_cache = asset_animation_cache_create(memory_arena);
-	asset_shader_cache_t *shader_cache = assets_shader_cache_create(memory_arena);
+	asset_shader_cache_t *shader_cache = asset_shader_cache_create(memory_arena);
 
 	struct assets assets = {.texture_cache = texture_cache,
 							.sprite_frame_cache = sprite_frame_cache,

@@ -20,7 +20,7 @@ struct asset_shader {
 	shader_t shader;
 };
 
-asset_shader_cache_t *assets_shader_cache_create(memory_arena_handle_t *memory_arena_handle);
+asset_shader_cache_t *asset_shader_cache_create(memory_arena_handle_t *memory_arena_handle);
 struct asset_shader *asset_shader_load(asset_shader_cache_t *handle,
 									   const char *name,
 									   const char *vs_filename,
