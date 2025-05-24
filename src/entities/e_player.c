@@ -10,7 +10,7 @@
 #include "state_machine.h"
 #include "types.h"
 #include "sprite.h"
-#include "physics.h"
+#include "physics/physics.h"
 #include "collision.h"
 #include "gfx.h"
 #include <assert.h>
