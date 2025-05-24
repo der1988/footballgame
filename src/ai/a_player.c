@@ -120,7 +120,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
 		} else {
-			struct entity *opponent_entity =
+			struct nearest_player *opponent_entity =
 				entity_player_find_nearest_facing_opponent(player_entity, game_state);
 			struct entity *teammate_entity =
 				entity_player_find_pass_target(player_entity, 35, 300, game_state);
