@@ -705,7 +705,7 @@ struct nearest_player *find_nearest_player(v2 position,
 			{
 				if (entity->header.id == excluded_entity_id) {
 					should_be_excluded = true;
-					continue;
+					break;
 				}
 			}
 
