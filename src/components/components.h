@@ -173,6 +173,10 @@ struct component_ball {
 	// Passes
 	entity_id_t pass_target_entity_id;
 
+	// Tackles
+	time_t last_tackle_time;
+	entity_id_t last_tackle_entity_id;
+
 	// Animation
 	u16 last_running_frame_idx;
 	time_t last_frame_update_time;

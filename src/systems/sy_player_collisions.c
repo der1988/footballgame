@@ -98,8 +98,17 @@ void systems_player_collisions(struct game_state *game_state)
 			const f32 distance_from_the_ball =
 				Vector2DistanceSqr(transform->position, ball_transform->position);
 
-			if (collision_with_ball_info.is_colliding &&
-				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f)) {
+			struct entity *last_tackler =
+				entity_get(game_state->entity_repository, ball->last_tackle_entity_id);
+
+			player->is_colliding_with_ball =
+				collision_with_ball_info.is_colliding &&
+				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f) &&
+				(!last_tackler ||
+				 last_tackler->player.team_side == player_entity->player.team_side ||
+				 HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f));
+
+			if (player->is_colliding_with_ball) {
 				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
 					player_on_the_ball_entity = player_entity;
 					min_distance_from_the_ball_possession = distance_from_the_ball;
@@ -116,11 +125,15 @@ void systems_player_collisions(struct game_state *game_state)
 						distance_from_the_ball;
 				}
 			}
-			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
 
 			break;
 		}
 		case PS_SLIDING_TACKLE: {
+			if (ball->last_tackle_entity_id == player_entity->header.id &&
+				!HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f)) {
+				break;
+			}
+
 			struct collider *collider = &player_entity->collider.colliders[PCT_TACKLE_1];
 			struct collision_information collision_with_ball_info =
 				entity_player_is_colliding_with_ball(
@@ -154,6 +167,8 @@ void systems_player_collisions(struct game_state *game_state)
 					min_distance_from_the_ball_possession = distance_from_the_ball;
 				}
 			}
+
+			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
 
 			break;
 		}

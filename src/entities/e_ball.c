@@ -360,7 +360,7 @@ void entity_ball_long_pass(struct entity *ball_entity,
 }
 
 void entity_ball_tackle(struct entity *ball_entity,
-						entity_id_t kicker_entity_id,
+						entity_id_t tackler_entity_id,
 						v3 direction,
 						f32 power,
 						struct game_state *game_state)
@@ -374,8 +374,10 @@ void entity_ball_tackle(struct entity *ball_entity,
 		Vector3Scale(direction,
 					 math_ext_split_lerp(game_state->constants.ball_tackle_force, 0.5f, power) /
 						 game_state->dt));
+	ball->last_tackle_time = game_state->time;
+	ball->last_tackle_entity_id = tackler_entity_id;
 	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_kicker_entity_id = tackler_entity_id;
 }
 
 void entity_ball_deviate_trajectory(struct entity *ball_entity,
