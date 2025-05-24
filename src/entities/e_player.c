@@ -14,6 +14,7 @@
 #include "collision.h"
 #include "gfx.h"
 #include <assert.h>
+#include <float.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <string.h>
@@ -692,7 +693,7 @@ struct nearest_player *find_nearest_player(v2 position,
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
-	f32 selected_distance = UINT32_MAX;
+	f32 selected_distance = FLT_MAX;
 	struct entity *entity;
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
 		entity = entity_get(game_state->entity_repository, entity_id);

@@ -7,11 +7,12 @@
 #include "input.h"
 #include "log.h"
 #include "macro.h"
+#include "ai.h"
+#include "types.h"
 #include <math_ext.h>
 #include <raymath.h>
 #include <stdio.h>
-#include "ai.h"
-#include "types.h"
+#include <float.h>
 
 void systems_player_collisions(struct game_state *game_state)
 {
@@ -61,8 +62,8 @@ void systems_player_collisions(struct game_state *game_state)
 
 	// Handle collisions
 	struct entity *player_on_the_ball_entity = NULL;
-	f32 min_distance_from_the_ball_possession = UINT32_MAX;
-	f32 min_distance_from_the_ball[TS_COUNT] = {UINT32_MAX, UINT32_MAX};
+	f32 min_distance_from_the_ball_possession = FLT_MAX;
+	f32 min_distance_from_the_ball[TS_COUNT] = {FLT_MAX, FLT_MAX};
 
 	FOR_EACH_ENTITY(player_entity, game_state->entity_repository)
 	{
