@@ -111,24 +111,24 @@ v when team does not have the ball we need a player always seeking the ball
   - if team is cpu controlled two players will seek the ball
 v tackle logic (as in changing state of tackled players) should run in its own system and the tackling logic should be run in the on the ball system to prevent other players to interact with ball
 v fix broken after touch
+x use r1 to dribble?
+x implement network multiplayer
+v don't make goalie rush to the ball if possession is hostile
+v goalie should not exit all the time
+v when goalie has the ball players should move towards the center of the pitch
 * press player should not be selected as human controlled until it gets the ball
 - improve player selection system
 - support multiple human players
 - refactor player selection to support multiple human players
 - goal is too small? proportional to ball instead of player?
-- use r1 to dribble?
 - use r1 to make the player stop the ball?
 - use pass when you don't have the ball to chase the ball?
 - shot height should depend on starting height of the ball
 - implement header
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
-- goalie should not exit all the time
 - make the game platform agnostic
-- implement network multiplayer
 - refactor the overlapping collision solver
-- don't make goalie rush to the ball if possession is hostile
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
 - fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
 - ball deviation has to happen just once per collision
-- when goalie has the ball players should move towards the center of the pitch
