@@ -143,7 +143,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height * 0.5f);
+					game_state->constants.player_control_height * 0.25f);
 
 			if (!collision_with_ball_info.is_colliding) {
 				collider = &player_entity->collider.colliders[PCT_TACKLE_2];
@@ -153,7 +153,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height);
+					game_state->constants.player_control_height * 0.5f);
 			}
 
 			if (collision_with_ball_info.is_colliding) {
