@@ -786,7 +786,7 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
 	u32 *palette =
-		memory_arena_push(game_state->memory_by_lifetime[MAL_UPDATE], sizeof(u32) * 3 * 10);
+		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 3 * 10);
 
 	color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
 
