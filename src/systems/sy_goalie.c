@@ -7,7 +7,7 @@
 #include "steering.h"
 #include "math_ext.h"
 #include "constants.h"
-#include "physics.h"
+#include "physics/physics.h"
 #include "types.h"
 #include <raymath.h>
 #include <stdio.h>
