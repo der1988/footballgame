@@ -7,7 +7,7 @@
 #define MAX_QUEUED_DRAW_REQUESTS 50
 
 struct draw_text_request {
-	char text[100];
+	char text[120];
 };
 
 struct layer_debug {
