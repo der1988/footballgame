@@ -153,7 +153,7 @@ static struct team_formation_position team_formations[TF_COUNT][10] = {
 			.supported_roles = {PR_CB},
 			.position =
 				{
-					{.x = 0.4f, .y = 0.05f},
+					{.x = 0.4f, .y = 0.02f},
 					{.x = 0.4f, .y = 0.2f},
 					{.x = 0.4f, .y = 0.55f},
 				},
@@ -164,7 +164,7 @@ static struct team_formation_position team_formations[TF_COUNT][10] = {
 			.supported_roles = {PR_CB},
 			.position =
 				{
-					{.x = 0.6f, .y = 0.05f},
+					{.x = 0.6f, .y = 0.02f},
 					{.x = 0.6f, .y = 0.2f},
 					{.x = 0.6f, .y = 0.55f},
 				},
