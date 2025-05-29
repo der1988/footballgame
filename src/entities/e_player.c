@@ -225,12 +225,15 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	case PS_GOALIE:
 	case PS_THROW_IN:
 	case PS_HEADER:
+		entity->player.state_machine->state_data.header.animation_start_time = game_state->time;
+		break;
 	case PS_SLIDING_TACKLE:
 		game_input_player_charge_reset(game_state, entity->header.id);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
 		entity->player.state_machine->state_data.tackle.start_time = game_state->time;
 		break;
 	case PS_FALL:
+		entity->player.state_machine->state_data.fall.animation_start_time = game_state->time;
 		game_input_player_charge_reset(game_state, entity->header.id);
 		struct entity *ball_entity = game_state->vars.ball_entity;
 		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {

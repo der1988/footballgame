@@ -1,3 +1,4 @@
+#include "components.h"
 #include "entities.h"
 #include "e_ball.h"
 #include "state_machine.h"
@@ -257,7 +258,8 @@ void entity_ball_shoot(struct entity *ball_entity,
 	// struct component_transform *transform = &entity->transform;
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
-	// struct component_collider *collider = &entity->collider;
+	struct component_collider *collider = &ball_entity->collider;
+	struct component_transform *transform = &ball_entity->transform;
 
 	v3 shot_direction = Vector3Add(
 		V2_TO_V3(direction, 0),
@@ -277,33 +279,32 @@ void entity_ball_shoot(struct entity *ball_entity,
 		power = power / 0.8f;
 	}
 	f32 shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.6f, power);
-	// f32 ball_radius = collider->colliders[0].props.circle.radius;
-	// if (!ball->is_on_the_ground) {
-	//     if (transform->virtual_height > (ball_radius + 12)) {
-	//         // TODO: this needs to handle headers
-	//         GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball shot, should be an header");
-	//     } else if (transform->virtual_height > ball_radius) {
-	//         if (physics3d->velocity.y < 0) {
-	//             // Ball is falling
-	//             shot_force *= 1.05f;
-	//             GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball shot during fall trajectory");
-	//         } else if (physics3d->velocity.y > 0) {
-	//             // If it's not falling then maybe it's a drop shot?
-	//             if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f))
-	//             {
-	//                 // Drop shot
-	//                 shot_force *= 1.10;
-	//                 GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball drop shot");
-	//             } else if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time,
-	//             0.25f,
-	//                                                0.5f)) {
-	//                 // Nope, this must be the shittiest shot ever
-	//                 shot_force *= 0.8f;
-	//                 GLOG_DEBUG_CTX(LS_GAME, entity->header.name, "ball drop shot too late");
-	//             }
-	//         }
-	//     }
-	// }
+	f32 ball_radius = collider->colliders[0].props.circle.radius;
+	if (!ball->is_on_the_ground) {
+		if (transform->virtual_height > (ball_radius + 12)) {
+			// TODO: this needs to handle headers
+			GLOG_DEBUG_CTX(LS_GAME, ball_entity->header.name, "ball shot, should be an header");
+		} else if (transform->virtual_height > ball_radius) {
+			if (physics3d->velocity.y < 0) {
+				// Ball is falling
+				shot_force *= 1.05f;
+				GLOG_DEBUG_CTX(
+					LS_GAME, ball_entity->header.name, "ball shot during fall trajectory");
+			} else if (physics3d->velocity.y > 0) {
+				// If it's not falling then maybe it's a drop shot?
+				if (IS_TIME_PASSED_IN_RANGE(game_state->time, ball->last_bounce_time, 0, 0.25f)) {
+					// Drop shot
+					shot_force *= 1.10;
+					GLOG_DEBUG_CTX(LS_GAME, ball_entity->header.name, "ball drop shot");
+				} else if (IS_TIME_PASSED_IN_RANGE(
+							   game_state->time, ball->last_bounce_time, 0.25f, 0.5f)) {
+					// Nope, this must be the shittiest shot ever
+					shot_force *= 0.8f;
+					GLOG_DEBUG_CTX(LS_GAME, ball_entity->header.name, "ball drop shot too late");
+				}
+			}
+		}
+	}
 
 	physics3d->accel =
 		Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));

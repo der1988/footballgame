@@ -99,4 +99,22 @@ void gfx_player_prepare(struct game_state *game_state)
 		animation_cache, "player", "fall_back_left", memory_arena_handle);
 	player->fall_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
 		animation_cache, "player", "fall_back_right", memory_arena_handle);
+
+	// Header animations
+	player->header_animations[SO_DOWN] = asset_animation_id_from_name(
+		animation_cache, "player", "header_front", memory_arena_handle);
+	player->header_animations[SO_UP] =
+		asset_animation_id_from_name(animation_cache, "player", "header_back", memory_arena_handle);
+	player->header_animations[SO_LEFT] =
+		asset_animation_id_from_name(animation_cache, "player", "header_left", memory_arena_handle);
+	player->header_animations[SO_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "player", "header_right", memory_arena_handle);
+	player->header_animations[SO_DOWN_LEFT] = asset_animation_id_from_name(
+		animation_cache, "player", "header_front_left", memory_arena_handle);
+	player->header_animations[SO_DOWN_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "player", "header_front_right", memory_arena_handle);
+	player->header_animations[SO_UP_LEFT] = asset_animation_id_from_name(
+		animation_cache, "player", "header_back_left", memory_arena_handle);
+	player->header_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "player", "header_back_right", memory_arena_handle);
 }

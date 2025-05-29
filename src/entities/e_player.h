@@ -52,10 +52,17 @@ struct state_machine_player_fall_data {
 	b32 animation_completed;
 };
 
+struct state_machine_player_header_data {
+	time_t animation_start_time;
+	time_t animation_end_time;
+	b32 animation_completed;
+};
+
 union state_machine_player_state_data {
 	struct state_machine_player_normal_data normal;
 	struct state_machine_player_tackle_data tackle;
 	struct state_machine_player_fall_data fall;
+	struct state_machine_player_header_data header;
 	struct state_machine_default_empty_data goalie;
 };
 

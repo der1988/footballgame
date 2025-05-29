@@ -109,7 +109,44 @@ void systems_player_physics(struct game_state *game_state)
 		case PS_GOALIE:
 			break;
 		case PS_THROW_IN:
-		case PS_HEADER:
+		case PS_HEADER: {
+			struct state_machine_player_header_data *header_state_data =
+				&player->state_machine->state_data.header;
+
+			if (!header_state_data->animation_completed) {
+				struct asset_animation *animation = asset_animation_get_by_id(
+					game_state->assets.animation_cache,
+					game_state->gfx.player.header_animations[sprite->orientation]);
+				f32 animation_completion =
+					Clamp((game_state->time - header_state_data->animation_start_time) /
+							  (animation->delay * animation->frames_count),
+						  0,
+						  1);
+				const u16 new_frame_id = floorf(animation_completion * (animation->frames_count));
+				if (animation_completion >= 1) {
+					animation_completion = 1;
+					header_state_data->animation_end_time = game_state->time;
+					header_state_data->animation_completed = true;
+				}
+				entity->sprite.frame_id = animation->frames[new_frame_id];
+			}
+
+			v2 force_to_apply = Vector2Zero();
+
+			// Handle max velocity
+			physics->max_velocity = game_state->constants.player_run_max_velocity;
+
+			entity_player_physics_apply_force(entity, force_to_apply, game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
+
+			if (header_state_data->animation_completed) {
+				entity_player_state_machine_change_state_to(
+					player->state_machine, PS_NORMAL, game_state);
+				break;
+			}
+
+			break;
+		}
 		case PS_SLIDING_TACKLE: {
 			struct state_machine_player_tackle_data *tackle_state_data =
 				&player->state_machine->state_data.tackle;

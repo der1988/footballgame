@@ -132,6 +132,7 @@ struct game_gfx {
 		asset_animation_id_t run_animations[SO_COUNT];
 		asset_sprite_frame_id_t tackle_frames[SO_COUNT];
 		asset_animation_id_t fall_animations[SO_COUNT];
+		asset_animation_id_t header_animations[SO_COUNT];
 	} player;
 
 	struct goalie {
