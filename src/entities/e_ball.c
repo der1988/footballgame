@@ -199,6 +199,7 @@ void entity_ball_set_last_touch(struct component_ball *ball,
 	}
 
 	ball->last_touch_entity_id = player_entity_id;
+	ball->pass_target_entity_id = EID_NOT_VALID;
 }
 
 void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity)

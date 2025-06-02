@@ -184,8 +184,6 @@ void systems_player_collisions(struct game_state *game_state)
 	}
 
 	if (player_on_the_ball_entity) {
-		// TODO: (marco) should we move the following line into entities_ball_set_last_touch function?
-		ball->pass_target_entity_id = EID_NOT_VALID;
 		entity_ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
 		entity_player_gained_possession(player_on_the_ball_entity, game_state);
 	}
