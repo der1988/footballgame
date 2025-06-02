@@ -29,4 +29,20 @@
 
 #define OPPONENT_TEAM_SIDE(t) 1 - t
 
+// List
+#define LIST_CREATE(list_type, list_name, list_size, arena)                                        \
+	list_type list_name = {.array = NULL, .count = 0, .size = list_size};                          \
+	list_name.array = memory_arena_push(arena, sizeof(*list_name.array) * list_size);
+
+#define LIST_ADD(list, item)                                                                       \
+	assert(list.count < list.size);                                                                \
+	list.array[list.count++] = item;
+
+#define LIST_ITERATE(item, list)                                                                   \
+	usize i;                                                                                       \
+	__typeof__(*list.array) item;                                                                  \
+	if (list.count > 0)                                                                            \
+		item = list.array[0];                                                                      \
+	for (i = 0; i < list.count; ++i, item = list.array[i])
+
 #endif // !MACRO_H

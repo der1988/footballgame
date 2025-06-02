@@ -27,23 +27,8 @@
 	struct entity *item = entity_repo->entities;                                                   \
 	for (usize item##_id = 0; item##_id < entity_repo->max_slots; ++item##_id, item++)
 
-#define LIST_CREATE(list_type, list_name, list_size, arena)                                        \
-	list_type list_name = {.array = NULL, .count = 0, .size = list_size};                          \
-	list_name.array = memory_arena_push(arena, sizeof(*list_name.array) * list_size);
-
 #define LIST_ENTITIES_EMPTY	  (struct list_entities){.array = NULL, .count = 0, .size = 0}
 #define LIST_ENTITY_IDS_EMPTY (struct list_entity_ids){.array = NULL, .count = 0, .size = 0}
-
-#define LIST_ADD(list, item)                                                                       \
-	assert(list.count < list.size);                                                                \
-	list.array[list.count++] = item;
-
-#define LIST_ITERATE(item, list)                                                                   \
-	usize i;                                                                                       \
-	__typeof__(*list.array) item;                                                                  \
-	if (list.count > 0)                                                                            \
-		item = list.array[0];                                                                      \
-	for (i = 0; i < list.count; ++i, item = list.array[i])
 
 #define DECLARE_ENTITY_COMPONENT_EXT(entity, type, name)                                           \
 	struct component_##type *name = &entity->type
