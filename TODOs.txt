@@ -116,7 +116,8 @@ x implement network multiplayer
 v don't make goalie rush to the ball if possession is hostile
 v goalie should not exit all the time
 v when goalie has the ball players should move towards the center of the pitch
-* press player should not be selected as human controlled until it gets the ball
+v introduce event system
+- press player should not be selected as human controlled until it gets the ball
 - improve player selection system
 - support multiple human players
 - refactor player selection to support multiple human players

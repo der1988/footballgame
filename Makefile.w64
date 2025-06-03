@@ -59,40 +59,40 @@ TEST_OBJS := $(TESTS:%=$(BUILD_DIR)/%.o)
 TEST_FLAGS := -DRUNNING_TEST
 
 .PHONY: test
-test: test_caches test_memory test_actions test_entity_repo test_steering
+test: test_caches test_memory test_actions test_entity_repo test_events
 
 test_caches: CFLAGS += $(TEST_FLAGS)
-test_caches: $(BUILD_DIR)/test_caches 
+test_caches: $(BUILD_DIR)/test_caches
 	@echo
 	@echo === Testing caches ===
 	@echo
 	$(BUILD_DIR)/$@
 
 test_memory: CFLAGS += $(TEST_FLAGS)
-test_memory: $(BUILD_DIR)/test_memory 
+test_memory: $(BUILD_DIR)/test_memory
 	@echo
 	@echo === Testing memory ===
 	@echo
 	$(BUILD_DIR)/$@
 
 test_actions: CFLAGS += $(TEST_FLAGS)
-test_actions: $(BUILD_DIR)/test_actions 
+test_actions: $(BUILD_DIR)/test_actions
 	@echo
 	@echo === Testing actions ===
 	@echo
 	$(BUILD_DIR)/$@
 
 test_entity_repo: CFLAGS += $(TEST_FLAGS)
-test_entity_repo: $(BUILD_DIR)/test_entity_repo 
+test_entity_repo: $(BUILD_DIR)/test_entity_repo
 	@echo
 	@echo === Testing entity repo ===
 	@echo
 	$(BUILD_DIR)/$@
 
-test_steering: CFLAGS += $(TEST_FLAGS)
-test_steering: $(BUILD_DIR)/test_steering 
+test_events: CFLAGS += $(TEST_FLAGS)
+test_events: $(BUILD_DIR)/test_events
 	@echo
-	@echo === Testing steering ===
+	@echo === Testing events ===
 	@echo
 	$(BUILD_DIR)/$@
 
@@ -108,7 +108,7 @@ $(BUILD_DIR)/test_actions: $(TEST_OBJS) $(OBJS)
 $(BUILD_DIR)/test_entity_repo: $(TEST_OBJS) $(OBJS)
 	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/test_steering: $(TEST_OBJS) $(OBJS)
+$(BUILD_DIR)/test_events: $(TEST_OBJS) $(OBJS)
 	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
 
 .PHONY: clean
