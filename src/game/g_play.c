@@ -1,4 +1,5 @@
 #include "entities.h"
+#include "events/events.h"
 #include "log.h"
 #include "systems.h"
 #include "input.h"
@@ -34,6 +35,9 @@ struct game_state *game_play_init(struct game_config game_config,
 		memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_DRAW] =
 		memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
+
+	// Initialise events router
+	game_state->events_router = events_router_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	// Prepare GFX
 	gfx_player_prepare(game_state);
@@ -134,6 +138,8 @@ void game_play_destroy(struct game_state *game_state)
 	tweakui_destroy(game_state->tweakui);
 
 	entity_repository_destroy(game_state->entity_repository);
+
+	events_router_destroy(game_state->events_router);
 
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);

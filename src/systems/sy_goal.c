@@ -1,5 +1,6 @@
 #include "entities.h"
 #include "e_ball.h"
+#include "events/events.h"
 #include "game.h"
 #include "log.h"
 #include "math_ext.h"
@@ -160,8 +161,7 @@ void systems_goal(struct game_state *game_state)
 			}
 
 			if (scored) {
-				entity_ball_in_goal(ball_entity);
-				football_match_change_state(game_state, MS_GOAL);
+				events_router_publish(game_state->events_router, EVT_GOAL_SCORED, game_state);
 				GLOGF_INFO(LS_GAME,
 						   "goal at %.2f, %.2f, %.2f",
 						   collision.point.x,

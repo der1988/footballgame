@@ -1,6 +1,7 @@
 #include "components.h"
 #include "entities.h"
 #include "e_ball.h"
+#include "events/events.h"
 #include "state_machine.h"
 #include "types.h"
 #include "math_ext.h"
@@ -16,6 +17,7 @@
 forward_declare_state_machine_functions(ball);
 implement_state_machine_functions(ball);
 
+static void on_goal_scored(enum event_type event_type, void *context);
 static void ball_prepare_gfx(struct component_ball *ball, struct game_state *game_state);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state)
@@ -84,6 +86,8 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	ball->last_touch_time = EID_NOT_VALID;
 
 	ball_prepare_gfx(ball, game_state);
+
+	events_router_add_listener(game_state->events_router, EVT_GOAL_SCORED, on_goal_scored);
 
 	ball_state_machine_on_enter(entity, game_state);
 
@@ -434,14 +438,6 @@ void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *gam
 	entity_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
 }
 
-void entity_ball_in_goal(struct entity *ball_entity)
-{
-	struct component_ball *ball = &ball_entity->ball;
-
-	ball->subject_to_after_touch = false;
-	ball->selected_after_touch_side = Vector2Zero();
-}
-
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
 											 struct game_state *game_state)
 {
@@ -464,4 +460,16 @@ entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 	} else {
 		return EID_NOT_VALID;
 	}
+}
+
+// Event listeners
+static void on_goal_scored(enum event_type event_type, void *context)
+{
+	struct game_state *game_state = (struct game_state *)context;
+	struct component_ball *ball = &game_state->vars.ball_entity->ball;
+
+	ball->subject_to_after_touch = false;
+	ball->selected_after_touch_side = Vector2Zero();
+
+	football_match_change_state(game_state, MS_GOAL);
 }

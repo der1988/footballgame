@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "assets.h"
+#include "events/events.h"
 #include "football.h"
 #include "input.h"
 #include "memory.h"
@@ -163,6 +164,7 @@ struct game_state {
 	memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
 	struct assets assets;
 	struct entity_repository *entity_repository;
+	events_router_t *events_router;
 	tweakui_t *tweakui;
 	layer_debug_t *layer_debug;
 	struct asset_texture *pitch_texture;
