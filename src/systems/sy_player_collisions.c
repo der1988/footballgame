@@ -31,7 +31,7 @@ void systems_player_collisions(struct game_state *game_state)
 
 		DECLARE_ENTITY_COMPONENT(entity, player);
 
-		struct state_machine_player *state_machine = player->state_machine;
+		struct state_machine_player *state_machine = &player->state_machine;
 
 		switch (state_machine->current_state) {
 		case PS_SLIDING_TACKLE: {
@@ -40,7 +40,7 @@ void systems_player_collisions(struct game_state *game_state)
 			LIST_ITERATE(tackled_player_entity, entities)
 			{
 				entity_player_state_machine_change_state_to(
-					tackled_player_entity->player.state_machine, PS_FALL, game_state);
+					&tackled_player_entity->player.state_machine, PS_FALL, game_state);
 				GLOGF_INFO_CTX(LS_GAME,
 							   entities.array[i]->header.name,
 							   "player tackled by %s",
@@ -76,7 +76,7 @@ void systems_player_collisions(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(player_entity, player);
 		DECLARE_ENTITY_COMPONENT(player_entity, collider);
 
-		struct state_machine_player *state_machine = player->state_machine;
+		struct state_machine_player *state_machine = &player->state_machine;
 
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;

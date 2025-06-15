@@ -38,7 +38,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		DECLARE_ENTITY_COMPONENT(entity, player);
 		DECLARE_ENTITY_COMPONENT(entity, collider);
 
-		struct state_machine_player *state_machine = player->state_machine;
+		struct state_machine_player *state_machine = &player->state_machine;
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 		RESET_COMPONENT(player_controls);
@@ -66,11 +66,11 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 				if (ball_transform->virtual_height > 15) {
 					entity_player_state_machine_change_state_to(
-						player->state_machine, PS_HEADER, game_state);
+						&player->state_machine, PS_HEADER, game_state);
 
 				} else if (team_idx_last_ball_possession != player->team_side) {
 					entity_player_state_machine_change_state_to(
-						player->state_machine, PS_SLIDING_TACKLE, game_state);
+						&player->state_machine, PS_SLIDING_TACKLE, game_state);
 				}
 
 			} else {

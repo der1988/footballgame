@@ -31,7 +31,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			entity_get(game_state->entity_repository, player_on_the_ball_entity_id);
 
 		struct component_player *player = &player_entity->player;
-		struct state_machine_player *state_machine = player->state_machine;
+		struct state_machine_player *state_machine = &player->state_machine;
 
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {

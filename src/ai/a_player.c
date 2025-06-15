@@ -48,7 +48,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	DECLARE_ENTITY_COMPONENT(player_entity, transform);
 
-	b32 ball_in_keeper_hands = ball->state_machine->current_state == BS_GK_HANDS;
+	b32 ball_in_keeper_hands = ball->state_machine.current_state == BS_GK_HANDS;
 
 	entity_id_t player_on_the_ball_entity_id =
 		entity_ball_player_on_the_ball(ball_entity, game_state);
