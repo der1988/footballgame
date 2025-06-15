@@ -1,8 +1,8 @@
 #ifndef ENTITY_BALL_H
 #define ENTITY_BALL_H
 
-#include "components.h"
 #include "entities/state_machine.h"
+#include "game.h"
 #include "types.h"
 
 #define DECLARE_BALL_ENTITY_COMPONENTS(entity)                                                     \
@@ -11,7 +11,10 @@
 	DECLARE_ENTITY_COMPONENT_EXT(entity, collider, ball_collider);                                 \
 	DECLARE_ENTITY_COMPONENT_EXT(entity, ball, ball)
 
+// Forward declarations
 struct entity;
+struct game_state;
+struct component_ball;
 
 struct ball_config {
 	v2 position;

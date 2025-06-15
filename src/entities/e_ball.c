@@ -10,7 +10,6 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 #include <string.h>
 #include "game.h"
 
@@ -74,12 +73,10 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	// Initialise ball
 	struct component_ball *ball = &entity->ball;
 	ball->header.enabled = true;
-	struct state_machine_ball *state_machine =
-		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
+	struct state_machine_ball *state_machine = &entity->ball.state_machine;
 	state_machine->owner_entity = entity->header.id;
 	state_machine->previous_state = BS_NONE;
 	state_machine->current_state = BS_IN_PLAY;
-	ball->state_machine = state_machine;
 	ball->last_touch_entity_id = EID_NOT_VALID;
 	ball->last_kicker_entity_id = EID_NOT_VALID;
 	ball->pass_target_entity_id = EID_NOT_VALID;
@@ -101,7 +98,7 @@ static void ball_state_machine_on_enter(struct entity *entity, struct game_state
 	UNUSED(game_state);
 
 	struct component_ball *ball = &entity->ball;
-	struct state_machine_ball *state_machine = ball->state_machine;
+	struct state_machine_ball *state_machine = &ball->state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -135,7 +132,7 @@ static void ball_state_machine_on_exit(struct entity *entity, struct game_state 
 
 	struct component_sprite *sprite = &entity->sprite;
 	struct component_ball *ball = &entity->ball;
-	struct state_machine_ball *state_machine = ball->state_machine;
+	struct state_machine_ball *state_machine = &ball->state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -419,7 +416,7 @@ void entity_ball_held_by_goalie(struct entity *ball_entity,
 
 	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
 
-	entity_ball_state_machine_change_state_to(ball->state_machine, BS_GK_HANDS, game_state);
+	entity_ball_state_machine_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
 }
 
 void entity_ball_saved_by_goalie(struct entity *ball_entity,
@@ -435,7 +432,7 @@ void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *gam
 {
 	struct component_ball *ball = &ball_entity->ball;
 
-	entity_ball_state_machine_change_state_to(ball->state_machine, BS_IN_PLAY, game_state);
+	entity_ball_state_machine_change_state_to(&ball->state_machine, BS_IN_PLAY, game_state);
 }
 
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,

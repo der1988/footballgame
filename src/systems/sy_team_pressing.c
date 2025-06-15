@@ -28,7 +28,7 @@ struct entity *entities_player_select_press_player(struct entity *ball_entity,
 		entity = entity_get(game_state->entity_repository, entity_id);
 
 		if (!entity->header.alive || entity->header.type != ET_PLAYER ||
-			entity->player.state_machine->current_state != PS_NORMAL ||
+			entity->player.state_machine.current_state != PS_NORMAL ||
 			entity->player.team_side != team_side ||
 			entity_id ==
 				game_state->vars.teams[team_side].play_context.player_nearest_to_the_ball) {

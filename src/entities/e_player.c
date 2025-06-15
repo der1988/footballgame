@@ -77,11 +77,9 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	player->team_formation_position_idx = config.team_formation_position_idx;
 	// Sets initial max velocity to half of max run velocity
 	player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
-	struct state_machine_player *player_state_machine =
-		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*player_state_machine));
+	struct state_machine_player *player_state_machine = &player->state_machine;
 	player_state_machine->owner_entity = entity->header.id;
 	player_state_machine->previous_state = PS_NONE;
-	player->state_machine = player_state_machine;
 
 	// Initialise action
 	struct component_action *action = &entity->action;
@@ -95,12 +93,10 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 		// Initialise goalie
 		struct component_goalie *goalie = &entity->goalie;
 		goalie->header.enabled = true;
-		struct state_machine_goalie *state_machine =
-			memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(*state_machine));
+		struct state_machine_goalie *state_machine = &goalie->state_machine;
 		state_machine->owner_entity = entity->header.id;
 		state_machine->previous_state = GS_NONE;
 		state_machine->current_state = GS_PROTECT_GOAL;
-		goalie->state_machine = state_machine;
 		player_state_machine->current_state = PS_GOALIE;
 
 		goalie_state_machine_on_enter(entity, game_state);
@@ -209,7 +205,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 
 	struct component_player *player = &entity->player;
 	struct component_sprite *sprite = &entity->sprite;
-	struct state_machine_player *state_machine = player->state_machine;
+	struct state_machine_player *state_machine = &player->state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -225,15 +221,15 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	case PS_GOALIE:
 	case PS_THROW_IN:
 	case PS_HEADER:
-		entity->player.state_machine->state_data.header.animation_start_time = game_state->time;
+		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
 		break;
 	case PS_SLIDING_TACKLE:
 		game_input_player_charge_reset(game_state, entity->header.id);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
-		entity->player.state_machine->state_data.tackle.start_time = game_state->time;
+		entity->player.state_machine.state_data.tackle.start_time = game_state->time;
 		break;
 	case PS_FALL:
-		entity->player.state_machine->state_data.fall.animation_start_time = game_state->time;
+		entity->player.state_machine.state_data.fall.animation_start_time = game_state->time;
 		game_input_player_charge_reset(game_state, entity->header.id);
 		struct entity *ball_entity = game_state->vars.ball_entity;
 		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {
@@ -250,7 +246,7 @@ static void player_state_machine_on_exit(struct entity *entity, struct game_stat
 {
 	UNUSED(game_state);
 
-	struct state_machine_player *state_machine = entity->player.state_machine;
+	struct state_machine_player *state_machine = &entity->player.state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -272,7 +268,7 @@ static void player_state_machine_on_exit(struct entity *entity, struct game_stat
 
 static void goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
 {
-	struct state_machine_goalie *state_machine = entity->goalie.state_machine;
+	struct state_machine_goalie *state_machine = &entity->goalie.state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -298,7 +294,7 @@ static void goalie_state_machine_on_enter(struct entity *entity, struct game_sta
 	case GS_HOLD_BALL: {
 		entity->physics.velocity = Vector2Zero();
 		entity->physics.accel = Vector2Zero();
-		entity->goalie.state_machine->state_data.hold_ball.hold_start_time = game_state->time;
+		entity->goalie.state_machine.state_data.hold_ball.hold_start_time = game_state->time;
 		entity->sprite.frame_id =
 			game_state->gfx.goalie.save_frames[game_state->vars.teams[entity->player.team_side]
 												   .play_context.pitch_side][ST_WITH_BALL];
@@ -317,7 +313,7 @@ static void goalie_state_machine_on_enter(struct entity *entity, struct game_sta
 
 static void goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
 {
-	struct state_machine_goalie *state_machine = entity->goalie.state_machine;
+	struct state_machine_goalie *state_machine = &entity->goalie.state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -669,7 +665,7 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 		 ++opponent_entity_id) {
 		opponent_entity = entity_get(game_state->entity_repository, opponent_entity_id);
 		if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER &&
-			opponent_entity->player.state_machine->current_state == PS_NORMAL &&
+			opponent_entity->player.state_machine.current_state == PS_NORMAL &&
 			opponent_entity->player.team_side != player_entity->player.team_side) {
 
 			const v2 opponent_collider_pos =
@@ -721,7 +717,7 @@ struct nearest_player *find_nearest_player(v2 position,
 			}
 
 			if (entity->player.team_side != team_side ||
-				(goalie->header.enabled && goalie->state_machine->current_state != GS_HOLD_BALL) ||
+				(goalie->header.enabled && goalie->state_machine.current_state != GS_HOLD_BALL) ||
 				should_be_excluded) {
 				// If player is an opponent or a goalie or is in exclusion list let's skip it
 				continue;

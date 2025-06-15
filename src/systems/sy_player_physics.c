@@ -36,7 +36,7 @@ void systems_player_physics(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, collider);
 		DECLARE_ENTITY_COMPONENT(entity, sprite);
 
-		struct state_machine_player *state_machine = player->state_machine;
+		struct state_machine_player *state_machine = &player->state_machine;
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 
@@ -111,7 +111,7 @@ void systems_player_physics(struct game_state *game_state)
 		case PS_THROW_IN:
 		case PS_HEADER: {
 			struct state_machine_player_header_data *header_state_data =
-				&player->state_machine->state_data.header;
+				&player->state_machine.state_data.header;
 
 			if (!header_state_data->animation_completed) {
 				struct asset_animation *animation = asset_animation_get_by_id(
@@ -141,7 +141,7 @@ void systems_player_physics(struct game_state *game_state)
 
 			if (header_state_data->animation_completed) {
 				entity_player_state_machine_change_state_to(
-					player->state_machine, PS_NORMAL, game_state);
+					&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
@@ -149,7 +149,7 @@ void systems_player_physics(struct game_state *game_state)
 		}
 		case PS_SLIDING_TACKLE: {
 			struct state_machine_player_tackle_data *tackle_state_data =
-				&player->state_machine->state_data.tackle;
+				&player->state_machine.state_data.tackle;
 
 			v2 force_to_apply = Vector2Zero();
 			if (Vector2Length(physics->velocity) > 3) {
@@ -158,7 +158,7 @@ void systems_player_physics(struct game_state *game_state)
 											  7500); // TODO: this should depend on type of pitch
 			} else if (HAS_TIME_PASSED(game_state->time, tackle_state_data->start_time, 0.5f)) {
 				entity_player_state_machine_change_state_to(
-					player->state_machine, PS_NORMAL, game_state);
+					&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
@@ -172,7 +172,7 @@ void systems_player_physics(struct game_state *game_state)
 		}
 		case PS_FALL: {
 			struct state_machine_player_fall_data *fall_state_data =
-				&player->state_machine->state_data.fall;
+				&player->state_machine.state_data.fall;
 
 			if (!fall_state_data->animation_completed) {
 				struct asset_animation *animation = asset_animation_get_by_id(
@@ -209,7 +209,7 @@ void systems_player_physics(struct game_state *game_state)
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
 				entity_player_state_machine_change_state_to(
-					player->state_machine, PS_NORMAL, game_state);
+					&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
