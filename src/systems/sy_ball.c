@@ -27,7 +27,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	DECLARE_ENTITY_COMPONENT(ball_entity, ball);
 	DECLARE_ENTITY_COMPONENT(ball_entity, collider);
 
-	struct state_machine_ball *state_machine = ball->state_machine;
+	struct state_machine_ball *state_machine = &ball->state_machine;
 
 	if (input->devices[0].buttons[IDBT_BUTTON_START].released) {
 		struct component_transform *p1_transform =
@@ -94,7 +94,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 			"%-8s %02d state: %s pos: [%7.2f, %7.2f, %7.2f] vel: [%6.2f, %6.2f, %6.2f] speed: %6.2f",
 			"Ball",
 			game_state->vars.ball_entity->header.id,
-			state_machine_ball_state_string[ball_entity->ball.state_machine->current_state],
+			state_machine_ball_state_string[ball_entity->ball.state_machine.current_state],
 			transform->position.x,
 			transform->virtual_height,
 			transform->position.y,

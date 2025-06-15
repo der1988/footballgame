@@ -1,8 +1,8 @@
 #ifndef ENTITY_PLAYER_H
 #define ENTITY_PLAYER_H
 
-#include "components.h"
 #include "football.h"
+#include "render.h"
 #include "state_machine.h"
 #include "types.h"
 #include "as_animation.h"
@@ -10,6 +10,7 @@
 // Forward declarations
 struct entity;
 struct list_entity_ids;
+enum sprite_orientation;
 
 struct player_config {
 	v2 position;

@@ -10,7 +10,6 @@
 #include "physics/physics.h"
 #include "types.h"
 #include <raymath.h>
-#include <stdio.h>
 
 static b32 protect_goal_predicate(v3 pos_to_check,
 								  struct entity *seeker_entity,
@@ -41,7 +40,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		}
 
 		DECLARE_ENTITY_COMPONENT(entity, player);
-		if (player->state_machine->current_state != PS_GOALIE)
+		if (player->state_machine.current_state != PS_GOALIE)
 			continue;
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, physics);
@@ -49,7 +48,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		DECLARE_ENTITY_COMPONENT(entity, goalie);
 		DECLARE_ENTITY_COMPONENT(entity, collider);
 
-		struct state_machine_goalie *state_machine = goalie->state_machine;
+		struct state_machine_goalie *state_machine = &goalie->state_machine;
 
 		enum pitch_side pitch_side =
 			game_state->vars.teams[player->team_side].play_context.pitch_side;
@@ -92,7 +91,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					// Hold ball in hands
 					entity_ball_held_by_goalie(ball_entity, entity_id, game_state);
 					entity_goalie_state_machine_change_state_to(
-						goalie->state_machine, GS_HOLD_BALL, game_state);
+						&goalie->state_machine, GS_HOLD_BALL, game_state);
 
 				} else {
 					// Bounce ball
@@ -267,14 +266,14 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 												 game_state)) {
 				// Only dive if ball velocity is higher than 36km/h
 				entity_goalie_state_machine_change_state_to(
-					goalie->state_machine, GS_DIVE, game_state);
+					&goalie->state_machine, GS_DIVE, game_state);
 			}
 
 			break;
 		}
 		case GS_JUMP: {
 			struct state_machine_goalie_animation_data *jump_state_data =
-				&goalie->state_machine->state_data.dive;
+				&goalie->state_machine.state_data.dive;
 
 			if (!jump_state_data->animation_first_phase_completed) {
 				struct asset_animation *animation = asset_animation_get_by_id(
@@ -379,17 +378,17 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			} else if (jump_state_data->animation_completed) {
 				if (jump_state_data->ball_held) {
 					entity_goalie_state_machine_change_state_to(
-						goalie->state_machine, GS_HOLD_BALL, game_state);
+						&goalie->state_machine, GS_HOLD_BALL, game_state);
 				} else {
 					entity_goalie_state_machine_change_state_to(
-						goalie->state_machine, GS_PROTECT_GOAL, game_state);
+						&goalie->state_machine, GS_PROTECT_GOAL, game_state);
 				}
 			}
 			break;
 		}
 		case GS_HOLD_BALL: {
 			if (!HAS_TIME_PASSED(game_state->time,
-								 goalie->state_machine->state_data.hold_ball.hold_start_time,
+								 goalie->state_machine.state_data.hold_ball.hold_start_time,
 								 1)) {
 				break;
 			}
@@ -404,14 +403,14 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
 			entity_ball_long_pass(ball_entity, entity_id, (v2){.y = direction}, 0.7f, game_state);
 			entity_goalie_state_machine_change_state_to(
-				goalie->state_machine, GS_PROTECT_GOAL, game_state);
+				&goalie->state_machine, GS_PROTECT_GOAL, game_state);
 			break;
 		}
 		case GS_DIVE: {
 			enum save_direction direction = goalie->dive_direction;
 
 			struct state_machine_goalie_animation_data *dive_state_data =
-				&goalie->state_machine->state_data.dive;
+				&goalie->state_machine.state_data.dive;
 
 			if (!dive_state_data->animation_first_phase_completed) {
 				struct asset_animation *animation = asset_animation_get_by_id(
@@ -541,10 +540,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						   game_state->time, dive_state_data->animation_end_time, 0.75f)) {
 				if (dive_state_data->ball_held) {
 					entity_goalie_state_machine_change_state_to(
-						goalie->state_machine, GS_HOLD_BALL, game_state);
+						&goalie->state_machine, GS_HOLD_BALL, game_state);
 				} else {
 					entity_goalie_state_machine_change_state_to(
-						goalie->state_machine, GS_PROTECT_GOAL, game_state);
+						&goalie->state_machine, GS_PROTECT_GOAL, game_state);
 				}
 			}
 			break;
@@ -561,6 +560,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					   transform->position.x,
 					   transform->position.y,
 					   VELOCITY_TO_KMH(Vector2Length(physics->velocity)),
-					   state_machine_goalie_state_string[goalie->state_machine->current_state]));
+					   state_machine_goalie_state_string[goalie->state_machine.current_state]));
 	}
 }

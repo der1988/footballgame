@@ -7,6 +7,8 @@
 #include "render.h"
 #include "constants.h"
 #include "types.h"
+#include "e_player.h"
+#include "e_ball.h"
 
 #define MAX_CONCURRENT_ACTIONS 5
 
@@ -111,7 +113,7 @@ struct component_camera {
 
 struct component_player {
 	struct component_header header;
-	struct state_machine_player *state_machine;
+	struct state_machine_player state_machine;
 	b32 control_ball;
 	time_t time_spent_in_precision_control;
 	time_t time_spent_in_run_control;
@@ -140,7 +142,7 @@ struct component_player_controls {
 
 struct component_ball {
 	struct component_header header;
-	struct state_machine_ball *state_machine;
+	struct state_machine_ball state_machine;
 
 	// Lookahead and bounces
 	v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
@@ -194,7 +196,7 @@ struct component_goal {
 
 struct component_goalie {
 	struct component_header header;
-	struct state_machine_goalie *state_machine;
+	struct state_machine_goalie state_machine;
 	enum save_direction dive_direction;
 	enum save_height dive_height;
 	f32 dive_distance;

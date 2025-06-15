@@ -47,7 +47,7 @@ void systems_player_control_ai(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, player);
 		DECLARE_ENTITY_COMPONENT(entity, collider);
 
-		struct state_machine_player *state_machine = player->state_machine;
+		struct state_machine_player *state_machine = &player->state_machine;
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 		RESET_COMPONENT(player_controls);
@@ -151,7 +151,7 @@ static v2 get_target_position_based_on_tactics(struct entity *player_entity,
 
 	switch (game_state->vars.match.state) {
 	case MS_PLAY: {
-		if (ball_entity->ball.state_machine->current_state == BS_GK_HANDS) {
+		if (ball_entity->ball.state_machine.current_state == BS_GK_HANDS) {
 			target_pos = default_pos;
 			break;
 		}
