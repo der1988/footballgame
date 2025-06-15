@@ -6,6 +6,7 @@
 #include "math_ext.h"
 #include "collision.h"
 #include <raymath.h>
+#include <stdio.h>
 
 void systems_goal(struct game_state *game_state)
 {

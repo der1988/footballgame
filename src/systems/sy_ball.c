@@ -65,9 +65,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	// Test post
 	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_RIGHT].released) {
 		entity_ball_set_position_and_velocity(ball_entity,
-											  (v3){.x = game_state->vars.pitch.field.x + 358.6,
-												   .z = 300},
-											  Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 250.5f));
+											  (v3){.x = game_state->vars.pitch.field.x + 465.97,
+												   .z = 1050},
+											  Vector3Scale((v3){.x = -1, .y = 1.67, .z = 1}, 260));
 		football_match_change_state(game_state, MS_PLAY);
 		return;
 	}

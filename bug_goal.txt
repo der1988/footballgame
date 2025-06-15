@@ -1,0 +1,4 @@
+236.693931 INFO: GAME: src/systems/sy_goal.c:152 -> hit post at 393.97, 23.45, 1155.00
+236.694333 INFO: GAME: src/systems/sy_goal.c:152 -> hit post at 393.97, 23.45, 1155.00
+236.694349 INFO: GAME: src/systems/sy_goal.c:154 -> goal off post!
+236.694356 INFO: GAME: src/football/f_match.c:10 -> match state changed to: goal

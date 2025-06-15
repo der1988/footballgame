@@ -62,7 +62,7 @@ void football_setup(struct game_state *game_state)
 		game_state);
 
 	// Team 1
-	for (usize i = 1; i < 10; ++i) {
+	for (usize i = 1; i < 2; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
 		pos.y = 1 - pos.y;
 		entity_player_create((struct player_config){.position =
@@ -74,7 +74,7 @@ void football_setup(struct game_state *game_state)
 	}
 
 	// Team 2
-	for (usize i = 0; i < 10; ++i) {
+	for (usize i = 0; i < 2; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
 		entity_player_create((struct player_config){.position =
 														football_pitch_position_normalized_to_abs(
@@ -89,11 +89,11 @@ void football_setup(struct game_state *game_state)
 													game_state->vars.pitch.goal[PSI_NORTH].center,
 												.team_side = TS_HOME},
 						 game_state);
-	entity_player_create((struct player_config){.is_goalie = true,
-												.position =
-													game_state->vars.pitch.goal[PSI_SOUTH].center,
-												.team_side = TS_AWAY},
-						 game_state);
+	// entity_player_create((struct player_config){.is_goalie = true,
+	// 											.position =
+	// 												game_state->vars.pitch.goal[PSI_SOUTH].center,
+	// 											.team_side = TS_AWAY},
+	// 					 game_state);
 
 	struct entity *ball_entity = entity_ball_create(
 		(struct ball_config){.position = game_state->vars.pitch.midfield_spot}, game_state);
