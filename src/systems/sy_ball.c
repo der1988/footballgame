@@ -249,8 +249,9 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		if (Vector2Length(ball_velocity) > 3) {
 			enum sprite_orientation sprite_orientation =
 				sprite_calculate_orientation(ball_velocity);
-			struct asset_animation *animation = asset_animation_get_by_id(
-				game_state->assets.animation_cache, ball->roll_animations[sprite_orientation]);
+			struct asset_animation *animation =
+				asset_animation_get_by_id(game_state->assets.animation_cache,
+										  game_state->gfx.ball.roll_animations[sprite_orientation]);
 			f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;
 			f32 delay = (animation->delay *
 						 (5 - 4 * Clamp(Vector2Length(ball_velocity) / ball_max_velocity, 0, 1)));

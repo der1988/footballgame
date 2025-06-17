@@ -182,7 +182,6 @@ struct component_ball {
 	// Animation
 	u16 last_running_frame_idx;
 	time_t last_frame_update_time;
-	asset_sprite_frame_id_t roll_animations[SO_COUNT];
 };
 
 struct component_goal {

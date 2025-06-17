@@ -146,6 +146,10 @@ struct game_gfx {
 		asset_animation_id_t jump_animations_start[PSI_COUNT];
 		asset_animation_id_t jump_animations_end[PSI_COUNT][ST_COUNT];
 	} goalie;
+
+	struct ball {
+		asset_sprite_frame_id_t roll_animations[SO_COUNT];
+	} ball;
 };
 
 struct game_state {
