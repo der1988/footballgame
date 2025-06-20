@@ -1,0 +1,28 @@
+- tiro deve essere semi-automatico
+	- range in cui c'e la direzione della porta piu o meno
+	- quanto tieni premuto influisce su potenza e altezza del tiro
+	- togliamo l'effetto banana
+- switch del giocatore semi-automatico
+	- normalmente scelto dalla cpu
+	- se si preme il bottone preposto viene cambiato il giocatore selezionato in base alla direzione dello stick
+	- quando la palla viene riconquistata o il giocatore selezionato finisce fuori dallo schermo la selezione torna in carico alla cpu
+- lancio lungo
+	- se premi poco passaggio automatico verso il giocatore visible piu lontano
+	- se non c'e un giocatore visibile prova il passaggio automatico verso il giocatore piu vicino
+	- se premuto tanto passaggio manuale con una logica simile al tiro
+- tasto per tenere a se la palla
+	- se ti muovi non funziona
+- passaggio e tiro di prima
+- scivolata con il passaggio lungo
+- pressing con il tiro
+- colpo di testa eseguito quando il tiro viene mollato
+	- con tiro o passaggio
+- quando la palla è in fascia e si preme il tasto del passaggio lungo viene effettuato un cross
+	- non è completamente automatico, nel senso che la palla non viene direzionata verso un giocatore specifico
+	- il controllo passa immediatamente al giocatore in mezzo all'aerea
+	- qualunque sia la direzione del joystik la palla deve essere direzionata in mezzo all'area
+- tasto modificatore
+	- da fermo tiene la palla a se
+	- se tiri fa il tiro ad effetto
+	- se fai il passaggio lungo abilita la curva del Simone (lob alto)
+- se premi due volte il tiro fa il pallonetto
