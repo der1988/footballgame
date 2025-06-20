@@ -138,7 +138,6 @@ void systems_goal(struct game_state *game_state)
 				}
 			}
 			if (collided_with_post) {
-				ball->subject_to_after_touch = false;
 				new_velocity =
 					Vector3Scale(new_velocity, game_state->constants.ball_cr_against_post);
 

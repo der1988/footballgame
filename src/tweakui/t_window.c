@@ -143,27 +143,6 @@ void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
 			  0,
 			  1000.0f);
 	MOVE_DOWN_ONE_ROW(slider_bounds);
-	GuiSlider(slider_bounds,
-			  "Ball after touch delay time",
-			  TextFormat("%.2f", game_state->constants.ball_after_touch_delay_time),
-			  &game_state->constants.ball_after_touch_delay_time,
-			  0,
-			  1.0f);
-	MOVE_DOWN_ONE_ROW(slider_bounds);
-	GuiSlider(slider_bounds,
-			  "Ball after touch max time",
-			  TextFormat("%.2f", game_state->constants.ball_after_touch_max_time),
-			  &game_state->constants.ball_after_touch_max_time,
-			  0,
-			  1.0f);
-	MOVE_DOWN_ONE_ROW(slider_bounds);
-	GuiSlider(slider_bounds,
-			  "Ball after touch force",
-			  TextFormat("%.2f", game_state->constants.ball_after_touch_force),
-			  &game_state->constants.ball_after_touch_force,
-			  0,
-			  1000.0f);
-	MOVE_DOWN_ONE_ROW(slider_bounds);
 	GuiSpinner(slider_bounds,
 			   "Ball lookaheads",
 			   (int *)&game_state->constants.ball_lookaheads,

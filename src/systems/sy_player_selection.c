@@ -46,9 +46,8 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 															  EID_NOT_VALID;
 		entity_id_t player_to_avoid_entity_id = EID_NOT_VALID;
 
-		if (ball->last_kicker_entity_id == human_player->controlled_player_entity_id &&
-			ball->subject_to_after_touch) {
-			// We cannot change player selection if player was last to kick the ball and it's still subject to after touch
+		if (ball->last_kicker_entity_id == human_player->controlled_player_entity_id) {
+			// We cannot change player selection if player was last to kick the ball
 			continue;
 		}
 
