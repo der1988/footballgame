@@ -188,8 +188,6 @@ void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v
 	ball_entity->physics3d.velocity = velocity;
 	ball_entity->ball.future_bounce.available = false;
 	ball_entity->ball.future_reachable.available = false;
-	ball_entity->ball.subject_to_after_touch = false;
-	ball_entity->ball.selected_after_touch_side = Vector2Zero();
 }
 
 void entity_ball_control_precision(struct entity *ball_entity,
@@ -288,8 +286,6 @@ void entity_ball_shoot(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-	ball->subject_to_after_touch = true;
-	ball->selected_after_touch_side = Vector2Zero();
 }
 
 void entity_ball_short_pass(struct entity *ball_entity,
@@ -334,8 +330,6 @@ void entity_ball_long_pass(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-	ball->subject_to_after_touch = true;
-	ball->selected_after_touch_side = Vector2Zero();
 }
 
 void entity_ball_tackle(struct entity *ball_entity,
@@ -440,9 +434,6 @@ static void on_goal_scored(enum event_type event_type, void *context)
 {
 	struct game_state *game_state = (struct game_state *)context;
 	struct component_ball *ball = &game_state->vars.ball_entity->ball;
-
-	ball->subject_to_after_touch = false;
-	ball->selected_after_touch_side = Vector2Zero();
 
 	football_match_change_state(game_state, MS_GOAL);
 }

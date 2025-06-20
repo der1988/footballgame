@@ -164,10 +164,6 @@ struct component_ball {
 	entity_id_t last_touch_entity_id;
 	time_t first_player_possession_time;
 
-	// After touch
-	b32 subject_to_after_touch;
-	v2 selected_after_touch_side;
-
 	// Kicks
 	time_t last_kick_time;
 	entity_id_t last_kicker_entity_id;
