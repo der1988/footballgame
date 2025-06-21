@@ -20,6 +20,7 @@ enum memory_arena_lifetime {
 	MAL_LEVEL,
 	MAL_UPDATE,
 	MAL_DRAW,
+	MAL_TIME_MACHINE,
 	MAL_COUNT
 };
 
@@ -172,6 +173,7 @@ struct game_state {
 	render_texture_t render_texture;
 	camera2d_t camera;
 	camera2d_t virtual_camera;
+	struct time_machine *time_machine;
 };
 
 struct game_state *game_play_init(struct game_config gameConfig,

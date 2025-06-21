@@ -118,6 +118,7 @@ v goalie should not exit all the time
 v when goalie has the ball players should move towards the center of the pitch
 v introduce event system
 v removed after touch
+* implement time machine
 - improve player selection system
 - press player should not be selected as human controlled until it gets the ball
 - support multiple human players

@@ -21,5 +21,6 @@ void systems_camera(struct game_state *game_state);
 void systems_render(struct game_state *game_state);
 void systems_render_hud(struct game_state *game_state);
 void systems_render_debug(struct game_state *game_state);
+void systems_time_machine(struct game_state *game_state, struct input *input);
 
 #endif // !SYSTEMS_H

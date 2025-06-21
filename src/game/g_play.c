@@ -5,6 +5,7 @@
 #include "input.h"
 #include "game.h"
 #include "gfx.h"
+#include "time_machine/time_machine.h"
 #include <assert.h>
 #include <raymath.h>
 
@@ -28,13 +29,15 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->assets = assets;
 
 	// Push some memory for our own arenas onto main memory arena
-	void *game_memory = memory_arena_push(memory_arena, Megabytes(3));
+	void *game_memory = memory_arena_push(memory_arena, Megabytes(97));
 	game_state->memory_by_lifetime[MAL_LEVEL] =
 		memory_arena_create("level", game_memory, Megabytes(1));
 	game_state->memory_by_lifetime[MAL_UPDATE] =
 		memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_DRAW] =
 		memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
+	game_state->memory_by_lifetime[MAL_TIME_MACHINE] =
+		memory_arena_create("time_machine", game_memory + Megabytes(3), Megabytes(94));
 
 	// Initialise events router
 	game_state->events_router = events_router_create(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -98,6 +101,10 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->entity_repository =
 		entity_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
 
+	// Initialise time machine
+	game_state->time_machine =
+		time_machine_create(game_state->memory_by_lifetime[MAL_TIME_MACHINE]);
+
 	// Get pitch texture id
 	game_state->pitch_texture =
 		asset_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
@@ -133,6 +140,8 @@ void game_play_destroy(struct game_state *game_state)
 	layer_debug_destroy(game_state->layer_debug);
 
 	tweakui_destroy(game_state->tweakui);
+
+	time_machine_destroy(game_state->time_machine);
 
 	entity_repository_destroy(game_state->entity_repository);
 
@@ -248,6 +257,7 @@ void update(struct game_state *game_state, struct input *input)
 	systems_goal(game_state);
 	systems_action(game_state);
 	systems_camera(game_state);
+	systems_time_machine(game_state, input);
 }
 
 void draw(struct game_state *game_state)
