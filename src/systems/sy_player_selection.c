@@ -46,10 +46,10 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 															  EID_NOT_VALID;
 		entity_id_t player_to_avoid_entity_id = EID_NOT_VALID;
 
-		if (ball->last_kicker_entity_id == human_player->controlled_player_entity_id) {
-			// We cannot change player selection if player was last to kick the ball
-			continue;
-		}
+		// if (ball->last_kicker_entity_id == human_player->controlled_player_entity_id) {
+		// 	// We cannot change player selection if player was last to kick the ball
+		// 	continue;
+		// }
 
 		// We don't want to select again the same player that just kicked the ball
 		if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
