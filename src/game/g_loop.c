@@ -17,7 +17,7 @@ void game_loop(struct game_config config,
 	void *memory_for_current_scene = memory_arena_push(main_memory_arena_handle, Megabytes(4));
 
 	memory_arena_handle_t *current_scene_memory_arena =
-		memory_arena_create("scene", memory_for_current_scene, Megabytes(4));
+		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(4));
 
 	enum game_scene current_scene = GSC_NONE;
 	void *current_scene_handle = NULL;
