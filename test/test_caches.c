@@ -25,7 +25,7 @@ void test_texture_cache()
 
 	void *buffer = malloc(Megabytes(1));
 	memory_arena_handle_t *memory_arena_handle =
-		memory_arena_create("test_arena", buffer, Megabytes(1));
+		memory_arena_create_default("test_arena", buffer, Megabytes(1));
 
 	asset_texture_cache_t *handle = asset_texture_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);
@@ -52,7 +52,7 @@ void test_sprite_cache()
 
 	void *buffer = malloc(Megabytes(1));
 	memory_arena_handle_t *memory_arena_handle =
-		memory_arena_create("test_arena", buffer, Megabytes(1));
+		memory_arena_create_default("test_arena", buffer, Megabytes(1));
 
 	asset_sprite_frame_cache_t *handle = asset_sprite_frame_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);
@@ -79,7 +79,7 @@ void test_animation_cache()
 
 	void *buffer = malloc(Megabytes(1));
 	memory_arena_handle_t *memory_arena_handle =
-		memory_arena_create("test_arena", buffer, Megabytes(1));
+		memory_arena_create_default("test_arena", buffer, Megabytes(1));
 
 	asset_sprite_frame_cache_t *handle_sprite_cache =
 		asset_sprite_frame_cache_create(memory_arena_handle);
@@ -120,7 +120,7 @@ void test_shader_cache()
 
 	void *buffer = malloc(Megabytes(1));
 	memory_arena_handle_t *memory_arena_handle =
-		memory_arena_create("test_arena", buffer, Megabytes(1));
+		memory_arena_create_default("test_arena", buffer, Megabytes(1));
 
 	asset_shader_cache_t *handle = asset_shader_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);

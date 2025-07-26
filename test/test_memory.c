@@ -20,7 +20,7 @@ void test_memory_arena()
 
 	void *buffer = malloc(Megabytes(1));
 	// valid creation
-	memory_arena_handle_t *handle = memory_arena_create("test_arena", buffer, Megabytes(1));
+	memory_arena_handle_t *handle = memory_arena_create_default("test_arena", buffer, Megabytes(1));
 	TEST_ASSERT_NOT_NULL(handle);
 	TEST_ASSERT_EQUAL_INT(0, strcmp(handle->name, "test_arena"));
 	TEST_ASSERT_EQUAL_UINT64(Megabytes(1), handle->total_size);
@@ -42,6 +42,14 @@ void test_memory_arena()
 	memory_arena_reset(handle);
 	void *buffer_4 = memory_arena_push(handle, Megabytes(1));
 	TEST_ASSERT_NOT_NULL(buffer_4);
+	// test pop
+	memory_arena_reset(handle);
+	void *buffer_after_push = memory_arena_push(handle, Kilobytes(1));
+	void *buffer_after_pop = memory_arena_pop(handle, Kilobytes(1));
+	TEST_ASSERT_EQUAL_PTR(buffer_after_push, buffer_after_pop);
+	// test pop too much
+	buffer_after_pop = memory_arena_pop(handle, Kilobytes(1));
+	TEST_ASSERT_NULL(buffer_after_pop);
 
 	// valid destruction
 	memory_arena_destroy(handle);

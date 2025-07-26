@@ -31,7 +31,7 @@ void test_events()
 
 	void *buffer = malloc(Megabytes(1));
 	// valid creation
-	memory_arena_handle_t *handle = memory_arena_create("test_arena", buffer, Megabytes(1));
+	memory_arena_handle_t *handle = memory_arena_create_default("test_arena", buffer, Megabytes(1));
 
 	struct events_router *events_router = events_router_create(handle);
 	events_router_add_listener(events_router, EVT_GOAL_SCORED, test_listener);

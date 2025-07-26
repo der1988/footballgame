@@ -88,14 +88,13 @@ void *memory_arena_pop(memory_arena_handle_t *handle, usize size)
 		size = memory_utils_align(size, handle->alignment);
 		u64 used = handle->current - handle->base;
 		if (size <= used) {
-			void *buffer = handle->current;
 			handle->current -= size;
 			GLOGF_TRACE_CTX(LS_MEMORY,
 							handle->name,
 							"deallocated %lu bytes from memory arena, remaining %lu bytes",
 							size,
 							used - size);
-			return buffer;
+			return handle->current;
 		} else {
 			GLOGF_ERROR_CTX(LS_MEMORY,
 							handle->name,
