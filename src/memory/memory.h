@@ -5,11 +5,6 @@
 
 #define DEFAULT_MEMORY_ALIGNMENT 16
 
-struct memory_arena_push_settings {
-	u16 alignment;
-	b32 clear_memory;
-};
-
 struct memory_fixed_allocation {
 	b32 used;
 	byte buffer[];
@@ -17,14 +12,14 @@ struct memory_fixed_allocation {
 
 typedef struct memory_arena_handle memory_arena_handle_t;
 
-memory_arena_handle_t *memory_arena_create(char *name, void *buffer, usize size);
+memory_arena_handle_t *
+memory_arena_create(char *name, void *buffer, usize size, u16 alignment, b32 clear_memory);
+memory_arena_handle_t *memory_arena_create_default(char *name, void *buffer, usize size);
 void memory_arena_destroy(memory_arena_handle_t *handle);
 void memory_arena_reset(memory_arena_handle_t *handle);
 void *memory_arena_push(memory_arena_handle_t *handle, usize size);
+void *memory_arena_pop(memory_arena_handle_t *handle, usize size);
 void *memory_arena_push_string(memory_arena_handle_t *handle, char *string);
-void *memory_arena_push_with_custom_settings(memory_arena_handle_t *handle,
-											 usize size,
-											 struct memory_arena_push_settings settings);
 
 typedef struct memory_fixed_handle memory_fixed_handle_t;
 

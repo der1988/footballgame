@@ -18,7 +18,7 @@ int main()
 	SetWindowMonitor(0);
 
 	void *memory = malloc(Megabytes(256));
-	memory_arena_handle_t *main_memory_arena = memory_arena_create("main", memory, Megabytes(256));
+	memory_arena_handle_t *main_memory_arena = memory_arena_create_default("main", memory, Megabytes(256));
 
 	// Load assets
 	struct assets assets = asset_manager_load_everything(main_memory_arena);

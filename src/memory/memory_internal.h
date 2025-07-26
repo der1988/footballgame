@@ -8,6 +8,8 @@ struct memory_arena_handle {
 	void *base;
 	void *current;
 	usize total_size;
+	u16 alignment;
+	b32 clear_memory;
 };
 
 struct memory_fixed_handle {

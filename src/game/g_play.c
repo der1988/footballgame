@@ -1,6 +1,7 @@
 #include "entities.h"
 #include "events/events.h"
 #include "log.h"
+#include "memory.h"
 #include "systems.h"
 #include "input.h"
 #include "game.h"
@@ -31,13 +32,13 @@ struct game_state *game_play_init(struct game_config game_config,
 	// Push some memory for our own arenas onto main memory arena
 	void *game_memory = memory_arena_push(memory_arena, Megabytes(97));
 	game_state->memory_by_lifetime[MAL_LEVEL] =
-		memory_arena_create("level", game_memory, Megabytes(1));
+		memory_arena_create_default("level", game_memory, Megabytes(1));
 	game_state->memory_by_lifetime[MAL_UPDATE] =
-		memory_arena_create("update", game_memory + Megabytes(1), Megabytes(1));
+		memory_arena_create_default("update", game_memory + Megabytes(1), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_DRAW] =
-		memory_arena_create("draw", game_memory + Megabytes(2), Megabytes(1));
+		memory_arena_create_default("draw", game_memory + Megabytes(2), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_TIME_MACHINE] =
-		memory_arena_create("time_machine", game_memory + Megabytes(3), Megabytes(94));
+		memory_arena_create_default("time_machine", game_memory + Megabytes(3), Megabytes(94));
 
 	// Initialise events router
 	game_state->events_router = events_router_create(game_state->memory_by_lifetime[MAL_LEVEL]);

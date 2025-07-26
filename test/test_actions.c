@@ -40,7 +40,7 @@ void setUp(void)
 
 	g_memory = malloc(Megabytes(10));
 
-	g_main_memory_arena = memory_arena_create("main", g_memory, Megabytes(4));
+	g_main_memory_arena = memory_arena_create_default("main", g_memory, Megabytes(4));
 
 	struct assets assets = asset_manager_load_everything(g_main_memory_arena);
 
