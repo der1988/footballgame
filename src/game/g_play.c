@@ -1,6 +1,8 @@
 #include "entities.h"
 #include "events/events.h"
 #include "log.h"
+#include "macro.h"
+#include "math_ext.h"
 #include "memory.h"
 #include "systems.h"
 #include "input.h"
@@ -8,7 +10,10 @@
 #include "gfx.h"
 #include "time_machine/time_machine.h"
 #include <assert.h>
+#include <math.h>
+#include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 void update(struct game_state *game_state, struct input *input);
 void draw(struct game_state *game_state);
@@ -164,20 +169,16 @@ b32 game_play_update(struct game_state *game_state)
 
 	time_t dt = game_state->constants.fixed_timestep;
 
-	if (game_state->vars.is_tweakui_shown) {
-		PollInputEvents();
-		quit = WindowShouldClose();
-		if (IsKeyReleased(KEY_P)) {
-			game_state->vars.is_tweakui_shown = false;
-		}
-	} else {
-		// Update game
+	switch (game_state->vars.mode) {
+	case GM_TICK: {
+		// Game tick
 		f64 new_time = GetTime();
 		f64 frame_time = new_time - game_state->current_time;
 		f64 total_update_time = 0;
 		game_state->current_time = new_time;
 
-		if (frame_time > 1) {
+		// If frame time is too big we were probably spending time in another mode
+		if (frame_time > 0.5f) {
 			frame_time = game_state->dt;
 		}
 
@@ -224,6 +225,57 @@ b32 game_play_update(struct game_state *game_state)
 			layer_debug_queue_draw_text(game_state->layer_debug,
 										TextFormat("FPS: %3.0f", 1 / frame_time));
 		}
+	} break;
+	case GM_RECORDER:
+		PollInputEvents();
+		quit = WindowShouldClose();
+
+		struct input input = input_handle(game_state);
+
+		static usize tick = 0;
+		tick++;
+
+		f32 left_trigger = input.devices[0].left_trigger;
+		f32 right_trigger = input.devices[0].right_trigger;
+
+		static time_t last_interaction_time = 0;
+
+		if (left_trigger > 0.01f) {
+			last_interaction_time = GetTime();
+			left_trigger = 1 - left_trigger;
+			left_trigger *= 15;
+			left_trigger += 1;
+			u32 rewind_speed = (u32)left_trigger;
+			if (tick % rewind_speed == 0) {
+				time_machine_travel(game_state->time_machine, -1, game_state);
+			}
+		} else if (input.devices[0].right_trigger > 0.1f) {
+			last_interaction_time = GetTime();
+			right_trigger = 1 - right_trigger;
+			right_trigger *= 15;
+			right_trigger += 1;
+			u32 forward_speed = (u32)right_trigger;
+			if (tick % forward_speed == 0) {
+				time_machine_travel(game_state->time_machine, 1, game_state);
+			}
+		}
+
+		if (HAS_TIME_PASSED(GetTime(), last_interaction_time, 3.0f)) {
+			time_machine_set_resume_position(
+				game_state->time_machine, RP_LAST_RECORDED, game_state);
+			game_state->vars.mode = GM_TICK;
+		} else if (input.devices[0].buttons[IDBT_BUTTON_TRIGGER_RIGHT].released) {
+			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
+			game_state->vars.mode = GM_TICK;
+		}
+		break;
+	case GM_TWEAK_UI: {
+		PollInputEvents();
+		quit = WindowShouldClose();
+		if (IsKeyReleased(KEY_P)) {
+			game_state->vars.mode = GM_TICK;
+		}
+	} break;
 	}
 
 	// Draw game
@@ -238,9 +290,16 @@ void update(struct game_state *game_state, struct input *input)
 	memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
 	layer_debug_reset(game_state->layer_debug);
 
+	// mode selection
 	if (IsKeyReleased(KEY_P)) {
-		game_state->vars.is_tweakui_shown = true;
+		game_state->vars.mode = GM_TWEAK_UI;
 	}
+
+	if (input->devices[0].left_trigger > 0.1f) {
+		game_state->vars.mode = GM_RECORDER;
+	}
+
+	// debug layer
 	if (IsKeyReleased(KEY_C)) {
 		game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 	}
@@ -334,7 +393,7 @@ void draw(struct game_state *game_state)
 	}
 
 	// Tweak UI
-	if (game_state->vars.is_tweakui_shown) {
+	if (game_state->vars.mode == GM_TWEAK_UI) {
 		tweakui_draw(game_state->tweakui, game_state);
 	}
 

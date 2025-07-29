@@ -111,7 +111,14 @@ struct team_play_context {
 	entity_id_t player_in_charge_of_pressing;
 };
 
+enum game_mode {
+	GM_TICK,
+	GM_RECORDER,
+	GM_TWEAK_UI
+};
+
 struct game_vars {
+	enum game_mode mode;
 	struct match match;
 	struct pitch pitch;
 	struct team {
@@ -122,7 +129,6 @@ struct game_vars {
 	struct entity *ball_entity;
 	b32 slow_motion;
 	b32 is_debug_log_shown;
-	b32 is_tweakui_shown;
 };
 
 struct game_gfx {

@@ -29,8 +29,14 @@ struct time_machine {
 	b32 initialised;
 	memory_arena_handle_t *arena_handle;
 	struct time_capsule *time_capsules;
+	usize last_recorded_pos;
 	usize current_pos;
 	usize recorded;
+};
+
+enum resume_position {
+	RP_CURRENT,
+	RP_LAST_RECORDED
 };
 
 struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena);
@@ -39,5 +45,8 @@ void time_machine_save_capsule(struct time_machine *handle, struct game_state *g
 void time_machine_restore_capsule(struct time_machine *handle,
 								  usize pos,
 								  struct game_state *game_state);
-void time_machine_rewind(struct time_machine *handle, u64 seconds, struct game_state *game_state);
+void time_machine_travel(struct time_machine *handle, size delta, struct game_state *game_state);
 usize time_machine_current_pos(struct time_machine *handle);
+usize time_machine_set_resume_position(struct time_machine *handle,
+									   enum resume_position resume_position,
+									   struct game_state *game_state);

@@ -1,4 +1,5 @@
 #include "entities.h"
+#include "game.h"
 #include "log.h"
 #include "math_ext.h"
 #include "memory.h"
@@ -6,6 +7,11 @@
 #include <assert.h>
 #include <raymath.h>
 #include <stdio.h>
+
+struct time_distance {
+	usize since_first_recorded_position;
+	usize to_last_recorded_position;
+};
 
 struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena)
 {
@@ -17,6 +23,7 @@ struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena)
 	// It's basically a ring buffer
 	handle->time_capsules =
 		memory_arena_push(memory_arena, sizeof(struct time_capsule) * TIME_CAPSULES_MAX);
+	handle->last_recorded_pos = 0;
 	handle->current_pos = 0;
 	handle->initialised = true;
 
@@ -36,15 +43,32 @@ void time_machine_destroy(struct time_machine *handle)
 	}
 }
 
+static struct time_distance get_time_distance(usize last_recorded_pos,
+											  usize current_pos,
+											  usize recorded)
+{
+	usize distance_from_last_recorded_pos = 0;
+	if (current_pos < last_recorded_pos) {
+		distance_from_last_recorded_pos = last_recorded_pos - current_pos;
+	} else if (current_pos > last_recorded_pos) {
+		distance_from_last_recorded_pos = TIME_CAPSULES_MAX - current_pos + last_recorded_pos;
+	}
+	usize distance_from_first_recorded_pos = recorded - distance_from_last_recorded_pos - 1;
+
+	return (struct time_distance){.since_first_recorded_position = distance_from_first_recorded_pos,
+								  .to_last_recorded_position = distance_from_last_recorded_pos};
+}
+
 void time_machine_save_capsule(struct time_machine *handle, struct game_state *game_state)
 {
 	assert(handle);
 
-	if (++handle->current_pos == TIME_CAPSULES_MAX) {
-		handle->current_pos = 0;
+	if (++handle->last_recorded_pos == TIME_CAPSULES_MAX) {
+		handle->last_recorded_pos = 0;
 	}
+	handle->current_pos = handle->last_recorded_pos;
 
-	struct time_capsule *time_capsule = &handle->time_capsules[handle->current_pos];
+	struct time_capsule *time_capsule = &handle->time_capsules[handle->last_recorded_pos];
 	time_capsule->current_time = game_state->current_time;
 	time_capsule->time = game_state->time;
 	time_capsule->accumulator = game_state->accumulator;
@@ -74,18 +98,11 @@ void time_machine_restore_capsule(struct time_machine *handle,
 {
 	assert(handle);
 
-	printf("recorded: %lu - current pos %lu - restoring %lu\n",
+	printf("recorded: %lu - last recorded pos %lu - current pos %lu - restoring %lu\n",
 		   handle->recorded,
+		   handle->last_recorded_pos,
 		   handle->current_pos,
 		   pos);
-
-	usize to_rewind;
-	if (pos > handle->current_pos) {
-		to_rewind = handle->current_pos + TIME_CAPSULES_MAX - pos;
-		assert(to_rewind < handle->recorded);
-	} else {
-		to_rewind = handle->current_pos - pos;
-	}
 
 	struct time_capsule *time_capsule = &handle->time_capsules[pos];
 	game_state->current_time = time_capsule->current_time;
@@ -107,31 +124,47 @@ void time_machine_restore_capsule(struct time_machine *handle,
 		game_state->entity_repository->entities[i] = time_capsule->entities[i];
 	}
 
-	handle->current_pos = pos;
+	// We need to stay in recorder mode
+	game_state->vars.mode = GM_RECORDER;
 
-	handle->recorded -= to_rewind;
+	handle->current_pos = pos;
 }
 
-void time_machine_rewind(struct time_machine *handle, u64 positions, struct game_state *game_state)
+void time_machine_travel(struct time_machine *handle, size delta, struct game_state *game_state)
 {
 	assert(handle);
-	assert(positions < TIME_CAPSULES_MAX);
 
-	const usize to_rewind = positions;
+	if (delta == 0)
+		return;
 
-	if (to_rewind < handle->recorded) {
-		usize new_pos;
+	struct time_distance time_distance =
+		get_time_distance(handle->last_recorded_pos, handle->current_pos, handle->recorded);
 
-		if (handle->current_pos > to_rewind) {
-			new_pos = handle->current_pos - to_rewind;
-		} else {
-			new_pos = TIME_CAPSULES_MAX - 1 - (to_rewind - handle->current_pos);
+	// printf("time distance - to_last: %lu, since_first: %lu\n",
+	// 	   time_distance.to_last_recorded_position,
+	// 	   time_distance.since_first_recorded_position);
+
+	if (delta > 0) {
+		if ((usize)delta > time_distance.to_last_recorded_position) {
+			delta = time_distance.to_last_recorded_position;
 		}
 
-		printf("restoring to pos: %lu\n", new_pos);
+		handle->current_pos += delta;
+		if (handle->current_pos >= TIME_CAPSULES_MAX)
+			handle->current_pos = handle->current_pos - TIME_CAPSULES_MAX;
+	} else {
+		if ((usize)-delta > time_distance.since_first_recorded_position)
+			delta = -time_distance.since_first_recorded_position;
 
-		time_machine_restore_capsule(handle, new_pos, game_state);
+		if ((size)(handle->current_pos + delta) < 0) {
+			handle->current_pos = TIME_CAPSULES_MAX + (size)(handle->current_pos + delta);
+		} else
+			handle->current_pos += delta;
 	}
+
+	printf("restoring to pos: %lu\n", handle->current_pos);
+
+	time_machine_restore_capsule(handle, handle->current_pos, game_state);
 }
 
 usize time_machine_current_pos(struct time_machine *handle)
@@ -139,4 +172,26 @@ usize time_machine_current_pos(struct time_machine *handle)
 	assert(handle);
 
 	return handle->current_pos;
+}
+
+usize time_machine_set_resume_position(struct time_machine *handle,
+									   enum resume_position resume_position,
+									   struct game_state *game_state)
+{
+	assert(handle);
+
+	switch (resume_position) {
+	case RP_CURRENT: {
+		struct time_distance time_distance =
+			get_time_distance(handle->last_recorded_pos, handle->current_pos, handle->recorded);
+
+		handle->recorded -= time_distance.to_last_recorded_position;
+
+		handle->last_recorded_pos = handle->current_pos;
+		break;
+	}
+	case RP_LAST_RECORDED:
+		time_machine_restore_capsule(handle, handle->last_recorded_pos, game_state);
+		break;
+	}
 }
