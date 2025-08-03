@@ -119,7 +119,8 @@ v when goalie has the ball players should move towards the center of the pitch
 v introduce event system
 v removed after touch
 v implement time machine
-- improve player selection system
+* implement header
+* improve player selection system
 - press player should not be selected as human controlled until it gets the ball
 - support multiple human players
 - refactor player selection to support multiple human players
@@ -127,7 +128,6 @@ v implement time machine
 - use r1 to make the player stop the ball?
 - use pass when you don't have the ball to chase the ball?
 - shot height should depend on starting height of the ball
-- implement header
 - implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
 - make the game platform agnostic
