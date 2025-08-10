@@ -3,6 +3,8 @@
 #include "entities.h"
 #include "football.h"
 #include "game.h"
+#include "macro.h"
+#include "math_ext.h"
 #include "types.h"
 #include "assert.h"
 #include "ai.h"
@@ -17,13 +19,12 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_physics_3d);
 	UNUSED(ball_collider);
+	UNUSED(ball_transform);
 
-	v2 epicenter = ball_transform->position;
-	if (Vector2Distance(epicenter, ball->future_bounce.position) > 100) {
-		// If the ball is in flight and it's gonna bounce far from current ball position,
-		// let's use bounce position instead to select which player is human controlled
-		epicenter = ball->future_bounce.position;
-	}
+	// Let's use the future reachable position of the ball to determine which player to select
+	// This is useful in particular for crosses and long passes.
+	// If the ball is on the ground the future reachable position is its current position.
+	v2 epicenter = V3_TO_V2(ball->future_reachable.position);
 
 	entity_id_t player_in_possession_entity_id =
 		entity_ball_player_in_possession(ball_entity, game_state);
