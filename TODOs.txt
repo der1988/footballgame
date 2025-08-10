@@ -121,6 +121,7 @@ v removed after touch
 v implement time machine
 * implement header
 * improve player selection system
+- implement local multi-player
 - press player should not be selected as human controlled until it gets the ball
 - support multiple human players
 - refactor player selection to support multiple human players
