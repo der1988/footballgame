@@ -136,6 +136,8 @@ void systems_player_collisions(struct game_state *game_state)
 			}
 
 			struct collider *collider = &player_entity->collider.colliders[PCT_TACKLE_1];
+
+			// Check first tackle collider
 			struct collision_information collision_with_ball_info =
 				entity_player_is_colliding_with_ball(
 					player_entity,
@@ -145,6 +147,7 @@ void systems_player_collisions(struct game_state *game_state)
 					ball_collider->colliders[0].props.circle.radius,
 					game_state->constants.player_control_height * 0.25f);
 
+			// If no hit, check second tackle collider
 			if (!collision_with_ball_info.is_colliding) {
 				collider = &player_entity->collider.colliders[PCT_TACKLE_2];
 				collision_with_ball_info = entity_player_is_colliding_with_ball(
@@ -156,6 +159,7 @@ void systems_player_collisions(struct game_state *game_state)
 					game_state->constants.player_control_height * 0.5f);
 			}
 
+			// If we have a hit set collision information
 			if (collision_with_ball_info.is_colliding) {
 				player->is_colliding_with_ball = true;
 				player->collision_direction = collision_with_ball_info.direction;
@@ -173,9 +177,42 @@ void systems_player_collisions(struct game_state *game_state)
 
 			break;
 		}
+		case PS_HEADER: {
+			if (ball->last_kicker_entity_id == player_entity->header.id &&
+				!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.2f)) {
+				break;
+			}
+
+			// Check if we are colliding with the ball
+			struct collider *collider = &player_entity->collider.colliders[PCT_HEADER];
+			struct collision_information collision_with_ball_info =
+				entity_player_is_colliding_with_ball(
+					player_entity,
+					PCT_HEADER,
+					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+					ball_entity->physics3d.velocity,
+					ball_collider->colliders[0].props.circle.radius,
+					game_state->constants.player_control_height * 1.3f);
+
+			// If we have a hit set collision information
+			if (collision_with_ball_info.is_colliding) {
+				player->collision_direction = collision_with_ball_info.direction;
+				player->collision_force = collision_with_ball_info.force;
+				const f32 distance_from_the_ball = Vector2DistanceSqr(
+					Vector2Add(player_entity->transform.position, collider->props.circle.offset),
+					ball_transform->position);
+				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
+					player_on_the_ball_entity = player_entity;
+					min_distance_from_the_ball_possession = distance_from_the_ball;
+				}
+			}
+
+			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
+
+			break;
+		}
 		case PS_GOALIE:
 		case PS_THROW_IN:
-		case PS_HEADER:
 		case PS_FALL:
 		case PS_NONE:
 		case PS_COUNT:

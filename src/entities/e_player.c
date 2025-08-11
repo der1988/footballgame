@@ -134,6 +134,9 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_TACKLE_2].props.circle.radius = 5;
 	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
 
+	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
+	collider->colliders[PCT_HEADER].props.circle.radius = 5;
+
 	player_state_machine_on_enter(entity, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "player created");
@@ -398,6 +401,28 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 								  ball_radius,
 								  Vector2Add(player_position, collider->props.circle.offset),
 								  collider->props.circle.radius);
+		break;
+	case PCT_HEADER:
+		check_collision =
+			CheckCollisionCircles(ball_pos,
+								  ball_radius,
+								  Vector2Add(player_position, collider->props.circle.offset),
+								  collider->props.circle.radius);
+		if (check_collision) {
+			// Collision direction is calculated from player position
+			collision_direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
+
+			const v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
+
+			// If ball velocity is sufficient, collision force depends on how aligned are the
+			// velocities of ball and player
+			if (Vector2LengthSqr(ball_velocity_2d) > 25) {
+				collision_force =
+					0.5 - Vector2ProjectScalar(Vector2Normalize(V3_TO_V2(ball_velocity)),
+											   Vector2Normalize(entity->physics.velocity)) *
+							  0.5f;
+			}
+		}
 		break;
 	case PCT_COUNT:
 		break;

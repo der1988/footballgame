@@ -110,6 +110,7 @@ enum player_collider_type {
 	PCT_DIVE,
 	PCT_TACKLE_1,
 	PCT_TACKLE_2,
+	PCT_HEADER,
 	PCT_COUNT
 };
 

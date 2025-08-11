@@ -74,6 +74,11 @@ void entity_ball_tackle(struct entity *ball_entity,
 						v3 direction,
 						f32 power,
 						struct game_state *game_state);
+void entity_ball_header(struct entity *ball_entity,
+						entity_id_t header_entity_id,
+						v3 direction,
+						f32 power,
+						struct game_state *game_state);
 void entity_ball_deviate_trajectory(struct entity *ball_entity,
 									entity_id_t player_entity_id,
 									struct game_state *game_state);

@@ -33,18 +33,19 @@ void systems_player_on_the_ball(struct game_state *game_state)
 		struct component_player *player = &player_entity->player;
 		struct state_machine_player *state_machine = &player->state_machine;
 
+		struct component_player_controls *player_controls = &player_entity->player_controls;
+		v2 player_position = player_entity->transform.position;
+		v2 player_velocity = player_entity->physics.velocity;
+		enum pitch_side player_pitch_side =
+			game_state->vars.teams[player->team_side].play_context.pitch_side;
+		f32 player_speed = Vector2Length(player_velocity);
+		v2 normalized_velocity = Vector2Normalize(player_velocity);
+		f32 steering_magnitude = Vector2Length(player_controls->steering);
+
+		f32 ball_speed = Vector3Length(ball_physics_3d->velocity);
+
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
-			struct component_player_controls *player_controls = &player_entity->player_controls;
-			v2 player_position = player_entity->transform.position;
-			v2 player_velocity = player_entity->physics.velocity;
-			enum pitch_side player_pitch_side =
-				game_state->vars.teams[player->team_side].play_context.pitch_side;
-			f32 player_speed = Vector2Length(player_velocity);
-			v2 normalized_velocity = Vector2Normalize(player_velocity);
-			f32 steering_magnitude = Vector2Length(player_controls->steering);
-
-			f32 ball_speed = Vector3Length(ball_physics_3d->velocity);
 			if (ball_speed > game_state->constants.ball_max_velocity_to_gain_possession) {
 				// Ball is too fast, we cannot control it
 				// b32 deviate_trajectory = GetRandomValue(0, 100) % 2 == 0;
@@ -275,9 +276,35 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 			break;
 		}
+		case PS_HEADER: {
+			struct component_physics *player_physics = &player_entity->physics;
+
+			// Impact of steering on the header goes from 0.0 to 1.0:
+			// 1.0 when ball direction and steering are opposite, 0.0 when ball direction and steering coincide
+			f32 steering_impact = 0.0f;
+			if (Vector2Length(player_controls->steering) > 0.1f) {
+				steering_impact = 0.5 - Vector2ProjectScalar(
+											player_controls->steering,
+											Vector2Normalize(V3_TO_V2(ball_physics_3d->velocity))) *
+											0.5f;
+			}
+
+			f32 header_force = (steering_impact * 2.0f + player->collision_force) / 3.0f;
+
+			printf("header force: %.2f - %.2f, %.2f\n",
+				   header_force,
+				   steering_impact,
+				   player->collision_force);
+			entity_ball_header(ball_entity,
+							   player_on_the_ball_entity_id,
+							   V2_TO_V3(player_controls->steering, 0),
+							   header_force,
+							   game_state);
+
+			break;
+		}
 		case PS_GOALIE:
 		case PS_THROW_IN:
-		case PS_HEADER:
 		case PS_FALL:
 		case PS_NONE:
 		case PS_COUNT:

@@ -2,6 +2,7 @@
 #include "entities.h"
 #include "game.h"
 #include "types.h"
+#include <raylib.h>
 #include <raymath.h>
 
 void systems_render_debug(struct game_state *game_state)
@@ -38,7 +39,8 @@ void systems_render_debug(struct game_state *game_state)
 			DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
 
 			if (collider->header.enabled) {
-				static color_t colliders_colors[] = {RED, VIOLET, PINK, YELLOW};
+				static color_t colliders_colors[] = {
+					RED, VIOLET, PINK, YELLOW, BLUE, MAGENTA, SKYBLUE};
 				for (u16 i = 0; i < collider->num_colliders; ++i) {
 					if (collider->colliders[i].shape == CS_CIRCLE) {
 						v2 pos = Vector2Add(transform->position,

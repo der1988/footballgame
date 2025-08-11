@@ -57,6 +57,7 @@ struct game_constants {
 	f32 ball_long_pass_force;
 	f32 ball_long_pass_height;
 	f32 ball_tackle_force;
+	f32 ball_header_force;
 	f32 ball_max_velocity;
 	f32 ball_max_velocity_to_gain_possession;
 	u32 ball_lookaheads;

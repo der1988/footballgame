@@ -353,6 +353,25 @@ void entity_ball_tackle(struct entity *ball_entity,
 	ball->last_kicker_entity_id = tackler_entity_id;
 }
 
+void entity_ball_header(struct entity *ball_entity,
+						entity_id_t header_entity_id,
+						v3 direction,
+						f32 power,
+						struct game_state *game_state)
+{
+	struct component_physics3d *physics3d = &ball_entity->physics3d;
+	struct component_ball *ball = &ball_entity->ball;
+
+	// physics3d->velocity = Vector3Zero();
+	physics3d->accel = Vector3Add(
+		physics3d->accel,
+		Vector3Scale(direction,
+					 math_ext_split_lerp(game_state->constants.ball_header_force, 0.5f, power) /
+						 game_state->dt));
+	ball->last_kick_time = game_state->time;
+	ball->last_kicker_entity_id = header_entity_id;
+}
+
 void entity_ball_deviate_trajectory(struct entity *ball_entity,
 									entity_id_t player_entity_id,
 									struct game_state *game_state)

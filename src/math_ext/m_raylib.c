@@ -8,12 +8,14 @@ v2 Vector2RotateAroundPivot(v2 vector, v2 pivot, f32 angle)
 	return Vector2Add(new_vector, pivot);
 }
 
+// Projects a vector onto another and then returns the scalar value
 f32 Vector2ProjectScalar(v2 project_to, v2 project_from)
 {
 	return (project_to.x * project_from.x + project_to.y * project_from.y) /
 		   Vector2Length(project_to);
 }
 
+// Projects a vector onto another
 v2 Vector2Project(v2 project_to, v2 project_from)
 {
 	return Vector2Scale(Vector2Normalize(project_to),

@@ -53,13 +53,13 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;
 
+		// Player is human controlled
+		player_controls->steering = game_state->human_players[0].controls.steering;
+
 		switch (state_machine->current_state) {
 		case PS_NONE:
 			break;
 		case PS_NORMAL: {
-
-			// Player is human controlled
-			player_controls->steering = game_state->human_players[0].controls.steering;
 
 			if (!entity->player.is_colliding_with_ball &&
 				input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
@@ -99,11 +99,14 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 			break;
 		}
-		case PS_GOALIE:
-		case PS_THROW_IN:
-		case PS_HEADER:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
+		case PS_HEADER:
+			// Reset existing charge to avoid acting as soon as we get back to normal state
+			game_input_charge_reset(&game_state->human_players[0]);
+			break;
+		case PS_GOALIE:
+		case PS_THROW_IN:
 		case PS_COUNT:
 			break;
 		}
