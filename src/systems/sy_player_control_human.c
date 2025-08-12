@@ -63,7 +63,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 			if (!entity->player.is_colliding_with_ball &&
 				input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
-				if (ball_transform->virtual_height > 15) {
+				if (ball_transform->virtual_height > 20) {
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_HEADER, game_state);
 				}
@@ -102,9 +102,6 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
 		case PS_HEADER:
-			// Reset existing charge to avoid acting as soon as we get back to normal state
-			game_input_charge_reset(&game_state->human_players[0]);
-			break;
 		case PS_GOALIE:
 		case PS_THROW_IN:
 		case PS_COUNT:
