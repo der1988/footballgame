@@ -207,6 +207,8 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	UNUSED(game_state);
 
 	struct component_player *player = &entity->player;
+	struct component_transform *player_transform = &entity->transform;
+	struct component_transform *ball_transform = &game_state->vars.ball_entity->transform;
 	struct component_sprite *sprite = &entity->sprite;
 	struct state_machine_player *state_machine = &player->state_machine;
 
@@ -219,13 +221,6 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	memset(&state_machine->state_data, 0, sizeof(union state_machine_player_state_data));
 
 	switch (state_machine->current_state) {
-	case PS_NONE:
-	case PS_NORMAL:
-	case PS_GOALIE:
-	case PS_THROW_IN:
-	case PS_HEADER:
-		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
-		break;
 	case PS_SLIDING_TACKLE:
 		game_input_player_charge_reset(game_state, entity->header.id);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
@@ -240,6 +235,21 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 			ball_entity->ball.last_touch_time = 0;
 		}
 		break;
+	case PS_HEADER: {
+		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
+		game_input_player_charge_reset(game_state, entity->header.id);
+
+		v2 direction = Vector2Subtract(ball_transform->position, player_transform->position);
+
+		enum sprite_orientation sprite_orientation = sprite_calculate_orientation(direction);
+		sprite->orientation = sprite_orientation;
+
+		break;
+	}
+	case PS_NONE:
+	case PS_NORMAL:
+	case PS_GOALIE:
+	case PS_THROW_IN:
 	case PS_COUNT:
 		break;
 	}
