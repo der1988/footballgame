@@ -74,7 +74,7 @@ struct game_state *game_play_init(struct game_config game_config,
 								// This will translate to instant velocity, so 144km/h
 								.ball_shot_force = 40 * PIXELS_PER_METER,
 								.ball_shot_height = 0.25f,
-								.ball_pass_force = 30 * PIXELS_PER_METER,
+								.ball_pass_force = 25 * PIXELS_PER_METER,
 								.ball_long_pass_force = 32 * PIXELS_PER_METER,
 								.ball_long_pass_height = 0.54f,
 								.ball_tackle_force = 20 * PIXELS_PER_METER,
