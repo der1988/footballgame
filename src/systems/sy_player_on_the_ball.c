@@ -107,7 +107,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					v2 to_teammate = Vector2Subtract(teammate_transform->position, player_position);
 					pass_direction = Vector3Normalize(V2_TO_V3(to_teammate, 0));
 					ball->pass_target_entity_id = teammate_entity->header.id;
-					power = Vector2Length(to_teammate) / 300.0f;
+					power = Clamp01(Vector2Length(to_teammate) / 300.0f);
 				} else {
 					pass_direction = Vector3Normalize(V2_TO_V3(player_controls->steering, 0));
 				}
@@ -289,7 +289,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 											0.5f;
 			}
 
-			f32 header_force = (steering_impact * 2.0f + player->collision_force) / 3.0f;
+			f32 header_force = (steering_impact * 1 + player->collision_force * 1) / 3.0f;
+
+			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
 
 			printf("header force: %.2f - %.2f, %.2f\n",
 				   header_force,

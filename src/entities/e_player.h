@@ -55,8 +55,9 @@ struct state_machine_player_fall_data {
 
 struct state_machine_player_header_data {
 	time_t animation_start_time;
-	time_t animation_end_time;
 	b32 animation_completed;
+	b32 elevation_completed;
+	b32 should_fall_down;
 };
 
 union state_machine_player_state_data {

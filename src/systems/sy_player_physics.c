@@ -44,8 +44,6 @@ void systems_player_physics(struct game_state *game_state)
 			game_state->constants.player_control_radius;
 
 		switch (state_machine->current_state) {
-		case PS_NONE:
-			break;
 		case PS_NORMAL: {
 			v2 effective_steering = player_controls->steering;
 			// If charging kick we seek the ball
@@ -106,14 +104,11 @@ void systems_player_physics(struct game_state *game_state)
 
 			break;
 		}
-		case PS_GOALIE:
-			break;
-		case PS_THROW_IN:
 		case PS_HEADER: {
 			struct state_machine_player_header_data *header_state_data =
 				&player->state_machine.state_data.header;
 
-			if (!header_state_data->animation_completed) {
+			if (!header_state_data->elevation_completed) {
 				struct asset_animation *animation = asset_animation_get_by_id(
 					game_state->assets.animation_cache,
 					game_state->gfx.player.header_animations[sprite->orientation]);
@@ -124,11 +119,32 @@ void systems_player_physics(struct game_state *game_state)
 						  1);
 				const u16 new_frame_id = floorf(animation_completion * (animation->frames_count));
 				if (animation_completion >= 1) {
-					animation_completion = 1;
-					header_state_data->animation_end_time = game_state->time;
-					header_state_data->animation_completed = true;
+					header_state_data->elevation_completed = true;
+				} else {
+					entity->sprite.frame_id = animation->frames[new_frame_id];
 				}
-				entity->sprite.frame_id = animation->frames[new_frame_id];
+			} else if (!header_state_data->should_fall_down) {
+				if (HAS_TIME_PASSED(
+						game_state->time, header_state_data->animation_start_time, 0.4f)) {
+					header_state_data->should_fall_down = true;
+					header_state_data->animation_start_time = game_state->time;
+				}
+			} else if (!header_state_data->animation_completed) {
+				struct asset_animation *animation = asset_animation_get_by_id(
+					game_state->assets.animation_cache,
+					game_state->gfx.player.header_animations[sprite->orientation]);
+				f32 animation_completion =
+					Clamp((game_state->time - header_state_data->animation_start_time) /
+							  (animation->delay * animation->frames_count),
+						  0,
+						  1);
+				const u16 new_frame_id =
+					floorf((1.0f - animation_completion) * (animation->frames_count));
+				if (animation_completion >= 1) {
+					header_state_data->animation_completed = true;
+				} else {
+					entity->sprite.frame_id = animation->frames[new_frame_id];
+				}
 			}
 
 			v2 force_to_apply = Vector2Zero();
@@ -215,6 +231,9 @@ void systems_player_physics(struct game_state *game_state)
 
 			break;
 		}
+		case PS_NONE:
+		case PS_GOALIE:
+		case PS_THROW_IN:
 		case PS_COUNT:
 			break;
 		}
