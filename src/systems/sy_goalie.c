@@ -147,45 +147,42 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				break;
 			}
 
+			// Ball future reachable position is different from current position only in case the ball is currently
+			// not reachable by players because it's floating high in the air.
+			v2 ball_future_reachable_position = V3_TO_V2(ball->future_reachable.position);
 			struct nearest_player *nearest_opponent_to_the_ball =
-				find_nearest_player(ball_transform->position,
+				find_nearest_player(ball_future_reachable_position,
 									OPPONENT_TEAM_SIDE(entity->player.team_side),
 									LIST_ENTITY_IDS_EMPTY,
 									game_state);
 
-			if ((football_pitch_is_position_inside_penalty_area(
-					 ball_transform->position,
+			if ((ball->future_reachable.available &&
+				 football_pitch_is_position_inside_penalty_area(
+					 ball_future_reachable_position,
 					 game_state->vars.teams[entity->player.team_side].play_context.pitch_side,
-					 game_state) ||
-				 (ball->future_bounce.available &&
-				  football_pitch_is_position_inside_penalty_area(
-					  ball->future_bounce.position,
-					  game_state->vars.teams[entity->player.team_side].play_context.pitch_side,
-					  game_state))) &&
+					 game_state)) &&
 				player_in_possession_entity_id == EID_NOT_VALID && ball_velocity < 250 &&
 				nearest_opponent_to_the_ball->distance > 10) {
 				// We will chase the ball if all the following conditions are true:
-				// - nearest opponent is reasonable far from the ball
+				// - nearest opponent is reasonably far from the ball
 				// - no player in possession of the ball
 				// - ball is in the penalty box or ball future bounce is in the penalty box
 				// - ball velocity is low
 
 				// Calculate whether goalie can reach the ball at its next reachable position
 				const b32 should_seek_ball_at_reachable_pos =
-					!ball->is_on_the_ground && ball->future_reachable.available &&
+					ball->future_reachable.available &&
 					physics_can_reach_position_in_time(transform->position,
-													   V3_TO_V2(ball->future_reachable.position),
+													   ball_future_reachable_position,
 													   game_state->dt * ball->future_bounce.dts,
-													   exit_max_speed) &&
-					football_pitch_is_position_inside_penalty_area(
-						V3_TO_V2(ball->future_reachable.position), pitch_side, game_state);
+													   exit_max_speed);
 
 				if (should_seek_ball_at_reachable_pos) {
-					// seek ball future bounce position
+					// seek ball future reachable position
 					physics->max_velocity = exit_max_speed;
 					force = game_state->constants.player_movement_force * 2;
 
-					destination = V3_TO_V2(ball->future_reachable.position);
+					destination = ball_future_reachable_position;
 					direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
 					steering = steering_arrive(transform->position,
 											   physics->velocity,
