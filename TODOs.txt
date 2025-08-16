@@ -119,8 +119,9 @@ v when goalie has the ball players should move towards the center of the pitch
 v introduce event system
 v removed after touch
 v implement time machine
-* implement header
+v implement header
 * improve player selection system
+* when performing header and ball height is too low just fumble
 - implement local multi-player
 - press player should not be selected as human controlled until it gets the ball
 - support multiple human players
