@@ -289,14 +289,34 @@ void systems_player_on_the_ball(struct game_state *game_state)
 											0.5f;
 			}
 
-			f32 header_force = (steering_impact * 1 + player->collision_force * 1) / 3.0f;
+			f32 ball_height_impact = 0.0f;
+			enum header_phase header_phase =
+				player_entity->player.state_machine.state_data.header.header_phase;
+			f32 ball_height = ball_transform->virtual_height;
+
+			// There are some conditions that will make the header look like shit
+			if (ball_height > 19) {
+				// Ball can be hit while performing header
+				ball_height_impact = header_phase / 4.0f;
+				printf("hp: %d\n", header_phase);
+			} else {
+				printf("ball is not high enough: %d\n", header_phase);
+			}
+
+			// Weight of different impacts:
+			// - steering -> 1
+			// - collision force -> 1
+			// - ball height -> 3
+			f32 header_force =
+				(steering_impact * 1 + player->collision_force * 1 + ball_height_impact * 3) / 5.0f;
 
 			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
 
-			printf("header force: %.2f - %.2f, %.2f\n",
+			printf("header force: %.2f (%.2f, %.2f, %.2f)\n",
 				   header_force,
 				   steering_impact,
-				   player->collision_force);
+				   player->collision_force,
+				   ball_height_impact);
 			entity_ball_header(ball_entity,
 							   player_on_the_ball_entity_id,
 							   V2_TO_V3(player_controls->steering, 0),

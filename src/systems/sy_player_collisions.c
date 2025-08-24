@@ -192,7 +192,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height * 1.3f);
+					game_state->constants.player_control_height * 1.4f);
 
 			// If we have a hit set collision information
 			if (collision_with_ball_info.is_colliding) {

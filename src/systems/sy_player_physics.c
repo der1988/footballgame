@@ -108,16 +108,17 @@ void systems_player_physics(struct game_state *game_state)
 			struct state_machine_player_header_data *header_state_data =
 				&player->state_machine.state_data.header;
 
+			struct asset_animation *animation = asset_animation_get_by_id(
+				game_state->assets.animation_cache,
+				game_state->gfx.player.header_animations[sprite->orientation]);
+			u16 new_frame_id = 10;
 			if (!header_state_data->elevation_completed) {
-				struct asset_animation *animation = asset_animation_get_by_id(
-					game_state->assets.animation_cache,
-					game_state->gfx.player.header_animations[sprite->orientation]);
 				f32 animation_completion =
 					Clamp((game_state->time - header_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),
 						  0,
 						  1);
-				const u16 new_frame_id = floorf(animation_completion * (animation->frames_count));
+				new_frame_id = floorf(animation_completion * (animation->frames_count));
 				if (animation_completion >= 1) {
 					header_state_data->elevation_completed = true;
 				} else {
@@ -130,22 +131,27 @@ void systems_player_physics(struct game_state *game_state)
 					header_state_data->animation_start_time = game_state->time;
 				}
 			} else if (!header_state_data->animation_completed) {
-				struct asset_animation *animation = asset_animation_get_by_id(
-					game_state->assets.animation_cache,
-					game_state->gfx.player.header_animations[sprite->orientation]);
 				f32 animation_completion =
 					Clamp((game_state->time - header_state_data->animation_start_time) /
 							  (animation->delay * animation->frames_count),
 						  0,
 						  1);
-				const u16 new_frame_id =
-					floorf((1.0f - animation_completion) * (animation->frames_count));
+				new_frame_id = floorf((1.0f - animation_completion) * (animation->frames_count));
 				if (animation_completion >= 1) {
 					header_state_data->animation_completed = true;
 				} else {
 					entity->sprite.frame_id = animation->frames[new_frame_id];
 				}
 			}
+
+			// new_frame_id to header_phase:
+			// 0 -> HP_GROUND
+			// 1 -> HP_AIR_1
+			// 1 -> HP_AIR_2
+			// 1 -> HP_AIR_3
+			// 4 -> HP_MAX_ELEVATION
+			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4};
+			header_state_data->header_phase = animation_frames[new_frame_id - 1];
 
 			v2 force_to_apply = Vector2Zero();
 

@@ -237,6 +237,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 		break;
 	case PS_HEADER: {
 		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
+		entity->player.state_machine.state_data.header.header_phase = HP_GROUND;
 		game_input_player_charge_reset(game_state, entity->header.id);
 
 		v2 direction = Vector2Subtract(ball_transform->position, player_transform->position);

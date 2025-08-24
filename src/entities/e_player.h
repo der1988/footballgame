@@ -53,11 +53,20 @@ struct state_machine_player_fall_data {
 	b32 animation_completed;
 };
 
+enum header_phase {
+	HP_GROUND,
+	HP_AIR_1,
+	HP_AIR_2,
+	HP_AIR_3,
+	HP_MAX_ELEVATION,
+};
+
 struct state_machine_player_header_data {
 	time_t animation_start_time;
 	b32 animation_completed;
 	b32 elevation_completed;
 	b32 should_fall_down;
+	enum header_phase header_phase;
 };
 
 union state_machine_player_state_data {
