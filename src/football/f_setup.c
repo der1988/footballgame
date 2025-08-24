@@ -74,7 +74,7 @@ void football_setup(struct game_state *game_state)
 	}
 
 	// Team 2
-	for (usize i = 0; i < 11; ++i) {
+	for (usize i = 0; i < 10; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
 		entity_player_create((struct player_config){.position =
 														football_pitch_position_normalized_to_abs(
