@@ -290,15 +290,38 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			}
 
 			f32 ball_height_impact = 0.0f;
+			f32 impact_vertical_angle = 0.0f;
 			enum header_phase header_phase =
 				player_entity->player.state_machine.state_data.header.header_phase;
 			f32 ball_height = ball_transform->virtual_height;
 
 			// There are some conditions that will make the header look like shit
-			if (ball_height > 19) {
+			if (ball_height > game_state->constants.player_control_height) {
 				// Ball can be hit while performing header
-				ball_height_impact = header_phase / 4.0f;
-				printf("hp: %d\n", header_phase);
+
+				// We get the difference between max hittable ball height and max controllable height.
+				// This is the total height valid for a header, then we divide it by 4 header phases and we get how
+				// big is each phase optimal height.
+				// At this point we can determine how well we hit the ball based on header phase and height of the ball.
+				// This will also affect the direction of the ball.
+				const f32 delta = game_state->constants.player_header_height -
+								  game_state->constants.player_control_height;
+				const f32 header_phase_size = delta / 4.0f;
+				const f32 optimal_height =
+					game_state->constants.player_control_height + header_phase_size * header_phase;
+				const f32 delta_from_optimal_height = ball_height - optimal_height;
+				// We clamp the impact factor (-1, 1) because we want to avoid very angled hits
+				const f32 impact_factor =
+					Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
+				impact_vertical_angle = impact_factor;
+
+				ball_height_impact = 1 - fabsf(impact_factor) / 4.0f;
+				printf(
+					"ball height: %.2f - HP: %d - ball_height_impact: %.2f - vertical angle: %.2f\n",
+					ball_height,
+					header_phase,
+					ball_height_impact,
+					impact_vertical_angle);
 			} else {
 				printf("ball is not high enough: %d\n", header_phase);
 			}
@@ -319,7 +342,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				   ball_height_impact);
 			entity_ball_header(ball_entity,
 							   player_on_the_ball_entity_id,
-							   V2_TO_V3(player_controls->steering, 0),
+							   V2_TO_V3(player_controls->steering, impact_vertical_angle),
 							   header_force,
 							   game_state);
 

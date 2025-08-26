@@ -71,6 +71,7 @@ struct game_constants {
 	f32 player_run_max_velocity;
 	f32 player_control_radius;
 	f32 player_control_height;
+	f32 player_header_height;
 	f32 player_run_control_max_angle;
 
 	f32 goalie_dive_reaction_time;
