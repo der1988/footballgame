@@ -297,11 +297,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 			// There are some conditions that will make the header look like shit
 			if (ball_height > game_state->constants.player_control_height) {
-				// Ball can be hit while performing header
+				// Ball is high enough to be hit properly
 
 				// We get the difference between max hittable ball height and max controllable height.
 				// This is the total height valid for a header, then we divide it by 4 header phases and we get how
-				// big is each phase optimal height.
+				// big is each phase height.
 				// At this point we can determine how well we hit the ball based on header phase and height of the ball.
 				// This will also affect the direction of the ball.
 				const f32 delta = game_state->constants.player_header_height -
