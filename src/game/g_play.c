@@ -262,11 +262,12 @@ b32 game_play_update(struct game_state *game_state)
 			}
 		}
 
-		if (HAS_TIME_PASSED(GetTime(), last_interaction_time, 3.0f)) {
-			time_machine_set_resume_position(
-				game_state->time_machine, RP_LAST_RECORDED, game_state);
-			game_state->vars.mode = GM_TICK;
-		} else if (input.devices[0].buttons[IDBT_BUTTON_TRIGGER_RIGHT].released) {
+		// if (HAS_TIME_PASSED(GetTime(), last_interaction_time, 3.0f)) {
+		// 	time_machine_set_resume_position(
+		// 		game_state->time_machine, RP_LAST_RECORDED, game_state);
+		// 	game_state->vars.mode = GM_TICK;
+		// } else
+		if (input.devices[0].buttons[IDBT_BUTTON_TRIGGER_RIGHT].released) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}
