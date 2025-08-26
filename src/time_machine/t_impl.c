@@ -98,11 +98,11 @@ void time_machine_restore_capsule(struct time_machine *handle,
 {
 	assert(handle);
 
-	printf("recorded: %lu - last recorded pos %lu - current pos %lu - restoring %lu\n",
-		   handle->recorded,
-		   handle->last_recorded_pos,
-		   handle->current_pos,
-		   pos);
+	// printf("recorded: %lu - last recorded pos %lu - current pos %lu - restoring %lu\n",
+	// 	   handle->recorded,
+	// 	   handle->last_recorded_pos,
+	// 	   handle->current_pos,
+	// 	   pos);
 
 	struct time_capsule *time_capsule = &handle->time_capsules[pos];
 	game_state->current_time = time_capsule->current_time;
@@ -162,7 +162,7 @@ void time_machine_travel(struct time_machine *handle, size delta, struct game_st
 			handle->current_pos += delta;
 	}
 
-	printf("restoring to pos: %lu\n", handle->current_pos);
+	// printf("restoring to pos: %lu\n", handle->current_pos);
 
 	time_machine_restore_capsule(handle, handle->current_pos, game_state);
 }
