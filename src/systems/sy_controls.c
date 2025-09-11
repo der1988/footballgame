@@ -2,11 +2,16 @@
 #include "input.h"
 #include <raymath.h>
 
-void systems_controls(struct game_state *game_state, struct input *input)
+void systems_controls(struct game_state *game_state)
 {
-	game_state->human_players[0].controls.steering =
-		Vector2ClampValue(input->devices[0].left_stick, -1, 1);
-	struct action_charge *p1_charge = &game_state->human_players[0].controls.charge;
+	const u8 game_constroller_idx = 0;
+	struct game_controller_state *game_controller_state =
+		&game_state->input_manager->game_controllers_state[game_constroller_idx];
+
+	game_state->human_players[game_constroller_idx].controls.steering =
+		Vector2ClampValue(game_controller_state->movement, -1, 1);
+	struct action_charge *p1_charge =
+		&game_state->human_players[game_constroller_idx].controls.charge;
 	if (p1_charge->ready) {
 		// Ready
 		if (HAS_TIME_PASSED(
@@ -14,22 +19,22 @@ void systems_controls(struct game_state *game_state, struct input *input)
 			p1_charge->ready = p1_charge->charging = false;
 		}
 	} else if (p1_charge->charging) {
-		enum input_device_button_type button_type;
+		b32 is_still_charging;
 		switch (p1_charge->type) {
 		case ACT_SHOOT: {
-			button_type = IDBT_BUTTON_LEFT;
+			is_still_charging = game_controller_state->shoot;
 			break;
 		}
 		case ACT_PASS: {
-			button_type = IDBT_BUTTON_DOWN;
+			is_still_charging = game_controller_state->pass;
 			break;
 		}
 		case ACT_LONG_PASS: {
-			button_type = IDBT_BUTTON_RIGHT;
+			is_still_charging = game_controller_state->long_pass;
 			break;
 		}
 		}
-		if (input->devices[0].buttons[button_type].down) {
+		if (is_still_charging) {
 			p1_charge->power += 2 * game_state->dt;
 			p1_charge->power = Clamp(p1_charge->power, 0, 1.0f);
 			layer_debug_queue_draw_text(game_state->layer_debug,
@@ -41,19 +46,20 @@ void systems_controls(struct game_state *game_state, struct input *input)
 	} else {
 		b32 charging = false;
 		enum action_charge_type charge_type;
-		if (input->devices[0].buttons[IDBT_BUTTON_LEFT].down) {
+		if (game_controller_state->shoot) {
 			charging = true;
 			charge_type = ACT_SHOOT;
-		} else if (input->devices[0].buttons[IDBT_BUTTON_DOWN].down) {
+		} else if (game_controller_state->pass) {
 			charging = true;
 			charge_type = ACT_PASS;
-		} else if (input->devices[0].buttons[IDBT_BUTTON_RIGHT].down) {
+		} else if (game_controller_state->long_pass) {
 			charging = true;
 			charge_type = ACT_LONG_PASS;
 		}
 		if (charging) {
 			p1_charge->ready = false;
-			p1_charge->direction = Vector2Normalize(game_state->human_players[0].controls.steering);
+			p1_charge->direction =
+				Vector2Normalize(game_state->human_players[game_constroller_idx].controls.steering);
 			p1_charge->started = game_state->time;
 			p1_charge->power = 0.0f;
 			p1_charge->ended = 0;

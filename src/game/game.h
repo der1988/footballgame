@@ -182,6 +182,7 @@ struct game_state {
 	camera2d_t camera;
 	camera2d_t virtual_camera;
 	struct time_machine *time_machine;
+	struct input_manager *input_manager;
 };
 
 struct game_state *game_play_init(struct game_config gameConfig,
@@ -212,7 +213,7 @@ INLINE void game_input_charge_reset(struct human_player *human_player)
 INLINE void game_input_player_charge_reset(struct game_state *game_state,
 										   entity_id_t player_entity_id)
 {
-	for (usize i = 0; i < MAX_INPUT_DEVICES; ++i) {
+	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
 		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
 			game_input_charge_reset(&game_state->human_players[i]);
 			break;
@@ -223,7 +224,7 @@ INLINE void game_input_player_charge_reset(struct game_state *game_state,
 INLINE struct human_player *game_input_human_player(struct game_state *game_state,
 													entity_id_t player_entity_id)
 {
-	for (usize i = 0; i < MAX_INPUT_DEVICES; ++i) {
+	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
 		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
 			return &game_state->human_players[i];
 		}

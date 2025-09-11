@@ -29,7 +29,11 @@ void systems_ball(struct game_state *game_state, struct input *input)
 
 	struct state_machine_ball *state_machine = &ball->state_machine;
 
-	if (input->devices[0].buttons[IDBT_BUTTON_START].released) {
+	const u8 game_controller_idx = 0;
+	struct game_controller_state *game_controller_state =
+		&game_state->input_manager->game_controllers_state[game_controller_idx];
+
+	if (game_controller_state->test_reset) {
 		struct component_transform *p1_transform =
 			&entity_get(game_state->entity_repository,
 						game_state->human_players[0].controlled_player_entity_id)
@@ -43,7 +47,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test cross-bar
-	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_DOWN].released) {
+	if (game_controller_state->test_crossbar) {
 		entity_ball_set_position_and_velocity(ball_entity,
 											  (v3){.x = game_state->vars.pitch.field.x + 340,
 												   .z = 300},
@@ -53,7 +57,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test cross
-	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_UP].released) {
+	if (game_controller_state->test_cross) {
 		entity_ball_set_position_and_velocity(
 			ball_entity,
 			(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
@@ -63,7 +67,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test post
-	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_RIGHT].released) {
+	if (game_controller_state->test_post) {
 		entity_ball_set_position_and_velocity(ball_entity,
 											  (v3){.x = game_state->vars.pitch.field.x + 465.97,
 												   .z = 1050},
@@ -73,7 +77,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test goalie jump
-	if (input->devices[0].buttons[IDBT_BUTTON_DPAD_LEFT].released) {
+	if (game_controller_state->test_goalie_jump) {
 		entity_ball_set_position_and_velocity(
 			ball_entity,
 			(v3){.x = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.x,

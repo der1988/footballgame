@@ -56,19 +56,21 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		// Player is human controlled
 		player_controls->steering = game_state->human_players[0].controls.steering;
 
+		const u8 game_controller_idx = 0;
+		struct game_controller_state *game_controller_state =
+			&game_state->input_manager->game_controllers_state[game_controller_idx];
+
 		switch (state_machine->current_state) {
 		case PS_NONE:
 			break;
 		case PS_NORMAL: {
 
-			if (!entity->player.is_colliding_with_ball &&
-				input->devices[0].buttons[IDBT_BUTTON_LEFT].pressed) {
+			if (!entity->player.is_colliding_with_ball && game_controller_state->shoot) {
 				if (ball_transform->virtual_height > 20) {
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_HEADER, game_state);
 				}
-			} else if (!entity->player.is_colliding_with_ball &&
-					   input->devices[0].buttons[IDBT_BUTTON_RIGHT].pressed) {
+			} else if (!entity->player.is_colliding_with_ball && game_controller_state->tackle) {
 				if (team_idx_last_ball_possession != player->team_side) {
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_SLIDING_TACKLE, game_state);

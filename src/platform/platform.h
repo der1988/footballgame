@@ -1,0 +1,99 @@
+#include "types.h"
+
+enum platform_input_device_gamepad_axis {
+	PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_X,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_Y,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_TRIGGER,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER,
+};
+
+enum platform_input_device_gamepad_button {
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_START,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SELECT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DOWN,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_LEFT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_UP,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_LEFT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_DOWN,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_RIGHT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_LEFT,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_UP,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_LEFT_THUMB,
+	PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT_THUMB,
+};
+
+enum platform_input_device_keyboard_key {
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_UP,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_DOWN,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_LEFT,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_RIGHT,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_A,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_S,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_Q,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_W,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_E,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_1,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_2,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_3,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_4,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_5,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_6,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_7,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8,
+};
+
+typedef struct platform_input_device_button_state {
+	b32 up;
+	b32 down;
+	b32 pressed;
+	b32 released;
+} platform_input_device_button_state_t, platform_input_device_key_state_t;
+
+struct platform_input_device_gamepad_state {
+	platform_input_device_button_state_t start;
+	platform_input_device_button_state_t select;
+	f32 left_stick_x;
+	f32 left_stick_y;
+	f32 right_stick_x;
+	f32 right_stick_y;
+	platform_input_device_button_state_t dpad_up;
+	platform_input_device_button_state_t dpad_down;
+	platform_input_device_button_state_t dpad_left;
+	platform_input_device_button_state_t dpad_right;
+	platform_input_device_button_state_t up_button;
+	platform_input_device_button_state_t down_button;
+	platform_input_device_button_state_t left_button;
+	platform_input_device_button_state_t right_button;
+	platform_input_device_button_state_t left_shoulder_button;
+	platform_input_device_button_state_t right_shoulder_button;
+	platform_input_device_button_state_t left_thumb;
+	platform_input_device_button_state_t right_thumb;
+	f32 left_trigger;
+	f32 right_trigger;
+};
+
+platform_input_device_key_state_t
+platform_input_device_keyboard_get_key_state(enum platform_input_device_keyboard_key key);
+b32 platform_input_device_keyboard_is_key_up(enum platform_input_device_keyboard_key key);
+b32 platform_input_device_keyboard_is_key_down(enum platform_input_device_keyboard_key key);
+b32 platform_input_device_keyboard_is_key_pressed(enum platform_input_device_keyboard_key key);
+b32 platform_input_device_keyboard_is_key_released(enum platform_input_device_keyboard_key key);
+
+platform_input_device_button_state_t platform_input_device_gamepad_get_button_state(
+	u32 gamepad_index, enum platform_input_device_gamepad_button button);
+b32 platform_input_device_gamepad_is_button_up(u32 gamepad_index,
+											   enum platform_input_device_gamepad_button button);
+b32 platform_input_device_gamepad_is_button_down(u32 gamepad_index,
+												 enum platform_input_device_gamepad_button button);
+b32 platform_input_device_gamepad_is_button_pressed(
+	u32 gamepad_index, enum platform_input_device_gamepad_button button);
+b32 platform_input_device_gamepad_is_button_released(
+	u32 gamepad_index, enum platform_input_device_gamepad_button button);
+
+f32 platform_input_device_gamepad_get_axis_state(u32 gamepad_index,
+												 enum platform_input_device_gamepad_axis axis);

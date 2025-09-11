@@ -1,8 +1,6 @@
 #include "entities.h"
 #include "events/events.h"
 #include "log.h"
-#include "macro.h"
-#include "math_ext.h"
 #include "memory.h"
 #include "systems.h"
 #include "input.h"
@@ -10,12 +8,12 @@
 #include "gfx.h"
 #include "time_machine/time_machine.h"
 #include <assert.h>
-#include <math.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
+#include "platform/platform.h"
 
-void update(struct game_state *game_state, struct input *input);
+void update(struct game_state *game_state);
 void draw(struct game_state *game_state);
 
 struct game_state *game_play_init(struct game_config game_config,
@@ -113,6 +111,9 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->time_machine =
 		time_machine_create(game_state->memory_by_lifetime[MAL_TIME_MACHINE]);
 
+	// Initialise input manager
+	game_state->input_manager = input_manager_create(game_state->memory_by_lifetime[MAL_LEVEL]);
+
 	// Get pitch texture id
 	game_state->pitch_texture =
 		asset_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
@@ -148,6 +149,8 @@ void game_play_destroy(struct game_state *game_state)
 	layer_debug_destroy(game_state->layer_debug);
 
 	tweakui_destroy(game_state->tweakui);
+
+	input_manager_destroy(game_state->input_manager);
 
 	time_machine_destroy(game_state->time_machine);
 
@@ -190,10 +193,13 @@ b32 game_play_update(struct game_state *game_state)
 			PollInputEvents();
 			quit |= WindowShouldClose();
 
-			struct input input = input_handle(game_state);
+			input_manager_update(game_state->input_manager);
 
 			// Slow motion
-			game_state->vars.slow_motion = input.devices[0].buttons[IDBT_BUTTON_TRIGGER_LEFT].down;
+			game_state->vars.slow_motion =
+				platform_input_device_gamepad_get_button_state(
+					0, PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_LEFT)
+					.down;
 			if (game_state->vars.slow_motion) {
 				game_state->dt = dt * (game_state->vars.slow_motion ? 0.1 : 1);
 			} else {
@@ -203,7 +209,7 @@ b32 game_play_update(struct game_state *game_state)
 
 			// Update game logic
 			f64 update_time = GetTime();
-			update(game_state, &input);
+			update(game_state);
 			total_update_time += GetTime() - update_time;
 
 			game_state->accumulator -= dt;
@@ -232,13 +238,13 @@ b32 game_play_update(struct game_state *game_state)
 		PollInputEvents();
 		quit = WindowShouldClose();
 
-		struct input input = input_handle(game_state);
-
 		static usize tick = 0;
 		tick++;
 
-		f32 left_trigger = input.devices[0].left_trigger;
-		f32 right_trigger = input.devices[0].right_trigger;
+		input_manager_update(game_state->input_manager);
+
+		f32 left_trigger = game_state->input_manager->game_controllers_state[0].recorder_rewind;
+		f32 right_trigger = game_state->input_manager->game_controllers_state[0].recorder_forward;
 
 		static time_t last_interaction_time = 0;
 
@@ -251,7 +257,7 @@ b32 game_play_update(struct game_state *game_state)
 			if (tick % rewind_speed == 0) {
 				time_machine_travel(game_state->time_machine, -1, game_state);
 			}
-		} else if (input.devices[0].right_trigger > 0.1f) {
+		} else if (right_trigger > 0.1f) {
 			last_interaction_time = GetTime();
 			right_trigger = 1 - right_trigger;
 			right_trigger *= 15;
@@ -267,7 +273,7 @@ b32 game_play_update(struct game_state *game_state)
 		// 		game_state->time_machine, RP_LAST_RECORDED, game_state);
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
-		if (input.devices[0].buttons[IDBT_BUTTON_TRIGGER_RIGHT].released) {
+		if (game_state->input_manager->game_controllers_state[0].recorder_resume) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}
@@ -287,7 +293,7 @@ b32 game_play_update(struct game_state *game_state)
 	return quit;
 }
 
-void update(struct game_state *game_state, struct input *input)
+void update(struct game_state *game_state)
 {
 	// These should be reset every update
 	memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
@@ -298,7 +304,7 @@ void update(struct game_state *game_state, struct input *input)
 		game_state->vars.mode = GM_TWEAK_UI;
 	}
 
-	if (input->devices[0].left_trigger > 0.1f) {
+	if (game_state->input_manager->game_controllers_state[0].recorder_rewind > 0.1f) {
 		game_state->vars.mode = GM_RECORDER;
 	}
 
@@ -307,20 +313,20 @@ void update(struct game_state *game_state, struct input *input)
 		game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 	}
 
-	systems_controls(game_state, input);
+	systems_controls(game_state);
 	systems_goalie(game_state);
 	systems_player_collisions(game_state);
 	systems_team_pressing(game_state);
-	systems_player_control_human(game_state, input);
+	systems_player_control_human(game_state);
 	systems_player_control_ai(game_state);
 	systems_player_on_the_ball(game_state);
 	systems_player_physics(game_state);
-	systems_player_selection(game_state, input);
-	systems_ball(game_state, input);
+	systems_player_selection(game_state);
+	systems_ball(game_state);
 	systems_goal(game_state);
 	systems_action(game_state);
 	systems_camera(game_state);
-	systems_time_machine(game_state, input);
+	systems_time_machine(game_state);
 }
 
 void draw(struct game_state *game_state)
