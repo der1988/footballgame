@@ -12,7 +12,7 @@ static f32 get_axis_value_from_binding(u32 gamepad_index, struct game_control_bi
 		if (binding->type == GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE && value < 0)
 			value = 0;
 		else if (binding->type == GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE) {
-			if (value < 0)
+			if (value > 0)
 				value = 0;
 			value *= -1;
 		}
@@ -24,7 +24,7 @@ static f32 get_axis_value_from_binding(u32 gamepad_index, struct game_control_bi
 static b32 get_button_state(u32 gamepad_index, struct game_control_binding *binding)
 {
 	assert(binding->type == GAME_CONTROL_BINDING_TYPE_DIGITAL);
-	return platform_input_device_gamepad_get_button_state(gamepad_index, binding->to).pressed;
+	return platform_input_device_gamepad_get_button_state(gamepad_index, binding->to).down;
 }
 
 struct game_controller_state gamepad_update(u32 gamepad_index,
@@ -37,20 +37,33 @@ struct game_controller_state gamepad_update(u32 gamepad_index,
 	f32 left = get_axis_value_from_binding(gamepad_index, &bindings->move_left);
 	f32 right = get_axis_value_from_binding(gamepad_index, &bindings->move_right);
 
-	b32 shoot = get_button_state(gamepad_index, &bindings->shoot);
-	b32 pass = get_button_state(gamepad_index, &bindings->pass);
-	b32 long_pass = get_button_state(gamepad_index, &bindings->long_pass);
-	b32 tackle = get_button_state(gamepad_index, &bindings->tackle);
+	b32 shoot =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->shoot.to).down;
+	b32 pass =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->pass.to).down;
+	b32 long_pass =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->long_pass.to).down;
+	b32 tackle =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->tackle.to).down;
 
 	f32 recorder_rewind = get_axis_value_from_binding(gamepad_index, &bindings->recorder_rewind);
 	f32 recorder_forward = get_axis_value_from_binding(gamepad_index, &bindings->recorder_forward);
-	b32 recorder_resume = get_button_state(gamepad_index, &bindings->recorder_resume);
+	b32 recorder_resume =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->recorder_resume.to)
+			.pressed;
 
-	b32 test_reset = get_button_state(gamepad_index, &bindings->test_reset);
-	b32 test_crossbar = get_button_state(gamepad_index, &bindings->test_crossbar);
-	b32 test_cross = get_button_state(gamepad_index, &bindings->test_cross);
-	b32 test_post = get_button_state(gamepad_index, &bindings->test_post);
-	b32 test_goalie_jump = get_button_state(gamepad_index, &bindings->test_goalie_jump);
+	b32 test_reset =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_reset.to).down;
+	b32 test_crossbar =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_crossbar.to)
+			.down;
+	b32 test_cross =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_cross.to).down;
+	b32 test_post =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_post.to).down;
+	b32 test_goalie_jump =
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_goalie_jump.to)
+			.down;
 
 	/* Movement doesn't need to be normalised because the gamepad reading already is. */
 

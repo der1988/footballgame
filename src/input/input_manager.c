@@ -11,7 +11,7 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 
 	struct input_manager *handle = memory_arena_push(memory_arena, sizeof(*handle));
 
-	handle->game_controllers[0] = (struct game_controller){
+	handle->game_controllers[1] = (struct game_controller){
 		.type = GAME_CONTROLLER_TYPE_KEYBOARD,
 		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 								 .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_UP},
@@ -49,11 +49,11 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 										  .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8}},
 	};
 
-	handle->game_controllers[1] = (struct game_controller){
+	handle->game_controllers[0] = (struct game_controller){
 		.type = GAME_CONTROLLER_TYPE_GAMEPAD,
-		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
+		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y},
-					 .move_down = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
+					 .move_down = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
 								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y},
 					 .move_left = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
 								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X},
@@ -67,12 +67,14 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
 					 .tackle = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 								.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
+
 					 .recorder_rewind = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
 										 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_TRIGGER},
 					 .recorder_forward = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
 										  .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER},
 					 .recorder_resume = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_START},
+										 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
+
 					 .test_reset = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_START},
 					 .test_cross = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
