@@ -31,7 +31,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 
 	const u8 game_controller_idx = 0;
 	struct game_controller_state *game_controller_state =
-		&game_state->input_manager->game_controllers_state[game_controller_idx];
+		&game_state->input_manager->game_controllers[game_controller_idx].current_state;
 
 	if (game_controller_state->test_reset) {
 		struct component_transform *p1_transform =

@@ -48,7 +48,9 @@ void systems_player_physics(struct game_state *game_state)
 			v2 effective_steering = player_controls->steering;
 			// If charging kick we seek the ball
 			if (entity_id == game_state->human_players[0].controlled_player_entity_id &&
-				game_state->human_players[0].controls.charge.charging) {
+				game_state->input_manager
+					->game_controllers[game_state->human_players[0].game_controller_id]
+					.current_state.charge.charging) {
 				effective_steering = Vector2Normalize(
 					Vector2Subtract(ball_transform->position, transform->position));
 			}

@@ -54,11 +54,14 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			game_state->constants.player_control_radius;
 
 		// Player is human controlled
-		player_controls->steering = game_state->human_players[0].controls.steering;
+		struct game_controller *game_controller =
+			&game_state->input_manager
+				 ->game_controllers[game_state->human_players[0].game_controller_id];
+		struct game_controller_state *game_controller_state = &game_controller->current_state;
+
+		player_controls->steering = game_controller_state->movement;
 
 		const u8 game_controller_idx = 0;
-		struct game_controller_state *game_controller_state =
-			&game_state->input_manager->game_controllers_state[game_controller_idx];
 
 		switch (state_machine->current_state) {
 		case PS_NONE:
@@ -76,23 +79,22 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 						&player->state_machine, PS_SLIDING_TACKLE, game_state);
 				}
 			} else {
-				if (game_state->human_players[0].controls.charge.ready) {
-					switch (game_state->human_players[0].controls.charge.type) {
+				if (game_controller_state->charge.ready) {
+					switch (game_controller_state->charge.type) {
 					case ACT_SHOOT: {
-						player_controls->shot = game_state->human_players[0].controls.charge.power;
+						player_controls->shot = game_controller_state->charge.power;
 						break;
 					}
 					case ACT_PASS: {
-						player_controls->pass = game_state->human_players[0].controls.charge.power;
-						if ((game_state->human_players[0].controls.charge.ended -
-							 game_state->human_players[0].controls.charge.started) < 0.15f) {
+						player_controls->pass = game_controller_state->charge.power;
+						if ((game_controller_state->charge.ended -
+							 game_controller_state->charge.started) < 0.15f) {
 							player_controls->automatic_pass = true;
 						}
 						break;
 					}
 					case ACT_LONG_PASS: {
-						player_controls->long_pass =
-							game_state->human_players[0].controls.charge.power;
+						player_controls->long_pass = game_controller_state->charge.power;
 						break;
 					}
 					}

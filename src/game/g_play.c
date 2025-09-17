@@ -193,7 +193,7 @@ b32 game_play_update(struct game_state *game_state)
 			PollInputEvents();
 			quit |= WindowShouldClose();
 
-			input_manager_update(game_state->input_manager);
+			input_manager_update(game_state->input_manager, game_state);
 
 			// Slow motion
 			game_state->vars.slow_motion =
@@ -241,10 +241,12 @@ b32 game_play_update(struct game_state *game_state)
 		static usize tick = 0;
 		tick++;
 
-		input_manager_update(game_state->input_manager);
+		input_manager_update(game_state->input_manager, game_state);
 
-		f32 left_trigger = game_state->input_manager->game_controllers_state[0].recorder_rewind;
-		f32 right_trigger = game_state->input_manager->game_controllers_state[0].recorder_forward;
+		f32 left_trigger =
+			game_state->input_manager->game_controllers[0].current_state.recorder_rewind;
+		f32 right_trigger =
+			game_state->input_manager->game_controllers[0].current_state.recorder_forward;
 
 		static time_t last_interaction_time = 0;
 
@@ -273,7 +275,7 @@ b32 game_play_update(struct game_state *game_state)
 		// 		game_state->time_machine, RP_LAST_RECORDED, game_state);
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
-		if (game_state->input_manager->game_controllers_state[0].recorder_resume) {
+		if (game_state->input_manager->game_controllers[0].current_state.recorder_resume) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}
@@ -304,7 +306,7 @@ void update(struct game_state *game_state)
 		game_state->vars.mode = GM_TWEAK_UI;
 	}
 
-	if (game_state->input_manager->game_controllers_state[0].recorder_rewind > 0.1f) {
+	if (game_state->input_manager->game_controllers[0].current_state.recorder_rewind > 0.1f) {
 		game_state->vars.mode = GM_RECORDER;
 	}
 

@@ -78,17 +78,28 @@ enum game_controller_type {
 	GAME_CONTROLLER_TYPE_GAMEPAD,
 };
 
-struct game_controller {
-	enum game_controller_type type;
-	struct game_controller_bindings bindings;
-};
-
 /* This represents the state of a game controller during a frame. */
 struct game_controller_state {
 	v2 movement;
-	b32 shoot;
-	b32 pass;
-	b32 long_pass;
+
+	// TODO: should I move this to game_controller?
+	struct action_charge {
+		enum action_charge_type {
+			ACT_SHOOT,
+			ACT_PASS,
+			ACT_LONG_PASS
+		} type;
+		v2 direction;
+		time_t started;
+		time_t ended;
+		f32 power;
+		b32 charging;
+		b32 ready;
+	} charge;
+
+	f32 shoot;
+	f32 pass;
+	f32 long_pass;
 	b32 tackle;
 
 	f32 recorder_rewind;
@@ -102,15 +113,26 @@ struct game_controller_state {
 	b32 test_goalie_jump;
 };
 
+struct game_controller {
+	enum game_controller_type type;
+	struct game_controller_bindings bindings;
+	struct game_controller_state current_state;
+	struct game_controller_state previous_state;
+};
+
 struct input_manager {
 	struct game_controller game_controllers[MAX_GAME_CONTROLLERS];
-	struct game_controller_state game_controllers_state[MAX_GAME_CONTROLLERS];
 };
 
 struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena);
 
 void input_manager_destroy(struct input_manager *input_manager);
 
-void input_manager_update(struct input_manager *input_manager);
+void input_manager_update(struct input_manager *input_manager, struct game_state *game_state);
+
+void game_controller_charge_reset(struct game_controller *game_controller);
+
+void game_controller_player_charge_reset(entity_id_t player_entity_id,
+										 struct game_state *game_state);
 
 #endif // !INPUT_H

@@ -138,6 +138,19 @@ struct component_player_controls {
 	f32 pass;
 	b32 automatic_pass;
 	f32 long_pass;
+	// struct action_charge {
+	// 	enum action_charge_type {
+	// 		ACT_SHOOT,
+	// 		ACT_PASS,
+	// 		ACT_LONG_PASS
+	// 	} type;
+	// 	v2 direction;
+	// 	time_t started;
+	// 	time_t ended;
+	// 	f32 power;
+	// 	b32 charging;
+	// 	b32 ready;
+	// } charge;
 };
 
 struct component_ball {
