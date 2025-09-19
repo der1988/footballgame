@@ -82,21 +82,6 @@ enum game_controller_type {
 struct game_controller_state {
 	v2 movement;
 
-	// TODO: should I move this to game_controller?
-	struct action_charge {
-		enum action_charge_type {
-			ACT_SHOOT,
-			ACT_PASS,
-			ACT_LONG_PASS
-		} type;
-		v2 direction;
-		time_t started;
-		time_t ended;
-		f32 power;
-		b32 charging;
-		b32 ready;
-	} charge;
-
 	f32 shoot;
 	f32 pass;
 	f32 long_pass;
@@ -118,6 +103,19 @@ struct game_controller {
 	struct game_controller_bindings bindings;
 	struct game_controller_state current_state;
 	struct game_controller_state previous_state;
+	struct action_charge {
+		enum action_charge_type {
+			ACT_SHOOT,
+			ACT_PASS,
+			ACT_LONG_PASS
+		} type;
+		v2 direction;
+		time_t started;
+		time_t ended;
+		f32 power;
+		b32 charging;
+		b32 ready;
+	} charge;
 };
 
 struct input_manager {

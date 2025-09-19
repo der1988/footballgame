@@ -3,7 +3,6 @@
 #include "gamepad.h"
 #include "keyboard.h"
 #include "platform/platform.h"
-#include "stdio.h"
 #include <raymath.h>
 
 struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
@@ -118,7 +117,7 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 		}
 		}
 
-		struct action_charge *charge = &game_controller->current_state.charge;
+		struct action_charge *charge = &game_controller->charge;
 		if (charge->ready) {
 			// Ready
 			if (HAS_TIME_PASSED(game_state->time,
@@ -172,7 +171,6 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 				charge->ended = 0;
 				charge->charging = true;
 				charge->type = charge_type;
-				printf("charging\n");
 			}
 		}
 	}

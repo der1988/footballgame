@@ -3,8 +3,7 @@
 
 void game_controller_charge_reset(struct game_controller *game_controller)
 {
-	game_controller->current_state.charge.ready = game_controller->current_state.charge.charging =
-		false;
+	game_controller->charge.ready = game_controller->charge.charging = false;
 }
 
 void game_controller_player_charge_reset(entity_id_t player_entity_id,

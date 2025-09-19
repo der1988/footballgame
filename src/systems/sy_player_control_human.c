@@ -79,22 +79,22 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 						&player->state_machine, PS_SLIDING_TACKLE, game_state);
 				}
 			} else {
-				if (game_controller_state->charge.ready) {
-					switch (game_controller_state->charge.type) {
+				if (game_controller->charge.ready) {
+					switch (game_controller->charge.type) {
 					case ACT_SHOOT: {
-						player_controls->shot = game_controller_state->charge.power;
+						player_controls->shot = game_controller->charge.power;
 						break;
 					}
 					case ACT_PASS: {
-						player_controls->pass = game_controller_state->charge.power;
-						if ((game_controller_state->charge.ended -
-							 game_controller_state->charge.started) < 0.15f) {
+						player_controls->pass = game_controller->charge.power;
+						if ((game_controller->charge.ended - game_controller->charge.started) <
+							0.15f) {
 							player_controls->automatic_pass = true;
 						}
 						break;
 					}
 					case ACT_LONG_PASS: {
-						player_controls->long_pass = game_controller_state->charge.power;
+						player_controls->long_pass = game_controller->charge.power;
 						break;
 					}
 					}
