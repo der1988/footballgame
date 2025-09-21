@@ -16,8 +16,11 @@ memory_arena_create(char *name, void *buffer, usize size, u16 alignment, b32 cle
 	handle->total_size = size;
 	handle->alignment = alignment;
 	handle->clear_memory = clear_memory;
-	GLOGF_INFO_CTX(
-		LS_MEMORY, name, "memory arena created with size %zu and %d bytes of alignment", size);
+	GLOGF_INFO_CTX(LS_MEMORY,
+				   name,
+				   "memory arena created with size %zu and %d bytes of alignment",
+				   size,
+				   alignment);
 	return handle;
 }
 

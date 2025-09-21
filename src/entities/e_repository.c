@@ -77,7 +77,7 @@ struct entity *entity_init(struct entity_repository *handle,
 
 	// Entity header
 	entity->header.type = type;
-	snprintf(entity->header.name, 40, name_format, entity->header.id);
+	snprintf(entity->header.name, ENTITY_NAME_MAX_SIZE, name_format, entity->header.id);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "entity initialised");
 
