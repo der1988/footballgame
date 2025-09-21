@@ -74,7 +74,7 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 										 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
 
 					 .test_reset = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_START},
+									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SELECT},
 					 .test_cross = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_DOWN},
 					 .test_crossbar = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
