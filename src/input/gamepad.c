@@ -53,17 +53,17 @@ struct game_controller_state gamepad_update(u32 gamepad_index,
 			.pressed;
 
 	b32 test_reset =
-		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_reset.to).down;
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_reset.to).pressed;
 	b32 test_crossbar =
 		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_crossbar.to)
-			.down;
+			.pressed;
 	b32 test_cross =
-		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_cross.to).down;
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_cross.to).pressed;
 	b32 test_post =
-		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_post.to).down;
+		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_post.to).pressed;
 	b32 test_goalie_jump =
 		platform_input_device_gamepad_get_button_state(gamepad_index, bindings->test_goalie_jump.to)
-			.down;
+			.pressed;
 
 	/* Movement doesn't need to be normalised because the gamepad reading already is. */
 
