@@ -109,10 +109,8 @@ struct game_controller {
 			ACT_PASS,
 			ACT_LONG_PASS
 		} type;
-		v2 direction;
 		time_t started;
 		time_t ended;
-		f32 power;
 		b32 charging;
 		b32 ready;
 	} charge;

@@ -10,6 +10,7 @@
 #include <raymath.h>
 #include <string.h>
 #include "ai.h"
+#include "constants.h"
 
 void systems_player_control_human(struct game_state *game_state, struct input *input)
 {
@@ -80,21 +81,25 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				}
 			} else {
 				if (game_controller->charge.ready) {
+					time_t time_holding_button =
+						(game_state->time - game_controller->charge.started);
 					switch (game_controller->charge.type) {
 					case ACT_SHOOT: {
-						player_controls->shot = game_controller->charge.power;
+						f32 power = SHOOT_POWER(time_holding_button);
+						player_controls->shot = power;
 						break;
 					}
 					case ACT_PASS: {
-						player_controls->pass = game_controller->charge.power;
-						if ((game_controller->charge.ended - game_controller->charge.started) <
-							0.15f) {
+						f32 power = PASS_POWER(time_holding_button);
+						player_controls->pass = power;
+						if (time_holding_button < 0.15f) {
 							player_controls->automatic_pass = true;
 						}
 						break;
 					}
 					case ACT_LONG_PASS: {
-						player_controls->long_pass = game_controller->charge.power;
+						f32 power = LONG_PASS_POWER(time_holding_button);
+						player_controls->long_pass = power;
 						break;
 					}
 					}

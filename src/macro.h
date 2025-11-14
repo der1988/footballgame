@@ -1,6 +1,8 @@
 #ifndef MACRO_H
 #define MACRO_H
 
+#include "constants.h"
+
 #define UNUSED(x) (void)(x)
 
 #define INLINE inline __attribute__((always_inline))
@@ -18,8 +20,6 @@
 #define JSON_GET_DOUBLE(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuedouble;
 #define JSON_GET_STRING(J, K) cJSON_GetObjectItemCaseSensitive(J, K)->valuestring;
 
-#define GOALIE_HOLD_OR_BOUNCE(V)                                                                   \
-	(V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
 #define VELOCITY_TO_KMH(V) (V / PIXELS_PER_METER * 3.6f)
 
 #define RESET_COMPONENT(c)                                                                         \
@@ -44,5 +44,13 @@
 	if (list.count > 0)                                                                            \
 		item = list.array[0];                                                                      \
 	for (i = 0; i < list.count; ++i, item = list.array[i])
+
+// Game
+#define GOALIE_HOLD_OR_BOUNCE(V)                                                                   \
+	(V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
+
+#define SHOOT_POWER(holding_time)	  Clamp01(holding_time *SHOOT_CHARGE_MULTIPLIER)
+#define PASS_POWER(holding_time)	  Clamp01(holding_time *PASS_CHARGE_MULTIPLIER)
+#define LONG_PASS_POWER(holding_time) Clamp01(holding_time *LONG_PASS_CHARGE_MULTIPLIER)
 
 #endif // !MACRO_H
