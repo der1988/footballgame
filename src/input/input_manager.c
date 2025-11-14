@@ -11,7 +11,7 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 
 	struct input_manager *handle = memory_arena_push(memory_arena, sizeof(*handle));
 
-	handle->game_controllers[0] = (struct game_controller){
+	handle->game_controllers[1] = (struct game_controller){
 		.type = GAME_CONTROLLER_TYPE_KEYBOARD,
 		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 								 .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_UP},
@@ -47,7 +47,7 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 					 .test_goalie_jump = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 										  .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8}},
 	};
-	handle->game_controllers[1] = (struct game_controller){
+	handle->game_controllers[0] = (struct game_controller){
 		.type = GAME_CONTROLLER_TYPE_GAMEPAD,
 		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y},
@@ -141,12 +141,7 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 				break;
 			}
 			}
-			if (is_still_charging) {
-				charge->power += 2 * game_state->dt;
-				charge->power = Clamp(charge->power, 0, 1.0f);
-				layer_debug_queue_draw_text(game_state->layer_debug,
-											TextFormat("charge: %.2f", charge->power));
-			} else {
+			if (!is_still_charging) {
 				charge->ended = game_state->time;
 				charge->ready = true;
 			}
@@ -165,9 +160,7 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 			}
 			if (charging) {
 				charge->ready = false;
-				charge->direction = Vector2Normalize(game_controller->current_state.movement);
 				charge->started = game_state->time;
-				charge->power = 0.0f;
 				charge->ended = 0;
 				charge->charging = true;
 				charge->type = charge_type;
