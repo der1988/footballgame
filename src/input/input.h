@@ -39,37 +39,20 @@ enum game_control {
 	GAME_CONTROL_COUNT,
 };
 
-enum game_control_binding_type {
+enum gamepad_binding_type {
 	GAME_CONTROL_BINDING_TYPE_DIGITAL,
 	GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
 	GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
 };
 
 /* An actual binding from a game control to a specific implementation identifier. */
-struct game_control_binding {
-	enum game_control_binding_type type;
+struct gamepad_binding {
+	enum gamepad_binding_type type;
 	u32 to;
 };
 
-struct game_controller_bindings {
-	struct game_control_binding move_up;
-	struct game_control_binding move_down;
-	struct game_control_binding move_left;
-	struct game_control_binding move_right;
-	struct game_control_binding shoot;
-	struct game_control_binding pass;
-	struct game_control_binding long_pass;
-	struct game_control_binding tackle;
-
-	struct game_control_binding recorder_rewind;
-	struct game_control_binding recorder_forward;
-	struct game_control_binding recorder_resume;
-
-	struct game_control_binding test_reset;
-	struct game_control_binding test_crossbar;
-	struct game_control_binding test_cross;
-	struct game_control_binding test_post;
-	struct game_control_binding test_goalie_jump;
+struct keyboard_binding {
+	u32 to;
 };
 
 enum game_controller_type {
@@ -100,7 +83,15 @@ struct game_controller_state {
 
 struct game_controller {
 	enum game_controller_type type;
-	struct game_controller_bindings bindings;
+	union {
+		struct {
+			gamepad_platform_device_id_t device_id;
+			struct gamepad_binding bindings[GAME_CONTROL_COUNT];
+		} gamepad;
+		struct {
+			struct keyboard_binding bindings[GAME_CONTROL_COUNT];
+		} keyboard;
+	};
 	struct game_controller_state current_state;
 	struct game_controller_state previous_state;
 	struct action_charge {
