@@ -1,5 +1,4 @@
-#include "../input/input.h"
-#include "../platform/platform.h"
+#include "platform.h"
 #include <raylib.h>
 
 u32 platform_keyboard_key_mapping[] = {
@@ -49,28 +48,6 @@ u32 platform_gamepad_axis_mapping[] = {
 	GAMEPAD_AXIS_RIGHT_TRIGGER, // PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER
 };
 
-platform_input_device_key_state_t platform_input_device_keyboard_get_key_state(const u32 input_id)
-{
-	u32 raylib_key_id = platform_keyboard_key_mapping[input_id];
-
-	b32 up = IsKeyUp(raylib_key_id);
-	b32 down = IsKeyDown(raylib_key_id);
-	b32 pressed = IsKeyPressed(raylib_key_id);
-	b32 released = IsKeyReleased(raylib_key_id);
-
-	platform_input_device_key_state_t state = {
-		.up = up, .down = down, .pressed = pressed, .released = released};
-
-	return state;
-}
-
-b32 platform_input_device_keyboard_is_key_up(const u32 input_id)
-{
-	u32 raylib_key_id = platform_keyboard_key_mapping[input_id];
-
-	return IsKeyUp(raylib_key_id);
-}
-
 b32 platform_input_device_keyboard_is_key_down(const u32 input_id)
 {
 	u32 raylib_key_id = platform_keyboard_key_mapping[input_id];
@@ -78,62 +55,11 @@ b32 platform_input_device_keyboard_is_key_down(const u32 input_id)
 	return IsKeyDown(raylib_key_id);
 }
 
-b32 platform_input_device_keyboard_is_key_pressed(const u32 input_id)
-{
-	u32 raylib_key_id = platform_keyboard_key_mapping[input_id];
-
-	return IsKeyPressed(raylib_key_id);
-}
-
-b32 platform_input_device_keyboard_is_key_released(const u32 input_id)
-{
-	u32 raylib_key_id = platform_keyboard_key_mapping[input_id];
-
-	return IsKeyReleased(raylib_key_id);
-}
-
-platform_input_device_button_state_t
-platform_input_device_gamepad_get_button_state(const u32 gamepad_id, const u32 input_id)
-{
-	u32 raylib_button_id = platform_gamepad_button_mapping[input_id];
-
-	b32 up = IsGamepadButtonUp(gamepad_id, raylib_button_id);
-	b32 down = IsGamepadButtonDown(gamepad_id, raylib_button_id);
-	b32 pressed = IsGamepadButtonPressed(gamepad_id, raylib_button_id);
-	b32 released = IsGamepadButtonReleased(gamepad_id, raylib_button_id);
-
-	platform_input_device_button_state_t state = {
-		.up = up, .down = down, .pressed = pressed, .released = released};
-
-	return state;
-}
-
-b32 platform_input_device_gamepad_is_button_up(const u32 gamepad_id, const u32 input_id)
-{
-	u32 raylib_button_id = platform_gamepad_button_mapping[input_id];
-
-	return IsGamepadButtonUp(gamepad_id, raylib_button_id);
-}
-
 b32 platform_input_device_gamepad_is_button_down(const u32 gamepad_id, const u32 input_id)
 {
 	u32 raylib_button_id = platform_gamepad_button_mapping[input_id];
 
 	return IsGamepadButtonDown(gamepad_id, raylib_button_id);
-}
-
-b32 platform_input_device_gamepad_is_button_pressed(const u32 gamepad_id, const u32 input_id)
-{
-	u32 raylib_button_id = platform_gamepad_button_mapping[input_id];
-
-	return IsGamepadButtonPressed(gamepad_id, raylib_button_id);
-}
-
-b32 platform_input_device_gamepad_is_button_released(const u32 gamepad_id, const u32 input_id)
-{
-	u32 raylib_button_id = platform_gamepad_button_mapping[input_id];
-
-	return IsGamepadButtonReleased(gamepad_id, raylib_button_id);
 }
 
 f32 platform_input_device_gamepad_get_axis_state(const u32 gamepad_id,
