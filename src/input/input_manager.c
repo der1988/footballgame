@@ -114,6 +114,8 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
 		struct game_controller *game_controller = &input_manager->game_controllers[i];
 
+		game_controller->previous_state = game_controller->current_state;
+
 		switch (game_controller->type) {
 		case GAME_CONTROLLER_TYPE_NONE:
 			game_controller->current_state = (struct game_controller_state){0};
