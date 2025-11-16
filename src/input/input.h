@@ -65,9 +65,9 @@ enum game_controller_type {
 struct game_controller_state {
 	v2 movement;
 
-	f32 shoot;
-	f32 pass;
-	f32 long_pass;
+	b32 shoot;
+	b32 pass;
+	b32 long_pass;
 	b32 tackle;
 
 	f32 recorder_rewind;
