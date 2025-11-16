@@ -27,7 +27,7 @@ struct game_controller_state keyboard_update(struct game_controller *game_contro
 	f32 recorder_rewind = get_axis_value_from_binding(&bindings[GAME_CONTROL_RECORDER_REWIND]);
 	f32 recorder_forward = get_axis_value_from_binding(&bindings[GAME_CONTROL_RECORDER_FORWARD]);
 	b32 recorder_resume =
-		platform_input_device_keyboard_is_key_down(bindings[GAME_CONTROL_RECORDER_RESUME].to);
+		platform_input_device_keyboard_is_key_pressed(bindings[GAME_CONTROL_RECORDER_RESUME].to);
 
 	b32 test_reset =
 		platform_input_device_keyboard_is_key_pressed(bindings[GAME_CONTROL_TEST_RESET].to);
