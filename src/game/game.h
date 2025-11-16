@@ -112,7 +112,6 @@ struct game_vars {
 	} teams[TS_COUNT];
 	struct entity *camera_entity;
 	struct entity *ball_entity;
-	b32 slow_motion;
 	b32 is_debug_log_shown;
 };
 
