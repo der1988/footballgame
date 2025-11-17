@@ -72,7 +72,7 @@ struct game_controller_state {
 
 	f32 recorder_rewind;
 	f32 recorder_forward;
-	f32 recorder_resume;
+	b32 recorder_resume;
 
 	b32 test_reset;
 	b32 test_crossbar;
