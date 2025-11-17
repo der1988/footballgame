@@ -9,6 +9,12 @@
 
 #define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 
+#define IsGameControlJustPressed(game_controller, control)                                         \
+	(!game_controller->previous_state.control && game_controller->current_state.control)
+
+#define IsGameControlJustReleased(game_controller, control)                                        \
+	(game_controller->previous_state.control && !game_controller->current_state.control)
+
 /* Forward declarations. */
 struct game_state;
 

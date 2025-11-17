@@ -265,7 +265,8 @@ b32 game_play_update(struct game_state *game_state)
 		// 		game_state->time_machine, RP_LAST_RECORDED, game_state);
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
-		if (game_state->input_manager->game_controllers[0].current_state.recorder_resume) {
+		struct game_controller *gc = &game_state->input_manager->game_controllers[0];
+		if (IsGameControlJustPressed(gc, recorder_resume)) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}

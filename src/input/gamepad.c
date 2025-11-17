@@ -44,25 +44,19 @@ struct game_controller_state gamepad_update(u32 gamepad_index,
 		get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_REWIND]);
 	f32 recorder_forward =
 		get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_FORWARD]);
-	b32 recorder_resume = !game_controller->previous_state.recorder_resume &&
-						  platform_input_device_gamepad_is_button_down(
-							  gamepad_index, bindings[GAME_CONTROL_RECORDER_RESUME].to);
+	b32 recorder_resume = platform_input_device_gamepad_is_button_down(
+		gamepad_index, bindings[GAME_CONTROL_RECORDER_RESUME].to);
 
-	b32 test_reset = !game_controller->previous_state.test_reset &&
-					 platform_input_device_gamepad_is_button_down(
-						 gamepad_index, bindings[GAME_CONTROL_TEST_RESET].to);
-	b32 test_crossbar = !game_controller->previous_state.test_crossbar &&
-						platform_input_device_gamepad_is_button_down(
-							gamepad_index, bindings[GAME_CONTROL_TEST_CROSSBAR].to);
-	b32 test_cross = !game_controller->previous_state.test_cross &&
-					 platform_input_device_gamepad_is_button_down(
-						 gamepad_index, bindings[GAME_CONTROL_TEST_CROSS].to);
-	b32 test_post = !game_controller->previous_state.test_post &&
-					platform_input_device_gamepad_is_button_down(
-						gamepad_index, bindings[GAME_CONTROL_TEST_POST].to);
-	b32 test_goalie_jump = !game_controller->previous_state.test_goalie_jump &&
-						   platform_input_device_gamepad_is_button_down(
-							   gamepad_index, bindings[GAME_CONTROL_TEST_GOALIE_JUMP].to);
+	b32 test_reset = platform_input_device_gamepad_is_button_down(
+		gamepad_index, bindings[GAME_CONTROL_TEST_RESET].to);
+	b32 test_crossbar = platform_input_device_gamepad_is_button_down(
+		gamepad_index, bindings[GAME_CONTROL_TEST_CROSSBAR].to);
+	b32 test_cross = platform_input_device_gamepad_is_button_down(
+		gamepad_index, bindings[GAME_CONTROL_TEST_CROSS].to);
+	b32 test_post = platform_input_device_gamepad_is_button_down(
+		gamepad_index, bindings[GAME_CONTROL_TEST_POST].to);
+	b32 test_goalie_jump = platform_input_device_gamepad_is_button_down(
+		gamepad_index, bindings[GAME_CONTROL_TEST_GOALIE_JUMP].to);
 
 	/* Movement doesn't need to be normalised because the gamepad reading already is. */
 
