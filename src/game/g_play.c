@@ -1,5 +1,6 @@
 #include "entities.h"
 #include "events/events.h"
+#include "football.h"
 #include "log.h"
 #include "memory.h"
 #include "systems.h"
@@ -279,6 +280,10 @@ b32 game_play_update(struct game_state *game_state)
 		}
 	} break;
 	}
+
+	layer_debug_queue_draw_text(game_state->layer_debug,
+								TextFormat("Match State: %s",
+										   match_state_to_string[game_state->vars.match.state]));
 
 	// Draw game
 	draw(game_state);
