@@ -232,6 +232,9 @@ b32 game_play_update(struct game_state *game_state)
 		static usize tick = 0;
 		tick++;
 
+		/* We need to reset this here because this is usually done in the update function but in recorder mode that is not called. */
+		layer_debug_reset(game_state->layer_debug);
+
 		input_manager_update(game_state->input_manager, game_state);
 
 		f32 left_trigger =

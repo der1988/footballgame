@@ -47,7 +47,7 @@ void layer_debug_reset(layer_debug_t *handle)
 {
 	assert(handle->initialised);
 	handle->queued_requests = 0;
-	GLOG_TRACE(LS_LAYERS, "layer debug destroyed");
+	GLOG_TRACE(LS_LAYERS, "layer debug reset");
 }
 
 void layer_debug_queue_draw_text(layer_debug_t *handle, const char *text)
