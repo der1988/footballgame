@@ -2,7 +2,7 @@
 #include "platform/platform.h"
 #include <raymath.h>
 
-static f32 get_axis_value_from_binding(u32 gamepad_index, struct gamepad_binding *binding)
+static f32 get_analogic_value_from_binding(u32 gamepad_index, struct gamepad_binding *binding)
 {
 	f32 value = 0;
 	if (binding->type == GAME_CONTROL_BINDING_TYPE_DIGITAL) {
@@ -26,10 +26,10 @@ struct game_controller_state gamepad_update(u32 gamepad_index,
 {
 	struct gamepad_binding *bindings = game_controller->gamepad.bindings;
 
-	f32 up = get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_UP]);
-	f32 down = get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_DOWN]);
-	f32 left = get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_LEFT]);
-	f32 right = get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_RIGHT]);
+	f32 up = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_UP]);
+	f32 down = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_DOWN]);
+	f32 left = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_LEFT]);
+	f32 right = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_RIGHT]);
 
 	b32 shoot = platform_input_device_gamepad_is_button_down(gamepad_index,
 															 bindings[GAME_CONTROL_SHOOT].to);
@@ -41,9 +41,9 @@ struct game_controller_state gamepad_update(u32 gamepad_index,
 															  bindings[GAME_CONTROL_TACKLE].to);
 
 	f32 recorder_rewind =
-		get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_REWIND]);
+		get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_REWIND]);
 	f32 recorder_forward =
-		get_axis_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_FORWARD]);
+		get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_FORWARD]);
 	b32 recorder_resume = platform_input_device_gamepad_is_button_down(
 		gamepad_index, bindings[GAME_CONTROL_RECORDER_RESUME].to);
 
