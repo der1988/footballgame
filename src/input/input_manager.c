@@ -3,7 +3,27 @@
 #include "gamepad.h"
 #include "keyboard.h"
 #include "platform/platform.h"
+#include <string.h>
 #include <raymath.h>
+
+struct game_control_info game_control_infos[] = {
+	[GAME_CONTROL_MOVE_UP] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_MOVE_DOWN] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_MOVE_LEFT] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_MOVE_RIGHT] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_SHOOT] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
+	[GAME_CONTROL_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
+	[GAME_CONTROL_LONG_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
+	[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_RECORDER_REWIND] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_RECORDER_FORWARD] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_RECORDER_RESUME] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_RESET] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_CROSS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_CROSSBAR] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_POST] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_GOALIE_JUMP] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+};
 
 struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 {
@@ -13,79 +33,89 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 
 	handle->game_controllers[1] = (struct game_controller){
 		.type = GAME_CONTROLLER_TYPE_KEYBOARD,
-		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								 .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_UP},
-					 .move_down = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								   .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_DOWN},
-					 .move_left = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								   .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_LEFT},
-					 .move_right = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_RIGHT},
-					 .shoot = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-							   .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_A},
-					 .pass = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-							  .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_S},
-					 .long_pass = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								   .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D},
-					 .tackle = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D},
+		.keyboard = {
+			.bindings =
+				{
+					[GAME_CONTROL_MOVE_UP] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_UP},
+					[GAME_CONTROL_MOVE_DOWN] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_DOWN},
+					[GAME_CONTROL_MOVE_LEFT] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_LEFT},
+					[GAME_CONTROL_MOVE_RIGHT] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_RIGHT},
+					[GAME_CONTROL_SHOOT] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_A},
+					[GAME_CONTROL_PASS] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_S},
+					[GAME_CONTROL_LONG_PASS] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D},
+					[GAME_CONTROL_TACKLE] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D},
 
-					 .recorder_rewind = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										 .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_1},
-					 .recorder_forward = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										  .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_2},
-					 .recorder_resume = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										 .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_3},
+					[GAME_CONTROL_RECORDER_REWIND] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_1},
+					[GAME_CONTROL_RECORDER_FORWARD] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_2},
+					[GAME_CONTROL_RECORDER_RESUME] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_3},
 
-					 .test_reset = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_4},
-					 .test_cross = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_5},
-					 .test_crossbar = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									   .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_6},
-					 .test_post = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								   .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_7},
-					 .test_goalie_jump = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										  .to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8}},
-	};
+					[GAME_CONTROL_TEST_RESET] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_4},
+					[GAME_CONTROL_TEST_CROSS] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_5},
+					[GAME_CONTROL_TEST_CROSSBAR] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_6},
+					[GAME_CONTROL_TEST_POST] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_7},
+					[GAME_CONTROL_TEST_GOALIE_JUMP] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8},
+				},
+		}};
 
-	handle->game_controllers[0] = (struct game_controller){
-		.type = GAME_CONTROLLER_TYPE_GAMEPAD,
-		.bindings = {.move_up = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
+	handle->game_controllers[0] =
+		(struct game_controller){
+			.type = GAME_CONTROLLER_TYPE_GAMEPAD,
+			.gamepad =
+				{
+					.bindings =
+						{
+							[GAME_CONTROL_MOVE_UP] =
+								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y},
-					 .move_down = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
-								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y},
-					 .move_left = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
-								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X},
-					 .move_right = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
-									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X},
-					 .shoot = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-							   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_LEFT},
-					 .pass = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-							  .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DOWN},
-					 .long_pass = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
-					 .tackle = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
+							[GAME_CONTROL_MOVE_DOWN] =
+								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y},
+							[GAME_CONTROL_MOVE_LEFT] =
+								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X},
+							[GAME_CONTROL_MOVE_RIGHT] =
+								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X},
+							[GAME_CONTROL_SHOOT] = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+													.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_LEFT},
+							[GAME_CONTROL_PASS] = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+												   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DOWN},
+							[GAME_CONTROL_LONG_PASS] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
+							[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+													 .to =
+														 PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
 
-					 .recorder_rewind = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
-										 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_TRIGGER},
-					 .recorder_forward = {.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
-										  .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER},
-					 .recorder_resume = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
+							[GAME_CONTROL_RECORDER_REWIND] =
+								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_TRIGGER},
+							[GAME_CONTROL_RECORDER_FORWARD] =
+								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER},
+							[GAME_CONTROL_RECORDER_RESUME] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
 
-					 .test_reset = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SELECT},
-					 .test_cross = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									.to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_DOWN},
-					 .test_crossbar = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-									   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_UP},
-					 .test_post = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-								   .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_RIGHT},
-					 .test_goalie_jump = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-										  .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_LEFT}},
-	};
+							[GAME_CONTROL_TEST_RESET] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SELECT},
+							[GAME_CONTROL_TEST_CROSS] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_DOWN},
+							[GAME_CONTROL_TEST_CROSSBAR] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_UP},
+							[GAME_CONTROL_TEST_POST] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_RIGHT},
+							[GAME_CONTROL_TEST_GOALIE_JUMP] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_LEFT},
+
+						},
+					.device_id = 0,
+				}};
 
 	return handle;
 }
@@ -97,23 +127,72 @@ void input_manager_destroy(struct input_manager *input_manager)
 	// TODO: Clean stuff
 }
 
-void input_manager_update(struct input_manager *input_manager)
+void input_manager_update(struct input_manager *input_manager, struct game_state *game_state)
 {
 	assert(input_manager);
 
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
-		struct game_controller *game_controller = &input_manager->game_controllers[i];
+		struct game_controller *gc = &input_manager->game_controllers[i];
 
-		switch (game_controller->type) {
+		/* Current state is now previous. */
+		memcpy(
+			gc->state.previous, gc->state.current, sizeof(struct input_state) * GAME_CONTROL_COUNT);
+
+		switch (gc->type) {
 		case GAME_CONTROLLER_TYPE_NONE:
-			input_manager->game_controllers_state[i] = (struct game_controller_state){0};
+			gc->state = (struct game_controller_state){0};
 			continue;
 		case GAME_CONTROLLER_TYPE_GAMEPAD: {
-			input_manager->game_controllers_state[i] = gamepad_update(i, game_controller);
+			gamepad_update(gc->gamepad.device_id, gc->gamepad.bindings, &gc->state);
 			break;
 		}
 		case GAME_CONTROLLER_TYPE_KEYBOARD: {
-			input_manager->game_controllers_state[i] = keyboard_update(game_controller);
+			keyboard_update(gc->keyboard.bindings, &gc->state);
+			break;
+		}
+		}
+
+		switch (gc->charge_lock.state) {
+		case INPUT_CHARGE_LOCK_FREE: {
+			for (usize j = 0; j < GAME_CONTROL_COUNT; j++) {
+				struct game_control_info *game_control_info = &game_control_infos[j];
+				if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
+					game_control_info->chargeable && gc->state.current[j].digital.down) {
+					/* Found control to charge. */
+					gc->charge_lock.control_id = j;
+					gc->charge_lock.state = INPUT_CHARGE_LOCK_CHARGING;
+					gc->charge_lock.duration = 0;
+					break;
+				}
+			}
+			break;
+		}
+		case INPUT_CHARGE_LOCK_CHARGING: {
+			struct game_control_info *game_control_info =
+				&game_control_infos[gc->charge_lock.control_id];
+			if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
+				game_control_info->chargeable &&
+				gc->state.current[gc->charge_lock.control_id].digital.down) {
+				gc->charge_lock.duration += game_state->dt;
+			} else {
+				/*  Button released!
+				  The duration is preserved for this frame so Game Logic can read it.
+				  We don't free the lock yet; we free it at the START of next frame
+				  to let the game logic consume it.
+				  Simple auto-reset approach: */
+				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
+			}
+			break;
+		}
+		case INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE: {
+			struct game_control_info *game_control_info =
+				&game_control_infos[gc->charge_lock.control_id];
+			if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
+				game_control_info->chargeable &&
+				!gc->state.current[gc->charge_lock.control_id].digital.down) {
+				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
+				gc->charge_lock.duration = 0;
+			}
 			break;
 		}
 		}

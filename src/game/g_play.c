@@ -1,5 +1,6 @@
 #include "entities.h"
 #include "events/events.h"
+#include "football.h"
 #include "log.h"
 #include "memory.h"
 #include "systems.h"
@@ -172,7 +173,7 @@ b32 game_play_update(struct game_state *game_state)
 
 	b32 quit = false;
 
-	time_t dt = game_state->constants.fixed_timestep;
+	game_state->dt = game_state->constants.fixed_timestep;
 
 	switch (game_state->vars.mode) {
 	case GM_TICK: {
@@ -193,18 +194,8 @@ b32 game_play_update(struct game_state *game_state)
 			PollInputEvents();
 			quit |= WindowShouldClose();
 
-			input_manager_update(game_state->input_manager);
+			input_manager_update(game_state->input_manager, game_state);
 
-			// Slow motion
-			game_state->vars.slow_motion =
-				platform_input_device_gamepad_get_button_state(
-					0, PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_LEFT)
-					.down;
-			if (game_state->vars.slow_motion) {
-				game_state->dt = dt * (game_state->vars.slow_motion ? 0.1 : 1);
-			} else {
-				game_state->dt = dt;
-			}
 			game_state->time += game_state->dt;
 
 			// Update game logic
@@ -212,7 +203,7 @@ b32 game_play_update(struct game_state *game_state)
 			update(game_state);
 			total_update_time += GetTime() - update_time;
 
-			game_state->accumulator -= dt;
+			game_state->accumulator -= game_state->dt;
 
 			physics_iterations++;
 			game_state->physics_updates++;
@@ -241,10 +232,17 @@ b32 game_play_update(struct game_state *game_state)
 		static usize tick = 0;
 		tick++;
 
-		input_manager_update(game_state->input_manager);
+		/* We need to reset this here because this is usually done in the update function but in recorder mode that is not called. */
+		layer_debug_reset(game_state->layer_debug);
 
-		f32 left_trigger = game_state->input_manager->game_controllers_state[0].recorder_rewind;
-		f32 right_trigger = game_state->input_manager->game_controllers_state[0].recorder_forward;
+		input_manager_update(game_state->input_manager, game_state);
+
+		f32 left_trigger = game_state->input_manager->game_controllers[0]
+							   .state.current[GAME_CONTROL_RECORDER_REWIND]
+							   .analogic.value;
+		f32 right_trigger = game_state->input_manager->game_controllers[0]
+								.state.current[GAME_CONTROL_RECORDER_FORWARD]
+								.analogic.value;
 
 		static time_t last_interaction_time = 0;
 
@@ -273,7 +271,8 @@ b32 game_play_update(struct game_state *game_state)
 		// 		game_state->time_machine, RP_LAST_RECORDED, game_state);
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
-		if (game_state->input_manager->game_controllers_state[0].recorder_resume) {
+		struct game_controller *gc = &game_state->input_manager->game_controllers[0];
+		if (gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}
@@ -286,6 +285,10 @@ b32 game_play_update(struct game_state *game_state)
 		}
 	} break;
 	}
+
+	layer_debug_queue_draw_text(game_state->layer_debug,
+								TextFormat("Match State: %s",
+										   match_state_to_string[game_state->vars.match.state]));
 
 	// Draw game
 	draw(game_state);
@@ -304,7 +307,9 @@ void update(struct game_state *game_state)
 		game_state->vars.mode = GM_TWEAK_UI;
 	}
 
-	if (game_state->input_manager->game_controllers_state[0].recorder_rewind > 0.1f) {
+	if (game_state->input_manager->game_controllers[0]
+			.state.current[GAME_CONTROL_RECORDER_REWIND]
+			.analogic.value > 0.1f) {
 		game_state->vars.mode = GM_RECORDER;
 	}
 
@@ -313,7 +318,6 @@ void update(struct game_state *game_state)
 		game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 	}
 
-	systems_controls(game_state);
 	systems_goalie(game_state);
 	systems_player_collisions(game_state);
 	systems_team_pressing(game_state);

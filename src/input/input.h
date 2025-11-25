@@ -39,37 +39,51 @@ enum game_control {
 	GAME_CONTROL_COUNT,
 };
 
-enum game_control_binding_type {
+enum game_control_type {
+	GAME_CONTROL_TYPE_ANALOGIC,
+	GAME_CONTROL_TYPE_DIGITAL,
+};
+
+struct game_control_info {
+	enum game_control_type type;
+	b32 chargeable;
+};
+
+extern struct game_control_info game_control_infos[];
+
+enum gamepad_binding_type {
 	GAME_CONTROL_BINDING_TYPE_DIGITAL,
 	GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
 	GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE,
 };
 
 /* An actual binding from a game control to a specific implementation identifier. */
-struct game_control_binding {
-	enum game_control_binding_type type;
+struct gamepad_binding {
+	enum gamepad_binding_type type;
 	u32 to;
 };
 
-struct game_controller_bindings {
-	struct game_control_binding move_up;
-	struct game_control_binding move_down;
-	struct game_control_binding move_left;
-	struct game_control_binding move_right;
-	struct game_control_binding shoot;
-	struct game_control_binding pass;
-	struct game_control_binding long_pass;
-	struct game_control_binding tackle;
+struct keyboard_binding {
+	u32 to;
+};
 
-	struct game_control_binding recorder_rewind;
-	struct game_control_binding recorder_forward;
-	struct game_control_binding recorder_resume;
+struct input_state {
+	union {
+		struct {
+			f32 value;
+		} analogic;
+		struct {
+			b32 down;
+			b32 pressed;
+			b32 released;
+		} digital;
+	};
+};
 
-	struct game_control_binding test_reset;
-	struct game_control_binding test_crossbar;
-	struct game_control_binding test_cross;
-	struct game_control_binding test_post;
-	struct game_control_binding test_goalie_jump;
+enum input_charge_lock_state {
+	INPUT_CHARGE_LOCK_FREE,
+	INPUT_CHARGE_LOCK_CHARGING,
+	INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE,
 };
 
 enum game_controller_type {
@@ -78,39 +92,43 @@ enum game_controller_type {
 	GAME_CONTROLLER_TYPE_GAMEPAD,
 };
 
-struct game_controller {
-	enum game_controller_type type;
-	struct game_controller_bindings bindings;
+struct game_controller_state {
+	struct input_state current[GAME_CONTROL_COUNT];
+	struct input_state previous[GAME_CONTROL_COUNT];
 };
 
-/* This represents the state of a game controller during a frame. */
-struct game_controller_state {
-	v2 movement;
-	b32 shoot;
-	b32 pass;
-	b32 long_pass;
-	b32 tackle;
+struct game_controller {
+	enum game_controller_type type;
+	union {
+		struct {
+			platform_gamepad_device_id_t device_id;
+			struct gamepad_binding bindings[GAME_CONTROL_COUNT];
+		} gamepad;
+		struct {
+			struct keyboard_binding bindings[GAME_CONTROL_COUNT];
+		} keyboard;
+	};
+	struct game_controller_state state;
 
-	f32 recorder_rewind;
-	f32 recorder_forward;
-	f32 recorder_resume;
-
-	b32 test_reset;
-	b32 test_crossbar;
-	b32 test_cross;
-	b32 test_post;
-	b32 test_goalie_jump;
+	struct {
+		enum input_charge_lock_state state;
+		enum game_control control_id;
+		time_t duration;
+	} charge_lock;
 };
 
 struct input_manager {
 	struct game_controller game_controllers[MAX_GAME_CONTROLLERS];
-	struct game_controller_state game_controllers_state[MAX_GAME_CONTROLLERS];
 };
 
 struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena);
 
 void input_manager_destroy(struct input_manager *input_manager);
 
-void input_manager_update(struct input_manager *input_manager);
+void input_manager_update(struct input_manager *input_manager, struct game_state *game_state);
+
+void game_controller_reset(struct game_controller *game_controller);
+
+void game_controller_player_reset(entity_id_t player_entity_id, struct game_state *game_state);
 
 #endif // !INPUT_H

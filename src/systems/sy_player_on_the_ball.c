@@ -4,13 +4,14 @@
 #include "e_player.h"
 #include "game.h"
 #include "layers.h"
+#include "ai.h"
+#include "input.h"
+#include "types.h"
 #include <math.h>
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
-#include "ai.h"
-#include "types.h"
 
 void systems_player_on_the_ball(struct game_state *game_state)
 {
@@ -257,7 +258,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			player_entity->player.kicked_ball = kicked_ball;
 
 			if (kicked_ball) {
-				game_input_player_charge_reset(game_state, player_on_the_ball_entity_id);
+				game_controller_player_reset(player_on_the_ball_entity_id, game_state);
 			}
 			break;
 		}

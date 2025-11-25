@@ -82,27 +82,10 @@ struct game_constants {
 	f32 kick_charge_reset_time;
 };
 
-struct device_controls {
-	v2 steering;
-	struct action_charge {
-		enum action_charge_type {
-			ACT_SHOOT,
-			ACT_PASS,
-			ACT_LONG_PASS
-		} type;
-		v2 direction;
-		time_t started;
-		time_t ended;
-		f32 power;
-		b32 charging;
-		b32 ready;
-	} charge;
-};
-
 struct human_player {
 	human_id_t id;
 	enum team_side team_side;
-	struct device_controls controls;
+	game_controller_id_t game_controller_id;
 	entity_id_t controlled_player_entity_id;
 };
 
@@ -129,7 +112,6 @@ struct game_vars {
 	} teams[TS_COUNT];
 	struct entity *camera_entity;
 	struct entity *ball_entity;
-	b32 slow_motion;
 	b32 is_debug_log_shown;
 };
 
@@ -204,22 +186,6 @@ void game_loop(struct game_config config,
 			   memory_arena_handle_t *memory_arena);
 
 void game_set_next_scene(enum game_scene next_scene);
-
-INLINE void game_input_charge_reset(struct human_player *human_player)
-{
-	human_player->controls.charge.ready = human_player->controls.charge.charging = false;
-}
-
-INLINE void game_input_player_charge_reset(struct game_state *game_state,
-										   entity_id_t player_entity_id)
-{
-	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
-		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
-			game_input_charge_reset(&game_state->human_players[i]);
-			break;
-		}
-	}
-}
 
 INLINE struct human_player *game_input_human_player(struct game_state *game_state,
 													entity_id_t player_entity_id)

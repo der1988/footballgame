@@ -222,13 +222,13 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 
 	switch (state_machine->current_state) {
 	case PS_SLIDING_TACKLE:
-		game_input_player_charge_reset(game_state, entity->header.id);
+		game_controller_player_reset(entity->header.id, game_state);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
 		entity->player.state_machine.state_data.tackle.start_time = game_state->time;
 		break;
 	case PS_FALL:
 		entity->player.state_machine.state_data.fall.animation_start_time = game_state->time;
-		game_input_player_charge_reset(game_state, entity->header.id);
+		game_controller_player_reset(entity->header.id, game_state);
 		struct entity *ball_entity = game_state->vars.ball_entity;
 		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {
 			// Falling player had the ball, so let's reset touch time to make it clear player is no longer in possession
@@ -238,7 +238,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	case PS_HEADER: {
 		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
 		entity->player.state_machine.state_data.header.header_phase = HP_GROUND;
-		game_input_player_charge_reset(game_state, entity->header.id);
+		game_controller_player_reset(entity->header.id, game_state);
 
 		v2 direction = Vector2Subtract(ball_transform->position, player_transform->position);
 
@@ -457,9 +457,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	b32 should_dive = false;
 	const f32 ball_radius = ball_entity->collider.colliders[0].props.circle.radius;
 
-	const u32 steps_per_lookahead =
-		(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
-		game_state->constants.ball_lookahead_dts;
+	const u32 steps_per_lookahead = game_state->constants.ball_lookahead_dts;
 	// We want a lookahead of 150ms for our goalie
 	const int lookaheads =
 		floor(Clamp((GOALIE_LOOKAHEAD_MS / game_state->constants.fixed_timestep) /
@@ -547,9 +545,7 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 {
 	struct player_ball_reachability_prediction prediction = {.can_reach_it = false};
 
-	const int steps_per_lookahead =
-		(game_state->vars.slow_motion ? SLOW_MOTION_LOOKAHEAD_MULTIPLIER : 1) *
-		game_state->constants.ball_lookahead_dts;
+	const int steps_per_lookahead = game_state->constants.ball_lookahead_dts;
 	const int lookaheads = game_state->constants.ball_lookaheads;
 	for (u16 i = 0; i < lookaheads; ++i) {
 		v3 pos_to_check = future_ball_positions[i];

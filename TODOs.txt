@@ -120,8 +120,9 @@ v introduce event system
 v removed after touch
 v implement time machine
 v implement header
-* improve player selection system
-* when performing header and ball height is too low just fumble
+* refactor charge logic
+- improve player selection system
+- when performing header and ball height is too low just fumble
 - implement local multi-player
 - press player should not be selected as human controlled until it gets the ball
 - support multiple human players
