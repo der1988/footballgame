@@ -48,6 +48,9 @@ typedef time_t delta_time_t;
 typedef i16 running_action_idx_t;
 typedef u32 human_id_t;
 typedef u32 game_controller_id_t;
-typedef u32 gamepad_platform_device_id_t;
+typedef u32 platform_gamepad_device_id_t;
+typedef u32 platform_gamepad_input_axis_id_t;
+typedef u32 platform_gamepad_input_button_id_t;
+typedef u32 platform_keyboard_input_id_t;
 
 #endif // !TYPES_H

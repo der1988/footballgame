@@ -32,7 +32,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	const u8 game_controller_idx = 0;
 	struct game_controller *gc = &game_state->input_manager->game_controllers[game_controller_idx];
 
-	if (IsGameControlJustPressed(gc, test_reset)) {
+	if (gc->state.current[GAME_CONTROL_TEST_RESET].digital.pressed) {
 		struct component_transform *p1_transform =
 			&entity_get(game_state->entity_repository,
 						game_state->human_players[0].controlled_player_entity_id)
@@ -46,7 +46,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test cross-bar
-	if (IsGameControlJustPressed(gc, test_crossbar)) {
+	if (gc->state.current[GAME_CONTROL_TEST_CROSSBAR].digital.pressed) {
 		entity_ball_set_position_and_velocity(ball_entity,
 											  (v3){.x = game_state->vars.pitch.field.x + 340,
 												   .z = 300},
@@ -56,7 +56,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test cross
-	if (IsGameControlJustPressed(gc, test_cross)) {
+	if (gc->state.current[GAME_CONTROL_TEST_CROSS].digital.pressed) {
 		entity_ball_set_position_and_velocity(
 			ball_entity,
 			(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
@@ -66,7 +66,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test post
-	if (IsGameControlJustPressed(gc, test_post)) {
+	if (gc->state.current[GAME_CONTROL_TEST_POST].digital.pressed) {
 		entity_ball_set_position_and_velocity(ball_entity,
 											  (v3){.x = game_state->vars.pitch.field.x + 465.97,
 												   .z = 1050},
@@ -76,7 +76,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	}
 
 	// Test goalie jump
-	if (IsGameControlJustPressed(gc, test_goalie_jump)) {
+	if (gc->state.current[GAME_CONTROL_TEST_GOALIE_JUMP].digital.pressed) {
 		entity_ball_set_position_and_velocity(
 			ball_entity,
 			(v3){.x = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.x,

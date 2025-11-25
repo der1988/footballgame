@@ -1,7 +1,8 @@
 #include "platform.h"
+#include "types.h"
 #include <raylib.h>
 
-u32 platform_keyboard_key_mapping[] = {
+platform_keyboard_input_id_t platform_keyboard_key_mapping[] = {
 	KEY_UP,	   // PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_UP
 	KEY_DOWN,  // PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_DOWN
 	KEY_LEFT,  // PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_LEFT
@@ -22,7 +23,7 @@ u32 platform_keyboard_key_mapping[] = {
 	KEY_EIGHT, // PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8
 };
 
-u32 platform_gamepad_button_mapping[] = {
+platform_gamepad_input_button_id_t platform_gamepad_button_mapping[] = {
 	GAMEPAD_BUTTON_MIDDLE_LEFT,		 // PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_START
 	GAMEPAD_BUTTON_MIDDLE_RIGHT,	 // PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SELECT
 	GAMEPAD_BUTTON_RIGHT_FACE_DOWN,	 // PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DOWN
@@ -39,7 +40,7 @@ u32 platform_gamepad_button_mapping[] = {
 	GAMEPAD_BUTTON_RIGHT_THUMB,		 // PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT_THUMB
 };
 
-u32 platform_gamepad_axis_mapping[] = {
+platform_gamepad_input_axis_id_t platform_gamepad_axis_mapping[] = {
 	GAMEPAD_AXIS_LEFT_X,		// PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_X
 	GAMEPAD_AXIS_LEFT_Y,		// PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_LEFT_Y
 	GAMEPAD_AXIS_RIGHT_X,		// PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_X
@@ -48,24 +49,25 @@ u32 platform_gamepad_axis_mapping[] = {
 	GAMEPAD_AXIS_RIGHT_TRIGGER, // PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER
 };
 
-b32 platform_input_device_keyboard_is_key_down(const u32 input_id)
+b32 platform_input_device_keyboard_is_key_down(const platform_keyboard_input_id_t input_id)
 {
-	u32 raylib_key_id = platform_keyboard_key_mapping[input_id];
+	platform_keyboard_input_id_t raylib_key_id = platform_keyboard_key_mapping[input_id];
 
 	return IsKeyDown(raylib_key_id);
 }
 
-b32 platform_input_device_gamepad_is_button_down(const u32 gamepad_id, const u32 input_id)
+b32 platform_input_device_gamepad_is_button_down(const platform_gamepad_device_id_t gamepad_id,
+												 const platform_gamepad_input_button_id_t input_id)
 {
-	u32 raylib_button_id = platform_gamepad_button_mapping[input_id];
+	platform_gamepad_input_button_id_t raylib_button_id = platform_gamepad_button_mapping[input_id];
 
 	return IsGamepadButtonDown(gamepad_id, raylib_button_id);
 }
 
-f32 platform_input_device_gamepad_get_axis_state(const u32 gamepad_id,
+f32 platform_input_device_gamepad_get_axis_state(const platform_gamepad_device_id_t gamepad_id,
 												 enum platform_input_device_gamepad_axis axis)
 {
-	u32 raylib_axis_id = platform_gamepad_axis_mapping[axis];
+	platform_gamepad_input_axis_id_t raylib_axis_id = platform_gamepad_axis_mapping[axis];
 
 	f32 value = GetGamepadAxisMovement(gamepad_id, raylib_axis_id);
 

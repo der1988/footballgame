@@ -4,6 +4,7 @@
 #include "e_player.h"
 #include "football.h"
 #include "game.h"
+#include "game_controller.h"
 #include "input.h"
 #include "macro.h"
 #include <math_ext.h>
@@ -58,9 +59,9 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		struct game_controller *game_controller =
 			&game_state->input_manager
 				 ->game_controllers[game_state->human_players[0].game_controller_id];
-		struct game_controller_state *game_controller_state = &game_controller->current_state;
+		struct game_controller_state *game_controller_state = &game_controller->state;
 
-		player_controls->steering = game_controller_state->movement;
+		player_controls->steering = calculate_movement_vector(game_controller);
 
 		const u8 game_controller_idx = 0;
 
@@ -68,28 +69,31 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 		case PS_NONE:
 			break;
 		case PS_NORMAL: {
-
-			if (!entity->player.is_colliding_with_ball && game_controller_state->shoot) {
+			if (!entity->player.is_colliding_with_ball &&
+				game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed) {
 				if (ball_transform->virtual_height > 20) {
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_HEADER, game_state);
 				}
-			} else if (!entity->player.is_colliding_with_ball && game_controller_state->tackle) {
+			} else if (!entity->player.is_colliding_with_ball &&
+					   game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
 				if (team_idx_last_ball_possession != player->team_side) {
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_SLIDING_TACKLE, game_state);
 				}
 			} else {
-				if (game_controller->charge.ready) {
-					time_t time_holding_button =
-						(game_state->time - game_controller->charge.started);
-					switch (game_controller->charge.type) {
-					case ACT_SHOOT: {
+				/* We check the charge lock is free and the last locked game control has just been released. */
+				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_FREE &&
+					game_controller->state.current[game_controller->charge_lock.control_id]
+						.digital.released) {
+					time_t time_holding_button = game_controller->charge_lock.duration;
+					switch (game_controller->charge_lock.control_id) {
+					case GAME_CONTROL_SHOOT: {
 						f32 power = SHOOT_POWER(time_holding_button);
 						player_controls->shot = power;
 						break;
 					}
-					case ACT_PASS: {
+					case GAME_CONTROL_PASS: {
 						f32 power = PASS_POWER(time_holding_button);
 						player_controls->pass = power;
 						if (time_holding_button < 0.15f) {
@@ -97,11 +101,13 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 						}
 						break;
 					}
-					case ACT_LONG_PASS: {
+					case GAME_CONTROL_LONG_PASS: {
 						f32 power = LONG_PASS_POWER(time_holding_button);
 						player_controls->long_pass = power;
 						break;
 					}
+					default:
+						break;
 					}
 				}
 			}

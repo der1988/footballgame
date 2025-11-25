@@ -222,13 +222,13 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 
 	switch (state_machine->current_state) {
 	case PS_SLIDING_TACKLE:
-		game_controller_player_charge_reset(entity->header.id, game_state);
+		game_controller_player_reset(entity->header.id, game_state);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
 		entity->player.state_machine.state_data.tackle.start_time = game_state->time;
 		break;
 	case PS_FALL:
 		entity->player.state_machine.state_data.fall.animation_start_time = game_state->time;
-		game_controller_player_charge_reset(entity->header.id, game_state);
+		game_controller_player_reset(entity->header.id, game_state);
 		struct entity *ball_entity = game_state->vars.ball_entity;
 		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {
 			// Falling player had the ball, so let's reset touch time to make it clear player is no longer in possession
@@ -238,7 +238,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	case PS_HEADER: {
 		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
 		entity->player.state_machine.state_data.header.header_phase = HP_GROUND;
-		game_controller_player_charge_reset(entity->header.id, game_state);
+		game_controller_player_reset(entity->header.id, game_state);
 
 		v2 direction = Vector2Subtract(ball_transform->position, player_transform->position);
 

@@ -237,10 +237,12 @@ b32 game_play_update(struct game_state *game_state)
 
 		input_manager_update(game_state->input_manager, game_state);
 
-		f32 left_trigger =
-			game_state->input_manager->game_controllers[0].current_state.recorder_rewind;
-		f32 right_trigger =
-			game_state->input_manager->game_controllers[0].current_state.recorder_forward;
+		f32 left_trigger = game_state->input_manager->game_controllers[0]
+							   .state.current[GAME_CONTROL_RECORDER_REWIND]
+							   .analogic.value;
+		f32 right_trigger = game_state->input_manager->game_controllers[0]
+								.state.current[GAME_CONTROL_RECORDER_FORWARD]
+								.analogic.value;
 
 		static time_t last_interaction_time = 0;
 
@@ -270,7 +272,7 @@ b32 game_play_update(struct game_state *game_state)
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
 		struct game_controller *gc = &game_state->input_manager->game_controllers[0];
-		if (IsGameControlJustPressed(gc, recorder_resume)) {
+		if (gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}
@@ -305,7 +307,9 @@ void update(struct game_state *game_state)
 		game_state->vars.mode = GM_TWEAK_UI;
 	}
 
-	if (game_state->input_manager->game_controllers[0].current_state.recorder_rewind > 0.1f) {
+	if (game_state->input_manager->game_controllers[0]
+			.state.current[GAME_CONTROL_RECORDER_REWIND]
+			.analogic.value > 0.1f) {
 		game_state->vars.mode = GM_RECORDER;
 	}
 
@@ -314,7 +318,6 @@ void update(struct game_state *game_state)
 		game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 	}
 
-	systems_controls(game_state);
 	systems_goalie(game_state);
 	systems_player_collisions(game_state);
 	systems_team_pressing(game_state);

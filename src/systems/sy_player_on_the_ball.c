@@ -258,7 +258,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			player_entity->player.kicked_ball = kicked_ball;
 
 			if (kicked_ball) {
-				game_controller_player_charge_reset(player_on_the_ball_entity_id, game_state);
+				game_controller_player_reset(player_on_the_ball_entity_id, game_state);
 			}
 			break;
 		}

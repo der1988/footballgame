@@ -3,7 +3,27 @@
 #include "gamepad.h"
 #include "keyboard.h"
 #include "platform/platform.h"
+#include <string.h>
 #include <raymath.h>
+
+struct game_control_info game_control_infos[] = {
+	[GAME_CONTROL_MOVE_UP] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_MOVE_DOWN] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_MOVE_LEFT] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_MOVE_RIGHT] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_SHOOT] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
+	[GAME_CONTROL_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
+	[GAME_CONTROL_LONG_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
+	[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_RECORDER_REWIND] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_RECORDER_FORWARD] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
+	[GAME_CONTROL_RECORDER_RESUME] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_RESET] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_CROSS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_CROSSBAR] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_POST] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_TEST_GOALIE_JUMP] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+};
 
 struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 {
@@ -112,73 +132,69 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 	assert(input_manager);
 
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
-		struct game_controller *game_controller = &input_manager->game_controllers[i];
+		struct game_controller *gc = &input_manager->game_controllers[i];
 
-		game_controller->previous_state = game_controller->current_state;
+		/* Current state is now previous. */
+		memcpy(
+			gc->state.previous, gc->state.current, sizeof(struct input_state) * GAME_CONTROL_COUNT);
 
-		switch (game_controller->type) {
+		switch (gc->type) {
 		case GAME_CONTROLLER_TYPE_NONE:
-			game_controller->current_state = (struct game_controller_state){0};
+			gc->state = (struct game_controller_state){0};
 			continue;
 		case GAME_CONTROLLER_TYPE_GAMEPAD: {
-			// TODO: this needs to be fixed, i is not the id of the gamepad
-			game_controller->current_state = gamepad_update(i, game_controller);
+			gamepad_update(gc->gamepad.device_id, gc->gamepad.bindings, &gc->state);
 			break;
 		}
 		case GAME_CONTROLLER_TYPE_KEYBOARD: {
-			game_controller->current_state = keyboard_update(game_controller);
+			keyboard_update(gc->keyboard.bindings, &gc->state);
 			break;
 		}
 		}
 
-		struct action_charge *charge = &game_controller->charge;
-		if (charge->ready) {
-			// Ready
-			if (HAS_TIME_PASSED(game_state->time,
-								charge->ended,
-								game_state->constants.kick_charge_reset_time)) {
-				charge->ready = charge->charging = false;
+		switch (gc->charge_lock.state) {
+		case INPUT_CHARGE_LOCK_FREE: {
+			for (usize j = 0; j < GAME_CONTROL_COUNT; j++) {
+				struct game_control_info *game_control_info = &game_control_infos[j];
+				if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
+					game_control_info->chargeable && gc->state.current[j].digital.down) {
+					/* Found control to charge. */
+					gc->charge_lock.control_id = j;
+					gc->charge_lock.state = INPUT_CHARGE_LOCK_CHARGING;
+					gc->charge_lock.duration = 0;
+					break;
+				}
 			}
-		} else if (charge->charging) {
-			b32 is_still_charging;
-			switch (charge->type) {
-			case ACT_SHOOT: {
-				is_still_charging = game_controller->current_state.shoot;
-				break;
+			break;
+		}
+		case INPUT_CHARGE_LOCK_CHARGING: {
+			struct game_control_info *game_control_info =
+				&game_control_infos[gc->charge_lock.control_id];
+			if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
+				game_control_info->chargeable &&
+				gc->state.current[gc->charge_lock.control_id].digital.down) {
+				gc->charge_lock.duration += game_state->dt;
+			} else {
+				/*  Button released!
+				  The duration is preserved for this frame so Game Logic can read it.
+				  We don't free the lock yet; we free it at the START of next frame
+				  to let the game logic consume it.
+				  Simple auto-reset approach: */
+				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
 			}
-			case ACT_PASS: {
-				is_still_charging = game_controller->current_state.pass;
-				break;
+			break;
+		}
+		case INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE: {
+			struct game_control_info *game_control_info =
+				&game_control_infos[gc->charge_lock.control_id];
+			if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
+				game_control_info->chargeable &&
+				!gc->state.current[gc->charge_lock.control_id].digital.down) {
+				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
+				gc->charge_lock.duration = 0;
 			}
-			case ACT_LONG_PASS: {
-				is_still_charging = game_controller->current_state.long_pass;
-				break;
-			}
-			}
-			if (!is_still_charging) {
-				charge->ended = game_state->time;
-				charge->ready = true;
-			}
-		} else {
-			b32 charging = false;
-			enum action_charge_type charge_type;
-			if (game_controller->current_state.shoot) {
-				charging = true;
-				charge_type = ACT_SHOOT;
-			} else if (game_controller->current_state.pass) {
-				charging = true;
-				charge_type = ACT_PASS;
-			} else if (game_controller->current_state.long_pass) {
-				charging = true;
-				charge_type = ACT_LONG_PASS;
-			}
-			if (charging) {
-				charge->ready = false;
-				charge->started = game_state->time;
-				charge->ended = 0;
-				charge->charging = true;
-				charge->type = charge_type;
-			}
+			break;
+		}
 		}
 	}
 }

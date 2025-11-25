@@ -9,12 +9,6 @@
 
 #define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 
-#define IsGameControlJustPressed(game_controller, control)                                         \
-	(!game_controller->previous_state.control && game_controller->current_state.control)
-
-#define IsGameControlJustReleased(game_controller, control)                                        \
-	(game_controller->previous_state.control && !game_controller->current_state.control)
-
 /* Forward declarations. */
 struct game_state;
 
@@ -45,6 +39,18 @@ enum game_control {
 	GAME_CONTROL_COUNT,
 };
 
+enum game_control_type {
+	GAME_CONTROL_TYPE_ANALOGIC,
+	GAME_CONTROL_TYPE_DIGITAL,
+};
+
+struct game_control_info {
+	enum game_control_type type;
+	b32 chargeable;
+};
+
+extern struct game_control_info game_control_infos[];
+
 enum gamepad_binding_type {
 	GAME_CONTROL_BINDING_TYPE_DIGITAL,
 	GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,
@@ -61,56 +67,54 @@ struct keyboard_binding {
 	u32 to;
 };
 
+struct input_state {
+	union {
+		struct {
+			f32 value;
+		} analogic;
+		struct {
+			b32 down;
+			b32 pressed;
+			b32 released;
+		} digital;
+	};
+};
+
+enum input_charge_lock_state {
+	INPUT_CHARGE_LOCK_FREE,
+	INPUT_CHARGE_LOCK_CHARGING,
+	INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE,
+};
+
 enum game_controller_type {
 	GAME_CONTROLLER_TYPE_NONE,
 	GAME_CONTROLLER_TYPE_KEYBOARD,
 	GAME_CONTROLLER_TYPE_GAMEPAD,
 };
 
-/* This represents the state of a game controller during a frame. */
 struct game_controller_state {
-	v2 movement;
-
-	b32 shoot;
-	b32 pass;
-	b32 long_pass;
-	b32 tackle;
-
-	f32 recorder_rewind;
-	f32 recorder_forward;
-	b32 recorder_resume;
-
-	b32 test_reset;
-	b32 test_crossbar;
-	b32 test_cross;
-	b32 test_post;
-	b32 test_goalie_jump;
+	struct input_state current[GAME_CONTROL_COUNT];
+	struct input_state previous[GAME_CONTROL_COUNT];
 };
 
 struct game_controller {
 	enum game_controller_type type;
 	union {
 		struct {
-			gamepad_platform_device_id_t device_id;
+			platform_gamepad_device_id_t device_id;
 			struct gamepad_binding bindings[GAME_CONTROL_COUNT];
 		} gamepad;
 		struct {
 			struct keyboard_binding bindings[GAME_CONTROL_COUNT];
 		} keyboard;
 	};
-	struct game_controller_state current_state;
-	struct game_controller_state previous_state;
-	struct action_charge {
-		enum action_charge_type {
-			ACT_SHOOT,
-			ACT_PASS,
-			ACT_LONG_PASS
-		} type;
-		time_t started;
-		time_t ended;
-		b32 charging;
-		b32 ready;
-	} charge;
+	struct game_controller_state state;
+
+	struct {
+		enum input_charge_lock_state state;
+		enum game_control control_id;
+		time_t duration;
+	} charge_lock;
 };
 
 struct input_manager {
@@ -123,9 +127,8 @@ void input_manager_destroy(struct input_manager *input_manager);
 
 void input_manager_update(struct input_manager *input_manager, struct game_state *game_state);
 
-void game_controller_charge_reset(struct game_controller *game_controller);
+void game_controller_reset(struct game_controller *game_controller);
 
-void game_controller_player_charge_reset(entity_id_t player_entity_id,
-										 struct game_state *game_state);
+void game_controller_player_reset(entity_id_t player_entity_id, struct game_state *game_state);
 
 #endif // !INPUT_H

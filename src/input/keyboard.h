@@ -3,6 +3,6 @@
 
 #include "input.h"
 
-struct game_controller_state keyboard_update(struct game_controller *game_controller);
+void keyboard_update(struct keyboard_binding *bindings, struct game_controller_state *state);
 
 #endif // !KEYBOARD_H

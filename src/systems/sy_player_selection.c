@@ -86,7 +86,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 		// e.g.: we need to check whether the player is already controlled by a human
 		if (new_controlled_player_entity_id != human_player->controlled_player_entity_id) {
 			// human is controlling a new player compared to previous frame
-			game_controller_charge_reset(
+			game_controller_reset(
 				&game_state->input_manager->game_controllers[human_player->game_controller_id]);
 			human_player->controlled_player_entity_id = new_controlled_player_entity_id;
 		}

@@ -1,17 +1,20 @@
 #include "input.h"
 #include "platform/platform.h"
+#include "game_controller.h"
+#include "log.h"
+#include "types.h"
 #include <raymath.h>
 
-static f32 get_analogic_value_from_binding(u32 gamepad_index, struct gamepad_binding *binding)
+static f32 get_analogic_value_from_binding(u32 gamepad_index, struct gamepad_binding binding)
 {
 	f32 value = 0;
-	if (binding->type == GAME_CONTROL_BINDING_TYPE_DIGITAL) {
-		value = platform_input_device_gamepad_is_button_down(gamepad_index, binding->to) ? 1 : 0;
+	if (binding.type == GAME_CONTROL_BINDING_TYPE_DIGITAL) {
+		value = platform_input_device_gamepad_is_button_down(gamepad_index, binding.to) ? 1 : 0;
 	} else {
-		value = platform_input_device_gamepad_get_axis_state(gamepad_index, binding->to);
-		if (binding->type == GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE && value < 0)
+		value = platform_input_device_gamepad_get_axis_state(gamepad_index, binding.to);
+		if (binding.type == GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE && value < 0)
 			value = 0;
-		else if (binding->type == GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE) {
+		else if (binding.type == GAME_CONTROL_BINDING_TYPE_ANALOGIC_NEGATIVE) {
 			if (value > 0)
 				value = 0;
 			value *= -1;
@@ -21,58 +24,36 @@ static f32 get_analogic_value_from_binding(u32 gamepad_index, struct gamepad_bin
 	return value;
 }
 
-struct game_controller_state gamepad_update(u32 gamepad_index,
-											struct game_controller *game_controller)
+static void update_input_state(platform_gamepad_device_id_t gamepad_index,
+							   enum game_control game_control,
+							   struct game_controller_state *state,
+							   struct gamepad_binding *bindings)
 {
-	struct gamepad_binding *bindings = game_controller->gamepad.bindings;
+	struct game_control_info game_control_info = game_control_infos[game_control];
 
-	f32 up = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_UP]);
-	f32 down = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_DOWN]);
-	f32 left = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_LEFT]);
-	f32 right = get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_MOVE_RIGHT]);
+	switch (game_control_info.type) {
+	case GAME_CONTROL_TYPE_DIGITAL: {
+		b32 down =
+			platform_input_device_gamepad_is_button_down(gamepad_index, bindings[game_control].to);
+		state->current[game_control] =
+			get_digital_input_state(down, &state->previous[game_control]);
+		break;
+	}
+	case GAME_CONTROL_TYPE_ANALOGIC:
+		state->current[game_control].analogic.value =
+			get_analogic_value_from_binding(gamepad_index, bindings[game_control]);
+		break;
+	default:
+		GLOG_ERROR(LS_GAME, "unknown game control type!");
+		break;
+	}
+}
 
-	b32 shoot = platform_input_device_gamepad_is_button_down(gamepad_index,
-															 bindings[GAME_CONTROL_SHOOT].to);
-	b32 pass =
-		platform_input_device_gamepad_is_button_down(gamepad_index, bindings[GAME_CONTROL_PASS].to);
-	b32 long_pass = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_LONG_PASS].to);
-	b32 tackle = platform_input_device_gamepad_is_button_down(gamepad_index,
-															  bindings[GAME_CONTROL_TACKLE].to);
-
-	f32 recorder_rewind =
-		get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_REWIND]);
-	f32 recorder_forward =
-		get_analogic_value_from_binding(gamepad_index, &bindings[GAME_CONTROL_RECORDER_FORWARD]);
-	b32 recorder_resume = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_RECORDER_RESUME].to);
-
-	b32 test_reset = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_TEST_RESET].to);
-	b32 test_crossbar = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_TEST_CROSSBAR].to);
-	b32 test_cross = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_TEST_CROSS].to);
-	b32 test_post = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_TEST_POST].to);
-	b32 test_goalie_jump = platform_input_device_gamepad_is_button_down(
-		gamepad_index, bindings[GAME_CONTROL_TEST_GOALIE_JUMP].to);
-
-	/* Movement doesn't need to be normalised because the gamepad reading already is. */
-
-	return (struct game_controller_state){.movement = (v2){.x = -left + right, .y = -up + down},
-										  .shoot = shoot,
-										  .pass = pass,
-										  .long_pass = long_pass,
-										  .tackle = tackle,
-
-										  .recorder_rewind = recorder_rewind,
-										  .recorder_forward = recorder_forward,
-										  .recorder_resume = recorder_resume,
-
-										  .test_reset = test_reset,
-										  .test_crossbar = test_crossbar,
-										  .test_cross = test_cross,
-										  .test_post = test_post,
-										  .test_goalie_jump = test_goalie_jump};
+void gamepad_update(u32 gamepad_index,
+					struct gamepad_binding *bindings,
+					struct game_controller_state *state)
+{
+	for (usize i = 0; i < GAME_CONTROL_COUNT; i++) {
+		update_input_state(gamepad_index, i, state, bindings);
+	}
 }

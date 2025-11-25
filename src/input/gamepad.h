@@ -3,7 +3,8 @@
 
 #include "input.h"
 
-struct game_controller_state gamepad_update(u32 gamepad_index,
-											struct game_controller *game_controller);
+void gamepad_update(u32 gamepad_index,
+					struct gamepad_binding *bindings,
+					struct game_controller_state *state);
 
 #endif // !GAMEPAD_H
