@@ -305,7 +305,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// big is each phase height.
 				// At this point we can determine how well we hit the ball based on header phase and height of the ball.
 				// This will also affect the direction of the ball.
-				const f32 delta = game_state->constants.player_header_height -
+				const f32 delta = game_state->constants.player_header_max_height -
 								  game_state->constants.player_control_height;
 				const f32 header_phase_size = delta / 4.0f;
 				const f32 optimal_height =

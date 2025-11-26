@@ -1,4 +1,5 @@
 #include "ai.h"
+#include "components.h"
 #include "e_ball.h"
 #include "e_player.h"
 #include "entities.h"
@@ -176,15 +177,19 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		break;
 	}
 	case WOTB_NO_ONE: {
+		struct future_position *ball_future_reachable_position =
+			&ball->future_positions[FUTURE_POSITION_REACHABLE_TO_PLAYER];
+
 		if (ball->pass_target_entity_id == player_entity->header.id) {
 			// This player is the target of an automatic pass
 			// Let's move towards the ball
 			*target_position =
 				calculate_position_to_seek_to_reach_ball(player_entity, ball_entity, game_state);
 			ai_state = PAS_SEEK_POSITION;
-		} else if (ball->future_bounce.available &&
-				   Vector2Distance(transform->position, ball->future_bounce.position) < 50) {
-			*target_position = ball->future_bounce.position;
+		} else if (ball_future_reachable_position->available &&
+				   Vector2Distance(transform->position,
+								   V3_TO_V2(ball_future_reachable_position->position)) < 50) {
+			*target_position = V3_TO_V2(ball_future_reachable_position->position);
 			ai_state = PAS_ARRIVE_TO_POSITION;
 		} else if (game_state->vars.teams[player_entity->player.team_side]
 					   .play_context.player_nearest_to_the_ball == player_entity->header.id) {

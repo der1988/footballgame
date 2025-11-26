@@ -83,7 +83,9 @@ struct game_state *game_play_init(struct game_config game_config,
 								.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
 								.ball_lookaheads = 5,
 								.ball_lookahead_dts = 96,
+								// Crossbar is at 2.44m height
 								.crossbar_height = 27,
+
 								.player_movement_force = 27000,
 								.player_movement_drag = 4166,
 								.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
@@ -91,8 +93,10 @@ struct game_state *game_play_init(struct game_config game_config,
 								.player_run_max_velocity = 10.5f * PIXELS_PER_METER,
 								.player_control_radius = 6,
 								.player_control_height = 19,
-								.player_header_height = 28,
+								// Ronaldo's record is 2.93m but average is just above crossbar
+								.player_header_max_height = 28,
 								.player_run_control_max_angle = 45,
+
 								// Elite goalie has 150ms reaction time
 								.goalie_dive_reaction_time = 0.150f,
 								.goalie_dive_force = 8500,
@@ -100,6 +104,8 @@ struct game_state *game_play_init(struct game_config game_config,
 								.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
 								// Minimum speed for goalie to dive is 54km/h
 								.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
+								// Average max reach for a gk is 3.2m
+								.goalie_reach_max_height = 35.4f,
 								.ai_enabled = true,
 								.shoot_aid_no_inertia = true,
 								.kick_charge_reset_time = 1.5f};

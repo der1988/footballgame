@@ -186,8 +186,10 @@ void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v
 	transform->virtual_height = pos.y;
 	ball_entity->physics3d.accel = Vector3Zero();
 	ball_entity->physics3d.velocity = velocity;
-	ball_entity->ball.future_bounce.available = false;
-	ball_entity->ball.future_reachable.available = false;
+
+	for (usize i = 0; i < FUTURE_POSITION_COUNT; i++) {
+		ball_entity->ball.future_positions[i].available = false;
+	}
 }
 
 void entity_ball_control_precision(struct entity *ball_entity,

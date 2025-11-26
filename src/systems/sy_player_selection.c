@@ -1,3 +1,4 @@
+#include "components.h"
 #include "e_ball.h"
 #include "e_player.h"
 #include "entities.h"
@@ -25,7 +26,12 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	// Let's use the future reachable position of the ball to determine which player to select
 	// This is useful in particular for crosses and long passes.
 	// If the ball is on the ground the future reachable position is its current position.
-	v2 epicenter = V3_TO_V2(ball->future_reachable.position);
+	v2 epicenter = ball_transform->position;
+	struct future_position *future_position_reachable_to_player =
+		&ball->future_positions[FUTURE_POSITION_REACHABLE_TO_PLAYER];
+	if (future_position_reachable_to_player->available) {
+		epicenter = V3_TO_V2(future_position_reachable_to_player->position);
+	}
 
 	entity_id_t player_in_possession_entity_id =
 		entity_ball_player_in_possession(ball_entity, game_state);

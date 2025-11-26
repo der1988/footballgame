@@ -1,3 +1,4 @@
+#include "components.h"
 #include "e_ball.h"
 #include "e_player.h"
 #include "entities.h"
@@ -57,7 +58,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		const v3 ball_position = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 		const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 		const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
-		const f32 ball_distance_from_goal = Vector2Distance(goal_center, V3_TO_V2(ball_position));
+		// const f32 ball_distance_from_goal = Vector2Distance(goal_center, V3_TO_V2(ball_position));
 
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;
@@ -138,25 +139,28 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 			const f32 exit_max_speed = game_state->constants.player_run_max_velocity * 1.5f;
 
+			struct future_position *future_reachable_position =
+				&ball->future_positions[FUTURE_POSITION_REACHABLE_TO_GOALIE];
+
 			// can we get the ball in our hands without moving by any chance?
-			if (ball_transform->virtual_height > game_state->constants.crossbar_height &&
-				ball->future_reachable.available && ball->future_reachable.dts < 20 &&
-				Vector2Distance(V3_TO_V2(ball->future_reachable.position), transform->position) <
-					5) {
+			if (ball_transform->virtual_height > game_state->constants.goalie_reach_max_height &&
+				future_reachable_position->available && future_reachable_position->dts < 20 &&
+				Vector2Distance(V3_TO_V2(future_reachable_position->position),
+								transform->position) < 5) {
 				entity_goalie_state_machine_change_state_to(state_machine, GS_JUMP, game_state);
 				break;
 			}
 
 			// Ball future reachable position is different from current position only in case the ball is currently
 			// not reachable by players because it's floating high in the air.
-			v2 ball_future_reachable_position = V3_TO_V2(ball->future_reachable.position);
+			v2 ball_future_reachable_position = V3_TO_V2(future_reachable_position->position);
 			struct nearest_player *nearest_opponent_to_the_ball =
 				find_nearest_player(ball_future_reachable_position,
 									OPPONENT_TEAM_SIDE(entity->player.team_side),
 									LIST_ENTITY_IDS_EMPTY,
 									game_state);
 
-			if ((ball->future_reachable.available &&
+			if ((future_reachable_position->available &&
 				 football_pitch_is_position_inside_penalty_area(
 					 ball_future_reachable_position,
 					 game_state->vars.teams[entity->player.team_side].play_context.pitch_side,
@@ -171,10 +175,11 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 				// Calculate whether goalie can reach the ball at its next reachable position
 				const b32 should_seek_ball_at_reachable_pos =
-					ball->future_reachable.available &&
+					future_reachable_position->available &&
 					physics_can_reach_position_in_time(transform->position,
 													   ball_future_reachable_position,
-													   game_state->dt * ball->future_bounce.dts,
+													   game_state->dt *
+														   future_reachable_position->dts,
 													   exit_max_speed);
 
 				if (should_seek_ball_at_reachable_pos) {

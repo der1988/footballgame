@@ -66,8 +66,9 @@ void systems_render_debug(struct game_state *game_state)
 		for (u8 i = 0; i < 25; ++i) {
 			DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
 		}
-		if (ball->future_bounce.available) {
-			DrawCircle(ball->future_bounce.position.x, ball->future_bounce.position.y, 1, PURPLE);
+		struct future_position *future_bounce = &ball->future_positions[FUTURE_POSITION_BOUNCE];
+		if (future_bounce->available) {
+			DrawCircle(future_bounce->position.x, future_bounce->position.y, 1, PURPLE);
 		}
 
 		// Pitch

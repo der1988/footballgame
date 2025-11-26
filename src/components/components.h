@@ -138,19 +138,19 @@ struct component_player_controls {
 	f32 pass;
 	b32 automatic_pass;
 	f32 long_pass;
-	// struct action_charge {
-	// 	enum action_charge_type {
-	// 		ACT_SHOOT,
-	// 		ACT_PASS,
-	// 		ACT_LONG_PASS
-	// 	} type;
-	// 	v2 direction;
-	// 	time_t started;
-	// 	time_t ended;
-	// 	f32 power;
-	// 	b32 charging;
-	// 	b32 ready;
-	// } charge;
+};
+
+enum future_position_type {
+	FUTURE_POSITION_BOUNCE,
+	FUTURE_POSITION_REACHABLE_TO_PLAYER,
+	FUTURE_POSITION_REACHABLE_TO_GOALIE,
+	FUTURE_POSITION_COUNT,
+};
+
+struct future_position {
+	b32 available;
+	v3 position;
+	u32 dts;
 };
 
 struct component_ball {
@@ -159,16 +159,7 @@ struct component_ball {
 
 	// Lookahead and bounces
 	v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
-	struct {
-		b32 available;
-		v2 position;
-		u32 dts;
-	} future_bounce;
-	struct {
-		b32 available;
-		v3 position;
-		u32 dts;
-	} future_reachable;
+	struct future_position future_positions[FUTURE_POSITION_COUNT];
 	time_t last_bounce_time;
 	b32 is_on_the_ground;
 

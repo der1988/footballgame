@@ -40,7 +40,7 @@ struct game_constants {
 	v3 gravity_force;
 	f32 pixels_per_meter;
 	f32 air_density;
-	u32 crossbar_height;
+	f32 crossbar_height;
 
 	// Coefficient of restitution
 	f32 ball_cr;
@@ -71,13 +71,14 @@ struct game_constants {
 	f32 player_run_max_velocity;
 	f32 player_control_radius;
 	f32 player_control_height;
-	f32 player_header_height;
+	f32 player_header_max_height;
 	f32 player_run_control_max_angle;
 
 	f32 goalie_dive_reaction_time;
 	f32 goalie_dive_force;
 	f32 goalie_dive_max_velocity;
 	f32 goalie_dive_min_ball_velocity;
+	f32 goalie_reach_max_height;
 
 	f32 kick_charge_reset_time;
 };

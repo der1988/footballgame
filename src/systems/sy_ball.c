@@ -7,14 +7,21 @@
 #include "math_ext.h"
 #include "sprite.h"
 
-static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
-{
-	f32 projection = Vector2ProjectScalar(stored_side, selected_side);
-	if (projection > 0) {
-		return true;
-	}
+// static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
+// {
+// 	f32 projection = Vector2ProjectScalar(stored_side, selected_side);
+// 	if (projection > 0) {
+// 		return true;
+// 	}
 
-	return false;
+// 	return false;
+// }
+
+static void apply_future_position(struct future_position *future_position, v3 position, u32 dts)
+{
+	future_position->available = true;
+	future_position->position = position;
+	future_position->dts = dts;
 }
 
 void systems_ball(struct game_state *game_state, struct input *input)
@@ -114,6 +121,12 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		v3 velocity = physics3d->velocity;
 		v3 accel = physics3d->accel;
 
+		struct future_position *future_bounce = &ball->future_positions[FUTURE_POSITION_BOUNCE];
+		struct future_position *future_reachable_to_player =
+			&ball->future_positions[FUTURE_POSITION_REACHABLE_TO_PLAYER];
+		struct future_position *future_reachable_to_goalie =
+			&ball->future_positions[FUTURE_POSITION_REACHABLE_TO_GOALIE];
+
 		b32 on_the_ground;
 		b32 bounced;
 		f32 ball_radius = collider->colliders[0].props.circle.radius;
@@ -125,21 +138,24 @@ void systems_ball(struct game_state *game_state, struct input *input)
 								&on_the_ground,
 								&bounced,
 								game_state);
-		ball->future_bounce.available = false;
-		ball->future_reachable.available = false;
+
+		/* Reset future positions. */
+		future_bounce->available = false;
+		future_reachable_to_player->available = false;
+		future_reachable_to_goalie->available = false;
+
 		ball->is_on_the_ground = on_the_ground && !bounced;
 		if (bounced) {
 			ball->last_bounce_time = game_state->time;
 		}
 		if (ball->is_on_the_ground) {
-			ball->future_bounce.available = true;
-			ball->future_bounce.position = V3_TO_V2(position);
-			ball->future_bounce.dts = 0;
+			apply_future_position(future_bounce, position, 0);
 		}
-		if (position.y < game_state->constants.crossbar_height) {
-			ball->future_reachable.available = true;
-			ball->future_reachable.position = position;
-			ball->future_reachable.dts = 0;
+		if (position.y < game_state->constants.player_header_max_height) {
+			apply_future_position(future_reachable_to_player, position, 0);
+		}
+		if (position.y < game_state->constants.goalie_reach_max_height) {
+			apply_future_position(future_reachable_to_goalie, position, 0);
 		}
 
 		// Calculate next 'ball_lookaheads' look ahead positions, ball_lookahead_dts dts apart from each other
@@ -150,7 +166,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		u16 lookaheads = game_state->constants.ball_lookaheads;
 		u32 lookahead_dts = game_state->constants.ball_lookahead_dts;
 		for (u16 i = 0; i < lookaheads; ++i) {
-			// 10 dt steps (100 in slow motion)
+			// 10 dt steps
 			for (u16 j = 0; j < lookahead_dts; ++j) {
 				physics_ball_simulation(&lookahead_position,
 										&lookahead_velocity,
@@ -160,16 +176,17 @@ void systems_ball(struct game_state *game_state, struct input *input)
 										&lookahead_on_the_ground,
 										&lookahead_bounced,
 										game_state);
-				if (!ball->future_bounce.available && lookahead_bounced) {
-					ball->future_bounce.available = true;
-					ball->future_bounce.position = V3_TO_V2(lookahead_position);
-					ball->future_bounce.dts = i * game_state->constants.ball_lookaheads + j + 1;
+				u32 dts = i * game_state->constants.ball_lookaheads + j + 1;
+				if (!future_bounce->available && lookahead_bounced) {
+					apply_future_position(future_bounce, lookahead_position, dts);
 				}
-				if (!ball->future_reachable.available &&
-					lookahead_position.y < game_state->constants.crossbar_height) {
-					ball->future_reachable.available = true;
-					ball->future_reachable.position = lookahead_position;
-					ball->future_reachable.dts = i * game_state->constants.ball_lookaheads + j + 1;
+				if (!future_reachable_to_player->available &&
+					lookahead_position.y < game_state->constants.player_header_max_height) {
+					apply_future_position(future_reachable_to_player, lookahead_position, dts);
+				}
+				if (!future_reachable_to_goalie->available &&
+					lookahead_position.y < game_state->constants.goalie_reach_max_height) {
+					apply_future_position(future_reachable_to_goalie, lookahead_position, dts);
 				}
 			}
 			ball->lookahead_positions[i] = lookahead_position;
