@@ -120,7 +120,8 @@ v introduce event system
 v removed after touch
 v implement time machine
 v implement header
-* refactor charge logic
+v refactor charge logic
+v implement recorder functionality
 - improve player selection system
 - when performing header and ball height is too low just fumble
 - implement local multi-player
@@ -131,10 +132,10 @@ v implement header
 - use r1 to make the player stop the ball?
 - use pass when you don't have the ball to chase the ball?
 - shot height should depend on starting height of the ball
-- implement recorder functionality
 - implement bounce animation + stunned state for goalie when shot is very fast
 - make the game platform agnostic
 - refactor the overlapping collision solver
 - fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
 - fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
 - ball deviation has to happen just once per collision
+- header jump height should be proportional to player velocity
