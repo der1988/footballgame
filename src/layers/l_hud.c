@@ -12,15 +12,16 @@ void layer_hud_draw(struct game_state *game_state)
 	f32 power = 0;
 
 	if (gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING) {
+		time_t current_duration = game_state->time - gc->charge_lock.start_time;
 		switch (gc->charge_lock.control_id) {
 		case GAME_CONTROL_SHOOT:
-			power = SHOOT_POWER(gc->charge_lock.duration);
+			power = SHOOT_POWER(current_duration);
 			break;
 		case GAME_CONTROL_PASS:
-			power = PASS_POWER(gc->charge_lock.duration);
+			power = PASS_POWER(current_duration);
 			break;
 		case GAME_CONTROL_LONG_PASS:
-			power = LONG_PASS_POWER(gc->charge_lock.duration);
+			power = LONG_PASS_POWER(current_duration);
 			break;
 		default:
 			break;

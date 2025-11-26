@@ -3,6 +3,7 @@
 #include "gamepad.h"
 #include "keyboard.h"
 #include "platform/platform.h"
+#include <stdio.h>
 #include <string.h>
 #include <raymath.h>
 
@@ -161,7 +162,9 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 					/* Found control to charge. */
 					gc->charge_lock.control_id = j;
 					gc->charge_lock.state = INPUT_CHARGE_LOCK_CHARGING;
-					gc->charge_lock.duration = 0;
+					gc->charge_lock.start_time = game_state->time;
+					gc->charge_lock.end_time = 0;
+					printf("charging control %lu at time %.2f\n", j, gc->charge_lock.start_time);
 					break;
 				}
 			}
@@ -173,14 +176,22 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 			if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
 				game_control_info->chargeable &&
 				gc->state.current[gc->charge_lock.control_id].digital.down) {
-				gc->charge_lock.duration += game_state->dt;
 			} else {
-				/*  Button released!
-				  The duration is preserved for this frame so Game Logic can read it.
-				  We don't free the lock yet; we free it at the START of next frame
-				  to let the game logic consume it.
-				  Simple auto-reset approach: */
+				//  Button released!
+				gc->charge_lock.state = INPUT_CHARGE_LOCK_CHARGED;
+				gc->charge_lock.end_time = game_state->time;
+				printf("control %u released at time %.2f\n",
+					   gc->charge_lock.control_id,
+					   gc->charge_lock.end_time);
+			}
+			break;
+		}
+		case INPUT_CHARGE_LOCK_CHARGED: {
+			printf("control %u charged\n", gc->charge_lock.control_id);
+			// If we are charged for more than 500ms we reset charge.
+			if ((game_state->time - gc->charge_lock.end_time) > 5.0f) {
 				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
+				printf("control %u charge timed out\n", gc->charge_lock.control_id);
 			}
 			break;
 		}
@@ -191,7 +202,7 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 				game_control_info->chargeable &&
 				!gc->state.current[gc->charge_lock.control_id].digital.down) {
 				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
-				gc->charge_lock.duration = 0;
+				printf("control %u released\n", gc->charge_lock.control_id);
 			}
 			break;
 		}

@@ -47,10 +47,12 @@ void systems_player_physics(struct game_state *game_state)
 		case PS_NORMAL: {
 			v2 effective_steering = player_controls->steering;
 			// If charging kick we seek the ball
+			struct game_controller *gc =
+				&game_state->input_manager
+					 ->game_controllers[game_state->human_players[0].game_controller_id];
 			if (entity_id == game_state->human_players[0].controlled_player_entity_id &&
-				game_state->input_manager
-						->game_controllers[game_state->human_players[0].game_controller_id]
-						.charge_lock.state == INPUT_CHARGE_LOCK_CHARGING) {
+				(gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
+				 gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED)) {
 				effective_steering = Vector2Normalize(
 					Vector2Subtract(ball_transform->position, transform->position));
 			}

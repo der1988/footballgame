@@ -83,6 +83,7 @@ struct input_state {
 enum input_charge_lock_state {
 	INPUT_CHARGE_LOCK_FREE,
 	INPUT_CHARGE_LOCK_CHARGING,
+	INPUT_CHARGE_LOCK_CHARGED,
 	INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE,
 };
 
@@ -113,7 +114,8 @@ struct game_controller {
 	struct {
 		enum input_charge_lock_state state;
 		enum game_control control_id;
-		time_t duration;
+		time_t start_time;
+		time_t end_time;
 	} charge_lock;
 };
 

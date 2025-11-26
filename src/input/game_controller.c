@@ -5,15 +5,12 @@ void game_controller_reset(struct game_controller *game_controller)
 {
 	/*  If we are in the middle of a charge, force the user to let go
 	  before they can do anything else with this new player.*/
-	if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING) {
+	if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
+		game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
 		game_controller->charge_lock.state = INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE;
-	}
-	// If we were already waiting or free, just ensure duration is clear
-	else {
+	} else {
 		game_controller->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
 	}
-
-	game_controller->charge_lock.duration = 0;
 }
 
 void game_controller_player_reset(entity_id_t player_entity_id, struct game_state *game_state)

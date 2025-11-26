@@ -82,11 +82,10 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 						&player->state_machine, PS_SLIDING_TACKLE, game_state);
 				}
 			} else {
-				/* We check the charge lock is free and the last locked game control has just been released. */
-				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_FREE &&
-					game_controller->state.current[game_controller->charge_lock.control_id]
-						.digital.released) {
-					time_t time_holding_button = game_controller->charge_lock.duration;
+				/* We check the charge lock is charged. */
+				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
+					time_t time_holding_button = game_controller->charge_lock.end_time -
+												 game_controller->charge_lock.start_time;
 					switch (game_controller->charge_lock.control_id) {
 					case GAME_CONTROL_SHOOT: {
 						f32 power = SHOOT_POWER(time_holding_button);
