@@ -143,8 +143,10 @@ struct game_gfx {
 
 struct game_state {
 	b32 initialised;
+	// Time we get from platform at the start of the frame.
 	time_t current_time;
 	f64 accumulator;
+	// Time that should be used for anything inside the game.
 	time_t time;
 	delta_time_t dt;
 	u64 physics_updates;
