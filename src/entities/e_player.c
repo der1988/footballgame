@@ -135,7 +135,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
 
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
-	collider->colliders[PCT_HEADER].props.circle.radius = 5;
+	collider->colliders[PCT_HEADER].props.circle.radius = 8;
 
 	player_state_machine_on_enter(entity, game_state);
 
