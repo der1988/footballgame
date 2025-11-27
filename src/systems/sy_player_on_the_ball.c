@@ -296,6 +296,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				player_entity->player.state_machine.state_data.header.header_phase;
 			f32 ball_height = ball_transform->virtual_height;
 
+			f32 header_force = 0;
+
 			// There are some conditions that will make the header look like shit
 			if (ball_height > game_state->constants.player_control_height) {
 				// Ball is high enough to be hit properly
@@ -306,10 +308,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// At this point we can determine how well we hit the ball based on header phase and height of the ball.
 				// This will also affect the direction of the ball.
 				const f32 delta = game_state->constants.player_header_max_height -
-								  game_state->constants.player_control_height;
+								  game_state->constants.player_header_min_height;
 				const f32 header_phase_size = delta / 4.0f;
-				const f32 optimal_height =
-					game_state->constants.player_control_height + header_phase_size * header_phase;
+				const f32 optimal_height = game_state->constants.player_header_min_height +
+										   header_phase_size * header_phase;
 				const f32 delta_from_optimal_height = ball_height - optimal_height;
 				// We clamp the impact factor (-1, 1) because we want to avoid very angled hits
 				const f32 impact_factor =
@@ -323,16 +325,17 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					header_phase,
 					ball_height_impact,
 					impact_vertical_angle);
+
+				// Weight of different impacts:
+				// - steering -> 1
+				// - collision force -> 1
+				// - ball height -> 3
+				header_force =
+					(steering_impact * 1 + player->collision_force * 1 + ball_height_impact * 3) /
+					5.0f;
 			} else {
 				printf("ball is not high enough: %d\n", header_phase);
 			}
-
-			// Weight of different impacts:
-			// - steering -> 1
-			// - collision force -> 1
-			// - ball height -> 3
-			f32 header_force =
-				(steering_impact * 1 + player->collision_force * 1 + ball_height_impact * 3) / 5.0f;
 
 			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
 
