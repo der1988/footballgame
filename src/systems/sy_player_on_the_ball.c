@@ -293,7 +293,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			f32 ball_height_impact = 0.0f;
 			f32 impact_vertical_angle = 0.0f;
 			enum header_phase header_phase =
-				player_entity->player.state_machine.state_data.header.header_phase;
+				player_entity->player.state_machine.state_data.header.phase;
 			f32 ball_height = ball_transform->virtual_height;
 
 			f32 header_force = 0;
@@ -313,9 +313,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				const f32 optimal_height = game_state->constants.player_header_min_height +
 										   header_phase_size * header_phase;
 				const f32 delta_from_optimal_height = ball_height - optimal_height;
-				// We clamp the impact factor (-1, 1) because we want to avoid very angled hits
+				// We clamp the impact factor (-0.5, 0.5) because we want to avoid very angled hits
 				const f32 impact_factor =
-					Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
+					Clamp(delta_from_optimal_height / header_phase_size, -1, 1) * 0.5f;
 				impact_vertical_angle = impact_factor;
 
 				ball_height_impact = 1 - fabsf(impact_factor) / 4.0f;
@@ -336,6 +336,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			} else {
 				printf("ball is not high enough: %d\n", header_phase);
 			}
+
+			// Passes work just like shoots but half the force.
+			if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
+				header_force *= 0.5f;
 
 			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
 

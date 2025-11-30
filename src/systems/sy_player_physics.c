@@ -155,7 +155,7 @@ void systems_player_physics(struct game_state *game_state)
 			// 1 -> HP_AIR_3
 			// 4 -> HP_MAX_ELEVATION
 			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4};
-			header_state_data->header_phase = animation_frames[new_frame_id - 1];
+			header_state_data->phase = animation_frames[new_frame_id - 1];
 
 			v2 force_to_apply = Vector2Zero();
 

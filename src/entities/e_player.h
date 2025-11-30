@@ -61,12 +61,18 @@ enum header_phase {
 	HP_MAX_ELEVATION,
 };
 
+enum header_type {
+	HEADER_TYPE_SHOOT,
+	HEADER_TYPE_PASS,
+};
+
 struct state_machine_player_header_data {
 	time_t animation_start_time;
 	b32 animation_completed;
 	b32 elevation_completed;
 	b32 should_fall_down;
-	enum header_phase header_phase;
+	enum header_phase phase;
+	enum header_type type;
 };
 
 union state_machine_player_state_data {

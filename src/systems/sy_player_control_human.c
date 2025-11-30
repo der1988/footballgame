@@ -70,10 +70,15 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			break;
 		case PS_NORMAL: {
 			if (!entity->player.is_colliding_with_ball &&
-				game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed) {
+				(game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
+				 game_controller_state->current[GAME_CONTROL_PASS].digital.pressed)) {
 				if (ball_transform->virtual_height > 20) {
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_HEADER, game_state);
+					player->state_machine.state_data.header.type =
+						game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ?
+							HEADER_TYPE_SHOOT :
+							HEADER_TYPE_PASS;
 				}
 			} else if (!entity->player.is_colliding_with_ball &&
 					   game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
@@ -81,7 +86,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 					entity_player_state_machine_change_state_to(
 						&player->state_machine, PS_SLIDING_TACKLE, game_state);
 				}
-			} else {
+			} else if (entity->player.is_colliding_with_ball) {
 				/* We check the charge lock is charged. */
 				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
 					time_t time_holding_button = game_controller->charge_lock.end_time -

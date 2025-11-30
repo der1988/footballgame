@@ -135,7 +135,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
 
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
-	collider->colliders[PCT_HEADER].props.circle.radius = 8;
+	collider->colliders[PCT_HEADER].props.circle.radius = 7;
 
 	player_state_machine_on_enter(entity, game_state);
 
@@ -237,7 +237,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 		break;
 	case PS_HEADER: {
 		entity->player.state_machine.state_data.header.animation_start_time = game_state->time;
-		entity->player.state_machine.state_data.header.header_phase = HP_GROUND;
+		entity->player.state_machine.state_data.header.phase = HP_GROUND;
 		game_controller_player_reset(entity->header.id, game_state);
 
 		v2 direction = Vector2Subtract(ball_transform->position, player_transform->position);
