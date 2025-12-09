@@ -176,13 +176,13 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 		case INPUT_CHARGE_LOCK_CHARGING: {
 			struct game_control_info *game_control_info =
 				&game_control_infos[gc->charge_lock.control_id];
+			gc->charge_lock.end_time = game_state->time;
 			if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
 				game_control_info->chargeable &&
 				gc->state.current[gc->charge_lock.control_id].digital.down) {
 			} else {
 				//  Button released!
 				gc->charge_lock.state = INPUT_CHARGE_LOCK_CHARGED;
-				gc->charge_lock.end_time = game_state->time;
 				GLOGF_DEBUG(LS_GAME,
 							"control %u released at time %.2f\n",
 							gc->charge_lock.control_id,
@@ -192,7 +192,7 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 		}
 		case INPUT_CHARGE_LOCK_CHARGED: {
 			// If we are charged for more than 500ms we reset charge.
-			if ((game_state->time - gc->charge_lock.end_time) > 5.0f) {
+			if ((game_state->time - gc->charge_lock.end_time) > 1.0f) {
 				gc->charge_lock.state = INPUT_CHARGE_LOCK_FREE;
 				GLOGF_DEBUG(LS_GAME, "control %u charge timed out\n", gc->charge_lock.control_id);
 			}
