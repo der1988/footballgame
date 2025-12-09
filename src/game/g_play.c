@@ -286,6 +286,10 @@ b32 game_play_update(struct game_state *game_state)
 		break;
 	case GM_TWEAK_UI: {
 		PollInputEvents();
+
+		/* We need to reset this here because this is usually done in the update function but in tweak ui mode that is not called. */
+		layer_debug_reset(game_state->layer_debug);
+
 		quit = WindowShouldClose();
 		if (IsKeyReleased(KEY_P)) {
 			game_state->vars.mode = GM_TICK;
