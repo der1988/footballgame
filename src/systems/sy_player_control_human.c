@@ -89,8 +89,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			} else if (entity->player.is_colliding_with_ball) {
 				/* We check the charge lock is charged. */
 				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
-					time_t time_holding_button = game_controller->charge_lock.end_time -
-												 game_controller->charge_lock.start_time;
+					fg_time_t time_holding_button = game_controller->charge_lock.end_time -
+													game_controller->charge_lock.start_time;
 					switch (game_controller->charge_lock.control_id) {
 					case GAME_CONTROL_SHOOT: {
 						f32 power = SHOOT_POWER(time_holding_button);

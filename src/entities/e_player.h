@@ -42,14 +42,14 @@ struct state_machine_running_action_state {
 };
 
 struct state_machine_player_tackle_data {
-	time_t start_time;
+	fg_time_t start_time;
 	b32 touched_ball;
 	b32 touched_player;
 };
 
 struct state_machine_player_fall_data {
-	time_t animation_start_time;
-	time_t animation_end_time;
+	fg_time_t animation_start_time;
+	fg_time_t animation_end_time;
 	b32 animation_completed;
 };
 
@@ -67,7 +67,7 @@ enum header_type {
 };
 
 struct state_machine_player_header_data {
-	time_t animation_start_time;
+	fg_time_t animation_start_time;
 	b32 animation_completed;
 	b32 elevation_completed;
 	b32 should_fall_down;
@@ -99,7 +99,7 @@ static const char *state_machine_goalie_state_string[] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
 struct state_machine_goalie_hold_ball_data {
-	time_t hold_start_time;
+	fg_time_t hold_start_time;
 };
 
 struct state_machine_goalie_animation_data {
@@ -156,7 +156,7 @@ define_state_machine_functions(goalie);
 struct player_ball_reachability_prediction {
 	b32 can_reach_it;
 	v3 future_pos;
-	time_t future_time;
+	fg_time_t future_time;
 };
 
 enum player_ball_possession {

@@ -7,9 +7,9 @@
 #define TIME_CAPSULES_MAX			 TIME_MACHINE_MAX_REWIND_TIME *TIME_CAPSULES_PER_SECOND
 
 struct time_capsule {
-	time_t current_time;
+	fg_time_t current_time;
 	f64 accumulator;
-	time_t time;
+	fg_time_t time;
 	u64 physics_updates;
 	u64 frame_updates;
 	struct game_constants constants;

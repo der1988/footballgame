@@ -23,7 +23,7 @@ struct game_state *game_play_init(struct game_config game_config,
 {
 	GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
 
-	time_t fixed_timestep = 1 / 480.0;
+	fg_time_t fixed_timestep = 1 / 480.0;
 
 	// Push game state onto main memory arena
 	struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
@@ -251,7 +251,7 @@ b32 game_play_update(struct game_state *game_state)
 								.state.current[GAME_CONTROL_RECORDER_FORWARD]
 								.analogic.value;
 
-		static time_t last_interaction_time = 0;
+		static fg_time_t last_interaction_time = 0;
 
 		if (left_trigger > 0.01f) {
 			last_interaction_time = GetTime();

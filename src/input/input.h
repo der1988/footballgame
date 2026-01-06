@@ -114,8 +114,8 @@ struct game_controller {
 	struct {
 		enum input_charge_lock_state state;
 		enum game_control control_id;
-		time_t start_time;
-		time_t end_time;
+		fg_time_t start_time;
+		fg_time_t end_time;
 	} charge_lock;
 };
 

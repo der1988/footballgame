@@ -115,13 +115,13 @@ struct component_player {
 	struct component_header header;
 	struct state_machine_player state_machine;
 	b32 control_ball;
-	time_t time_spent_in_precision_control;
-	time_t time_spent_in_run_control;
+	fg_time_t time_spent_in_precision_control;
+	fg_time_t time_spent_in_run_control;
 	f32 current_max_velocity;
-	time_low_prec_t last_kick_time;
-	time_low_prec_t last_frame_update_time;
-	time_low_prec_t last_possession_time;
-	time_low_prec_t last_selected_for_pass_time;
+	fg_time_low_prec_t last_kick_time;
+	fg_time_low_prec_t last_frame_update_time;
+	fg_time_low_prec_t last_possession_time;
+	fg_time_low_prec_t last_selected_for_pass_time;
 	u16 last_running_frame_idx;
 	u8 team_formation_position_idx;
 	enum team_side team_side;
@@ -160,34 +160,34 @@ struct component_ball {
 	// Lookahead and bounces
 	v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
 	struct future_position future_positions[FUTURE_POSITION_COUNT];
-	time_t last_bounce_time;
+	fg_time_t last_bounce_time;
 	b32 is_on_the_ground;
 
 	// Touch
-	time_t last_touch_time;
+	fg_time_t last_touch_time;
 	entity_id_t last_touch_entity_id;
-	time_t first_player_possession_time;
+	fg_time_t first_player_possession_time;
 
 	// Kicks
-	time_t last_kick_time;
+	fg_time_t last_kick_time;
 	entity_id_t last_kicker_entity_id;
 
 	// Passes
 	entity_id_t pass_target_entity_id;
 
 	// Tackles
-	time_t last_tackle_time;
+	fg_time_t last_tackle_time;
 	entity_id_t last_tackle_entity_id;
 
 	// Animation
 	u16 last_running_frame_idx;
-	time_t last_frame_update_time;
+	fg_time_t last_frame_update_time;
 };
 
 struct component_goal {
 	struct component_header header;
 	enum pitch_side side;
-	time_t hit_post_time;
+	fg_time_t hit_post_time;
 	b32 scored;
 };
 
@@ -198,8 +198,8 @@ struct component_goalie {
 	enum save_height dive_height;
 	f32 dive_distance;
 	f32 dive_speed;
-	time_t last_frame_update_time;
-	time_t last_save_time;
+	fg_time_t last_frame_update_time;
+	fg_time_t last_save_time;
 };
 
 running_action_idx_t component_action_run(entity_id_t id,

@@ -550,7 +550,7 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 	for (u16 i = 0; i < lookaheads; ++i) {
 		v3 pos_to_check = future_ball_positions[i];
 		if (!predicate || predicate(pos_to_check, seeker_entity, game_state)) {
-			time_t lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
+			fg_time_t lookahead_time = (i + 1) * game_state->dt * steps_per_lookahead;
 			if (physics_can_reach_position_in_time(seeker_entity->transform.position,
 												   V3_TO_V2(pos_to_check),
 												   lookahead_time,
@@ -605,7 +605,7 @@ struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_
 			if (angle > detection_angle)
 				continue;
 
-			time_low_prec_t last_time_selected_for_pass =
+			fg_time_low_prec_t last_time_selected_for_pass =
 				potential_pass_target_entity->player.last_selected_for_pass_time;
 			b32 nearer_to_goal = game_state->vars.teams[player_on_the_ball_entity->player.team_side]
 											 .play_context.pitch_side == PSI_NORTH ?

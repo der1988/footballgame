@@ -42,9 +42,9 @@ typedef struct RayCollision ray_collision_t;
 
 // Game
 typedef u32 entity_id_t;
-typedef f64 time_t;
-typedef f32 time_low_prec_t;
-typedef time_t delta_time_t;
+typedef f64 fg_time_t;
+typedef f32 fg_time_low_prec_t;
+typedef fg_time_t delta_time_t;
 typedef i16 running_action_idx_t;
 typedef u32 human_id_t;
 typedef u32 game_controller_id_t;

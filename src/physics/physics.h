@@ -19,7 +19,7 @@ void physics_ball_simulation(v3 *out_position,
 
 INLINE b32 physics_can_reach_position_in_time(v2 current_position,
 											  v2 position_to_reach,
-											  time_t time,
+											  fg_time_t time,
 											  f32 max_speed)
 {
 	f32 distance_to_cover = Vector2Distance(position_to_reach, current_position);
