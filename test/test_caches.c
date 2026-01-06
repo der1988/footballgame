@@ -92,7 +92,7 @@ void test_animation_cache()
 	TEST_ASSERT(handle);
 	loaded = asset_animations_load_from_json(
 		handle, handle_sprite_cache, "res/animations/animations.json");
-	TEST_ASSERT_EQUAL_INT32(64, loaded);
+	TEST_ASSERT_EQUAL_INT32(72, loaded);
 
 	struct asset_animation *animation = asset_animation_get_by_name(handle, "ball_left");
 	TEST_ASSERT_NOT_NULL(animation);
