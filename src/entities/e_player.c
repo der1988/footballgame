@@ -19,6 +19,12 @@
 #include <raymath.h>
 #include <string.h>
 
+const char *state_machine_player_state_string[PS_COUNT] = {
+	"none", "normal", "throw_in", "header", "tackle", "fall", "goalie"};
+
+const char *state_machine_goalie_state_string[GS_COUNT] = {
+	"none", "protect_goal", "dive", "hold_ball", "jump"};
+
 forward_declare_state_machine_functions(player);
 forward_declare_state_machine_functions(goalie);
 

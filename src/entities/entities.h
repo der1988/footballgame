@@ -59,8 +59,7 @@ enum entity_type {
 	ET_COUNT
 };
 
-static const char *entity_type_to_string[ET_COUNT] = {
-	"camera", "ball", "player", "goal", "goal_net"};
+extern const char *entity_type_to_string[ET_COUNT];
 
 struct entity_header {
 	b32 alive;

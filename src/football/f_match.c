@@ -4,6 +4,18 @@
 #include "log.h"
 #include "game.h"
 
+const char *match_state_to_string[MS_COUNT] = {"kickoff",
+											   "half_time",
+											   "extra_time",
+											   "penalties",
+											   "play",
+											   "goal",
+											   "throw_in",
+											   "goal_kick",
+											   "corner_kick",
+											   "penalty_kick",
+											   "free_kick"};
+
 void football_match_change_state(struct game_state *game_state, enum match_state new_state)
 {
 	game_state->vars.match.state = new_state;

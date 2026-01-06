@@ -14,6 +14,9 @@
 #include "game.h"
 #include "gfx.h"
 
+const char *state_machine_ball_state_string[BS_COUNT] = {
+	"none", "in_play", "out_of_play", "gk_hands"};
+
 forward_declare_state_machine_functions(ball);
 implement_state_machine_functions(ball);
 

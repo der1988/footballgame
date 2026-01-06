@@ -30,8 +30,7 @@ enum state_machine_player_state {
 	PS_COUNT
 };
 
-static const char *state_machine_player_state_string[] = {
-	"none", "normal", "throw_in", "header", "tackle", "fall", "goalie"};
+extern const char *state_machine_player_state_string[PS_COUNT];
 
 struct state_machine_player_normal_data {
 	enum sprite_orientation running_action_orientation;
@@ -95,8 +94,7 @@ enum state_machine_goalie_state {
 	GS_COUNT
 };
 
-static const char *state_machine_goalie_state_string[] = {
-	"none", "protect_goal", "dive", "hold_ball", "jump"};
+extern const char *state_machine_goalie_state_string[GS_COUNT];
 
 struct state_machine_goalie_hold_ball_data {
 	fg_time_t hold_start_time;

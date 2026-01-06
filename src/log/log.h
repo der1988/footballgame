@@ -69,21 +69,7 @@ enum log_system {
 	LS_COUNT,
 };
 
-static const char *utils_log_systems_desc[13] = {
-	"GAME",
-	"INPUT",
-	"SOUND",
-	"ASSETS",
-	"ENTITIES",
-	"MEMORY",
-	"UTILS",
-	"TESTS",
-	"TWEAKUI",
-	"LAYERS",
-	"OTHER",
-	"SCENES",
-	"EVENTS",
-};
+extern const char *utils_log_systems_desc[LS_COUNT];
 
 void log_line(char *file,
 			  u16 line,

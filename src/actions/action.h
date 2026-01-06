@@ -16,13 +16,7 @@ enum action_type {
 	AT_TOGGLE_BOOLEAN,
 	AT_COUNT
 };
-static const char *ActionTypeToString[AT_COUNT] = {"change_color_from_to",
-												   "play_animation",
-												   "sequence",
-												   "spawn",
-												   "tween_float_from_to",
-												   "rotate_to",
-												   "toggle_boolean"};
+extern const char *ActionTypeToString[AT_COUNT];
 
 // Wrapper around an action to keep track of its state while being run
 struct action_runner {

@@ -28,8 +28,7 @@ enum state_machine_ball_state {
 	BS_COUNT
 };
 
-static const char *state_machine_ball_state_string[] = {
-	"none", "in_play", "out_of_play", "gk_hands", "count"};
+extern const char *state_machine_ball_state_string[BS_COUNT];
 
 union state_machine_ball_state_data {
 	struct state_machine_default_empty_data in_play;

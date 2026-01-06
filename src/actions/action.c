@@ -2,6 +2,14 @@
 #include "game.h"
 #include "entities.h"
 
+const char *ActionTypeToString[AT_COUNT] = {"change_color_from_to",
+											"play_animation",
+											"sequence",
+											"spawn",
+											"tween_float_from_to",
+											"rotate_to",
+											"toggle_boolean"};
+
 void action_run(struct action_runner *action_runner, entity_id_t id, struct game_state *game_state)
 {
 	if (!action_runner->started) {

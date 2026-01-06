@@ -3,6 +3,8 @@
 #include "macro.h"
 #include <assert.h>
 
+const char *event_type_to_string[EVT_COUNT] = {"goal_scored"};
+
 struct events_router *events_router_create(memory_arena_handle_t *memory_arena_handle)
 {
 	assert(memory_arena_handle);

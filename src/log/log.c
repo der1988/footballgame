@@ -5,6 +5,23 @@
 
 #define LOG_LEVEL LT_DEBUG
 
+const char *utils_log_systems_desc[LS_COUNT] = {
+	"GAME",
+	"INPUT",
+	"SOUND",
+	"ASSETS",
+	"ENTITIES",
+	"MEMORY",
+	"UTILS",
+	"TESTS",
+	"TWEAKUI",
+	"LAYERS",
+	"OTHER",
+	"SCENES",
+	"EVENTS",
+	"TIME_MACHINE",
+};
+
 void log_line(char *file,
 			  u16 line,
 			  enum log_type type,

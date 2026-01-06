@@ -13,7 +13,7 @@ enum event_type {
 	EVT_COUNT
 };
 
-static const char *event_type_to_string[EVT_COUNT] = {"goal_scored"};
+extern const char *event_type_to_string[EVT_COUNT];
 
 typedef struct events_router events_router_t;
 
