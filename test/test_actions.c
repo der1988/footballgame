@@ -38,9 +38,9 @@ void setUp(void)
 
 	SetTargetFPS(60);
 
-	g_memory = malloc(Megabytes(10));
+	g_memory = malloc(Megabytes(128));
 
-	g_main_memory_arena = memory_arena_create_default("main", g_memory, Megabytes(4));
+	g_main_memory_arena = memory_arena_create_default("main", g_memory, Megabytes(128));
 
 	struct assets assets = asset_manager_load_everything(g_main_memory_arena);
 
