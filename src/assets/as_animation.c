@@ -99,14 +99,16 @@ static struct asset_animation *load_from_json(const char *filename,
 			struct asset_animation *assets_animation = current_animation++;
 			assets_animation->id = current_animation_id++;
 			assets_animation->delay = animation_delay;
-			strncpy(assets_animation->name, entity->string, sizeof(assets_animation->name) - 1);
-			strcat(assets_animation->name + strlen(assets_animation->name), "_");
-			strcat(assets_animation->name + strlen(assets_animation->name), animation->string);
+			int written = snprintf(assets_animation->name,
+								   sizeof(assets_animation->name),
+								   "%s_%s",
+								   entity->string,
+								   animation->string);
+			assert(written < (int)sizeof(assets_animation->name) && "animation name too long");
 
 			usize frames_count = 0;
 			char *frames = NULL;
 			char *frame = NULL;
-			char frame_name_format[ANIMATION_FRAME_MAX_SIZE];
 			char frame_name[ANIMATION_FRAME_MAX_SIZE];
 			for (frames = animation_frames;; frames = NULL) {
 				frame = strtok(frames, ",");
@@ -116,11 +118,13 @@ static struct asset_animation *load_from_json(const char *filename,
 				}
 
 				u16 frame_as_number = atoi(frame);
-				strncpy(frame_name_format, entity->string, sizeof(frame_name) - 1);
-				strcat(frame_name_format + strlen(frame_name_format), "_");
-				strcat(frame_name_format + strlen(frame_name_format), animation_prefix);
-				strcat(frame_name_format + strlen(frame_name_format), "%d");
-				snprintf(frame_name, sizeof(frame_name) - 1, frame_name_format, frame_as_number);
+				int written = snprintf(frame_name,
+									   sizeof(frame_name),
+									   "%s_%s%d",
+									   entity->string,
+									   animation_prefix,
+									   frame_as_number);
+				assert(written < (int)sizeof(frame_name) && "frame name too long");
 
 				struct asset_sprite_frame *sprite_frame =
 					asset_sprite_frame_get_by_name(sprite_frame_cache, frame_name);
@@ -147,6 +151,7 @@ static struct asset_animation *load_from_json(const char *filename,
 			usize size_to_allocate_for_frames_list = sizeof(asset_sprite_frame_id_t) * frames_count;
 			assets_animation->frames =
 				memory_arena_push(memory_arena_handle, size_to_allocate_for_frames_list);
+			assert(assets_animation->frames);
 			memcpy(
 				assets_animation->frames, sprite_frames_buffer, size_to_allocate_for_frames_list);
 
@@ -216,6 +221,7 @@ asset_animation_id_t asset_animation_id_from_name(asset_animation_cache_t *handl
 {
 	// Scratch buffer
 	char *final_animation = memory_arena_push(memory_arena_handle, ANIMATION_NAME_MAX_SIZE);
+	assert(final_animation);
 
 	snprintf(final_animation, ANIMATION_NAME_MAX_SIZE, "%s_%s", name, animation_name);
 	struct asset_animation *animation = asset_animation_get_by_name(handle, final_animation);
