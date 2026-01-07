@@ -12,6 +12,7 @@
 tweakui_t *tweakui_create(memory_arena_handle_t *memory_arena_handle)
 {
 	tweakui_t *handle = memory_arena_push(memory_arena_handle, sizeof(struct tweakui));
+	assert(handle);
 	handle->initialised = true;
 
 	handle->window_size.x = 800;

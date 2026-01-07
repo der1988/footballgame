@@ -51,6 +51,7 @@ struct entity_repository *entity_repository_init(memory_arena_handle_t *memory_a
 	handle->arena_handle = memory_arena_handle;
 	handle->entities =
 		memory_arena_push(handle->arena_handle, sizeof(struct entity) * MAX_ENTITIES);
+	assert(handle->entities);
 	handle->max_slots = handle->available_slots = MAX_ENTITIES;
 	handle->last_used_slot = 0;
 	handle->initialised = true;

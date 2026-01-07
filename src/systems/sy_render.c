@@ -53,6 +53,7 @@ void systems_render(struct game_state *game_state)
 	struct sprite_to_draw *ordered_sprites_to_draw =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW],
 						  sizeof(struct sprite_to_draw) * entity_repository->max_slots);
+	assert(ordered_sprites_to_draw);
 
 	// Collect information about sprites to draw
 	struct sprite_to_draw *current_idx = ordered_sprites_to_draw;

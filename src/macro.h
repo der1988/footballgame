@@ -32,7 +32,8 @@
 // List
 #define LIST_CREATE(list_type, list_name, list_size, arena)                                        \
 	list_type list_name = {.array = NULL, .count = 0, .size = list_size};                          \
-	list_name.array = memory_arena_push(arena, sizeof(*list_name.array) * list_size);
+	list_name.array = memory_arena_push(arena, sizeof(*list_name.array) * list_size);              \
+	assert(list_name.array);
 
 #define LIST_ADD(list, item)                                                                       \
 	assert(list.count < list.size);                                                                \

@@ -1,6 +1,7 @@
 #include "memory.h"
 #include "types.h"
 #include "game.h"
+#include <assert.h>
 
 enum game_scene g_next_scene = GSC_NONE;
 
@@ -15,6 +16,7 @@ void game_loop(struct game_config config,
 			   memory_arena_handle_t *main_memory_arena_handle)
 {
 	void *memory_for_current_scene = memory_arena_push(main_memory_arena_handle, Megabytes(100));
+	assert(memory_for_current_scene);
 
 	memory_arena_handle_t *current_scene_memory_arena =
 		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(100));

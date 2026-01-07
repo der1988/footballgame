@@ -48,6 +48,7 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	collider->header.enabled = true;
 	collider->colliders =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
+	assert(collider->colliders);
 	collider->num_colliders = 1;
 	collider->colliders[0].shape = CS_RECTANGLE;
 	collider->colliders[0].props.rectangle.size =

@@ -31,6 +31,7 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 	assert(memory_arena);
 
 	struct input_manager *handle = memory_arena_push(memory_arena, sizeof(*handle));
+	assert(handle);
 
 	handle->game_controllers[1] = (struct game_controller){
 		.type = GAME_CONTROLLER_TYPE_KEYBOARD,

@@ -15,13 +15,13 @@ struct events_router *events_router_create(memory_arena_handle_t *memory_arena_h
 
 	handle->memory_arena_handle = memory_arena_handle;
 	for (usize i = 0; i < EVT_COUNT; ++i) {
+		void *listeners_array =
+			memory_arena_push(memory_arena_handle,
+							  sizeof(void (*)(enum event_type, void *, struct game_state *)) *
+								  MAX_LISTENERS_PER_EVENT_TYPE);
+		assert(listeners_array);
 		handle->listeners[i] = (struct list_listeners){
-			.count = 0,
-			.size = MAX_LISTENERS_PER_EVENT_TYPE,
-			.array =
-				memory_arena_push(memory_arena_handle,
-								  sizeof(void (*)(enum event_type, void *, struct game_state *)) *
-									  MAX_LISTENERS_PER_EVENT_TYPE)};
+			.count = 0, .size = MAX_LISTENERS_PER_EVENT_TYPE, .array = listeners_array};
 		handle->initialised = true;
 	}
 

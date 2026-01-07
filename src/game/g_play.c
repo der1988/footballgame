@@ -27,6 +27,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	// Push game state onto main memory arena
 	struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
+	assert(game_state);
 	game_state->current_time = GetTime();
 	game_state->accumulator = 0.0;
 	game_state->dt = fixed_timestep;
@@ -35,6 +36,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	// Push some memory for our own arenas onto main memory arena
 	void *game_memory = memory_arena_push(memory_arena, Megabytes(97));
+	assert(game_memory);
 	game_state->memory_by_lifetime[MAL_LEVEL] =
 		memory_arena_create_default("level", game_memory, Megabytes(1));
 	game_state->memory_by_lifetime[MAL_UPDATE] =

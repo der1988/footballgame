@@ -1,5 +1,6 @@
 #include "ac_sequence.h"
 #include "macro.h"
+#include <assert.h>
 #include <stdarg.h>
 
 void action_sequence_start(struct action_runner *action_runner,
@@ -42,6 +43,7 @@ struct action_sequence *action_sequence_create(memory_arena_handle_t *memory_are
 {
 	struct action_sequence *action_sequence = memory_arena_push(
 		memory_arena_handle, sizeof(struct action_sequence) + sizeof(struct action_runner) * count);
+	assert(action_sequence);
 	*action_sequence = (struct action_sequence){
 		.base = (struct action){.type = AT_SEQUENCE,
 								.loop = false,

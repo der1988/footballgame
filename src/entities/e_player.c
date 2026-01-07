@@ -118,6 +118,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->num_colliders = PCT_COUNT;
 	collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
 											sizeof(struct collider) * collider->num_colliders);
+	assert(collider->colliders);
 	collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
 	collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
 	collider->colliders[PCT_GOALIE].props.circle.radius = 6;
@@ -680,6 +681,7 @@ struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity 
 			if (distance < 100 && angle < 30) {
 				struct nearest_player *nearest_player = memory_arena_push(
 					game_state->memory_by_lifetime[MAL_UPDATE], sizeof(struct nearest_player));
+				assert(nearest_player);
 				nearest_player->entity = opponent_entity;
 				nearest_player->distance = distance;
 				return nearest_player;
@@ -772,6 +774,7 @@ struct nearest_player *find_nearest_player(v2 position,
 
 	struct nearest_player *nearest_player = memory_arena_push(
 		game_state->memory_by_lifetime[MAL_UPDATE], sizeof(struct nearest_player));
+	assert(nearest_player);
 	nearest_player->entity = selected_entity;
 	nearest_player->distance = selected_distance;
 	return nearest_player;
@@ -824,6 +827,7 @@ void player_custom_begin_draw(struct entity *entity, struct game_state *game_sta
 {
 	u32 *palette =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 3 * 10);
+	assert(palette);
 
 	color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
 

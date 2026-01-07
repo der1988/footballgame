@@ -1,6 +1,7 @@
 #include "ac_play_animation.h"
 #include "entities.h"
 #include "game.h"
+#include <assert.h>
 #include <math.h>
 
 void action_play_animation_update(struct action_runner *action_runner,
@@ -28,6 +29,7 @@ action_play_animation_create(struct asset_animation *animation,
 							 memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_play_animation *action = memory_arena_push(memory_arena_handle, sizeof(*action));
+	assert(action);
 	*action = (struct action_play_animation){
 		.base = (struct action){.type = AT_PLAY_ANIMATION,
 								.duration = (animation->delay * animation->frames_count / speed),

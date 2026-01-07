@@ -15,6 +15,7 @@ layer_debug_t *layer_debug_create(struct game_state *game_state)
 {
 	layer_debug_t *handle =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(layer_debug_t));
+	assert(handle);
 	handle->initialised = true;
 
 	handle->log_position = (v2){.x = 10, .y = 500};
@@ -55,6 +56,7 @@ void layer_debug_queue_draw_text(layer_debug_t *handle, const char *text)
 	if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS) {
 		struct draw_text_request *dtr =
 			memory_arena_push(handle->frame_memory_arena, sizeof(struct draw_text_request));
+		assert(dtr);
 		strncpy(dtr->text, text, ARRAY_LEN(dtr->text));
 		handle->draw_text_requests[handle->queued_requests++] = dtr;
 	} else {

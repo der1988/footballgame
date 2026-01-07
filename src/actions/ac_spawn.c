@@ -1,5 +1,6 @@
 #include "ac_spawn.h"
 #include "macro.h"
+#include <assert.h>
 #include <stdarg.h>
 
 void action_spawn_start(struct action_runner *action_runner,
@@ -41,6 +42,7 @@ struct action_spawn *action_spawn_create(memory_arena_handle_t *memory_arena_han
 {
 	struct action_spawn *action_spawn = memory_arena_push(
 		memory_arena_handle, sizeof(struct action_spawn) + sizeof(struct action_runner) * count);
+	assert(action_spawn);
 	*action_spawn = (struct action_spawn){
 		.base = (struct action){.type = AT_SPAWN,
 								.loop = false,

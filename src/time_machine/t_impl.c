@@ -18,11 +18,13 @@ struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena)
 	assert(memory_arena);
 
 	struct time_machine *handle = memory_arena_push(memory_arena, sizeof(struct time_machine));
+	assert(handle);
 	handle->arena_handle = memory_arena;
 	// Allocate space for 30 time capsules per second per 30 seconds
 	// It's basically a ring buffer
 	handle->time_capsules =
 		memory_arena_push(memory_arena, sizeof(struct time_capsule) * TIME_CAPSULES_MAX);
+	assert(handle->time_capsules);
 	handle->last_recorded_pos = 0;
 	handle->current_pos = 0;
 	handle->initialised = true;
