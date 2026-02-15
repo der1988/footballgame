@@ -23,9 +23,9 @@
 #define VELOCITY_TO_KMH(V) (V / PIXELS_PER_METER * 3.6f)
 
 #define RESET_COMPONENT(c)                                                                         \
-	memset(((void *)player_controls) + sizeof(struct component_header),                            \
+	memset(((void *)c) + sizeof(struct component_header),                                          \
 		   0,                                                                                      \
-		   sizeof(*player_controls) - sizeof(struct component_header));
+		   sizeof(*c) - sizeof(struct component_header));
 
 #define OPPONENT_TEAM_SIDE(t) 1 - t
 
@@ -39,11 +39,11 @@
 	list.array[list.count++] = item;
 
 #define LIST_ITERATE(item, list)                                                                   \
-	usize i;                                                                                       \
+	usize item##_i;                                                                                \
 	__typeof__(*list.array) item;                                                                  \
 	if (list.count > 0)                                                                            \
 		item = list.array[0];                                                                      \
-	for (i = 0; i < list.count; ++i, item = list.array[i])
+	for (item##_i = 0; item##_i < list.count; ++item##_i, item = list.array[item##_i])
 
 // Game
 #define GOALIE_HOLD_OR_BOUNCE(V)                                                                   \
