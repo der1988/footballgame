@@ -38,6 +38,8 @@
 	assert(list.count < list.size);                                                                \
 	list.array[list.count++] = item;
 
+#define LIST_RESET(list) list.count = 0;
+
 #define LIST_ITERATE(item, list)                                                                   \
 	usize item##_i;                                                                                \
 	__typeof__(*list.array) item;                                                                  \
