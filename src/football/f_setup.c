@@ -52,17 +52,8 @@ void football_setup(struct game_state *game_state)
 		(struct team){(struct team_info){.name = "Muppets"},
 					  (struct team_play_context){.pitch_side = PSI_SOUTH, .formation = TF_433}};
 
-	struct entity *player_entity = entity_player_create(
-		(struct player_config){
-			.position = football_pitch_position_normalized_to_abs(
-				game_state->vars.pitch.field,
-				football_tactics_get_team_formation_position(TF_433, 0)->position[TM_DEFAULT]),
-			.team_side = TS_HOME,
-			.team_formation_position_idx = 0},
-		game_state);
-
 	// Team 1
-	for (usize i = 1; i < 10; ++i) {
+	for (usize i = 0; i < 10; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
 		pos.y = 1 - pos.y;
 		entity_player_create((struct player_config){.position =
@@ -115,9 +106,20 @@ void football_setup(struct game_state *game_state)
 	game_state->virtual_camera.offset = (v2){(f32)game_state->config.virtual_screen_width / 2,
 											 (f32)game_state->config.virtual_screen_height / 2};
 
+	game_state->human_players[0] =
+		(struct human_player){.enabled = true,
+							  .id = 0,
+							  .controlled_player_entity_id = EID_NOT_VALID,
+							  .team_side = TS_HOME,
+							  .game_controller_id = 0};
+	game_state->human_players[1] =
+		(struct human_player){.enabled = true,
+							  .id = 1,
+							  .controlled_player_entity_id = EID_NOT_VALID,
+							  .team_side = TS_AWAY,
+							  .game_controller_id = 1};
+
 	football_match_change_state(game_state, MS_PLAY);
-	game_state->human_players[0] = (struct human_player){
-		.id = 0, .controlled_player_entity_id = player_entity->header.id, .team_side = TS_HOME};
 }
 
 static struct goal setup_goal(struct entity *entity,

@@ -577,14 +577,9 @@ struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_
 											  f32 max_distance,
 											  struct game_state *game_state)
 {
-	b32 is_player_human_controlled = false;
-	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-		if (game_state->human_players[i].controlled_player_entity_id ==
-			player_on_the_ball_entity->header.id) {
-			is_player_human_controlled = true;
-			break;
-		}
-	}
+	b32 is_player_human_controlled =
+		game_input_human_player(game_state, player_on_the_ball_entity->header.id) != NULL;
+
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
 	f32 selected_score = 0;

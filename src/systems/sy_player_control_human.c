@@ -28,7 +28,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (game_state->human_players[0].controlled_player_entity_id != entity_id) {
+		struct human_player *human_player = game_input_human_player(game_state, entity_id);
+		if (!human_player || !human_player->enabled) {
 			continue;
 		}
 
@@ -57,13 +58,10 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 		// Player is human controlled
 		struct game_controller *game_controller =
-			&game_state->input_manager
-				 ->game_controllers[game_state->human_players[0].game_controller_id];
+			&game_state->input_manager->game_controllers[human_player->game_controller_id];
 		struct game_controller_state *game_controller_state = &game_controller->state;
 
 		player_controls->steering = calculate_movement_vector(game_controller);
-
-		const u8 game_controller_idx = 0;
 
 		switch (state_machine->current_state) {
 		case PS_NONE:

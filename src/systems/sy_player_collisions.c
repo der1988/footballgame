@@ -42,7 +42,7 @@ void systems_player_collisions(struct game_state *game_state)
 				entity_player_state_machine_change_state_to(
 					&tackled_player_entity->player.state_machine, PS_FALL, game_state);
 				GLOGF_INFO_CTX(LS_GAME,
-							   entities.array[i]->header.name,
+							   entities.array[tackled_player_entity_i]->header.name,
 							   "player tackled by %s",
 							   entity->header.name);
 			}

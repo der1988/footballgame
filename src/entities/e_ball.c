@@ -84,7 +84,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	ball->last_touch_entity_id = EID_NOT_VALID;
 	ball->last_kicker_entity_id = EID_NOT_VALID;
 	ball->pass_target_entity_id = EID_NOT_VALID;
-	ball->last_touch_time = EID_NOT_VALID;
+	ball->last_touch_time = 0;
 
 	gfx_ball_prepare(game_state);
 
@@ -437,7 +437,8 @@ entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
 	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
 		HAS_TIME_PASSED(game_state->time, ball_entity->ball.first_player_possession_time, 0.1f) &&
 		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f) &&
-		ball_entity->ball.last_touch_time > ball_entity->ball.last_kick_time) {
+		// Using >= to avoid player not being considered in possession on the frame where they kick the ball
+		ball_entity->ball.last_touch_time >= ball_entity->ball.last_kick_time) {
 		return ball_entity->ball.last_touch_entity_id;
 	} else {
 		return EID_NOT_VALID;
