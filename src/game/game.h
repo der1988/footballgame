@@ -85,6 +85,7 @@ struct game_constants {
 };
 
 struct human_player {
+	b32 enabled;
 	human_id_t id;
 	enum team_side team_side;
 	game_controller_id_t game_controller_id;

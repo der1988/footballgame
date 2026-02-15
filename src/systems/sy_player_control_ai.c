@@ -33,7 +33,8 @@ void systems_player_control_ai(struct game_state *game_state)
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{
-		if (game_state->human_players[0].controlled_player_entity_id == entity_id) {
+		struct human_player *human_player = game_input_human_player(game_state, entity_id);
+		if (human_player) {
 			continue;
 		}
 
