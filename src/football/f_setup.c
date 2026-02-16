@@ -108,13 +108,11 @@ void football_setup(struct game_state *game_state)
 
 	game_state->human_players[0] =
 		(struct human_player){.enabled = true,
-							  .id = 0,
 							  .controlled_player_entity_id = EID_NOT_VALID,
 							  .team_side = TS_HOME,
 							  .game_controller_id = 0};
 	game_state->human_players[1] =
 		(struct human_player){.enabled = true,
-							  .id = 1,
 							  .controlled_player_entity_id = EID_NOT_VALID,
 							  .team_side = TS_AWAY,
 							  .game_controller_id = 1};

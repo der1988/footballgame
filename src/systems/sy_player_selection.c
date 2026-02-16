@@ -23,7 +23,7 @@ enum ball_possession {
 };
 
 struct human_info {
-	usize id;
+	usize human_player_idx;
 	f32 controlled_player_distance_from_ball;
 };
 
@@ -66,7 +66,7 @@ struct list_human_players order_humans_by_distance_from_ball(struct human_player
 			if (player_entity) {
 				distance = Vector2DistanceSqr(ball_position, player_entity->transform.position);
 			}
-			struct human_info hi = {.id = human_player->id,
+			struct human_info hi = {.human_player_idx = i,
 									.controlled_player_distance_from_ball = distance};
 			LIST_ADD(sorted_human_players, hi);
 			total++;
@@ -161,7 +161,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 				struct human_player *other_human_player = &game_state->human_players[j];
 
 				if (other_human_player->enabled && other_human_player->team_side == team_side_idx &&
-					other_human_player->id != ordered_list.array[i].id &&
+					j != ordered_list.array[i].human_player_idx &&
 					other_human_player->controlled_player_entity_id != EID_NOT_VALID) {
 					LIST_ADD(tmp_excluded_players_list,
 							 other_human_player->controlled_player_entity_id);
@@ -169,7 +169,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			}
 
 			struct human_player *human_player =
-				&game_state->human_players[ordered_list.array[i].id];
+				&game_state->human_players[ordered_list.array[i].human_player_idx];
 
 			if (ball_possession == BALL_POSSESSION_TEAM) {
 				if (human_player->controlled_player_entity_id ==
