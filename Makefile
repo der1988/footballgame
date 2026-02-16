@@ -57,7 +57,18 @@ TEST_OBJS := $(TESTS:%=$(BUILD_DIR)/%.o)
 TEST_FLAGS := -DRUNNING_TEST
 
 .PHONY: test
-test: test_caches test_memory test_actions test_entity_repo test_events
+test: $(BUILD_DIR)/test_caches $(BUILD_DIR)/test_memory $(BUILD_DIR)/test_actions $(BUILD_DIR)/test_entity_repo $(BUILD_DIR)/test_events
+	@failed=""; \
+	for t in test_caches test_memory test_actions test_entity_repo test_events; do \
+		echo; echo "=== Testing $$t ==="; echo; \
+		$(BUILD_DIR)/$$t || failed="$$failed $$t"; \
+	done; \
+	echo; \
+	if [ -n "$$failed" ]; then \
+		echo "FAILED suites:$$failed"; exit 1; \
+	else \
+		echo "All test suites passed."; \
+	fi
 
 test_caches: CFLAGS += $(TEST_FLAGS)
 test_caches: $(BUILD_DIR)/test_caches
