@@ -3,9 +3,12 @@
 
 #include "types.h"
 
-struct asset_sprite_frame *texture_packer_load_from_json(const char *filename,
-														 const u32 texture_id,
-														 const usize initial_sprite_frame_id,
-														 usize *count);
+struct asset_sprite_frame;
+
+size texture_packer_load_from_json(const char *filename,
+								  const u32 texture_id,
+								  const usize initial_sprite_frame_id,
+								  struct asset_sprite_frame *out,
+								  usize max_count);
 
 #endif // !TEXTURE_PACKER_LOADER_H

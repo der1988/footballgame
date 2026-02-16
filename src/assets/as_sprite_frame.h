@@ -26,7 +26,7 @@ struct asset_sprite_frame {
 asset_sprite_frame_cache_t *
 asset_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle);
 void asset_sprite_frame_cache_destroy(asset_sprite_frame_cache_t *handle);
-i32 asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
+size asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
 									   const u32 texture_id,
 									   const char *filename);
 struct asset_sprite_frame *asset_sprite_frame_get_by_name(asset_sprite_frame_cache_t *handle,

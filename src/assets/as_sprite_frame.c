@@ -5,8 +5,6 @@
 #include "log.h"
 #include "texture_packer_loader.h"
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define UNUSED_PARAM __attribute__((unused))
@@ -44,30 +42,26 @@ void asset_sprite_frame_cache_destroy(asset_sprite_frame_cache_t *handle)
 	GLOG_INFO(LS_ASSETS, "sprite frame cache destroyed");
 }
 
-i32 asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
+size asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
 									   const u32 texture_id,
 									   const char *filename)
 {
 	assert(handle->initialised);
 
-	usize loaded = 0;
-	struct asset_sprite_frame *sprite_frames =
-		texture_packer_load_from_json(filename, texture_id, handle->count, &loaded);
-	assert(loaded <= (MAX_SPRITE_FRAMES - handle->count));
+	size loaded = texture_packer_load_from_json(filename,
+											   texture_id,
+											   handle->count,
+											   &handle->cache[handle->count],
+											   MAX_SPRITE_FRAMES - handle->count);
 
-	if (sprite_frames) {
-		memcpy(&handle->cache[handle->count],
-			   sprite_frames,
-			   sizeof(struct asset_sprite_frame) * loaded);
-		free(sprite_frames);
+	if (loaded >= 0) {
 		handle->count += loaded;
 		GLOGF_INFO_CTX(LS_ASSETS,
 					   filename,
-					   "loaded %zu sprite frames into cache, texture id is %d",
+					   "loaded %d sprite frames into cache, texture id is %d",
 					   loaded,
 					   texture_id);
 	} else {
-		loaded = -1;
 		GLOG_ERROR(LS_ASSETS, "failed loading sprite frames from json");
 	}
 
