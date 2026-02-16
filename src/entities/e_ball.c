@@ -459,8 +459,9 @@ entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 // Event listeners
 static void on_goal_scored(enum event_type event_type, void *context)
 {
+	UNUSED(event_type);
+
 	struct game_state *game_state = (struct game_state *)context;
-	struct component_ball *ball = &game_state->vars.ball_entity->ball;
 
 	football_match_change_state(game_state, MS_GOAL);
 }

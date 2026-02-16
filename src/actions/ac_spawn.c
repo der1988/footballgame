@@ -54,7 +54,7 @@ struct action_spawn *action_spawn_create(memory_arena_handle_t *memory_arena_han
 	va_list ap;
 	va_start(ap, count);
 	for (usize i = 0; i < count; ++i) {
-		action_spawn->actions[i] = (struct action_runner){.action = va_arg(ap, struct Action *)};
+		action_spawn->actions[i] = (struct action_runner){.action = va_arg(ap, struct action *)};
 		f32 tmp_duration = 0;
 		if ((tmp_duration = action_spawn->actions[i].action->duration) > max_duration)
 			max_duration = tmp_duration;

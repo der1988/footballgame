@@ -55,7 +55,7 @@ struct action_sequence *action_sequence_create(memory_arena_handle_t *memory_are
 	va_list ap;
 	va_start(ap, count);
 	for (usize i = 0; i < count; ++i) {
-		action_sequence->actions[i] = (struct action_runner){.action = va_arg(ap, struct Action *)};
+		action_sequence->actions[i] = (struct action_runner){.action = va_arg(ap, struct action *)};
 		total_duration += action_sequence->actions[i].action->duration;
 	}
 	va_end(ap);
