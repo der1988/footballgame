@@ -12,13 +12,14 @@ int main()
 	const f32 virtual_screen_width = 640;
 	const f32 virtual_screen_height = 360;
 
-	SetConfigFlags(FLAG_VSYNC_HINT);
+	// SetConfigFlags(FLAG_VSYNC_HINT);
 	InitWindow(screen_width, screen_height, "The Game");
 
 	SetWindowMonitor(0);
 
 	void *memory = malloc(Megabytes(256));
-	memory_arena_handle_t *main_memory_arena = memory_arena_create_default("main", memory, Megabytes(256));
+	memory_arena_handle_t *main_memory_arena =
+		memory_arena_create_default("main", memory, Megabytes(256));
 
 	// Load assets
 	struct assets assets = asset_manager_load_everything(main_memory_arena);

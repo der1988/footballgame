@@ -3,6 +3,9 @@
 #include "game.h"
 #include <assert.h>
 
+#define TARGET_FRAMERATE 60
+#define FRAME_TIME		 (1.0f / TARGET_FRAMERATE)
+
 enum game_scene g_next_scene = GSC_NONE;
 
 static void *handle_scene_creation(struct game_config config,
@@ -28,6 +31,7 @@ void game_loop(struct game_config config,
 	b32 quit = false;
 
 	while (!quit) {
+		const fg_time_t frame_start_time = GetTime();
 
 		// Manage scene transitions
 		if (g_next_scene != GSC_NONE && g_next_scene != current_scene) {
@@ -57,6 +61,8 @@ void game_loop(struct game_config config,
 		}
 
 		SwapScreenBuffer();
+
+		WaitTime(FRAME_TIME - (GetTime() - frame_start_time));
 	}
 
 	handle_scene_destruction(current_scene, current_scene_handle);
