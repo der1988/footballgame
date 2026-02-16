@@ -23,7 +23,7 @@ enum ball_possession {
 };
 
 struct human_info {
-	usize human_player_idx;
+	usize id;
 	f32 controlled_player_distance_from_ball;
 };
 
@@ -66,7 +66,7 @@ struct list_human_players order_humans_by_distance_from_ball(struct human_player
 			if (player_entity) {
 				distance = Vector2DistanceSqr(ball_position, player_entity->transform.position);
 			}
-			struct human_info hi = {.human_player_idx = i,
+			struct human_info hi = {.id = human_player->id,
 									.controlled_player_distance_from_ball = distance};
 			LIST_ADD(sorted_human_players, hi);
 			total++;
@@ -154,20 +154,22 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 											   game_state);
 
 		for (usize i = 0; i < ordered_list.count; ++i) {
-			// Build list of players currently controlled by humans in this team, to avoid stepping on their shoes
+			// Build list of other players currently controlled by humans in this team, to avoid stepping on their shoes
 			// We do this at every iteration because this list might change.
 			LIST_RESET(tmp_excluded_players_list);
 			for (usize j = 0; j < MAX_HUMAN_PLAYERS; ++j) {
-				struct human_player *human_player = &game_state->human_players[j];
+				struct human_player *other_human_player = &game_state->human_players[j];
 
-				if (human_player->enabled && human_player->team_side == team_side_idx &&
-					human_player->controlled_player_entity_id != EID_NOT_VALID) {
-					LIST_ADD(tmp_excluded_players_list, human_player->controlled_player_entity_id);
+				if (other_human_player->enabled && other_human_player->team_side == team_side_idx &&
+					other_human_player->id != ordered_list.array[i].id &&
+					other_human_player->controlled_player_entity_id != EID_NOT_VALID) {
+					LIST_ADD(tmp_excluded_players_list,
+							 other_human_player->controlled_player_entity_id);
 				}
 			}
 
 			struct human_player *human_player =
-				&game_state->human_players[ordered_list.array[i].human_player_idx];
+				&game_state->human_players[ordered_list.array[i].id];
 
 			if (ball_possession == BALL_POSSESSION_TEAM) {
 				if (human_player->controlled_player_entity_id ==
