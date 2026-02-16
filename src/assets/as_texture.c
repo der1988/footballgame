@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UNUSED_PARAM __attribute__((unused))
-
 static u32 const MAX_TEXTURES = 10;
 
 asset_texture_cache_t *asset_texture_cache_create(memory_arena_handle_t *memory_arena_handle)

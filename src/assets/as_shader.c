@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UNUSED_PARAM __attribute__((unused))
-
 static u32 const MAX_SHADERS = 10;
 
 asset_shader_cache_t *asset_shader_cache_create(memory_arena_handle_t *memory_arena_handle)

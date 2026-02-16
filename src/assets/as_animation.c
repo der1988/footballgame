@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UNUSED_PARAM __attribute__((unused))
-
 static u16 const MAX_ANIMATIONS = 100;
 static u16 const MAX_FRAMES_PER_ANIMATION = 100;
 

@@ -7,8 +7,6 @@
 #include <assert.h>
 #include <string.h>
 
-#define UNUSED_PARAM __attribute__((unused))
-
 static u32 const MAX_SPRITE_FRAMES = 2000;
 
 asset_sprite_frame_cache_t *

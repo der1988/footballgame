@@ -4,6 +4,7 @@
 #include "constants.h"
 
 #define UNUSED(x) (void)(x)
+#define UNUSED_PARAM __attribute__((unused))
 
 #define INLINE inline __attribute__((always_inline))
 
