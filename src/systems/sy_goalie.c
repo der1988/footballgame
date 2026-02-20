@@ -160,6 +160,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 									LIST_ENTITY_IDS_EMPTY,
 									game_state);
 
+			b32 protect_goal = false;
 			if ((future_reachable_position->available &&
 				 football_pitch_is_position_inside_penalty_area(
 					 ball_future_reachable_position,
@@ -220,21 +221,15 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 												 destination);
 					} else {
 						// ball isn't within reach, let's protect goal
-						physics->max_velocity = game_state->constants.player_run_max_velocity;
-						force = game_state->constants.player_movement_force;
-						direction = Vector2Normalize(
-							Vector2Subtract(ball_transform->position, goal_center));
-						destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
-						steering = steering_arrive(transform->position,
-												   physics->velocity,
-												   physics->max_velocity,
-												   destination,
-												   10);
+						protect_goal = true;
 					}
 				}
 			} else {
 				// Protect goal
+				protect_goal = true;
+			}
 
+			if (protect_goal) {
 				physics->max_velocity = game_state->constants.player_run_max_velocity;
 				force = game_state->constants.player_movement_force;
 				direction =
