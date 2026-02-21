@@ -17,7 +17,9 @@
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 const char *state_machine_player_state_string[PS_COUNT] = {
 	"none", "normal", "throw_in", "header", "tackle", "fall", "goalie"};
@@ -465,14 +467,27 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	const f32 ball_radius = ball_entity->collider.colliders[0].props.circle.radius;
 
 	const u32 steps_per_lookahead = game_state->constants.ball_lookahead_dts;
-	// We want a lookahead of 150ms for our goalie
+	// We want a specific lookahead for our goalie
 	const int lookaheads =
 		floor(Clamp((GOALIE_LOOKAHEAD_MS / game_state->constants.fixed_timestep) /
 						game_state->constants.ball_lookahead_dts,
 					1,
 					game_state->constants.ball_lookaheads));
+
+	// We need to account for both pitch sides
+	const b32 invert =
+		game_state->vars.teams[goalie_entity->player.team_side].play_context.pitch_side ==
+		PSI_NORTH;
 	for (u16 i = 0; i < lookaheads; ++i) {
-		v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
+		const v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
+
+		const fg_time_t time_offset = (i + 1) * game_state->constants.ball_lookahead_dts *
+									  game_state->constants.fixed_timestep;
+
+		if (time_offset > 0.4f) {
+			// If the ball is going to get to this point in time too far in the future we don't want to dive
+			break;
+		}
 
 		const struct collision_information collision_information =
 			entity_player_is_colliding_with_ball(goalie_entity,
@@ -493,8 +508,8 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 		if (HAS_TIME_PASSED(game_state->time,
 							ball_entity->ball.last_kick_time,
 							game_state->constants.goalie_dive_reaction_time) &&
-			y_diff > 0 && y_diff < 5 && distance_to_cover < 60 &&
-			pos_to_check.y < game_state->constants.crossbar_height) {
+			(invert ? (y_diff > 0 && y_diff < 5) : (y_diff > -5 && y_diff < 0)) &&
+			distance_to_cover < 60 && pos_to_check.y < game_state->constants.crossbar_height) {
 			f32 time_to_unsaveable = (i + 1) * game_state->dt * steps_per_lookahead;
 			f32 max_distance_we_can_cover_in_available_time =
 				game_state->constants.goalie_dive_max_velocity * time_to_unsaveable / 1.0f;

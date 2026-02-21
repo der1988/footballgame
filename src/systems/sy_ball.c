@@ -166,7 +166,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		u16 lookaheads = game_state->constants.ball_lookaheads;
 		u32 lookahead_dts = game_state->constants.ball_lookahead_dts;
 		for (u16 i = 0; i < lookaheads; ++i) {
-			// 10 dt steps
 			for (u16 j = 0; j < lookahead_dts; ++j) {
 				physics_ball_simulation(&lookahead_position,
 										&lookahead_velocity,
