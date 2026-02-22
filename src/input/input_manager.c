@@ -16,6 +16,7 @@ struct game_control_info game_control_infos[] = {
 	[GAME_CONTROL_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
 	[GAME_CONTROL_LONG_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
 	[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_SWITCH_PLAYER] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
 	[GAME_CONTROL_RECORDER_REWIND] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
 	[GAME_CONTROL_RECORDER_FORWARD] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
 	[GAME_CONTROL_RECORDER_RESUME] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
@@ -46,6 +47,8 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 					[GAME_CONTROL_PASS] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_S},
 					[GAME_CONTROL_LONG_PASS] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D},
 					[GAME_CONTROL_TACKLE] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_D},
+
+					[GAME_CONTROL_SWITCH_PLAYER] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_Q},
 
 					[GAME_CONTROL_RECORDER_REWIND] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_1},
 					[GAME_CONTROL_RECORDER_FORWARD] = {.to = PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_2},
@@ -88,6 +91,10 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 							[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 													 .to =
 														 PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
+
+							[GAME_CONTROL_SWITCH_PLAYER] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_LEFT},
 
 							[GAME_CONTROL_RECORDER_REWIND] =
 								{.type = GAME_CONTROL_BINDING_TYPE_ANALOGIC_POSITIVE,

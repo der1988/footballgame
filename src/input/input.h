@@ -24,6 +24,9 @@ enum game_control {
 	GAME_CONTROL_LONG_PASS,
 	GAME_CONTROL_TACKLE,
 
+	/* Player selection controls. */
+	GAME_CONTROL_SWITCH_PLAYER,
+
 	/* Recorder controls. */
 	GAME_CONTROL_RECORDER_REWIND,
 	GAME_CONTROL_RECORDER_FORWARD,
