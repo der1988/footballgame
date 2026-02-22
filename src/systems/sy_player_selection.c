@@ -12,9 +12,7 @@
 #include "ai.h"
 #include <float.h>
 #include <raymath.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 enum ball_possession {
 	BALL_POSSESSION_NONE,
@@ -154,6 +152,25 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 											   game_state);
 
 		for (usize i = 0; i < ordered_list.count; ++i) {
+			struct human_player *human_player =
+				&game_state->human_players[ordered_list.array[i].human_player_idx];
+
+			struct game_controller *game_controller =
+				&game_state->input_manager->game_controllers[human_player->game_controller_id];
+			struct game_controller_state *game_controller_state = &game_controller->state;
+
+			// Let's use released so that if we have second thoughts we can keep the button pressed and delay the switch.
+			const b32 is_human_requiring_player_switch =
+				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.released;
+
+			const b32 is_current_selected_player_manually_selected =
+				human_player->controlled_player.is_manually_selected;
+
+			// Human required player switch so we OR the flag as we don't want to reset it when the player releases the switch control.
+			// It's going to be reset when the player gets the ball, or other cases still TBD.
+			human_player->controlled_player.is_manually_selected |=
+				is_human_requiring_player_switch;
+
 			// Build list of other players currently controlled by humans in this team, to avoid stepping on their shoes
 			// We do this at every iteration because this list might change.
 			LIST_RESET(tmp_excluded_players_list);
@@ -161,19 +178,25 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 				struct human_player *other_human_player = &game_state->human_players[j];
 
 				if (other_human_player->enabled && other_human_player->team_side == team_side_idx &&
-					j != ordered_list.array[i].human_player_idx &&
+					(is_human_requiring_player_switch ||
+					 j !=
+						 ordered_list.array[i]
+							 .human_player_idx) && // If human is requiring player switch we want to exclude currently selected player
 					other_human_player->controlled_player.entity_id != EID_NOT_VALID) {
 					LIST_ADD(tmp_excluded_players_list,
 							 other_human_player->controlled_player.entity_id);
 				}
 			}
 
-			struct human_player *human_player =
-				&game_state->human_players[ordered_list.array[i].human_player_idx];
+			b32 currently_selected_player_kicked_ball = false;
 
+			// Following logic makes sense even if player is requiring switch
 			if (ball_possession == BALL_POSSESSION_TEAM) {
 				if (human_player->controlled_player.entity_id ==
 					player_in_possession_entity->header.id) {
+					// Reset the manually selected flag
+					human_player->controlled_player.is_manually_selected = false;
+
 					if (!player_in_possession_entity->player.kicked_ball) {
 						// If the currently controlled player is in possession of the ball (and they didn't kick it in this frame) we just select the same player again.
 						continue;
@@ -181,6 +204,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 						// If the currently controlled player was in possession of the ball but then they kicked it during this frame, we need to exclude current player and select a new one.
 						LIST_ADD(tmp_excluded_players_list,
 								 human_player->controlled_player.entity_id);
+						currently_selected_player_kicked_ball = true;
 					}
 				} else {
 					// If no human is controlling player in possession we assign it to the first human player
@@ -192,6 +216,13 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 						continue;
 					}
 				}
+			}
+
+			// If current player was manually selected and didn't kick the ball in this frame we can return early.
+			// If the human is requiring another switch though we have to comply.
+			if (is_current_selected_player_manually_selected && !is_human_requiring_player_switch &&
+				!currently_selected_player_kicked_ball) {
+				continue;
 			}
 
 			// Add team wide excluded players to the temporary list of this iteration
