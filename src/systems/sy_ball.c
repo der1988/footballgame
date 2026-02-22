@@ -42,7 +42,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	if (gc->state.current[GAME_CONTROL_TEST_RESET].digital.pressed) {
 		struct component_transform *p1_transform =
 			&entity_get(game_state->entity_repository,
-						game_state->human_players[0].controlled_player_entity_id)
+						game_state->human_players[0].controlled_player.entity_id)
 				 ->transform;
 		entity_ball_set_position_and_velocity(
 			ball_entity,

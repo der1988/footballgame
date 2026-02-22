@@ -16,7 +16,7 @@ void game_controller_reset(struct game_controller *game_controller)
 void game_controller_player_reset(entity_id_t player_entity_id, struct game_state *game_state)
 {
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
-		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
+		if (game_state->human_players[i].controlled_player.entity_id == player_entity_id) {
 			game_controller_reset(
 				&game_state->input_manager
 					 ->game_controllers[game_state->human_players[i].game_controller_id]);

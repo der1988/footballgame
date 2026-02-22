@@ -27,7 +27,7 @@ void football_match_change_state(struct game_state *game_state, enum match_state
 		// TODO: quick hack to put the ball back in play
 		struct entity *entity =
 			entity_get(game_state->entity_repository,
-					   game_state->human_players[0].controlled_player_entity_id);
+					   game_state->human_players[0].controlled_player.entity_id);
 		struct component_transform *transform = &entity->transform;
 		entity_ball_set_position_and_velocity(
 			game_state->vars.ball_entity, V2_TO_V3(transform->position, 30), Vector3Zero());

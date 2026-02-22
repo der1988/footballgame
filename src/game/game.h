@@ -88,7 +88,10 @@ struct human_player {
 	b32 enabled;
 	enum team_side team_side;
 	game_controller_id_t game_controller_id;
-	entity_id_t controlled_player_entity_id;
+	struct {
+		entity_id_t entity_id;
+		b32 is_manually_selected;
+	} controlled_player;
 };
 
 struct team_play_context {
@@ -195,7 +198,7 @@ INLINE struct human_player *game_input_human_player(struct game_state *game_stat
 													entity_id_t player_entity_id)
 {
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
-		if (game_state->human_players[i].controlled_player_entity_id == player_entity_id) {
+		if (game_state->human_players[i].controlled_player.entity_id == player_entity_id) {
 			return &game_state->human_players[i];
 		}
 	}

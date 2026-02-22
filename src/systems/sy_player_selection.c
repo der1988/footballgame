@@ -61,7 +61,7 @@ struct list_human_players order_humans_by_distance_from_ball(struct human_player
 
 		if (human_player->enabled && team_side == human_player->team_side) {
 			struct entity *player_entity = entity_get(game_state->entity_repository,
-													  human_player->controlled_player_entity_id);
+													  human_player->controlled_player.entity_id);
 			f32 distance = FLT_MAX;
 			if (player_entity) {
 				distance = Vector2DistanceSqr(ball_position, player_entity->transform.position);
@@ -121,8 +121,8 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 
 			if (human_player->enabled && ball_possession == BALL_POSSESSION_TEAM &&
 				human_player->team_side == team_side_idx &&
-				human_player->controlled_player_entity_id != EID_NOT_VALID &&
-				human_player->controlled_player_entity_id == player_in_possession_entity_id) {
+				human_player->controlled_player.entity_id != EID_NOT_VALID &&
+				human_player->controlled_player.entity_id == player_in_possession_entity_id) {
 				is_player_in_possession_controlled_by_human = true;
 				break;
 			}
@@ -162,9 +162,9 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 
 				if (other_human_player->enabled && other_human_player->team_side == team_side_idx &&
 					j != ordered_list.array[i].human_player_idx &&
-					other_human_player->controlled_player_entity_id != EID_NOT_VALID) {
+					other_human_player->controlled_player.entity_id != EID_NOT_VALID) {
 					LIST_ADD(tmp_excluded_players_list,
-							 other_human_player->controlled_player_entity_id);
+							 other_human_player->controlled_player.entity_id);
 				}
 			}
 
@@ -172,7 +172,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 				&game_state->human_players[ordered_list.array[i].human_player_idx];
 
 			if (ball_possession == BALL_POSSESSION_TEAM) {
-				if (human_player->controlled_player_entity_id ==
+				if (human_player->controlled_player.entity_id ==
 					player_in_possession_entity->header.id) {
 					if (!player_in_possession_entity->player.kicked_ball) {
 						// If the currently controlled player is in possession of the ball (and they didn't kick it in this frame) we just select the same player again.
@@ -180,14 +180,14 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 					} else {
 						// If the currently controlled player was in possession of the ball but then they kicked it during this frame, we need to exclude current player and select a new one.
 						LIST_ADD(tmp_excluded_players_list,
-								 human_player->controlled_player_entity_id);
+								 human_player->controlled_player.entity_id);
 					}
 				} else {
 					// If no human is controlling player in possession we assign it to the first human player
 					if (!is_player_in_possession_controlled_by_human &&
 						human_player->team_side == team_side_idx &&
 						!player_in_possession_entity->player.kicked_ball) {
-						human_player->controlled_player_entity_id = player_in_possession_entity_id;
+						human_player->controlled_player.entity_id = player_in_possession_entity_id;
 						is_player_in_possession_controlled_by_human = true;
 						continue;
 					}
@@ -197,7 +197,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			// Add team wide excluded players to the temporary list of this iteration
 			LIST_ITERATE(excluded_player, excluded_players_list)
 			{
-				if (excluded_player != human_player->controlled_player_entity_id) {
+				if (excluded_player != human_player->controlled_player.entity_id) {
 					LIST_ADD(tmp_excluded_players_list, excluded_player);
 				}
 			}
@@ -206,14 +206,14 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			struct nearest_player *nearest_player = find_nearest_player(
 				epicenter, human_player->team_side, tmp_excluded_players_list, game_state);
 			// nearest_player is always valid
-			entity_id_t new_controlled_player_entity_id = nearest_player->entity->header.id;
+			entity_id_t new_controlled_player_id = nearest_player->entity->header.id;
 
-			if (new_controlled_player_entity_id != EID_NOT_VALID &&
-				new_controlled_player_entity_id != human_player->controlled_player_entity_id) {
+			if (new_controlled_player_id != EID_NOT_VALID &&
+				new_controlled_player_id != human_player->controlled_player.entity_id) {
 				// human is controlling a new player compared to previous frame
 				game_controller_reset(
 					&game_state->input_manager->game_controllers[human_player->game_controller_id]);
-				human_player->controlled_player_entity_id = new_controlled_player_entity_id;
+				human_player->controlled_player.entity_id = new_controlled_player_id;
 			}
 		}
 	}
@@ -224,7 +224,7 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 	// 	if (human_player->enabled) {
 	// 		printf("human player %d is controlling entity %d\n",
 	// 			   human_player->id,
-	// 			   human_player->controlled_player_entity_id);
+	// 			   human_player->controlled_player.entity_id);
 	// 	}
 	// }
 }
