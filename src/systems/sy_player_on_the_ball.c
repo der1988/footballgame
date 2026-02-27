@@ -139,7 +139,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 									  player_controls->long_pass,
 									  game_state);
 				kicked_ball = true;
-			} else if (!kicked_ball && steering_magnitude > 0.01f) {
+			} else if (!kicked_ball) {
 				// For ball control we use velocity directly because it's easier and produce
 				// better results
 				if (player_speed < game_state->constants.player_run_max_velocity * 0.8f) {
@@ -150,6 +150,12 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					// Precision control
 					player->time_spent_in_precision_control += game_state->dt;
 					player->time_spent_in_run_control = 0;
+
+					// If the player is not moving we reset time spent in precision control
+					if (steering_magnitude < 0.01f) {
+						player->time_spent_in_precision_control = 0;
+					}
+
 					// Every 250ms player does a longer control if he's running at > 70% top speed
 					if (player->time_spent_in_precision_control > 0.25f &&
 						player_speed > game_state->constants.player_run_max_velocity * 0.7f) {
@@ -198,6 +204,16 @@ void systems_player_on_the_ball(struct game_state *game_state)
 						player_position,
 						Vector2Scale(normalized_velocity,
 									 player_entity->collider.colliders[0].props.circle.radius));
+
+					// If player is not moving we position the ball on the collider radius with the same
+					// angle that exists between player and ball.
+					if (steering_magnitude < 0.01f) {
+						position_to_seek = Vector2Add(
+							player_position,
+							Vector2Scale(Vector2Normalize(Vector2Subtract(ball_transform->position,
+																		  player_position)),
+										 player_entity->collider.colliders[0].props.circle.radius));
+					}
 
 					// This threshold should depend on player quality.
 					// If difficulty is higher than the threshold the player will likely lose the ball.
