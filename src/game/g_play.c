@@ -336,6 +336,7 @@ void update(struct game_state *game_state)
 	systems_team_pressing(game_state);
 	systems_player_control_human(game_state);
 	systems_player_control_ai(game_state);
+	systems_players_off_the_ball(game_state);
 	systems_player_on_the_ball(game_state);
 	systems_player_physics(game_state);
 	systems_player_selection(game_state);

@@ -40,7 +40,7 @@ struct state_machine_running_action_state {
 	running_action_idx_t running_action_idx;
 };
 
-struct state_machine_player_tackle_data {
+struct state_machine_player_sliding_tackle_data {
 	fg_time_t start_time;
 	b32 touched_ball;
 	b32 touched_player;
@@ -76,7 +76,7 @@ struct state_machine_player_header_data {
 
 union state_machine_player_state_data {
 	struct state_machine_player_normal_data normal;
-	struct state_machine_player_tackle_data tackle;
+	struct state_machine_player_sliding_tackle_data sliding_tackle;
 	struct state_machine_player_fall_data fall;
 	struct state_machine_player_header_data header;
 	struct state_machine_default_empty_data goalie;

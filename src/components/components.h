@@ -138,6 +138,12 @@ struct component_player_controls {
 	f32 pass;
 	b32 automatic_pass;
 	f32 long_pass;
+	b32 header_shot;
+	b32 header_pass;
+	b32 tackle;
+	b32 sliding_tackle;
+	b32 press_possession;
+	b32 teammate_press_possession;
 };
 
 enum future_position_type {

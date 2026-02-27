@@ -9,13 +9,11 @@
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
-#include <string.h>
 #include "ai.h"
 #include "constants.h"
 
 void systems_player_control_human(struct game_state *game_state, struct input *input)
 {
-	UNUSED(memset);
 	UNUSED(input);
 
 	struct entity *ball_entity = game_state->vars.ball_entity;
@@ -26,12 +24,19 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 	UNUSED(ball_transform);
 	UNUSED(ball);
 
-	FOR_EACH_ENTITY(entity, game_state->entity_repository)
-	{
-		struct human_player *human_player = game_input_human_player(game_state, entity_id);
+	for (usize human_player_idx = 0; human_player_idx < MAX_HUMAN_PLAYERS; ++human_player_idx) {
+		if (game_state->human_players[human_player_idx].controlled_player.entity_id ==
+			EID_NOT_VALID) {
+			continue;
+		}
+
+		struct human_player *human_player = &game_state->human_players[human_player_idx];
 		if (!human_player || !human_player->enabled) {
 			continue;
 		}
+
+		struct entity *entity =
+			entity_get(game_state->entity_repository, human_player->controlled_player.entity_id);
 
 		if (!entity_is_alive_and_has_components(
 				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
@@ -43,8 +48,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
+		entity->player_controls = (struct component_player_controls){0};
 		struct component_player_controls *player_controls = &entity->player_controls;
-		RESET_COMPONENT(player_controls);
 
 		struct entity *last_entity_that_touched_ball =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
@@ -63,29 +68,49 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 		player_controls->steering = calculate_movement_vector(game_controller);
 
+		entity_id_t player_in_possession_entity_id =
+			entity_ball_player_in_possession(game_state->vars.ball_entity, game_state);
+		struct entity *player_in_possession =
+			entity_get(game_state->entity_repository, player_in_possession_entity_id);
+
 		switch (state_machine->current_state) {
 		case PS_NONE:
 			break;
 		case PS_NORMAL: {
-			if (!entity->player.is_colliding_with_ball &&
-				(game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
-				 game_controller_state->current[GAME_CONTROL_PASS].digital.pressed)) {
-				if (ball_transform->virtual_height > 20) {
-					entity_player_state_machine_change_state_to(
-						&player->state_machine, PS_HEADER, game_state);
-					player->state_machine.state_data.header.type =
-						game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ?
-							HEADER_TYPE_SHOOT :
-							HEADER_TYPE_PASS;
+			// Off the ball
+			if (!entity->player.is_colliding_with_ball) {
+				// Header
+				if (game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
+					game_controller_state->current[GAME_CONTROL_PASS].digital.pressed) {
+					if (ball_transform->virtual_height > 20) {
+						player_controls->header_shot =
+							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
+						player_controls->header_pass = !player_controls->header_shot;
+					}
 				}
-			} else if (!entity->player.is_colliding_with_ball &&
-					   game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
-				if (team_idx_last_ball_possession != player->team_side) {
-					entity_player_state_machine_change_state_to(
-						&player->state_machine, PS_SLIDING_TACKLE, game_state);
+				// Sliding tackle
+				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
+					if (team_idx_last_ball_possession != player->team_side) {
+						player_controls->sliding_tackle = true;
+					}
 				}
-			} else if (entity->player.is_colliding_with_ball) {
-				/* We check the charge lock is charged. */
+				// Press
+				else if (game_controller_state->current[GAME_CONTROL_PASS].digital.pressed) {
+					if (team_idx_last_ball_possession != player->team_side) {
+						player_controls->press_possession = true;
+					}
+				}
+				// Teammate press
+				else if (game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed) {
+					if (team_idx_last_ball_possession != player->team_side) {
+						player_controls->teammate_press_possession = true;
+					}
+				}
+			}
+			// On the ball
+			else if (entity->player.is_colliding_with_ball) {
+				// Kick
+				// First we check if the charge lock is charged
 				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
 					fg_time_t time_holding_button = game_controller->charge_lock.end_time -
 													game_controller->charge_lock.start_time;

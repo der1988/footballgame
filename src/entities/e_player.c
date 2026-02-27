@@ -17,12 +17,11 @@
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
 const char *state_machine_player_state_string[PS_COUNT] = {
-	"none", "normal", "throw_in", "header", "tackle", "fall", "goalie"};
+	"none", "normal", "throw_in", "header", "sliding_tackle", "fall", "goalie"};
 
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
@@ -233,7 +232,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	case PS_SLIDING_TACKLE:
 		game_controller_player_reset(entity->header.id, game_state);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
-		entity->player.state_machine.state_data.tackle.start_time = game_state->time;
+		entity->player.state_machine.state_data.sliding_tackle.start_time = game_state->time;
 		break;
 	case PS_FALL:
 		entity->player.state_machine.state_data.fall.animation_start_time = game_state->time;
