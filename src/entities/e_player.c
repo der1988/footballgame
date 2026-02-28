@@ -121,11 +121,13 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 											sizeof(struct collider) * collider->num_colliders);
 	assert(collider->colliders);
 	collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
-	collider->colliders[PCT_GOALIE].props.circle.offset = (v2){.y = 0};
-	collider->colliders[PCT_GOALIE].props.circle.radius = 6;
+	collider->colliders[PCT_GOALIE].props.circle.radius = 4;
+	collider->colliders[PCT_GOALIE].props.circle.offset =
+		(v2){.y = 0 + (collider->colliders[PCT_GOALIE].props.circle.radius * 0.75f *
+					   (pitch_side == PSI_NORTH ? -1 : 1))};
 
 	collider->colliders[PCT_DIVE].shape = CS_RECTANGLE;
-	collider->colliders[PCT_DIVE].props.rectangle.size.x = 18;
+	collider->colliders[PCT_DIVE].props.rectangle.size.x = 17;
 	collider->colliders[PCT_DIVE].props.rectangle.size.y = 5;
 	collider->colliders[PCT_DIVE].props.rectangle.offset =
 		(v2){.x = 0,
