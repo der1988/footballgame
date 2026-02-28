@@ -101,7 +101,8 @@ struct game_state *game_play_init(struct game_config game_config,
 								.player_run_control_max_angle = 45,
 
 								// Elite goalie has 150ms reaction time
-								.goalie_dive_reaction_time = 0.150f,
+								// 75ms seems more fun though
+								.goalie_dive_reaction_time = 0.075f,
 								.goalie_dive_force = 8500,
 								// TODO: This parameter should depend on goalie's quality
 								.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
