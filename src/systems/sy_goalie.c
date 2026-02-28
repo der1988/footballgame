@@ -98,27 +98,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					// Bounce ball
 					v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
 
-					// Project ball position back in the past using current velocity until it's not colliding anymore
-					// TODO: this thing should be refactored as it's used in more than one place
-					v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
-					b32 still_colliding_with_ball = true;
-					v3 where_to_place_ball =
-						V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-					while (still_colliding_with_ball) {
-						where_to_place_ball = Vector3Add(
-							where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
-
-						struct collision_information collision_information =
-							entity_player_is_colliding_with_ball(
-								entity,
-								PCT_GOALIE,
-								where_to_place_ball,
-								new_ball_velocity,
-								ball_radius,
-								game_state->constants.crossbar_height);
-
-						still_colliding_with_ball = collision_information.is_colliding;
-					}
+					// Step ball position back one tick to place it outside the collider
+					v3 where_to_place_ball = Vector3Add(
+						V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+						Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
 
 					entity_ball_set_position_and_velocity(
 						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
@@ -339,26 +322,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						Vector3Normalize(Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1}));
 					new_ball_velocity.y = 1;
 
-					// Project ball position back in the past using current velocity until it's not colliding anymore
-					v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
-					b32 still_colliding_with_ball = true;
-					v3 where_to_place_ball =
-						V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-					while (still_colliding_with_ball) {
-						where_to_place_ball = Vector3Add(
-							where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
-
-						struct collision_information collision_information =
-							entity_player_is_colliding_with_ball(
-								entity,
-								PCT_GOALIE,
-								where_to_place_ball,
-								new_ball_velocity,
-								ball_radius,
-								game_state->constants.crossbar_height - ball_radius);
-
-						still_colliding_with_ball = collision_information.is_colliding;
-					}
+					// Step ball position back one tick to place it outside the collider
+					v3 where_to_place_ball = Vector3Add(
+						V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+						Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
 
 					entity_ball_set_position_and_velocity(ball_entity,
 														  where_to_place_ball,
@@ -501,26 +468,10 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					//     new_ball_velocity, (v3){.y = 1},
 					//     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
 
-					// Project ball position back in the past using current velocity until it's not colliding anymore
-					v3 neg_velocity = Vector3Negate(ball_physics_3d->velocity);
-					b32 still_colliding_with_ball = true;
-					v3 where_to_place_ball =
-						V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-					while (still_colliding_with_ball) {
-						where_to_place_ball = Vector3Add(
-							where_to_place_ball, Vector3Scale(neg_velocity, game_state->dt));
-
-						struct collision_information collision_information =
-							entity_player_is_colliding_with_ball(
-								entity,
-								PCT_DIVE,
-								where_to_place_ball,
-								new_ball_velocity,
-								ball_radius,
-								game_state->constants.crossbar_height - ball_radius);
-
-						still_colliding_with_ball = collision_information.is_colliding;
-					}
+					// Step ball position back one tick to place it outside the collider
+					v3 where_to_place_ball = Vector3Add(
+						V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+						Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
 
 					entity_ball_set_position_and_velocity(
 						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
