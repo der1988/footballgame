@@ -6,7 +6,6 @@
 #include "game.h"
 #include "input.h"
 #include "log.h"
-#include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
 #include "ai.h"

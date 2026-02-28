@@ -8,9 +8,7 @@
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
-#include <stdio.h>
 #include "ai.h"
-#include "steering.h"
 #include "types.h"
 
 void systems_player_physics(struct game_state *game_state)
