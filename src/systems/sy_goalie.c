@@ -439,7 +439,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 													 ball_entity->physics3d.velocity,
 													 ball_radius,
 													 game_state->constants.crossbar_height -
-														 ball_radius * 2);
+														 ball_radius * 1.5f);
 
 			if (!dive_state_data->ball_saved &&
 				HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
