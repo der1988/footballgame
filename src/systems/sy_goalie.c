@@ -197,10 +197,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 											   10);
 				} else {
 					// Calculate whether goalie can reach the ball using predicted positions
-					const b32 is_opponent_in_possession =
-						player_in_possession_entity_id != EID_NOT_VALID &&
-						player_in_possession_entity->player.team_side != entity->player.team_side;
-
+					// At this point we already know no one is in possession
 					const struct player_ball_reachability_prediction prediction =
 						entity_player_can_reach_future_ball_position(entity,
 																	 exit_max_speed,
@@ -208,7 +205,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 																	 protect_goal_predicate,
 																	 game_state);
 
-					if (prediction.can_reach_it && !is_opponent_in_possession) {
+					if (prediction.can_reach_it) {
 						physics->max_velocity = exit_max_speed;
 						force = game_state->constants.player_movement_force * 1;
 
