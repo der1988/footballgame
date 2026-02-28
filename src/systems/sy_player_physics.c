@@ -8,7 +8,9 @@
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
+#include <stdio.h>
 #include "ai.h"
+#include "steering.h"
 #include "types.h"
 
 void systems_player_physics(struct game_state *game_state)
@@ -20,7 +22,7 @@ void systems_player_physics(struct game_state *game_state)
 	UNUSED(ball);
 	UNUSED(ball_collider);
 
-	entity_id_t player_in_possession_entity_id =
+	const entity_id_t player_in_possession_entity_id =
 		entity_ball_player_in_possession(ball_entity, game_state);
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
@@ -46,6 +48,7 @@ void systems_player_physics(struct game_state *game_state)
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
 			v2 effective_steering = player_controls->steering;
+
 			// If charging kick we seek the ball
 			struct human_player *human_player = game_input_human_player(game_state, entity_id);
 			if (human_player) {
@@ -57,6 +60,7 @@ void systems_player_physics(struct game_state *game_state)
 						Vector2Subtract(ball_transform->position, transform->position));
 				}
 			}
+
 			v2 force_to_apply = Vector2Zero();
 			v2 normalized_velocity = Vector2Normalize(physics->velocity);
 			f32 steering_magnitude = Vector2Length(effective_steering);

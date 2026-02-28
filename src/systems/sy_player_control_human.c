@@ -68,11 +68,6 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 		player_controls->steering = calculate_movement_vector(game_controller);
 
-		entity_id_t player_in_possession_entity_id =
-			entity_ball_player_in_possession(game_state->vars.ball_entity, game_state);
-		struct entity *player_in_possession =
-			entity_get(game_state->entity_repository, player_in_possession_entity_id);
-
 		switch (state_machine->current_state) {
 		case PS_NONE:
 			break;
@@ -92,18 +87,6 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
 					if (team_idx_last_ball_possession != player->team_side) {
 						player_controls->sliding_tackle = true;
-					}
-				}
-				// Press
-				else if (game_controller_state->current[GAME_CONTROL_PASS].digital.pressed) {
-					if (team_idx_last_ball_possession != player->team_side) {
-						player_controls->press_possession = true;
-					}
-				}
-				// Teammate press
-				else if (game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed) {
-					if (team_idx_last_ball_possession != player->team_side) {
-						player_controls->teammate_press_possession = true;
 					}
 				}
 			}
