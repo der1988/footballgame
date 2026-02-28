@@ -233,6 +233,14 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 				}
 			}
 
+			// Shift epicenter toward own goal when opponent has possession
+			if (ball_possession == BALL_POSSESSION_OPPO) {
+				enum pitch_side own_goal_side =
+					game_state->vars.teams[team_side_idx].play_context.pitch_side;
+				v2 own_goal = game_state->vars.pitch.goal[own_goal_side].center;
+				epicenter = Vector2Lerp(epicenter, own_goal, 0.15f);
+			}
+
 			// Find player nearest to the epicenter
 			struct nearest_player *nearest_player = find_nearest_player(
 				epicenter, human_player->team_side, tmp_excluded_players_list, game_state);
