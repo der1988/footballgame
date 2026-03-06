@@ -17,6 +17,7 @@
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -481,14 +482,6 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 		PSI_NORTH;
 	for (u16 i = 0; i < lookaheads; ++i) {
 		const v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
-
-		const fg_time_t time_offset = (i + 1) * game_state->constants.ball_lookahead_dts *
-									  game_state->constants.fixed_timestep;
-
-		if (time_offset > 0.3f) {
-			// If the ball is going to get to this point in time too far in the future we don't want to dive
-			break;
-		}
 
 		// Check the ball is still savable
 		f32 x_diff = pos_to_check.x - goalie_entity->transform.position.x;
