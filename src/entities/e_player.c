@@ -480,6 +480,18 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	const b32 invert =
 		game_state->vars.teams[goalie_entity->player.team_side].play_context.pitch_side ==
 		PSI_NORTH;
+
+	// Check whether the ball is coming directly at us
+	if (is_moving_circle_going_to_intersect_still_circle(
+			ball_entity->transform.position,
+			goalie_entity->transform.position,
+			ball_radius,
+			goalie_entity->collider.colliders[PCT_GOALIE].props.circle.radius,
+			V3_TO_V2(ball_entity->physics3d.velocity))) {
+		// Ball is going to end up in our hands, don't dive!
+		return false;
+	}
+
 	for (u16 i = 0; i < lookaheads; ++i) {
 		const v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
 
