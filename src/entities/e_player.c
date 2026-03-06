@@ -485,23 +485,11 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 		const fg_time_t time_offset = (i + 1) * game_state->constants.ball_lookahead_dts *
 									  game_state->constants.fixed_timestep;
 
-		if (time_offset > 0.4f) {
+		if (time_offset > 0.3f) {
 			// If the ball is going to get to this point in time too far in the future we don't want to dive
 			break;
 		}
 
-		const struct collision_information collision_information =
-			entity_player_is_colliding_with_ball(goalie_entity,
-												 PCT_GOALIE,
-												 pos_to_check,
-												 ball_entity->physics3d.velocity,
-												 ball_radius,
-												 game_state->constants.crossbar_height);
-
-		if (collision_information.is_colliding) {
-			// Ball is coming our direction, let's wait
-			break;
-		}
 		// Check the ball is still savable
 		f32 x_diff = pos_to_check.x - goalie_entity->transform.position.x;
 		f32 y_diff = pos_to_check.z - goalie_entity->transform.position.y;
