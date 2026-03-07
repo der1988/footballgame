@@ -11,6 +11,8 @@
 #include "physics/physics.h"
 #include "types.h"
 #include <raymath.h>
+#include <stdio.h>
+#include "collision.h"
 
 static b32 protect_goal_predicate(v3 pos_to_check,
 								  struct entity *seeker_entity,
@@ -54,6 +56,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		enum pitch_side pitch_side =
 			game_state->vars.teams[player->team_side].play_context.pitch_side;
 		const v2 goal_center = game_state->vars.pitch.goal[pitch_side].center;
+		const f32 goal_width = game_state->vars.pitch.goal_width;
 
 		const v3 ball_position = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
 		const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
@@ -116,7 +119,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			// So we are not colliding with ball...
 
 			v2 destination;
-			v2 direction;
 			v2 steering;
 			f32 force;
 
@@ -173,7 +175,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					force = game_state->constants.player_movement_force * 2;
 
 					destination = ball_future_reachable_position;
-					direction = Vector2Normalize(Vector2Subtract(destination, transform->position));
 					steering = steering_arrive(transform->position,
 											   physics->velocity,
 											   physics->max_velocity,
@@ -194,8 +195,6 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						force = game_state->constants.player_movement_force * 1;
 
 						destination = V3_TO_V2(prediction.future_pos);
-						direction =
-							Vector2Normalize(Vector2Subtract(destination, transform->position));
 						steering = steering_seek(transform->position,
 												 physics->velocity,
 												 physics->max_velocity,
@@ -211,11 +210,53 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			}
 
 			if (protect_goal) {
-				physics->max_velocity = game_state->constants.player_run_max_velocity;
-				force = game_state->constants.player_movement_force;
-				direction =
-					Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
-				destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
+				// Let's understand if we have to prepare for a dive
+				b32 move_on_the_line = false;
+
+				// We need to account for both pitch sides
+				const b32 invert =
+					game_state->vars.teams[entity->player.team_side].play_context.pitch_side ==
+					PSI_NORTH;
+
+				const f32 max_side_movement = goal_width * 0.5f * 0.7f;
+				v2 left_pos = Vector2Add(
+					goal_center, (v2){.x = -max_side_movement, .y = 20 * (invert ? 1 : -1)});
+				v2 right_pos = Vector2Add(
+					goal_center, (v2){.x = max_side_movement, .y = 20 * (invert ? 1 : -1)});
+
+				for (u16 i = 0; i < game_state->constants.ball_lookaheads; ++i) {
+					const v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
+
+					v2 prev_pos;
+					v2 new_pos;
+					if (i == 0) {
+						prev_pos = ball_entity->transform.position;
+						new_pos = V3_TO_V2(pos_to_check);
+					} else {
+						prev_pos = V3_TO_V2(ball_entity->ball.lookahead_positions[i - 1]);
+						new_pos = V3_TO_V2(pos_to_check);
+					}
+
+					v2 intersection_point;
+					if (is_line_intersecting_line(
+							prev_pos, new_pos, left_pos, right_pos, &intersection_point)) {
+						physics->max_velocity =
+							game_state->constants.player_run_max_velocity * 0.35f;
+						force = game_state->constants.player_movement_force;
+						destination = intersection_point;
+						move_on_the_line = true;
+						break;
+					}
+				}
+
+				if (!move_on_the_line) {
+					physics->max_velocity = game_state->constants.player_run_max_velocity;
+					force = game_state->constants.player_movement_force;
+					v2 direction =
+						Vector2Normalize(Vector2Subtract(ball_transform->position, goal_center));
+					destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
+				}
+
 				steering = steering_arrive(
 					transform->position, physics->velocity, physics->max_velocity, destination, 10);
 			}
