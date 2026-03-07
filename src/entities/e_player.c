@@ -17,7 +17,6 @@
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -36,10 +35,9 @@ implement_state_machine_functions(goalie);
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
 b32 check_whether_goalie_should_dive(v3 pos_to_check,
-									 b32 invert,
+									 b32 attacking_south,
 									 f32 time_to_unsaveable,
 									 struct entity *goalie_entity,
-									 struct entity *ball_entity,
 									 enum save_direction *dive_direction,
 									 enum save_height *dive_height,
 									 f32 *dive_speed,
@@ -487,7 +485,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 					game_state->constants.ball_lookaheads));
 
 	// We need to account for both pitch sides
-	const b32 invert =
+	const b32 attacking_south =
 		game_state->vars.teams[goalie_entity->player.team_side].play_context.pitch_side ==
 		PSI_NORTH;
 
@@ -502,12 +500,24 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 		return false;
 	}
 
+	// TODO: reaction time is not fixed for real goalkeepers:
+	// sometimes they dive by instinct and some simply have better reflexes.
+	// We should implement this here by adding some randomness to the reaction time
+	// and by taking goalkeeper quality into consideration.
+
+	// For now reaction time can randomly be up to 50% better than the default one
+	f32 reaction_time = game_state->constants.goalie_dive_reaction_time *
+						(1 - 0.5f * GetRandomValue(0, 100) / 100.0f);
+
+	if (!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_kick_time, reaction_time)) {
+		return false;
+	}
+
 	if ((should_dive = check_whether_goalie_should_dive(
 			 V2_TO_V3(ball_entity->transform.position, ball_entity->transform.virtual_height),
-			 invert,
+			 attacking_south,
 			 0.0f,
 			 goalie_entity,
-			 ball_entity,
 			 dive_direction,
 			 dive_height,
 			 dive_speed,
@@ -523,10 +533,9 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 		f32 time_to_unsaveable = (i + 1) * game_state->dt * steps_per_lookahead;
 
 		should_dive = check_whether_goalie_should_dive(pos_to_check,
-													   invert,
+													   attacking_south,
 													   time_to_unsaveable,
 													   goalie_entity,
-													   ball_entity,
 													   dive_direction,
 													   dive_height,
 													   dive_speed,
@@ -893,10 +902,9 @@ void player_custom_after_draw(struct entity *entity, struct game_state *game_sta
 }
 
 b32 check_whether_goalie_should_dive(v3 pos_to_check,
-									 b32 invert,
+									 b32 attacking_south,
 									 f32 time_to_unsaveable,
 									 struct entity *goalie_entity,
-									 struct entity *ball_entity,
 									 enum save_direction *dive_direction,
 									 enum save_height *dive_height,
 									 f32 *dive_speed,
@@ -907,10 +915,7 @@ b32 check_whether_goalie_should_dive(v3 pos_to_check,
 	f32 x_diff = pos_to_check.x - goalie_entity->transform.position.x;
 	f32 y_diff = pos_to_check.z - goalie_entity->transform.position.y;
 	f32 distance_to_cover = fabsf(x_diff);
-	if (HAS_TIME_PASSED(game_state->time,
-						ball_entity->ball.last_kick_time,
-						game_state->constants.goalie_dive_reaction_time) &&
-		(invert ? (y_diff > 0 && y_diff < 5) : (y_diff > -5 && y_diff < 0)) &&
+	if ((attacking_south ? (y_diff > 0 && y_diff < 5) : (y_diff > -5 && y_diff < 0)) &&
 		distance_to_cover < 60 && pos_to_check.y < game_state->constants.crossbar_height) {
 		f32 max_distance_we_can_cover_in_available_time =
 			game_state->constants.goalie_dive_max_velocity * time_to_unsaveable / 1.0f;
@@ -918,14 +923,14 @@ b32 check_whether_goalie_should_dive(v3 pos_to_check,
 		*dive_height = pos_to_check.y < GOALIE_DIVE_HEIGHT_THRESHOLD ? SH_LOW : SH_HIGH;
 		*dive_speed = Clamp(distance_to_cover / max_distance_we_can_cover_in_available_time, 0, 1);
 		*dive_distance = distance_to_cover;
-		GLOGF_DEBUG_CTX(LS_GAME,
-						goalie_entity->header.name,
-						"goalie has %.3fs to save a ball that will be %.2fpx away: "
-						"dive speed %.2fpx/s",
-						time_to_unsaveable,
-						distance_to_cover,
-						goalie_entity->goalie.dive_speed *
-							game_state->constants.goalie_dive_max_velocity);
+		GLOGF_DEBUG_CTX(
+			LS_GAME,
+			goalie_entity->header.name,
+			"goalie has %.3fs to save a ball that will be %.2fpx away with a reaction time of %.3fs: "
+			"dive speed %.2fpx/s",
+			time_to_unsaveable,
+			distance_to_cover,
+			goalie_entity->goalie.dive_speed * game_state->constants.goalie_dive_max_velocity);
 		should_dive = true;
 	}
 	return should_dive;
