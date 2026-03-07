@@ -11,7 +11,6 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 #include "platform/platform.h"
 
 void update(struct game_state *game_state);
