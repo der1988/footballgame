@@ -478,11 +478,10 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 
 	const u32 steps_per_lookahead = game_state->constants.ball_lookahead_dts;
 	// We want a specific lookahead for our goalie
-	const int lookaheads =
-		floor(Clamp((GOALIE_LOOKAHEAD_MS / game_state->constants.fixed_timestep) /
-						game_state->constants.ball_lookahead_dts,
-					1,
-					game_state->constants.ball_lookaheads));
+	const int lookaheads = floor(
+		Clamp((GOALIE_LOOKAHEAD_MS / game_state->constants.fixed_timestep) / steps_per_lookahead,
+			  1,
+			  game_state->constants.ball_lookaheads));
 
 	// We need to account for both pitch sides
 	const b32 attacking_south =
@@ -532,16 +531,17 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 
 		f32 time_to_unsaveable = (i + 1) * game_state->dt * steps_per_lookahead;
 
-		should_dive = check_whether_goalie_should_dive(pos_to_check,
-													   attacking_south,
-													   time_to_unsaveable,
-													   goalie_entity,
-													   dive_direction,
-													   dive_height,
-													   dive_speed,
-													   dive_distance,
-													   game_state);
-		break;
+		if ((should_dive = check_whether_goalie_should_dive(pos_to_check,
+															attacking_south,
+															time_to_unsaveable,
+															goalie_entity,
+															dive_direction,
+															dive_height,
+															dive_speed,
+															dive_distance,
+															game_state))) {
+			break;
+		}
 	}
 	return should_dive;
 }
