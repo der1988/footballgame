@@ -238,7 +238,7 @@ void systems_player_collisions(struct game_state *game_state)
 			continue;
 
 		f32 mass_a = a->physics.mass;
-		f32 radius_a = a->collider.colliders[PCT_PLAYER].props.circle.radius;
+		f32 radius_a = a->collider.colliders[PCT_BODY].props.circle.radius;
 
 		for (usize j = i + 1; j < repo->max_slots; ++j) {
 			struct entity *b = entity_get(repo, j);
@@ -249,7 +249,7 @@ void systems_player_collisions(struct game_state *game_state)
 				continue;
 
 			f32 mass_b = b->physics.mass;
-			f32 radius_b = b->collider.colliders[PCT_PLAYER].props.circle.radius;
+			f32 radius_b = b->collider.colliders[PCT_BODY].props.circle.radius;
 
 			v2 delta = Vector2Subtract(b->transform.position, a->transform.position);
 			f32 dist = Vector2Length(delta);

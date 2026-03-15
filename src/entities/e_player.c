@@ -180,6 +180,9 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
 	collider->colliders[PCT_HEADER].props.circle.radius = 6;
 
+	collider->colliders[PCT_BODY].shape = CS_CIRCLE;
+	collider->colliders[PCT_BODY].props.circle.radius = 5;
+
 	player_state_machine_on_enter(entity, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "player created");
@@ -478,6 +481,7 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 			}
 		}
 		break;
+	case PCT_BODY:
 	case PCT_COUNT:
 		break;
 	}
