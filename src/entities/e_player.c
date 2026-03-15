@@ -923,14 +923,14 @@ b32 check_whether_goalie_should_dive(v3 pos_to_check,
 		*dive_height = pos_to_check.y < GOALIE_DIVE_HEIGHT_THRESHOLD ? SH_LOW : SH_HIGH;
 		*dive_speed = Clamp(distance_to_cover / max_distance_we_can_cover_in_available_time, 0, 1);
 		*dive_distance = distance_to_cover;
-		GLOGF_DEBUG_CTX(
-			LS_GAME,
-			goalie_entity->header.name,
-			"goalie has %.3fs to save a ball that will be %.2fpx away with a reaction time of %.3fs: "
-			"dive speed %.2fpx/s",
-			time_to_unsaveable,
-			distance_to_cover,
-			goalie_entity->goalie.dive_speed * game_state->constants.goalie_dive_max_velocity);
+		GLOGF_DEBUG_CTX(LS_GAME,
+						goalie_entity->header.name,
+						"goalie has %.3fs to save a ball that will be %.2fpx away: "
+						"dive speed %.2fpx/s",
+						time_to_unsaveable,
+						distance_to_cover,
+						goalie_entity->goalie.dive_speed *
+							game_state->constants.goalie_dive_max_velocity);
 		should_dive = true;
 	}
 	return should_dive;
