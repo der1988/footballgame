@@ -125,6 +125,9 @@ struct component_player {
 	u16 last_running_frame_idx;
 	u8 team_formation_position_idx;
 	enum team_side team_side;
+	struct player_characteristics characteristics;
+	fg_time_low_prec_t last_body_collision_time;
+	f32 last_body_collision_impulse;
 	b32 is_colliding_with_ball;
 	v2 collision_direction;
 	f32 collision_force;

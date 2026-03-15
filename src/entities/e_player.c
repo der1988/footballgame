@@ -23,6 +23,29 @@
 const char *state_machine_player_state_string[PS_COUNT] = {
 	"none", "normal", "throw_in", "header", "sliding_tackle", "fall", "goalie"};
 
+// Linearly interpolate a value on the 1-5 characteristic scale
+static inline f32 char_lerp(u8 value, f32 at_1, f32 at_5)
+{
+	f32 t = (value - 1) / 4.0f;
+	return at_1 + t * (at_5 - at_1);
+}
+
+struct player_derived_physics player_derive_physics(const struct player_characteristics *c)
+{
+	return (struct player_derived_physics){
+		.movement_force_multiplier = char_lerp(c->strength, 0.8f, 1.2f),
+		.max_velocity_multiplier = char_lerp(c->speed, 0.85f, 1.15f),
+		.drag_multiplier = char_lerp(c->strength, 1.2f, 0.8f),
+		.accel_ramp_up = char_lerp(c->acceleration, 30.0f, 70.0f),
+		.decel_ramp_down = char_lerp(c->acceleration, 60.0f, 140.0f),
+	};
+}
+
+static f32 mass_from_weight(u8 weight)
+{
+	return char_lerp(weight, 60.0f, 95.0f);
+}
+
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
@@ -58,7 +81,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	// Initialise physics
 	struct component_physics *physics = &entity->physics;
 	physics->header.enabled = true;
-	physics->mass = 75.0f;
+	physics->mass = mass_from_weight(config.characteristics.weight);
 	physics->velocity = (Vector2){0};
 	physics->accel = (Vector2){0};
 	physics->max_velocity = game_state->constants.player_control_max_velocity;
@@ -91,6 +114,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	player->header.enabled = true;
 	player->team_side = config.team_side;
 	player->team_formation_position_idx = config.team_formation_position_idx;
+	player->characteristics = config.characteristics;
 	// Sets initial max velocity to half of max run velocity
 	player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
 	struct state_machine_player *player_state_machine = &player->state_machine;

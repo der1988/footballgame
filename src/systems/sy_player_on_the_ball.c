@@ -230,6 +230,17 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					if (player->time_spent_in_run_control > 0.25f) {
 						player->control_ball = true;
 					}
+
+					// Body collision inhibits ball control during run mode.
+					// Duration scales with impulse: light brush ~ 0.05s, heavy charge ~ 0.25s.
+					f32 inhibit_duration =
+						Clamp(player->last_body_collision_impulse * 0.0005f, 0.05f, 0.25f);
+					if (!HAS_TIME_PASSED(game_state->time,
+										 player->last_body_collision_time,
+										 inhibit_duration)) {
+						break;
+					}
+
 					v2 control_direction = player_controls->steering;
 
 					// The control ratio should depend on various variables:

@@ -3,7 +3,7 @@
 #include "game.h"
 #include <assert.h>
 
-#define TARGET_FRAMERATE 60
+#define TARGET_FRAMERATE 100
 #define FRAME_TIME		 (1.0f / TARGET_FRAMERATE)
 
 enum game_scene g_next_scene = GSC_NONE;

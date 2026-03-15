@@ -14,6 +14,13 @@ static struct goal setup_goal(struct entity *entity,
 							  u16 penalty_box_width,
 							  u16 penalty_box_height);
 
+static struct player_characteristics characteristics_for_position(u8 idx)
+{
+	if (idx <= 3) return (struct player_characteristics){.speed = 4, .acceleration = 3, .strength = 4, .weight = 4}; // Defenders
+	if (idx <= 6) return (struct player_characteristics){.speed = 3, .acceleration = 3, .strength = 3, .weight = 3}; // Midfielders
+	return (struct player_characteristics){.speed = 4, .acceleration = 4, .strength = 2, .weight = 2};               // Forwards
+}
+
 void football_setup(struct game_state *game_state)
 {
 	game_state->vars.pitch.field = (rect_t){.x = 33, .y = 79, .width = 640, .height = 360 * 3 - 4};
@@ -60,7 +67,8 @@ void football_setup(struct game_state *game_state)
 														football_pitch_position_normalized_to_abs(
 															game_state->vars.pitch.field, pos),
 													.team_side = TS_HOME,
-													.team_formation_position_idx = i},
+													.team_formation_position_idx = i,
+													.characteristics = characteristics_for_position(i)},
 							 game_state);
 	}
 
@@ -71,7 +79,8 @@ void football_setup(struct game_state *game_state)
 														football_pitch_position_normalized_to_abs(
 															game_state->vars.pitch.field, pos),
 													.team_side = TS_AWAY,
-													.team_formation_position_idx = i},
+													.team_formation_position_idx = i,
+													.characteristics = characteristics_for_position(i)},
 							 game_state);
 	}
 
@@ -111,11 +120,11 @@ void football_setup(struct game_state *game_state)
 							  .controlled_player = {.entity_id = EID_NOT_VALID},
 							  .team_side = TS_HOME,
 							  .game_controller_id = 0};
-	game_state->human_players[1] =
-		(struct human_player){.enabled = true,
-							  .controlled_player = {.entity_id = EID_NOT_VALID},
-							  .team_side = TS_AWAY,
-							  .game_controller_id = 1};
+	// game_state->human_players[1] =
+	// 	(struct human_player){.enabled = true,
+	// 						  .controlled_player = {.entity_id = EID_NOT_VALID},
+	// 						  .team_side = TS_AWAY,
+	// 						  .game_controller_id = 1};
 
 	football_match_change_state(game_state, MS_PLAY);
 }

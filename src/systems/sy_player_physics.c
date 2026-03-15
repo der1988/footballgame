@@ -40,6 +40,9 @@ void systems_player_physics(struct game_state *game_state)
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 
+		const struct player_derived_physics dp =
+			player_derive_physics(&player->characteristics);
+
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;
 
@@ -64,33 +67,36 @@ void systems_player_physics(struct game_state *game_state)
 			f32 steering_magnitude = Vector2Length(effective_steering);
 			f32 current_velocity = Vector2Length(physics->velocity);
 
-			// Run force
-			force_to_apply =
-				Vector2Scale(effective_steering, game_state->constants.player_movement_force);
+			// Run force (scaled by body type)
+			force_to_apply = Vector2Scale(
+				effective_steering,
+				game_state->constants.player_movement_force * dp.movement_force_multiplier);
 
-			// Apply drag if no steering applied
+			// Apply drag if no steering applied (scaled by body type)
 			if (steering_magnitude < 0.01f) {
 				if (current_velocity < 3) {
 					physics->velocity = Vector2Zero();
 				} else {
-					Vector2 drag = Vector2Scale(Vector2Negate(normalized_velocity),
-												game_state->constants.player_movement_drag);
+					Vector2 drag = Vector2Scale(
+						Vector2Negate(normalized_velocity),
+						game_state->constants.player_movement_drag * dp.drag_multiplier);
 					force_to_apply = Vector2Add(force_to_apply, drag);
 				}
 			}
 
-			// Handle max velocity
-			f32 player_run_max_velocity = game_state->constants.player_run_max_velocity;
+			// Handle max velocity (scaled by body type)
+			f32 player_run_max_velocity =
+				game_state->constants.player_run_max_velocity * dp.max_velocity_multiplier;
 			f32 initial_max_velocity = player_run_max_velocity * 0.5f;
 			physics->max_velocity = initial_max_velocity;
 
 			f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
 			if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
-				player->current_max_velocity += 50 * game_state->dt;
+				player->current_max_velocity += dp.accel_ramp_up * game_state->dt;
 				player->current_max_velocity =
 					fminf(player->current_max_velocity, player_run_max_velocity);
 			} else if (current_velocity < player->current_max_velocity) {
-				player->current_max_velocity -= 100 * game_state->dt;
+				player->current_max_velocity -= dp.decel_ramp_down * game_state->dt;
 				player->current_max_velocity =
 					fmaxf(initial_max_velocity, player->current_max_velocity);
 			}

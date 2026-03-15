@@ -224,4 +224,69 @@ void systems_player_collisions(struct game_state *game_state)
 		entity_ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
 		entity_player_gained_possession(player_on_the_ball_entity, game_state);
 	}
+
+	// Player-to-player body collisions
+	const f32 bounce_factor = 0.5f;
+	struct entity_repository *repo = game_state->entity_repository;
+
+	for (usize i = 0; i < repo->max_slots; ++i) {
+		struct entity *a = entity_get(repo, i);
+		if (!a->header.alive || a->header.type != ET_PLAYER)
+			continue;
+		if (a->player.state_machine.current_state == PS_FALL ||
+			a->player.state_machine.current_state == PS_SLIDING_TACKLE)
+			continue;
+
+		f32 mass_a = a->physics.mass;
+		f32 radius_a = a->collider.colliders[PCT_PLAYER].props.circle.radius;
+
+		for (usize j = i + 1; j < repo->max_slots; ++j) {
+			struct entity *b = entity_get(repo, j);
+			if (!b->header.alive || b->header.type != ET_PLAYER)
+				continue;
+			if (b->player.state_machine.current_state == PS_FALL ||
+				b->player.state_machine.current_state == PS_SLIDING_TACKLE)
+				continue;
+
+			f32 mass_b = b->physics.mass;
+			f32 radius_b = b->collider.colliders[PCT_PLAYER].props.circle.radius;
+
+			v2 delta = Vector2Subtract(b->transform.position, a->transform.position);
+			f32 dist = Vector2Length(delta);
+			f32 min_dist = radius_a + radius_b;
+
+			if (dist >= min_dist || dist < 0.001f)
+				continue;
+
+			v2 normal = Vector2Scale(delta, 1.0f / dist);
+			f32 overlap = min_dist - dist;
+
+			// Separation weighted by inverse mass
+			f32 total_mass = mass_a + mass_b;
+			f32 ratio_a = mass_b / total_mass;
+			f32 ratio_b = mass_a / total_mass;
+
+			a->transform.position =
+				Vector2Subtract(a->transform.position, Vector2Scale(normal, overlap * ratio_a));
+			b->transform.position =
+				Vector2Add(b->transform.position, Vector2Scale(normal, overlap * ratio_b));
+
+			// Velocity impulse when players approach each other
+			f32 relative_vel = Vector2DotProduct(
+				Vector2Subtract(a->physics.velocity, b->physics.velocity), normal);
+			if (relative_vel > 0) {
+				f32 impulse = relative_vel * (1.0f + bounce_factor) / total_mass;
+				a->physics.velocity = Vector2Subtract(
+					a->physics.velocity, Vector2Scale(normal, impulse * mass_b));
+				b->physics.velocity = Vector2Add(
+					b->physics.velocity, Vector2Scale(normal, impulse * mass_a));
+
+				f32 impulse_magnitude = impulse * total_mass;
+				a->player.last_body_collision_time = game_state->time;
+				a->player.last_body_collision_impulse = impulse_magnitude;
+				b->player.last_body_collision_time = game_state->time;
+				b->player.last_body_collision_impulse = impulse_magnitude;
+			}
+		}
+	}
 }
