@@ -21,56 +21,43 @@ void systems_player_collisions(struct game_state *game_state)
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_physics_3d);
 
+	struct entity_repository *repo = game_state->entity_repository;
+
 	// Handle tackles
-	FOR_EACH_ENTITY(entity, game_state->entity_repository)
+	FOR_EACH_ENTITY(entity, repo)
 	{
-		if (!entity_is_alive_and_has_components(
-				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
+		if (!entity->header.alive || entity->header.type != ET_PLAYER)
 			continue;
-		}
 
 		DECLARE_ENTITY_COMPONENT(entity, player);
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
-		switch (state_machine->current_state) {
-		case PS_SLIDING_TACKLE: {
-			struct list_entities entities =
-				entity_player_find_tackled_opponents(entity, game_state);
-			LIST_ITERATE(tackled_player_entity, entities)
-			{
-				entity_player_state_machine_change_state_to(
-					&tackled_player_entity->player.state_machine, PS_FALL, game_state);
-				GLOGF_INFO_CTX(LS_GAME,
-							   entities.array[tackled_player_entity_i]->header.name,
-							   "player tackled by %s",
-							   entity->header.name);
-			}
-
-			break;
+		if (state_machine->current_state != PS_SLIDING_TACKLE) {
+			continue;
 		}
-		case PS_NORMAL:
-		case PS_GOALIE:
-		case PS_THROW_IN:
-		case PS_HEADER:
-		case PS_FALL:
-		case PS_NONE:
-		case PS_COUNT:
-			break;
+
+		struct list_entities entities = entity_player_find_tackled_opponents(entity, game_state);
+		LIST_ITERATE(tackled_player_entity, entities)
+		{
+			entity_player_state_machine_change_state_to(
+				&tackled_player_entity->player.state_machine, PS_FALL, game_state);
+			GLOGF_INFO_CTX(LS_GAME,
+						   entities.array[tackled_player_entity_i]->header.name,
+						   "player tackled by %s",
+						   entity->header.name);
 		}
 	}
 
-	// Handle collisions
+	// Handle ball collisions
 	struct entity *player_on_the_ball_entity = NULL;
 	f32 min_distance_from_the_ball_possession = FLT_MAX;
 	f32 min_distance_from_the_ball[TS_COUNT] = {FLT_MAX, FLT_MAX};
 
-	FOR_EACH_ENTITY(player_entity, game_state->entity_repository)
+	FOR_EACH_ENTITY(player_entity, repo)
 	{
-		if (!entity_is_alive_and_has_components(
-				player_entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
+		if (!entity->header.alive || entity->header.type != ET_PLAYER)
 			continue;
-		}
 
 		DECLARE_ENTITY_COMPONENT(player_entity, transform);
 		DECLARE_ENTITY_COMPONENT(player_entity, player);
@@ -225,9 +212,8 @@ void systems_player_collisions(struct game_state *game_state)
 		entity_player_gained_possession(player_on_the_ball_entity, game_state);
 	}
 
-	// Player-to-player body collisions
+	// Handle player-to-player body collisions
 	const f32 bounce_factor = 0.5f;
-	struct entity_repository *repo = game_state->entity_repository;
 
 	for (usize i = 0; i < repo->max_slots; ++i) {
 		struct entity *a = entity_get(repo, i);
@@ -276,10 +262,10 @@ void systems_player_collisions(struct game_state *game_state)
 				Vector2Subtract(a->physics.velocity, b->physics.velocity), normal);
 			if (relative_vel > 0) {
 				f32 impulse = relative_vel * (1.0f + bounce_factor) / total_mass;
-				a->physics.velocity = Vector2Subtract(
-					a->physics.velocity, Vector2Scale(normal, impulse * mass_b));
-				b->physics.velocity = Vector2Add(
-					b->physics.velocity, Vector2Scale(normal, impulse * mass_a));
+				a->physics.velocity =
+					Vector2Subtract(a->physics.velocity, Vector2Scale(normal, impulse * mass_b));
+				b->physics.velocity =
+					Vector2Add(b->physics.velocity, Vector2Scale(normal, impulse * mass_a));
 
 				f32 impulse_magnitude = impulse * total_mass;
 				a->player.last_body_collision_time = game_state->time;
