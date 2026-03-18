@@ -24,12 +24,13 @@ void systems_player_collisions(struct game_state *game_state)
 	struct entity_repository *repo = game_state->entity_repository;
 
 	// Handle tackles
-	FOR_EACH_ENTITY(entity, repo)
+	FOR_EACH_ENTITY(tackling_player_entity, repo)
 	{
-		if (!entity->header.alive || entity->header.type != ET_PLAYER)
+		if (!tackling_player_entity->header.alive ||
+			tackling_player_entity->header.type != ET_PLAYER)
 			continue;
 
-		DECLARE_ENTITY_COMPONENT(entity, player);
+		DECLARE_ENTITY_COMPONENT(tackling_player_entity, player);
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
@@ -37,7 +38,8 @@ void systems_player_collisions(struct game_state *game_state)
 			continue;
 		}
 
-		struct list_entities entities = entity_player_find_tackled_opponents(entity, game_state);
+		struct list_entities entities =
+			entity_player_find_tackled_opponents(tackling_player_entity, game_state);
 		LIST_ITERATE(tackled_player_entity, entities)
 		{
 			entity_player_state_machine_change_state_to(
@@ -45,7 +47,7 @@ void systems_player_collisions(struct game_state *game_state)
 			GLOGF_INFO_CTX(LS_GAME,
 						   entities.array[tackled_player_entity_i]->header.name,
 						   "player tackled by %s",
-						   entity->header.name);
+						   tackling_player_entity->header.name);
 		}
 	}
 
@@ -56,7 +58,7 @@ void systems_player_collisions(struct game_state *game_state)
 
 	FOR_EACH_ENTITY(player_entity, repo)
 	{
-		if (!entity->header.alive || entity->header.type != ET_PLAYER)
+		if (!player_entity->header.alive || player_entity->header.type != ET_PLAYER)
 			continue;
 
 		DECLARE_ENTITY_COMPONENT(player_entity, transform);
@@ -216,28 +218,29 @@ void systems_player_collisions(struct game_state *game_state)
 	const f32 bounce_factor = 0.5f;
 
 	for (usize i = 0; i < repo->max_slots; ++i) {
-		struct entity *a = entity_get(repo, i);
-		if (!a->header.alive || a->header.type != ET_PLAYER)
+		struct entity *player_entity_a = entity_get(repo, i);
+		if (!player_entity_a->header.alive || player_entity_a->header.type != ET_PLAYER)
 			continue;
-		if (a->player.state_machine.current_state == PS_FALL ||
-			a->player.state_machine.current_state == PS_SLIDING_TACKLE)
+		if (player_entity_a->player.state_machine.current_state == PS_FALL ||
+			player_entity_a->player.state_machine.current_state == PS_SLIDING_TACKLE)
 			continue;
 
-		f32 mass_a = a->physics.mass;
-		f32 radius_a = a->collider.colliders[PCT_BODY].props.circle.radius;
+		f32 mass_a = player_entity_a->physics.mass;
+		f32 radius_a = player_entity_a->collider.colliders[PCT_BODY].props.circle.radius;
 
 		for (usize j = i + 1; j < repo->max_slots; ++j) {
-			struct entity *b = entity_get(repo, j);
-			if (!b->header.alive || b->header.type != ET_PLAYER)
+			struct entity *player_entity_b = entity_get(repo, j);
+			if (!player_entity_b->header.alive || player_entity_b->header.type != ET_PLAYER)
 				continue;
-			if (b->player.state_machine.current_state == PS_FALL ||
-				b->player.state_machine.current_state == PS_SLIDING_TACKLE)
+			if (player_entity_b->player.state_machine.current_state == PS_FALL ||
+				player_entity_b->player.state_machine.current_state == PS_SLIDING_TACKLE)
 				continue;
 
-			f32 mass_b = b->physics.mass;
-			f32 radius_b = b->collider.colliders[PCT_BODY].props.circle.radius;
+			f32 mass_b = player_entity_b->physics.mass;
+			f32 radius_b = player_entity_b->collider.colliders[PCT_BODY].props.circle.radius;
 
-			v2 delta = Vector2Subtract(b->transform.position, a->transform.position);
+			v2 delta = Vector2Subtract(player_entity_b->transform.position,
+									   player_entity_a->transform.position);
 			f32 dist = Vector2Length(delta);
 			f32 min_dist = radius_a + radius_b;
 
@@ -252,26 +255,27 @@ void systems_player_collisions(struct game_state *game_state)
 			f32 ratio_a = mass_b / total_mass;
 			f32 ratio_b = mass_a / total_mass;
 
-			a->transform.position =
-				Vector2Subtract(a->transform.position, Vector2Scale(normal, overlap * ratio_a));
-			b->transform.position =
-				Vector2Add(b->transform.position, Vector2Scale(normal, overlap * ratio_b));
+			player_entity_a->transform.position = Vector2Subtract(
+				player_entity_a->transform.position, Vector2Scale(normal, overlap * ratio_a));
+			player_entity_b->transform.position = Vector2Add(
+				player_entity_b->transform.position, Vector2Scale(normal, overlap * ratio_b));
 
 			// Velocity impulse when players approach each other
-			f32 relative_vel = Vector2DotProduct(
-				Vector2Subtract(a->physics.velocity, b->physics.velocity), normal);
+			f32 relative_vel = Vector2DotProduct(Vector2Subtract(player_entity_a->physics.velocity,
+																 player_entity_b->physics.velocity),
+												 normal);
 			if (relative_vel > 0) {
 				f32 impulse = relative_vel * (1.0f + bounce_factor) / total_mass;
-				a->physics.velocity =
-					Vector2Subtract(a->physics.velocity, Vector2Scale(normal, impulse * mass_b));
-				b->physics.velocity =
-					Vector2Add(b->physics.velocity, Vector2Scale(normal, impulse * mass_a));
+				player_entity_a->physics.velocity = Vector2Subtract(
+					player_entity_a->physics.velocity, Vector2Scale(normal, impulse * mass_b));
+				player_entity_b->physics.velocity = Vector2Add(
+					player_entity_b->physics.velocity, Vector2Scale(normal, impulse * mass_a));
 
 				f32 impulse_magnitude = impulse * total_mass;
-				a->player.last_body_collision_time = game_state->time;
-				a->player.last_body_collision_impulse = impulse_magnitude;
-				b->player.last_body_collision_time = game_state->time;
-				b->player.last_body_collision_impulse = impulse_magnitude;
+				player_entity_a->player.last_body_collision_time = game_state->time;
+				player_entity_a->player.last_body_collision_impulse = impulse_magnitude;
+				player_entity_b->player.last_body_collision_time = game_state->time;
+				player_entity_b->player.last_body_collision_impulse = impulse_magnitude;
 			}
 		}
 	}
