@@ -30,7 +30,7 @@ static inline f32 char_lerp(u8 value, f32 at_1, f32 at_5)
 	return at_1 + t * (at_5 - at_1);
 }
 
-struct player_derived_physics player_derive_physics(const struct player_characteristics *c)
+struct player_derived_physics entity_player_derive_physics(const struct player_characteristics *c)
 {
 	return (struct player_derived_physics){
 		.movement_force_multiplier = char_lerp(c->strength, 0.8f, 1.2f),
@@ -41,10 +41,7 @@ struct player_derived_physics player_derive_physics(const struct player_characte
 	};
 }
 
-static f32 mass_from_weight(u8 weight)
-{
-	return char_lerp(weight, 60.0f, 95.0f);
-}
+static f32 mass_from_weight(u8 weight) { return char_lerp(weight, 60.0f, 95.0f); }
 
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};

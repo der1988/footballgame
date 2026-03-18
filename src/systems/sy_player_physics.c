@@ -41,7 +41,7 @@ void systems_player_physics(struct game_state *game_state)
 		struct component_player_controls *player_controls = &entity->player_controls;
 
 		const struct player_derived_physics dp =
-			player_derive_physics(&player->characteristics);
+			entity_player_derive_physics(&player->characteristics);
 
 		collider->colliders[PCT_PLAYER].props.circle.radius =
 			game_state->constants.player_control_radius;
@@ -68,18 +68,18 @@ void systems_player_physics(struct game_state *game_state)
 			f32 current_velocity = Vector2Length(physics->velocity);
 
 			// Run force (scaled by body type)
-			force_to_apply = Vector2Scale(
-				effective_steering,
-				game_state->constants.player_movement_force * dp.movement_force_multiplier);
+			force_to_apply = Vector2Scale(effective_steering,
+										  game_state->constants.player_movement_force *
+											  dp.movement_force_multiplier);
 
 			// Apply drag if no steering applied (scaled by body type)
 			if (steering_magnitude < 0.01f) {
 				if (current_velocity < 3) {
 					physics->velocity = Vector2Zero();
 				} else {
-					Vector2 drag = Vector2Scale(
-						Vector2Negate(normalized_velocity),
-						game_state->constants.player_movement_drag * dp.drag_multiplier);
+					Vector2 drag = Vector2Scale(Vector2Negate(normalized_velocity),
+												game_state->constants.player_movement_drag *
+													dp.drag_multiplier);
 					force_to_apply = Vector2Add(force_to_apply, drag);
 				}
 			}

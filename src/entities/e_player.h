@@ -12,31 +12,6 @@ struct entity;
 struct list_entity_ids;
 enum sprite_orientation;
 
-struct player_characteristics {
-	u8 speed;        // 1-5, top speed
-	u8 acceleration; // 1-5, how fast they reach top speed / change direction
-	u8 strength;     // 1-5, movement force and resistance to drag
-	u8 weight;       // 1-5, mass for collisions (light=1 to heavy=5)
-};
-
-struct player_derived_physics {
-	f32 movement_force_multiplier;
-	f32 max_velocity_multiplier;
-	f32 drag_multiplier;
-	f32 accel_ramp_up;
-	f32 decel_ramp_down;
-};
-
-struct player_derived_physics player_derive_physics(const struct player_characteristics *c);
-
-struct player_config {
-	v2 position;
-	b32 is_goalie;
-	enum team_side team_side;
-	u8 team_formation_position_idx;
-	struct player_characteristics characteristics;
-};
-
 enum state_machine_player_state {
 	PS_NONE,
 	PS_NORMAL,
@@ -194,6 +169,29 @@ struct nearest_player {
 	f32 distance;
 };
 
+struct player_characteristics {
+	u8 speed;		 // 1-5, top speed
+	u8 acceleration; // 1-5, how fast they reach top speed / change direction
+	u8 strength;	 // 1-5, movement force and resistance to drag
+	u8 weight;		 // 1-5, mass for collisions (light=1 to heavy=5)
+};
+
+struct player_derived_physics {
+	f32 movement_force_multiplier;
+	f32 max_velocity_multiplier;
+	f32 drag_multiplier;
+	f32 accel_ramp_up;
+	f32 decel_ramp_down;
+};
+
+struct player_config {
+	v2 position;
+	b32 is_goalie;
+	enum team_side team_side;
+	u8 team_formation_position_idx;
+	struct player_characteristics characteristics;
+};
+
 struct entity *entity_player_create(struct player_config config, struct game_state *game_state);
 
 void entity_player_physics_apply_force(struct entity *player_entity,
@@ -261,5 +259,7 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 									  v2 target_position,
 									  enum team_side opposing_team,
 									  struct game_state *game_state);
+
+struct player_derived_physics entity_player_derive_physics(const struct player_characteristics *c);
 
 #endif // !ENTITY_PLAYER_H
