@@ -162,7 +162,13 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					player->time_spent_in_run_control = 0;
 
 					// If the player is not moving we reset time spent in precision control
+					// TODO: we need to verify if this gives an unfair advantage
 					if (steering_magnitude < 0.01f) {
+						player->time_spent_in_precision_control = 0;
+					}
+
+					// Stop button keeps the player in precision control
+					if (player_controls->stop) {
 						player->time_spent_in_precision_control = 0;
 					}
 
@@ -217,7 +223,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 					// If player is not moving we position the ball on the collider radius with the same
 					// angle that exists between player and ball.
-					if (steering_magnitude < 0.01f) {
+					if (player_speed < 0.01f) {
 						position_to_seek = Vector2Add(
 							player_position,
 							Vector2Scale(Vector2Normalize(Vector2Subtract(ball_transform->position,

@@ -92,6 +92,10 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			}
 			// On the ball
 			else if (entity->player.is_colliding_with_ball) {
+				// Stop
+				if (game_controller_state->current[GAME_CONTROL_STOP].digital.down) {
+					player_controls->stop = true;
+				}
 				// Kick
 				// First we check if the charge lock is charged
 				if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {

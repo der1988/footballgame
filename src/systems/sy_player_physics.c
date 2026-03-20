@@ -90,19 +90,31 @@ void systems_player_physics(struct game_state *game_state)
 			f32 initial_max_velocity = player_run_max_velocity * 0.5f;
 			physics->max_velocity = initial_max_velocity;
 
-			f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
-			if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
-				player->current_max_velocity += dp.accel_ramp_up * game_state->dt;
-				player->current_max_velocity =
-					fminf(player->current_max_velocity, player_run_max_velocity);
-			} else if (current_velocity < player->current_max_velocity) {
-				player->current_max_velocity -= dp.decel_ramp_down * game_state->dt;
-				player->current_max_velocity =
-					fmaxf(initial_max_velocity, player->current_max_velocity);
+			// Stop: ramp down max velocity toward zero
+			if (player_controls->stop) {
+				player->current_max_velocity -= 0.75f * dp.decel_ramp_down * game_state->dt;
+				player->current_max_velocity = fmaxf(0, player->current_max_velocity);
+			} else {
+				if (player->current_max_velocity < initial_max_velocity) {
+					// Recover from zero when stop is released and player steers
+					player->current_max_velocity = initial_max_velocity;
+				}
+
+				f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
+				if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
+					player->current_max_velocity += dp.accel_ramp_up * game_state->dt;
+					player->current_max_velocity =
+						fminf(player->current_max_velocity, player_run_max_velocity);
+				} else if (current_velocity < player->current_max_velocity) {
+					player->current_max_velocity -= dp.decel_ramp_down * game_state->dt;
+					player->current_max_velocity =
+						fmaxf(initial_max_velocity, player->current_max_velocity);
+				}
 			}
+
 			// Player without the ball is 10% faster than the same player with the ball
-			physics->max_velocity = player->current_max_velocity *
-									(player_in_possession_entity_id == entity_id ? 0.9f : 1.0f);
+			f32 possession_mult = player_in_possession_entity_id == entity_id ? 0.9f : 1.0f;
+			physics->max_velocity = player->current_max_velocity * possession_mult;
 
 			entity_player_physics_apply_force(entity, force_to_apply, game_state);
 			entity_player_physics_apply_velocity(entity, game_state);

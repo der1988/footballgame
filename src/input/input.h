@@ -23,6 +23,7 @@ enum game_control {
 	GAME_CONTROL_PASS,
 	GAME_CONTROL_LONG_PASS,
 	GAME_CONTROL_TACKLE,
+	GAME_CONTROL_STOP,
 
 	/* Player selection controls. */
 	GAME_CONTROL_SWITCH_PLAYER,

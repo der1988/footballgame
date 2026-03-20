@@ -145,6 +145,7 @@ struct component_player_controls {
 	b32 header_pass;
 	b32 tackle;
 	b32 sliding_tackle;
+	b32 stop;
 };
 
 enum future_position_type {
