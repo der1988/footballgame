@@ -65,9 +65,10 @@ void systems_player_control_ai(struct game_state *game_state)
 			if (game_state->constants.ai_enabled) {
 				v2 target_pos;
 				f32 kick_power;
+				b32 should_tackle;
 				enum player_ai_kick_decision kick_decision;
 				enum player_ai_state ai_state =
-					ai_player_think(entity, &target_pos, &kick_decision, &kick_power, game_state);
+					ai_player_think(entity, &target_pos, &kick_decision, &kick_power, &should_tackle, game_state);
 
 				switch (ai_state) {
 				case PAS_KEEP_POSITION: {
@@ -117,6 +118,10 @@ void systems_player_control_ai(struct game_state *game_state)
 					break;
 				case PAKD_NO_KICK:
 					break;
+				}
+
+				if (should_tackle) {
+					player_controls->sliding_tackle = true;
 				}
 			}
 

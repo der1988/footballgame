@@ -38,9 +38,11 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 									 v2 *target_position,
 									 enum player_ai_kick_decision *kick_decision,
 									 f32 *kick_power,
+									 b32 *should_tackle,
 									 struct game_state *game_state)
 {
 	enum player_ai_state ai_state;
+	*should_tackle = false;
 
 	struct entity *ball_entity = game_state->vars.ball_entity;
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
@@ -169,6 +171,31 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 												player_entity->physics.max_velocity,
 												ball_transform->position,
 												V3_TO_V2(ball_physics_3d->velocity));
+
+			// Consider tackling if this is a fully AI-controlled team
+			b32 team_has_human = false;
+			for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+				if (player_entity->player.team_side == game_state->human_players[i].team_side) {
+					team_has_human = true;
+					break;
+				}
+			}
+			if (!team_has_human) {
+				f32 dist_to_ball =
+					Vector2Distance(player_entity->transform.position, ball_transform->position);
+				if (dist_to_ball < 35.0f && player_in_possession_entity) {
+					v2 carrier_vel = player_in_possession_entity->physics.velocity;
+					v2 carrier_to_tackler =
+						Vector2Subtract(player_entity->transform.position,
+										player_in_possession_entity->transform.position);
+					f32 angle = fabs(Vector2Angle(carrier_vel, carrier_to_tackler) * RAD2DEG);
+					// Minimum 0.1% probability per tick if tackling from behind, maximum 0.3% if tackling frontally
+					f32 tackle_probability = 0.001f + angle / 180.0f * 0.002f;
+					if (GetRandomValue(0, 100000) / 100000.0f < tackle_probability) {
+						*should_tackle = true;
+					}
+				}
+			}
 		} else {
 			// We are not the nearest to the player with the ball, so let's mind our business
 			// and move based on the tactics of the team
