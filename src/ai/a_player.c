@@ -116,7 +116,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				fabs(Vector2Angle(player_entity->physics.velocity, to_target_goal) * RAD2DEG);
 			if (angle < 30) {
 				*kick_decision = PAKD_SHOOT;
-				*kick_power = 0.5f + 0.5f * GetRandomValue(1, 100) / 100.f;
+				*kick_power = 0.5f + 0.5f * RANDOM_01(100);
 				v2 shoot_target = Vector2Zero();
 				shoot_target.x += GetRandomValue(-60, 60) / 60.f;
 				*target_position = shoot_target;
@@ -191,7 +191,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					f32 angle = fabs(Vector2Angle(carrier_vel, carrier_to_tackler) * RAD2DEG);
 					// Minimum 0.1% probability per tick if tackling from behind, maximum 0.3% if tackling frontally
 					f32 tackle_probability = 0.001f + angle / 180.0f * 0.002f;
-					if (GetRandomValue(0, 100000) / 100000.0f < tackle_probability) {
+					if (RANDOM_01(100000) < tackle_probability) {
 						*should_tackle = true;
 					}
 				}

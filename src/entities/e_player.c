@@ -530,8 +530,8 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	// and by taking goalkeeper quality into consideration.
 
 	// For now reaction time can randomly be up to 50% better than the default one
-	f32 reaction_time = game_state->constants.goalie_dive_reaction_time *
-						(1 - 0.5f * GetRandomValue(0, 100) / 100.0f);
+	f32 reaction_time =
+		game_state->constants.goalie_dive_reaction_time * (1 - 0.5f * RANDOM_01(100));
 
 	if (!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_kick_time, reaction_time)) {
 		return false;

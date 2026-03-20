@@ -57,4 +57,6 @@
 #define PASS_POWER(holding_time)	  Clamp01(holding_time *PASS_CHARGE_MULTIPLIER)
 #define LONG_PASS_POWER(holding_time) Clamp01(holding_time *LONG_PASS_CHARGE_MULTIPLIER)
 
+#define RANDOM_01(granularity) (GetRandomValue(0, granularity) / granularity##.0f)
+
 #endif // !MACRO_H
