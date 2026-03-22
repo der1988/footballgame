@@ -51,7 +51,7 @@
 
 // Game
 #define GOALIE_HOLD_OR_BOUNCE(V)                                                                   \
-	(V < (30 * PIXELS_PER_METER) || (V < (50 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
+	(V < (15 * PIXELS_PER_METER) || (V < (30 * PIXELS_PER_METER) && GetRandomValue(0, 99) < 33))
 
 #define SHOOT_POWER(holding_time)	  Clamp01(holding_time *SHOOT_CHARGE_MULTIPLIER)
 #define PASS_POWER(holding_time)	  Clamp01(holding_time *PASS_CHARGE_MULTIPLIER)
