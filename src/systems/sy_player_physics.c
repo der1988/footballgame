@@ -148,6 +148,7 @@ void systems_player_physics(struct game_state *game_state)
 				if (animation_completion >= 1) {
 					header_state_data->elevation_completed = true;
 				} else {
+					header_state_data->last_frame_id = new_frame_id;
 					entity->sprite.frame_id = animation->frames[new_frame_id];
 				}
 
@@ -175,6 +176,7 @@ void systems_player_physics(struct game_state *game_state)
 				if (animation_completion >= 1) {
 					header_state_data->animation_completed = true;
 				} else {
+					header_state_data->last_frame_id = new_frame_id;
 					entity->sprite.frame_id = animation->frames[new_frame_id];
 				}
 			}
@@ -187,8 +189,6 @@ void systems_player_physics(struct game_state *game_state)
 			// 4 -> HP_MAX_ELEVATION
 			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4};
 			header_state_data->phase = animation_frames[new_frame_id - 1];
-
-			header_state_data->last_frame_id = new_frame_id;
 
 			v2 force_to_apply = Vector2Zero();
 
