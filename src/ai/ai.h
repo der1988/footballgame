@@ -4,11 +4,14 @@
 struct game_state;
 struct entity;
 
-enum player_ai_kick_decision {
-	PAKD_NO_KICK,
-	PAKD_SHOOT,
-	PAKD_PASS,
-	PAKD_LONG_PASS,
+enum player_ai_action_decision {
+	PAAD_NO_ACTION,
+	PAAD_SHOOT,
+	PAAD_PASS,
+	PAAD_LONG_PASS,
+	PAAD_TACKLE,
+	PAAD_HEADER_SHOOT,
+	PAAD_HEADER_PASS,
 };
 
 enum player_ai_state {
@@ -26,10 +29,9 @@ enum goalie_ai_state {
 
 enum player_ai_state ai_player_think(struct entity *entity,
 									 v2 *target_position,
-									 enum player_ai_kick_decision *kick_decision,
-									 f32 *kick_power,
-									 b32 *should_tackle,
+									 enum player_ai_action_decision *action_decision,
+									 f32 *power,
 									 struct game_state *game_state);
 
-enum goalie_ai_state ai_goalie_think(enum player_ai_kick_decision *kick_decision,
+enum goalie_ai_state ai_goalie_think(enum player_ai_action_decision *action_decision,
 									 struct game_state *game_state);

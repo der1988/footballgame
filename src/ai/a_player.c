@@ -36,13 +36,11 @@ v2 get_target_position_based_on_tactics(struct entity *entity,
 
 enum player_ai_state ai_player_think(struct entity *player_entity,
 									 v2 *target_position,
-									 enum player_ai_kick_decision *kick_decision,
-									 f32 *kick_power,
-									 b32 *should_tackle,
+									 enum player_ai_action_decision *action_decision,
+									 f32 *power,
 									 struct game_state *game_state)
 {
 	enum player_ai_state ai_state;
-	*should_tackle = false;
 
 	struct entity *ball_entity = game_state->vars.ball_entity;
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
@@ -59,6 +57,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		entity_ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
+
+	b32 team_has_human = false;
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		if (player_entity->player.team_side == game_state->human_players[i].team_side) {
+			team_has_human = true;
+			break;
+		}
+	}
 
 	if (game_state->vars.match.state != MS_PLAY || ball_in_keeper_hands) {
 		return PAS_KEEP_POSITION;
@@ -115,8 +121,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			f32 angle =
 				fabs(Vector2Angle(player_entity->physics.velocity, to_target_goal) * RAD2DEG);
 			if (angle < 30) {
-				*kick_decision = PAKD_SHOOT;
-				*kick_power = 0.5f + 0.5f * RANDOM_01(100);
+				*action_decision = PAAD_SHOOT;
+				*power = 0.5f + 0.5f * RANDOM_01(100);
 				v2 shoot_target = Vector2Zero();
 				shoot_target.x += GetRandomValue(-60, 60) / 60.f;
 				*target_position = shoot_target;
@@ -132,12 +138,12 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				entity_player_find_pass_target(player_entity, 35, 300, game_state);
 			if (opponent_entity && teammate_entity) {
 				// Facing an opponent and we have someone to pass to, let's pass
-				*kick_decision = PAKD_PASS;
-				*kick_power = 0.1f;
+				*action_decision = PAAD_PASS;
+				*power = 0.1f;
 				*target_position = Vector2Normalize(Vector2Subtract(
 					teammate_entity->transform.position, player_entity->transform.position));
 			} else {
-				*kick_decision = PAKD_NO_KICK;
+				*action_decision = PAAD_NO_ACTION;
 				*target_position = Vector2Normalize(
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
@@ -200,7 +206,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					// Minimum 0.1% probability per tick if tackling from behind, maximum 1.5% if tackling frontally
 					f32 tackle_probability = 0.001f + angle / 180.0f * 0.014f;
 					if (RANDOM_01(100000) < tackle_probability) {
-						*should_tackle = true;
+						*action_decision = PAAD_TACKLE;
 					}
 				}
 			}
@@ -248,7 +254,36 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			ai_state = PAS_KEEP_POSITION;
 		}
 
-		*kick_decision = PAKD_NO_KICK;
+		*action_decision = PAAD_NO_ACTION;
+
+		// Header attempt - only when not ball is high, and team is fully AI controlled
+		if (!team_has_human) {
+			if (!player_entity->player.is_colliding_with_ball &&
+				ball_transform->virtual_height > 20 &&
+				ball_transform->virtual_height <
+					game_state->constants.player_header_max_height * 1.3f &&
+				Vector2Distance(transform->position, ball_transform->position) < 50.0f) {
+
+				v2 goal_center =
+					game_state->vars.pitch
+						.goal[game_state->vars.teams[1 - player_entity->player.team_side]
+								  .play_context.pitch_side]
+						.center;
+				f32 distance_from_goal =
+					Vector2Distance(goal_center, player_entity->transform.position);
+
+				if (distance_from_goal < 250) {
+					*action_decision = PAAD_HEADER_SHOOT;
+				} else {
+					struct entity *teammate =
+						entity_player_find_pass_target(player_entity, 35, 300, game_state);
+					if (teammate && teammate->player.state_machine.current_state != PS_GOALIE) {
+						*action_decision = PAAD_HEADER_PASS;
+					}
+				}
+			}
+		}
+
 		break;
 	}
 	}

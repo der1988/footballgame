@@ -143,7 +143,6 @@ struct component_player_controls {
 	f32 long_pass;
 	b32 header_shot;
 	b32 header_pass;
-	b32 tackle;
 	b32 sliding_tackle;
 	b32 stop;
 };

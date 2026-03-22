@@ -64,11 +64,10 @@ void systems_player_control_ai(struct game_state *game_state)
 			// Player is AI controlled
 			if (game_state->constants.ai_enabled) {
 				v2 target_pos;
-				f32 kick_power;
-				b32 should_tackle;
-				enum player_ai_kick_decision kick_decision;
+				f32 power;
+				enum player_ai_action_decision action_decision;
 				enum player_ai_state ai_state =
-					ai_player_think(entity, &target_pos, &kick_decision, &kick_power, &should_tackle, game_state);
+					ai_player_think(entity, &target_pos, &action_decision, &power, game_state);
 
 				switch (ai_state) {
 				case PAS_KEEP_POSITION: {
@@ -105,23 +104,28 @@ void systems_player_control_ai(struct game_state *game_state)
 				}
 				}
 
-				switch (kick_decision) {
-				case PAKD_SHOOT:
-					player_controls->shot = kick_power;
+				switch (action_decision) {
+				case PAAD_SHOOT:
+					player_controls->shot = power;
 					break;
-				case PAKD_PASS:
+				case PAAD_PASS:
 					player_controls->automatic_pass = true;
-					player_controls->pass = kick_power;
+					player_controls->pass = power;
 					break;
-				case PAKD_LONG_PASS:
-					player_controls->long_pass = kick_power;
+				case PAAD_LONG_PASS:
+					player_controls->long_pass = power;
 					break;
-				case PAKD_NO_KICK:
+				case PAAD_TACKLE:
+					player_controls->sliding_tackle = power;
 					break;
-				}
-
-				if (should_tackle) {
-					player_controls->sliding_tackle = true;
+				case PAAD_HEADER_SHOOT:
+					player_controls->header_shot = power;
+					break;
+				case PAAD_HEADER_PASS:
+					player_controls->header_pass = power;
+					break;
+				case PAAD_NO_ACTION:
+					break;
 				}
 			}
 
@@ -129,7 +133,30 @@ void systems_player_control_ai(struct game_state *game_state)
 		}
 		case PS_GOALIE:
 		case PS_THROW_IN:
-		case PS_HEADER:
+		case PS_HEADER: {
+			// We want to pay the price of this logic only when colliding with the ball
+			if (entity->player.is_colliding_with_ball) {
+				// Keep steering toward the header target so the ball gets directed properly
+				v2 goal_center = game_state->vars.pitch
+									 .goal[game_state->vars.teams[1 - entity->player.team_side]
+											   .play_context.pitch_side]
+									 .center;
+				f32 distance_from_goal = Vector2Distance(goal_center, entity->transform.position);
+
+				if (distance_from_goal < 250) {
+					player_controls->steering =
+						Vector2Normalize(Vector2Subtract(goal_center, entity->transform.position));
+				} else {
+					struct entity *teammate =
+						entity_player_find_pass_target(entity, 35, 300, game_state);
+					if (teammate && teammate->player.state_machine.current_state != PS_GOALIE) {
+						player_controls->steering = Vector2Normalize(Vector2Subtract(
+							teammate->transform.position, entity->transform.position));
+					}
+				}
+			}
+			break;
+		}
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
 		case PS_COUNT:
