@@ -183,14 +183,22 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			if (!team_has_human) {
 				f32 dist_to_ball =
 					Vector2Distance(player_entity->transform.position, ball_transform->position);
-				if (dist_to_ball < 35.0f && player_in_possession_entity) {
+				if (dist_to_ball < 20.0f && player_in_possession_entity) {
+					// Check that player is moving toward the ball
+					v2 to_ball = Vector2Subtract(ball_transform->position,
+												 player_entity->transform.position);
+					f32 dot = Vector2DotProduct(Vector2Normalize(player_entity->physics.velocity),
+												Vector2Normalize(to_ball));
+					if (dot < 0.866f)
+						break; // Not heading toward the ball, skip tackle
+
 					v2 carrier_vel = player_in_possession_entity->physics.velocity;
 					v2 carrier_to_tackler =
 						Vector2Subtract(player_entity->transform.position,
 										player_in_possession_entity->transform.position);
 					f32 angle = fabs(Vector2Angle(carrier_vel, carrier_to_tackler) * RAD2DEG);
-					// Minimum 0.1% probability per tick if tackling from behind, maximum 0.3% if tackling frontally
-					f32 tackle_probability = 0.001f + angle / 180.0f * 0.002f;
+					// Minimum 0.1% probability per tick if tackling from behind, maximum 1.5% if tackling frontally
+					f32 tackle_probability = 0.001f + angle / 180.0f * 0.014f;
 					if (RANDOM_01(100000) < tackle_probability) {
 						*should_tackle = true;
 					}
