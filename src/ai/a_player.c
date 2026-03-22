@@ -256,8 +256,9 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 		*action_decision = PAAD_NO_ACTION;
 
-		// Header attempt - only when not ball is high, and team is fully AI controlled
-		if (!team_has_human) {
+		// Header attempt - only when not ball is high, team is fully AI controlled and enough passed from previous attempt
+		if (!team_has_human &&
+			HAS_TIME_PASSED(game_state->time, player_entity->player.last_header_time, 0.5f)) {
 			if (!player_entity->player.is_colliding_with_ball &&
 				ball_transform->virtual_height > 20 &&
 				ball_transform->virtual_height <

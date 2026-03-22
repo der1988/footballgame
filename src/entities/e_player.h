@@ -63,6 +63,8 @@ struct state_machine_player_header_data {
 	b32 animation_completed;
 	b32 elevation_completed;
 	b32 should_fall_down;
+	u16 last_frame_id;
+	u16 max_elevation_frame_id;
 	enum header_phase phase;
 	enum header_type type;
 };

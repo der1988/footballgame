@@ -311,6 +311,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			break;
 		}
 		case PS_HEADER: {
+			if (player_entity->player.state_machine.state_data.header.phase == HP_GROUND) {
+				// Cannot hit if we are preparing the jump
+				break;
+			}
+
 			struct component_physics *player_physics = &player_entity->physics;
 
 			// Impact of steering on the header goes from 0.0 to 1.0:
@@ -386,6 +391,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 							   V2_TO_V3(player_controls->steering, impact_vertical_angle),
 							   header_force,
 							   game_state);
+
+			player->last_header_time = game_state->time;
+
+			// Once we hit the ball we can stop elevation
+			player->state_machine.state_data.header.elevation_completed = true;
 
 			break;
 		}

@@ -119,6 +119,7 @@ struct component_player {
 	fg_time_t time_spent_in_run_control;
 	f32 current_max_velocity;
 	fg_time_low_prec_t last_kick_time;
+	fg_time_low_prec_t last_header_time;
 	fg_time_low_prec_t last_frame_update_time;
 	fg_time_low_prec_t last_possession_time;
 	fg_time_low_prec_t last_selected_for_pass_time;
