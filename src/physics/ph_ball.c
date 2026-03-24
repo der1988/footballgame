@@ -43,7 +43,8 @@ void physics_ball_simulation(v3 *out_position,
 		f32 speed = Vector3Length(velocity);
 
 		// Rolling resistance coefficient varies with speed
-		f32 rolling_resistance = 5 * (1.0f + speed * 0.001f); // Increases slightly with speed
+		f32 rolling_resistance = game_state->constants.ball_rolling_resistance_mult *
+								 (1.0f + speed * 0.001f); // Increases slightly with speed
 
 		// Normal force for rolling resistance calculation
 		f32 normal_force = mass * 9.81f; // Using gravity constant

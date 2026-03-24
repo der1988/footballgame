@@ -88,12 +88,12 @@ void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
 			  0,
 			  1.0f);
 	MOVE_DOWN_ONE_ROW(slider_bounds);
-	GuiSlider(slider_bounds,
-			  "Ball friction on pitch",
-			  TextFormat("%.2f", game_state->constants.ball_friction_on_pitch),
-			  &game_state->constants.ball_friction_on_pitch,
-			  0,
-			  3.0f);
+	GuiSpinner(slider_bounds,
+			   "Ball friction on pitch",
+			   (int *)&game_state->constants.ball_rolling_resistance_mult,
+			   1,
+			   20,
+			   false);
 	MOVE_DOWN_ONE_ROW(slider_bounds);
 	GuiSlider(slider_bounds,
 			  "Ball run force",

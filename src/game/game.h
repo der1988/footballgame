@@ -47,7 +47,7 @@ struct game_constants {
 	f32 ball_cr_against_post;
 	f32 ball_drag_coefficient;
 	f32 ball_cross_sectional_area;
-	f32 ball_friction_on_pitch;
+	u8 ball_rolling_resistance_mult;
 	f32 ball_run_force;
 	f32 ball_control_force;
 	f32 ball_shot_force;

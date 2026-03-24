@@ -68,7 +68,7 @@ struct game_state *game_play_init(struct game_config game_config,
 								.ball_cross_sectional_area = 0.038f,
 								.ball_drag_coefficient = 0.25f,
 								.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-								.ball_friction_on_pitch = 0.5f,
+								.ball_rolling_resistance_mult = 5,
 								.ball_run_force = 40,
 								.ball_control_force = 30,
 								// This will translate to instant velocity, so 144km/h
