@@ -17,6 +17,7 @@
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 
@@ -529,9 +530,9 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	// We should implement this here by adding some randomness to the reaction time
 	// and by taking goalkeeper quality into consideration.
 
-	// For now reaction time can randomly be up to 50% better than the default one
+	// For now reaction time can be 50% better than the default one 2% of the time
 	f32 reaction_time =
-		game_state->constants.goalie_dive_reaction_time * (1 - 0.5f * RANDOM_01(100));
+		game_state->constants.goalie_dive_reaction_time * (RANDOM_01(100) > 0.02f ? 1 : 0.5f);
 
 	if (!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_kick_time, reaction_time)) {
 		return false;
