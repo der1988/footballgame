@@ -51,6 +51,7 @@ enum header_phase {
 	HP_AIR_2,
 	HP_AIR_3,
 	HP_MAX_ELEVATION,
+	HP_COUNT
 };
 
 enum header_type {
@@ -62,6 +63,7 @@ struct state_machine_player_header_data {
 	fg_time_t animation_start_time;
 	b32 animation_completed;
 	b32 elevation_completed;
+	fg_time_t elevation_completion_time;
 	b32 should_fall_down;
 	u16 last_frame_id;
 	u16 max_elevation_frame_id;
@@ -263,5 +265,7 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 									  struct game_state *game_state);
 
 struct player_derived_physics entity_player_derive_physics(const struct player_characteristics *c);
+
+void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state);
 
 #endif // !ENTITY_PLAYER_H

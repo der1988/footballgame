@@ -175,7 +175,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
 
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
-	collider->colliders[PCT_HEADER].props.circle.radius = 6;
+	collider->colliders[PCT_HEADER].props.circle.radius = 4;
 
 	collider->colliders[PCT_BODY].shape = CS_CIRCLE;
 	collider->colliders[PCT_BODY].props.circle.radius = 5;
@@ -959,4 +959,13 @@ b32 check_whether_goalie_should_dive(v3 pos_to_check,
 		should_dive = true;
 	}
 	return should_dive;
+}
+
+void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state)
+{
+	player_entity->player.last_header_time = game_state->time;
+	// Once we hit the ball we can stop elevation
+	player_entity->player.state_machine.state_data.header.elevation_completed = true;
+	player_entity->player.state_machine.state_data.header.elevation_completion_time =
+		game_state->time;
 }

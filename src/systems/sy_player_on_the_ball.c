@@ -6,12 +6,19 @@
 #include "layers.h"
 #include "ai.h"
 #include "input.h"
+#include "sprite.h"
 #include "types.h"
 #include <math.h>
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
+
+struct header_phase_window {
+	u8 low;
+	u8 high;
+	u8 optimal;
+};
 
 void systems_player_on_the_ball(struct game_state *game_state)
 {
@@ -311,6 +318,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			break;
 		}
 		case PS_HEADER: {
+			static struct header_phase_window header_phase_windows[] = {
+				{14, 19, 16}, {16, 21, 18}, {19, 24, 21}, {22, 27, 24}};
+
 			if (player_entity->player.state_machine.state_data.header.phase == HP_GROUND) {
 				// Cannot hit if we are preparing the jump
 				break;
@@ -318,15 +328,22 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 			struct component_physics *player_physics = &player_entity->physics;
 
-			// Impact of steering on the header goes from 0.0 to 1.0:
-			// 1.0 when ball direction and steering are opposite, 0.0 when ball direction and steering coincide
-			f32 steering_impact = 0.0f;
+			v2 hit_direction;
+
+			// We normalize later
 			if (Vector2Length(player_controls->steering) > 0.1f) {
-				steering_impact = 0.5 - Vector2ProjectScalar(
-											player_controls->steering,
-											Vector2Normalize(V3_TO_V2(ball_physics_3d->velocity))) *
-											0.5f;
+				hit_direction = player_controls->steering;
+			} else {
+				// If steering is zero we use the orientation of player's sprite
+				hit_direction = ORIENTATION_VECTORS[player_entity->sprite.orientation];
 			}
+
+			// Impact of hit direction on the header goes from 0.0 to 1.0:
+			// 1.0 when ball direction and hit direction are opposite, 0.0 when ball direction and hit direction coincide
+			f32 hit_direction_impact =
+				0.5 - Vector2ProjectScalar(hit_direction,
+										   Vector2Normalize(V3_TO_V2(ball_physics_3d->velocity))) *
+						  0.5f;
 
 			f32 ball_height_impact = 0.0f;
 			f32 impact_vertical_angle = 0.0f;
@@ -336,66 +353,75 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 			f32 header_force = 0;
 
-			// There are some conditions that will make the header look like shit
-			if (ball_height > game_state->constants.player_control_height) {
-				// Ball is high enough to be hit properly
+			const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 
-				// We get the difference between max hittable ball height and max controllable height.
+			// There are some conditions that will make the header look like shit
+			if ((ball_height + ball_radius) > game_state->constants.player_header_min_height) {
+				// Ball is high enough to be hit with an header
+
+				struct header_phase_window hpw = header_phase_windows[header_phase - 1];
+
+				// We get the difference between max and min hittable ball height.
 				// This is the total height valid for a header, then we divide it by 4 header phases and we get how
 				// big is each phase height.
 				// At this point we can determine how well we hit the ball based on header phase and height of the ball.
 				// This will also affect the direction of the ball.
-				const f32 delta = game_state->constants.player_header_max_height -
-								  game_state->constants.player_header_min_height;
-				const f32 header_phase_size = delta / 4.0f;
-				const f32 optimal_height = game_state->constants.player_header_min_height +
-										   header_phase_size * header_phase;
-				const f32 delta_from_optimal_height = ball_height - optimal_height;
-				// We clamp the impact factor (-0.5, 0.5) because we want to avoid very angled hits
-				const f32 impact_factor =
-					Clamp(delta_from_optimal_height / header_phase_size, -1, 1) * 0.5f;
-				impact_vertical_angle = impact_factor;
+				const f32 header_phase_size = hpw.high - hpw.low;
 
-				ball_height_impact = 1 - fabsf(impact_factor) / 4.0f;
+				if ((ball_height - ball_radius) > hpw.high) {
+					// Ball is too high, no hit!
+					printf("missed header, ball too high: %.2f > %d\n", ball_height, hpw.high);
+					break;
+				}
+
+				const f32 delta_from_optimal_height = ball_height - hpw.optimal;
+				const f32 impact_factor =
+					Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
+				// We clamp the impact_vertical_angle factor (-0.5, 0.5) because we want to avoid very angled hits
+				impact_vertical_angle = impact_factor * 0.5f;
+
+				ball_height_impact = 1 - fabsf(impact_factor);
 				printf(
-					"ball height: %.2f - HP: %d - ball_height_impact: %.2f - vertical angle: %.2f\n",
+					"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - vertical_angle: %.2f\n",
 					ball_height,
 					header_phase,
 					ball_height_impact,
+					hit_direction_impact,
+					player->collision_force,
 					impact_vertical_angle);
 
 				// Weight of different impacts:
 				// - steering -> 1
-				// - collision force -> 1
+				// - collision force -> 2
 				// - ball height -> 3
-				header_force =
-					(steering_impact * 1 + player->collision_force * 1 + ball_height_impact * 3) /
-					5.0f;
+				header_force = (hit_direction_impact * 1 + player->collision_force * 2 +
+								ball_height_impact * 3) /
+							   6.0f;
+
+				if ((ball_height + ball_radius) < hpw.low) {
+					// Ball is too low, just fumble!
+					printf("fumble header, ball too low: %.2f < %d\n", ball_height, hpw.low);
+					header_force *= 0.1f;
+				}
+
+				// Passes work just like shoots but half the force.
+				if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
+					header_force *= 0.5f;
 			} else {
 				printf("ball is not high enough: %d\n", header_phase);
 			}
 
-			// Passes work just like shoots but half the force.
-			if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
-				header_force *= 0.5f;
-
 			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
 
-			printf("header force: %.2f (%.2f, %.2f, %.2f)\n",
-				   header_force,
-				   steering_impact,
-				   player->collision_force,
-				   ball_height_impact);
+			printf("header force: %.2f\n", header_force);
+
 			entity_ball_header(ball_entity,
 							   player_on_the_ball_entity_id,
-							   V2_TO_V3(player_controls->steering, impact_vertical_angle),
+							   Vector3Normalize(V2_TO_V3(hit_direction, impact_vertical_angle)),
 							   header_force,
 							   game_state);
 
-			player->last_header_time = game_state->time;
-
-			// Once we hit the ball we can stop elevation
-			player->state_machine.state_data.header.elevation_completed = true;
+			entity_player_header_hit(player_entity, game_state);
 
 			break;
 		}

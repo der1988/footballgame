@@ -8,6 +8,7 @@
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
+#include <stdio.h>
 #include "ai.h"
 #include "types.h"
 
@@ -144,20 +145,20 @@ void systems_player_physics(struct game_state *game_state)
 							  (animation->delay * animation->frames_count),
 						  0,
 						  1);
-				new_frame_id = floorf(animation_completion * (animation->frames_count));
+				new_frame_id = floorf(animation_completion * (animation->frames_count - 1));
+				header_state_data->last_frame_id = new_frame_id;
 				if (animation_completion >= 1) {
-					header_state_data->elevation_completed = true;
-				} else {
-					header_state_data->last_frame_id = new_frame_id;
-					entity->sprite.frame_id = animation->frames[new_frame_id];
+					player->state_machine.state_data.header.elevation_completed = true;
+					player->state_machine.state_data.header.elevation_completion_time =
+						game_state->time;
 				}
-
+				entity->sprite.frame_id = animation->frames[new_frame_id];
 			}
 			// Suspension
 			else if (!header_state_data->should_fall_down) {
-				static f32 delay_by_phase[] = {0, 0.1f, 0.25f, 0.35f, 0.4f};
+				static f32 delay_by_phase[] = {0, 0.05f, 0.10f, 0.15f, 0.2f};
 				if (HAS_TIME_PASSED(game_state->time,
-									header_state_data->animation_start_time,
+									header_state_data->elevation_completion_time,
 									delay_by_phase[header_state_data->phase])) {
 					header_state_data->max_elevation_frame_id = header_state_data->last_frame_id;
 					header_state_data->should_fall_down = true;
@@ -173,12 +174,11 @@ void systems_player_physics(struct game_state *game_state)
 						  1);
 				new_frame_id = floorf((1.0f - animation_completion) *
 									  (header_state_data->max_elevation_frame_id + 1));
+				header_state_data->last_frame_id = new_frame_id;
 				if (animation_completion >= 1) {
 					header_state_data->animation_completed = true;
-				} else {
-					header_state_data->last_frame_id = new_frame_id;
-					entity->sprite.frame_id = animation->frames[new_frame_id];
 				}
+				entity->sprite.frame_id = animation->frames[new_frame_id];
 			}
 
 			// new_frame_id to header_phase:
@@ -188,7 +188,7 @@ void systems_player_physics(struct game_state *game_state)
 			// 1 -> HP_AIR_3
 			// 4 -> HP_MAX_ELEVATION
 			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4};
-			header_state_data->phase = animation_frames[new_frame_id - 1];
+			header_state_data->phase = animation_frames[new_frame_id];
 
 			v2 force_to_apply = Vector2Zero();
 

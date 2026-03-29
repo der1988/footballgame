@@ -8,7 +8,6 @@
 #include "macro.h"
 #include <math_ext.h>
 #include <raymath.h>
-#include <stdio.h>
 #include "ai.h"
 #include "systems.h"
 

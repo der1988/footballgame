@@ -77,7 +77,9 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				// Header
 				if (game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
 					game_controller_state->current[GAME_CONTROL_PASS].digital.pressed) {
-					if (ball_transform->virtual_height > 20) {
+					if ((ball_transform->virtual_height +
+						 ball_collider->colliders[0].props.circle.radius) >
+						game_state->constants.player_header_min_height) {
 						player_controls->header_shot =
 							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
 						player_controls->header_pass = !player_controls->header_shot;
