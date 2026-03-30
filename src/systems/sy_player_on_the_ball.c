@@ -356,7 +356,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 
 			// There are some conditions that will make the header look like shit
-			if ((ball_height + ball_radius) > game_state->constants.player_header_min_height) {
+			if (ball_height > game_state->constants.player_header_min_height) {
 				// Ball is high enough to be hit with an header
 
 				struct header_phase_window hpw = header_phase_windows[header_phase - 1];
@@ -368,7 +368,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// This will also affect the direction of the ball.
 				const f32 header_phase_size = hpw.high - hpw.low;
 
-				if ((ball_height - ball_radius) > hpw.high) {
+				if (ball_height > hpw.high) {
 					// Ball is too high, no hit!
 					printf("missed header, ball too high: %.2f > %d\n", ball_height, hpw.high);
 					break;
@@ -378,7 +378,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				const f32 impact_factor =
 					Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
 				// We clamp the impact_vertical_angle factor (-0.5, 0.5) because we want to avoid very angled hits
-				impact_vertical_angle = impact_factor * 0.5f;
+				// We also raise it to the power of two, so that it's more forgiving
+				impact_vertical_angle = impact_factor * impact_factor * 0.5f;
 
 				ball_height_impact = 1 - fabsf(impact_factor);
 				printf(
@@ -394,11 +395,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// - steering -> 1
 				// - collision force -> 2
 				// - ball height -> 3
-				header_force = (hit_direction_impact * 1 + player->collision_force * 2 +
+				header_force = (hit_direction_impact * 2 + player->collision_force * 2 +
 								ball_height_impact * 3) /
-							   6.0f;
+							   7.0f;
 
-				if ((ball_height + ball_radius) < hpw.low) {
+				if (ball_height < hpw.low) {
 					// Ball is too low, just fumble!
 					printf("fumble header, ball too low: %.2f < %d\n", ball_height, hpw.low);
 					header_force *= 0.1f;
