@@ -24,7 +24,7 @@ INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-LDFLAGS := -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+LDFLAGS := -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lstdc++
 
 CFLAGS := -ggdb -std=c99 -Wall -Wextra -O0
 

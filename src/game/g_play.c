@@ -8,6 +8,7 @@
 #include "game.h"
 #include "gfx.h"
 #include "time_machine/time_machine.h"
+#include "rlimgui/rlImGui.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -21,6 +22,8 @@ struct game_state *game_play_init(struct game_config game_config,
 								  memory_arena_handle_t *memory_arena)
 {
 	GLOGF_INFO(LS_GAME, "size of a single game entity: %lu bytes", sizeof(struct entity));
+
+	rlImGuiSetup(true);
 
 	fg_time_t fixed_timestep = 1 / 480.0;
 
@@ -170,6 +173,8 @@ void game_play_destroy(struct game_state *game_state)
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
+
+	rlImGuiShutdown();
 
 	game_state->initialised = false;
 	GLOG_INFO(LS_GAME, "gameplay destruction complete");
