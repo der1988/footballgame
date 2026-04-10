@@ -24,6 +24,9 @@
 const char *state_machine_player_state_string[PS_COUNT] = {
 	"none", "normal", "throw_in", "header", "sliding_tackle", "fall", "goalie"};
 
+const char *player_collider_type_to_string[PCT_COUNT] = {
+	"player", "goalie", "dive", "tackle_1", "tackle_2", "header", "body"};
+
 // Linearly interpolate a value on the 1-5 characteristic scale
 static inline f32 char_lerp(u8 value, f32 at_1, f32 at_5)
 {

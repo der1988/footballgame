@@ -126,6 +126,8 @@ enum player_collider_type {
 	PCT_COUNT
 };
 
+extern const char *player_collider_type_to_string[PCT_COUNT];
+
 define_state_machine(goalie);
 define_state_machine_functions(goalie);
 

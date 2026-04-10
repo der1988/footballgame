@@ -102,7 +102,7 @@ static void draw_component_camera(struct component_camera *c)
 	}
 }
 
-static void draw_component_collider(struct component_collider *c)
+static void draw_component_collider(struct component_collider *c, const char **names, u16 names_count)
 {
 	if (!c->header.enabled)
 		return;
@@ -110,14 +110,15 @@ static void draw_component_collider(struct component_collider *c)
 		igText(TextFormat("  num_colliders: %u", c->num_colliders));
 		for (u16 i = 0; i < c->num_colliders; i++) {
 			igPushID_Int((int)i);
+			const char *label = (names && i < names_count) ? names[i] : TextFormat("%u", i);
 			if (c->colliders[i].shape == CS_CIRCLE) {
-				igText(TextFormat("  [%u] shape: circle", i));
+				igText(TextFormat("  [%s] shape: circle", label));
 				igText(TextFormat("       radius: %.2f", c->colliders[i].props.circle.radius));
 				igText(TextFormat("       offset: (%.2f, %.2f)",
 								  c->colliders[i].props.circle.offset.x,
 								  c->colliders[i].props.circle.offset.y));
 			} else {
-				igText(TextFormat("  [%u] shape: rectangle", i));
+				igText(TextFormat("  [%s] shape: rectangle", label));
 				igText(TextFormat("       size:   (%.2f, %.2f)",
 								  c->colliders[i].props.rectangle.size.x,
 								  c->colliders[i].props.rectangle.size.y));
@@ -362,7 +363,10 @@ void debugui_entity_inspector_draw(debugui_t *handle, struct game_state *game_st
 		draw_component_physics3d(&e->physics3d);
 		draw_component_sprite(&e->sprite);
 		draw_component_camera(&e->camera);
-		draw_component_collider(&e->collider);
+		b32 is_player = e->header.type == ET_PLAYER;
+		draw_component_collider(&e->collider,
+								is_player ? player_collider_type_to_string : NULL,
+								is_player ? PCT_COUNT : 0);
 		draw_component_action(&e->action);
 		draw_component_target(&e->target);
 		draw_component_player(&e->player);
