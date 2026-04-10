@@ -66,6 +66,7 @@ enum log_system {
 	LS_SCENES,
 	LS_EVENTS,
 	LS_TIME_MACHINE,
+	LS_VCRUI,
 	LS_COUNT,
 };
 

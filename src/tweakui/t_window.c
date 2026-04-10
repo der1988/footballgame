@@ -3,6 +3,7 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui/cimgui.h"
 #include "tweakui_internal.h"
+#include "tweakui.h"
 #include "log.h"
 #include <assert.h>
 
@@ -12,8 +13,8 @@ tweakui_t *tweakui_create(memory_arena_handle_t *memory_arena_handle)
 	assert(handle);
 	handle->initialised = true;
 
-	handle->window_size.x = 800;
-	handle->window_size.y = 750;
+	handle->window_size.x = 674;
+	handle->window_size.y = 426;
 
 	GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
 

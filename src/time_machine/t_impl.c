@@ -20,7 +20,7 @@ struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena)
 	struct time_machine *handle = memory_arena_push(memory_arena, sizeof(struct time_machine));
 	assert(handle);
 	handle->arena_handle = memory_arena;
-	// Allocate space for 30 time capsules per second per 30 seconds
+	// Allocate space for 60 time capsules per second for 30 seconds
 	// It's basically a ring buffer
 	handle->time_capsules =
 		memory_arena_push(memory_arena, sizeof(struct time_capsule) * TIME_CAPSULES_MAX);
@@ -173,7 +173,10 @@ usize time_machine_current_pos(struct time_machine *handle)
 {
 	assert(handle);
 
-	return handle->current_pos;
+	struct time_distance time_distance =
+		get_time_distance(handle->last_recorded_pos, handle->current_pos, handle->recorded);
+
+	return time_distance.since_first_recorded_position;
 }
 
 usize time_machine_set_resume_position(struct time_machine *handle,

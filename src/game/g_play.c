@@ -13,6 +13,8 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "platform/platform.h"
+#include "tweakui.h"
+#include "vcrui/vcrui.h"
 
 void update(struct game_state *game_state);
 void draw(struct game_state *game_state);
@@ -46,7 +48,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->memory_by_lifetime[MAL_DRAW] =
 		memory_arena_create_default("draw", game_memory + Megabytes(2), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_TIME_MACHINE] =
-		memory_arena_create_default("time_machine", game_memory + Megabytes(3), Megabytes(94));
+		memory_arena_create_default("time_machine", game_memory + Megabytes(3), Megabytes(200));
 
 	// Initialise events router
 	game_state->events_router = events_router_create(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -131,7 +133,9 @@ struct game_state *game_play_init(struct game_config game_config,
 		asset_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
 	assert(game_state->pitch_texture);
 
+	// UIs
 	game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
+	game_state->vcrui = vcrui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	// Layers
 	game_state->layer_debug = layer_debug_create(game_state);
@@ -426,6 +430,8 @@ void draw(struct game_state *game_state)
 	// Tweak UI
 	if (game_state->vars.mode == GM_TWEAK_UI) {
 		tweakui_draw(game_state->tweakui, game_state);
+	} else if (game_state->vars.mode == GM_RECORDER) {
+		vcrui_draw(game_state->vcrui, game_state);
 	}
 
 	EndDrawing();
