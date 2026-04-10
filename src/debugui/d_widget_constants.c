@@ -1,45 +1,20 @@
+#include "debugui/debugui.h"
+#include "debugui/debugui_internal.h"
 #include "game.h"
-#include "rlimgui/rlImGui.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui/cimgui.h"
-#include "tweakui_internal.h"
-#include "tweakui.h"
-#include "log.h"
 #include <assert.h>
 
-tweakui_t *tweakui_create(memory_arena_handle_t *memory_arena_handle)
-{
-	tweakui_t *handle = memory_arena_push(memory_arena_handle, sizeof(struct tweakui));
-	assert(handle);
-	handle->initialised = true;
-
-	handle->window_size.x = 674;
-	handle->window_size.y = 426;
-
-	GLOG_INFO(LS_TWEAKUI, "tweakui initialised");
-
-	return handle;
-}
-
-void tweakui_destroy(tweakui_t *handle)
+void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game_state)
 {
 	assert(handle->initialised);
-	handle->initialised = false;
-	GLOG_INFO(LS_TWEAKUI, "tweakui destroyed");
-}
-
-void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
-{
-	assert(handle->initialised);
-
-	rlImGuiBegin();
 
 	igShowDemoWindow(NULL);
 
 	igSetNextWindowSize((ImVec2){handle->window_size.x, handle->window_size.y},
 						ImGuiCond_FirstUseEver);
 
-	igBegin("Tweak UI", NULL, 0);
+	igBegin("Constants Inspector", NULL, 0);
 
 	igPushItemWidth(350.0f);
 
@@ -221,6 +196,4 @@ void tweakui_draw(tweakui_t *handle, struct game_state *game_state)
 	igPopItemWidth();
 
 	igEnd();
-
-	rlImGuiEnd();
 }

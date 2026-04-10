@@ -98,21 +98,6 @@ void systems_ball(struct game_state *game_state, struct input *input)
 	sprite->layer = transform->position.y < game_state->vars.pitch.field.y ? SL_NORTH_GOAL :
 																			 SL_PLAYERS_AND_BALL;
 
-	layer_debug_queue_draw_text(
-		game_state->layer_debug,
-		TextFormat(
-			"%-8s %02d state: %s pos: [%7.2f, %7.2f, %7.2f] vel: [%6.2f, %6.2f, %6.2f] speed: %6.2f",
-			"Ball",
-			game_state->vars.ball_entity->header.id,
-			state_machine_ball_state_string[ball_entity->ball.state_machine.current_state],
-			transform->position.x,
-			transform->virtual_height,
-			transform->position.y,
-			physics3d->velocity.x,
-			physics3d->velocity.y,
-			physics3d->velocity.z,
-			VELOCITY_TO_KMH(Vector3Length(physics3d->velocity))));
-
 	switch (state_machine->current_state) {
 	case BS_NONE:
 		break;

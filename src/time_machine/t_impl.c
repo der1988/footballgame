@@ -127,7 +127,7 @@ void time_machine_restore_capsule(struct time_machine *handle,
 	}
 
 	// We need to stay in recorder mode
-	game_state->vars.mode = GM_RECORDER;
+	game_state->vars.mode = GM_DEBUGUI;
 
 	handle->current_pos = pos;
 }

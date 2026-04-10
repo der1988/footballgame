@@ -13,8 +13,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "platform/platform.h"
-#include "tweakui.h"
-#include "vcrui/vcrui.h"
+#include "debugui/debugui.h"
 
 void update(struct game_state *game_state);
 void draw(struct game_state *game_state);
@@ -134,8 +133,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	assert(game_state->pitch_texture);
 
 	// UIs
-	game_state->tweakui = tweakui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
-	game_state->vcrui = vcrui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
+	game_state->debugui = debugui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
 	// Layers
 	game_state->layer_debug = layer_debug_create(game_state);
@@ -164,7 +162,7 @@ void game_play_destroy(struct game_state *game_state)
 
 	layer_debug_destroy(game_state->layer_debug);
 
-	tweakui_destroy(game_state->tweakui);
+	debugui_destroy(game_state->debugui);
 
 	input_manager_destroy(game_state->input_manager);
 
@@ -242,7 +240,7 @@ b32 game_play_update(struct game_state *game_state)
 										TextFormat("FPS: %3.0f", 1 / frame_time));
 		}
 	} break;
-	case GM_RECORDER:
+	case GM_DEBUGUI:
 		PollInputEvents();
 		quit = WindowShouldClose();
 
@@ -294,17 +292,6 @@ b32 game_play_update(struct game_state *game_state)
 			game_state->vars.mode = GM_TICK;
 		}
 		break;
-	case GM_TWEAK_UI: {
-		PollInputEvents();
-
-		/* We need to reset this here because this is usually done in the update function but in tweak ui mode that is not called. */
-		layer_debug_reset(game_state->layer_debug);
-
-		quit = WindowShouldClose();
-		if (IsKeyReleased(KEY_P)) {
-			game_state->vars.mode = GM_TICK;
-		}
-	} break;
 	}
 
 	layer_debug_queue_draw_text(game_state->layer_debug,
@@ -324,14 +311,10 @@ void update(struct game_state *game_state)
 	layer_debug_reset(game_state->layer_debug);
 
 	// mode selection
-	if (IsKeyReleased(KEY_P)) {
-		game_state->vars.mode = GM_TWEAK_UI;
-	}
-
-	if (game_state->input_manager->game_controllers[0]
-			.state.current[GAME_CONTROL_RECORDER_REWIND]
-			.analogic.value > 0.1f) {
-		game_state->vars.mode = GM_RECORDER;
+	if (IsKeyReleased(KEY_P) || game_state->input_manager->game_controllers[0]
+										.state.current[GAME_CONTROL_RECORDER_REWIND]
+										.analogic.value > 0.1f) {
+		game_state->vars.mode = GM_DEBUGUI;
 	}
 
 	// debug layer
@@ -427,11 +410,15 @@ void draw(struct game_state *game_state)
 		layer_debug_draw(game_state->layer_debug, game_state);
 	}
 
-	// Tweak UI
-	if (game_state->vars.mode == GM_TWEAK_UI) {
-		tweakui_draw(game_state->tweakui, game_state);
-	} else if (game_state->vars.mode == GM_RECORDER) {
-		vcrui_draw(game_state->vcrui, game_state);
+	// Debug UI
+	if (game_state->vars.mode == GM_DEBUGUI) {
+		rlImGuiBegin();
+
+		debugui_constants_inspector_draw(game_state->debugui, game_state);
+		debugui_entity_inspector_draw(game_state->debugui, game_state);
+		debugui_vcr_draw(game_state->debugui, game_state);
+
+		rlImGuiEnd();
 	}
 
 	EndDrawing();

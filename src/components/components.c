@@ -6,6 +6,8 @@
 #include "game.h"
 #include <raymath.h>
 
+const char *camera_type_to_string[CAM_COUNT] = {"main"};
+
 running_action_idx_t component_action_run(entity_id_t id,
 										  struct action *action,
 										  struct game_state *game_state)

@@ -538,15 +538,5 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 		case GS_COUNT:
 			break;
 		}
-
-		layer_debug_queue_draw_text(
-			game_state->layer_debug,
-			TextFormat("%-8s %02d pos: [%7.2f, %7.2f] vel: %5.2f state: %s",
-					   "Goalie",
-					   entity_id,
-					   transform->position.x,
-					   transform->position.y,
-					   VELOCITY_TO_KMH(Vector2Length(physics->velocity)),
-					   state_machine_goalie_state_string[goalie->state_machine.current_state]));
 	}
 }

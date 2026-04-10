@@ -4,6 +4,11 @@
 #include "log.h"
 #include "game.h"
 
+const char *pitch_side_to_string[PSI_COUNT] = {"north", "south"};
+const char *team_side_to_string[TS_COUNT] = {"home", "away"};
+const char *save_direction_to_string[SD_COUNT] = {"left", "right"};
+const char *save_height_to_string[SH_COUNT] = {"high", "low"};
+
 const char *match_state_to_string[MS_COUNT] = {"kickoff",
 											   "half_time",
 											   "extra_time",

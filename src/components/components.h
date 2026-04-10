@@ -104,6 +104,8 @@ enum camera_type {
 	CAM_COUNT
 };
 
+extern const char *camera_type_to_string[CAM_COUNT];
+
 struct component_camera {
 	struct component_header header;
 	enum camera_type camera;

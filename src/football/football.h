@@ -136,6 +136,11 @@ enum save_height {
 	SH_COUNT
 };
 
+extern const char *pitch_side_to_string[PSI_COUNT];
+extern const char *team_side_to_string[TS_COUNT];
+extern const char *save_direction_to_string[SD_COUNT];
+extern const char *save_height_to_string[SH_COUNT];
+
 enum save_type {
 	ST_WITHOUT_BALL,
 	ST_WITH_BALL,

@@ -14,12 +14,12 @@ const char *utils_log_systems_desc[LS_COUNT] = {
 	"MEMORY",
 	"UTILS",
 	"TESTS",
-	"TWEAKUI",
 	"LAYERS",
 	"OTHER",
 	"SCENES",
 	"EVENTS",
 	"TIME_MACHINE",
+	"DEBUGUI",
 };
 
 void log_line(char *file,

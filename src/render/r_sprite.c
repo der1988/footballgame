@@ -1,7 +1,23 @@
 #include "as_sprite_frame.h"
 #include "as_texture.h"
+#include "render.h"
 #include <raymath.h>
 #include "math_ext.h"
+
+const char *sprite_orientation_to_string[SO_COUNT] = {
+	"up", "down", "left", "right", "up_left", "up_right", "down_left", "down_right"};
+
+const char *sprite_layer_to_string(enum sprite_layer layer)
+{
+	switch (layer) {
+	case SL_BACKGROUND:       return "background";
+	case SL_NORTH_GOAL:       return "north_goal";
+	case SL_DEFAULT:          return "default";
+	case SL_PLAYERS_AND_BALL: return "players_and_ball";
+	case SL_SOUTH_GOAL:       return "south_goal";
+	default:                  return "unknown";
+	}
+}
 
 void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 						v2 position,

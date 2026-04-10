@@ -24,6 +24,9 @@ enum sprite_orientation {
 	SO_COUNT
 };
 
+extern const char *sprite_orientation_to_string[SO_COUNT];
+const char *sprite_layer_to_string(enum sprite_layer layer);
+
 void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 						v2 position,
 						f32 rotation,

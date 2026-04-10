@@ -16,6 +16,7 @@ struct entity_repository;
 struct input;
 struct vcrui;
 struct tweakui;
+struct entityui;
 
 enum memory_arena_lifetime {
 	MAL_LEVEL,
@@ -104,8 +105,7 @@ struct team_play_context {
 
 enum game_mode {
 	GM_TICK,
-	GM_RECORDER,
-	GM_TWEAK_UI
+	GM_DEBUGUI,
 };
 
 struct game_vars {
@@ -165,8 +165,7 @@ struct game_state {
 	struct assets assets;
 	struct entity_repository *entity_repository;
 	events_router_t *events_router;
-	struct tweakui *tweakui;
-	struct vcrui *vcrui;
+	struct debugui *debugui;
 	layer_debug_t *layer_debug;
 	struct asset_texture *pitch_texture;
 	render_texture_t render_texture;
