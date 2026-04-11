@@ -36,6 +36,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->dt = fixed_timestep;
 	game_state->config = game_config;
 	game_state->assets = assets;
+	game_state->debug_flags = (struct debug_flags){0};
 
 	// Push some memory for our own arenas onto main memory arena
 	void *game_memory = memory_arena_push(memory_arena, Megabytes(97));
@@ -62,7 +63,6 @@ struct game_state *game_play_init(struct game_config game_config,
 	// gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
 	game_state->constants =
 		(struct game_constants){.fixed_timestep = fixed_timestep,
-								.render_debug = false,
 								.input_stick_dead_zone = 0.05f,
 								// Coefficient of restitution
 								.ball_cr = 0.5f,
@@ -291,7 +291,7 @@ b32 game_play_update(struct game_state *game_state)
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
 		struct game_controller *gc = &game_state->input_manager->game_controllers[0];
-		if (IsKeyReleased(KEY_P) ||
+		if (IsKeyReleased(KEY_F1) ||
 			gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
@@ -316,9 +316,9 @@ void update(struct game_state *game_state)
 	layer_debug_reset(game_state->layer_debug);
 
 	// mode selection
-	if (IsKeyReleased(KEY_P) || game_state->input_manager->game_controllers[0]
-										.state.current[GAME_CONTROL_RECORDER_REWIND]
-										.analogic.value > 0.1f) {
+	if (IsKeyReleased(KEY_F1) || game_state->input_manager->game_controllers[0]
+										 .state.current[GAME_CONTROL_RECORDER_REWIND]
+										 .analogic.value > 0.1f) {
 		game_state->vars.mode = GM_VCR;
 	}
 
@@ -421,6 +421,7 @@ void draw(struct game_state *game_state)
 
 		debugui_constants_inspector_draw(game_state->debugui, game_state);
 		debugui_entity_inspector_draw(game_state->debugui, game_state);
+		debugui_debug_flags_draw(game_state->debugui, game_state);
 		debugui_vcr_draw(game_state->debugui, game_state);
 
 		rlImGuiEnd();

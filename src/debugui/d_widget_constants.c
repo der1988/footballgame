@@ -20,7 +20,6 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 
 	if (igBeginTabBar("TabBar", 0)) {
 		if (igBeginTabItem("General", NULL, 0)) {
-			igCheckbox("Render Debug", (bool *)&game_state->constants.render_debug);
 			igCheckbox("AI Enabled", (bool *)&game_state->constants.ai_enabled);
 			igCheckbox("Shoot Aid No Inertia", (bool *)&game_state->constants.shoot_aid_no_inertia);
 			igSliderFloat("Gravity force",

@@ -4,10 +4,26 @@
 #include "types.h"
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
+
+static void draw_collider(v2 position, struct collider *collider, color_t color)
+{
+	if (collider->shape == CS_CIRCLE) {
+		v2 adjusted_position = Vector2Add(position, collider->props.circle.offset);
+		DrawCircleLinesV(adjusted_position, collider->props.circle.radius, color);
+	} else if (collider->shape == CS_RECTANGLE) {
+		v2 adjusted_position = Vector2Add(position, collider->props.rectangle.offset);
+		DrawRectangleLines(adjusted_position.x - collider->props.rectangle.size.x * 0.5f,
+						   adjusted_position.y - collider->props.rectangle.size.y * 0.5f,
+						   collider->props.rectangle.size.x,
+						   collider->props.rectangle.size.y,
+						   color);
+	}
+}
 
 void systems_render_debug(struct game_state *game_state)
 {
-	if (game_state->constants.render_debug) {
+	if (game_state->debug_flags.debug_render) {
 		FOR_EACH_ENTITY(entity, game_state->entity_repository)
 		{
 			if (!entity_is_alive_and_has_components(entity, 2, C_TRANSFORM, C_SPRITE)) {
@@ -26,56 +42,71 @@ void systems_render_debug(struct game_state *game_state)
 			// TODO(marco): not great but I haven't found a better way to do it yet
 			position.y -= transform->virtual_height;
 
-			render_sprite_draw_debug_frame(
-				asset_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache,
-											 sprite->frame_id),
-				position,
-				rotation,
-				scale,
-				sprite->pivot_override);
-
-			// Debug lines for pitch
-			rect_t pitch = game_state->vars.pitch.field;
-			DrawRectangleLines(pitch.x, pitch.y, pitch.width, pitch.height, BLUE);
+			// Bounding boxes
+			if (game_state->debug_flags.show_bounding_boxes) {
+				render_sprite_draw_debug_frame(
+					asset_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache,
+												 sprite->frame_id),
+					position,
+					rotation,
+					scale,
+					sprite->pivot_override);
+			}
 
 			if (collider->header.enabled) {
 				static color_t colliders_colors[] = {
 					RED, VIOLET, PINK, YELLOW, BLUE, MAGENTA, SKYBLUE};
-				for (u16 i = 0; i < collider->num_colliders; ++i) {
-					if (collider->colliders[i].shape == CS_CIRCLE) {
-						v2 pos = Vector2Add(transform->position,
-											collider->colliders[i].props.circle.offset);
-						DrawCircleLinesV(
-							pos, collider->colliders[i].props.circle.radius, colliders_colors[i]);
-					} else if (collider->colliders[i].shape == CS_RECTANGLE) {
-						v2 pos = Vector2Add(transform->position,
-											collider->colliders[i].props.rectangle.offset);
-						DrawRectangleLines(
-							pos.x - collider->colliders[i].props.rectangle.size.x * 0.5f,
-							pos.y - collider->colliders[i].props.rectangle.size.y * 0.5f,
-							collider->colliders[i].props.rectangle.size.x,
-							collider->colliders[i].props.rectangle.size.y,
-							colliders_colors[i]);
+				switch (entity->header.type) {
+				case ET_PLAYER:
+					for (usize i = 0; i < PCT_COUNT; ++i) {
+						if (game_state->debug_flags.show_player_collider[i]) {
+							draw_collider(
+								transform->position, &collider->colliders[i], colliders_colors[i]);
+						}
 					}
+					break;
+				case ET_BALL:
+					if (game_state->debug_flags.show_ball_collider) {
+						draw_collider(
+							transform->position, &collider->colliders[0], colliders_colors[0]);
+					}
+					break;
+				case ET_GOAL:
+					if (game_state->debug_flags.show_goal_collider) {
+						draw_collider(
+							transform->position, &collider->colliders[0], colliders_colors[0]);
+					}
+					break;
+				default:
 				}
 			}
-		}
 
-		// Ball debug
-		struct component_ball *ball = &game_state->vars.ball_entity->ball;
-		for (u8 i = 0; i < 25; ++i) {
-			DrawCircle(ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
-		}
-		struct future_position *future_bounce = &ball->future_positions[FUTURE_POSITION_BOUNCE];
-		if (future_bounce->available) {
-			DrawCircle(future_bounce->position.x, future_bounce->position.y, 1, PURPLE);
-		}
+			// Ball lookahead positions
+			struct component_ball *ball = &game_state->vars.ball_entity->ball;
+			if (game_state->debug_flags.show_ball_lookahead_positions) {
+				for (u8 i = 0; i < 25; ++i) {
+					DrawCircle(
+						ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, 1, BLUE);
+				}
+			}
 
-		// Pitch
-		DrawRectangleLinesEx(game_state->vars.pitch.field, 1, VIOLET);
-		DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_NORTH].penalty_box, 1, YELLOW);
-		DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_SOUTH].penalty_box, 1, YELLOW);
-		DrawCircleV(game_state->vars.pitch.goal[PSI_NORTH].center, 1, RED);
-		DrawCircleV(game_state->vars.pitch.goal[PSI_SOUTH].center, 1, RED);
+			// Ball future bounce position
+			if (game_state->debug_flags.show_ball_future_bounce_position) {
+				struct future_position *future_bounce =
+					&ball->future_positions[FUTURE_POSITION_BOUNCE];
+				if (future_bounce->available) {
+					DrawCircle(future_bounce->position.x, future_bounce->position.y, 1, PURPLE);
+				}
+			}
+
+			// Pitch
+			if (game_state->debug_flags.show_pitch_lines) {
+				DrawRectangleLinesEx(game_state->vars.pitch.field, 1, VIOLET);
+				DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_NORTH].penalty_box, 1, YELLOW);
+				DrawRectangleLinesEx(game_state->vars.pitch.goal[PSI_SOUTH].penalty_box, 1, YELLOW);
+				DrawCircleV(game_state->vars.pitch.goal[PSI_NORTH].center, 1, RED);
+				DrawCircleV(game_state->vars.pitch.goal[PSI_SOUTH].center, 1, RED);
+			}
+		}
 	}
 }

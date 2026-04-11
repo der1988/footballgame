@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "assets.h"
+#include "e_player.h"
 #include "events/events.h"
 #include "football.h"
 #include "input.h"
@@ -35,7 +36,6 @@ struct game_config {
 
 struct game_constants {
 	f64 fixed_timestep;
-	b32 render_debug;
 	b32 ai_enabled;
 	b32 shoot_aid_no_inertia;
 	f32 input_stick_dead_zone;
@@ -146,6 +146,22 @@ struct game_gfx {
 	} ball;
 };
 
+//	"player", "goalie", "dive", "tackle_1", "tackle_2", "header", "body"};
+struct debug_flags {
+	b32 debug_render;
+	b32 show_bounding_boxes;
+
+	b32 show_pitch_lines;
+
+	b32 show_ball_future_bounce_position;
+	b32 show_ball_lookahead_positions;
+	b32 show_ball_collider;
+
+	b32 show_goal_collider;
+
+	b32 show_player_collider[PCT_COUNT];
+};
+
 struct game_state {
 	b32 initialised;
 	// Time we get from platform at the start of the frame.
@@ -156,6 +172,7 @@ struct game_state {
 	delta_time_t dt;
 	u64 physics_updates;
 	u64 frame_updates;
+	struct debug_flags debug_flags;
 	struct game_config config;
 	struct game_constants constants;
 	struct game_vars vars;
