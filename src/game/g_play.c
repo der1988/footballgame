@@ -250,7 +250,8 @@ b32 game_play_update(struct game_state *game_state)
 		static usize tick = 0;
 		tick++;
 
-		/* We need to reset this here because this is usually done in the update function but in debug ui mode that is not called. */
+		/* We need to reset this here because this is usually done in the update function but in vcr mode that is not called. */
+		memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
 		layer_debug_reset(game_state->layer_debug);
 
 		input_manager_update(game_state->input_manager, game_state);
@@ -411,7 +412,7 @@ void draw(struct game_state *game_state)
 	layer_hud_draw(game_state->layer_hud, game_state);
 
 	if (game_state->vars.is_debug_log_shown) {
-		layer_debug_draw(game_state->layer_debug, game_state);
+		layer_debug_draw(game_state->layer_debug);
 	}
 
 	// Debug UI

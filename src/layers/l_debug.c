@@ -62,7 +62,7 @@ void layer_debug_queue_draw_text(layer_debug_t *handle, const char *text)
 	}
 }
 
-void layer_debug_draw(layer_debug_t *handle, struct game_state *game_state)
+void layer_debug_draw(layer_debug_t *handle)
 {
 	struct draw_text_request *dtr;
 	for (usize i = 0; i < handle->queued_requests; ++i) {
