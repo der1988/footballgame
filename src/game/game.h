@@ -167,6 +167,7 @@ struct game_state {
 	events_router_t *events_router;
 	struct debugui *debugui;
 	layer_debug_t *layer_debug;
+	layer_hud_t *layer_hud;
 	struct asset_texture *pitch_texture;
 	render_texture_t render_texture;
 	camera2d_t camera;

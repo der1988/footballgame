@@ -137,6 +137,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	// Layers
 	game_state->layer_debug = layer_debug_create(game_state);
+	game_state->layer_hud = layer_hud_create(game_state);
 	game_state->vars.is_debug_log_shown = true;
 
 	game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
@@ -159,6 +160,8 @@ void game_play_destroy(struct game_state *game_state)
 	assert(game_state->initialised);
 
 	UnloadRenderTexture(game_state->render_texture);
+
+	layer_hud_destroy(game_state->layer_hud);
 
 	layer_debug_destroy(game_state->layer_debug);
 
@@ -405,7 +408,7 @@ void draw(struct game_state *game_state)
 	DrawTexturePro(game_state->render_texture.texture, source_rec, dest_rec, origin, 0.0f, WHITE);
 	EndMode2D();
 
-	layer_hud_draw(game_state);
+	layer_hud_draw(game_state->layer_hud, game_state);
 
 	if (game_state->vars.is_debug_log_shown) {
 		layer_debug_draw(game_state->layer_debug, game_state);

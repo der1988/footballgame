@@ -2,7 +2,6 @@
 #include "layers_internal.h"
 #include "log.h"
 #include "game.h"
-#include "entities.h"
 #include "e_ball.h"
 #include <assert.h>
 #include <raylib.h>
@@ -19,7 +18,6 @@ layer_debug_t *layer_debug_create(struct game_state *game_state)
 	handle->initialised = true;
 
 	handle->log_position = (v2){.x = 10, .y = 950};
-	handle->radar_position = (v2){.x = 10, .y = 10};
 
 	handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_UPDATE];
 	handle->color = WHITE;
@@ -64,13 +62,6 @@ void layer_debug_queue_draw_text(layer_debug_t *handle, const char *text)
 	}
 }
 
-static inline v2 to_radar_position(v2 pos, rect_t pitch_rect, v2 radar_pos, f32 ratio)
-{
-	v2 radar_relative_pos = Vector2Subtract(pos, (v2){.x = pitch_rect.x, .y = pitch_rect.y});
-	radar_relative_pos = Vector2Scale(radar_relative_pos, ratio);
-	return Vector2Add(radar_relative_pos, radar_pos);
-}
-
 void layer_debug_draw(layer_debug_t *handle, struct game_state *game_state)
 {
 	struct draw_text_request *dtr;
@@ -83,45 +74,5 @@ void layer_debug_draw(layer_debug_t *handle, struct game_state *game_state)
 				   handle->font_size,
 				   handle->spacing,
 				   handle->color);
-	}
-
-	// Radar
-	f32 radar_ratio = 0.3f;
-	rect_t radar_rect = (rect_t){.width = game_state->vars.pitch.field.width * radar_ratio,
-								 .height = game_state->vars.pitch.field.height * radar_ratio,
-								 .x = handle->radar_position.x,
-								 .y = handle->radar_position.y};
-
-	DrawRectangleLinesEx(radar_rect, 1.0f, WHITE);
-
-	struct entity *ball_entity = game_state->vars.ball_entity;
-
-	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
-	UNUSED(ball_physics_3d);
-	UNUSED(ball);
-	UNUSED(ball_collider);
-
-	DrawCircleV(to_radar_position(ball_transform->position,
-								  game_state->vars.pitch.field,
-								  handle->radar_position,
-								  radar_ratio),
-				3,
-				WHITE);
-
-	FOR_EACH_ENTITY(entity, game_state->entity_repository)
-	{
-		if (!entity_is_alive_and_has_components(
-				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
-			continue;
-		}
-
-		DECLARE_ENTITY_COMPONENT(entity, transform);
-
-		DrawRectangleV(to_radar_position(transform->position,
-										 game_state->vars.pitch.field,
-										 handle->radar_position,
-										 radar_ratio),
-					   (v2){.x = 6, .y = 4},
-					   entity->player.team_side == TS_HOME ? RED : BLUE);
 	}
 }
