@@ -11,6 +11,7 @@
 #include <raymath.h>
 #include "ai.h"
 #include "constants.h"
+#include <string.h>
 
 void systems_player_control_human(struct game_state *game_state, struct input *input)
 {
@@ -48,8 +49,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
-		entity->player_controls = (struct component_player_controls){0};
 		struct component_player_controls *player_controls = &entity->player_controls;
+		RESET_COMPONENT(player_controls);
 
 		struct entity *last_entity_that_touched_ball =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
