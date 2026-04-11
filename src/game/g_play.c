@@ -272,7 +272,7 @@ b32 game_play_update(struct game_state *game_state)
 			left_trigger += 1;
 			u32 rewind_speed = (u32)left_trigger;
 			if (tick % rewind_speed == 0) {
-				time_machine_travel(game_state->time_machine, -1, game_state);
+				time_machine_travel(game_state->time_machine, -5, game_state);
 			}
 		} else if (right_trigger > 0.1f) {
 			last_interaction_time = GetTime();
@@ -281,7 +281,7 @@ b32 game_play_update(struct game_state *game_state)
 			right_trigger += 1;
 			u32 forward_speed = (u32)right_trigger;
 			if (tick % forward_speed == 0) {
-				time_machine_travel(game_state->time_machine, 1, game_state);
+				time_machine_travel(game_state->time_machine, 5, game_state);
 			}
 		}
 
