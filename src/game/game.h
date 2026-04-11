@@ -105,7 +105,7 @@ struct team_play_context {
 
 enum game_mode {
 	GM_TICK,
-	GM_DEBUGUI,
+	GM_VCR,
 };
 
 struct game_vars {
@@ -199,7 +199,8 @@ INLINE struct human_player *game_input_human_player(struct game_state *game_stat
 													entity_id_t player_entity_id)
 {
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-		if (game_state->human_players[i].controlled_player.entity_id == player_entity_id) {
+		if (game_state->human_players[i].enabled &&
+			game_state->human_players[i].controlled_player.entity_id == player_entity_id) {
 			return &game_state->human_players[i];
 		}
 	}

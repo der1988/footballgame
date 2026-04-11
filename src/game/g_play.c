@@ -240,14 +240,14 @@ b32 game_play_update(struct game_state *game_state)
 										TextFormat("FPS: %3.0f", 1 / frame_time));
 		}
 	} break;
-	case GM_DEBUGUI:
+	case GM_VCR:
 		PollInputEvents();
 		quit = WindowShouldClose();
 
 		static usize tick = 0;
 		tick++;
 
-		/* We need to reset this here because this is usually done in the update function but in recorder mode that is not called. */
+		/* We need to reset this here because this is usually done in the update function but in debug ui mode that is not called. */
 		layer_debug_reset(game_state->layer_debug);
 
 		input_manager_update(game_state->input_manager, game_state);
@@ -287,7 +287,8 @@ b32 game_play_update(struct game_state *game_state)
 		// 	game_state->vars.mode = GM_TICK;
 		// } else
 		struct game_controller *gc = &game_state->input_manager->game_controllers[0];
-		if (gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
+		if (IsKeyReleased(KEY_P) ||
+			gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
 		}
@@ -314,7 +315,7 @@ void update(struct game_state *game_state)
 	if (IsKeyReleased(KEY_P) || game_state->input_manager->game_controllers[0]
 										.state.current[GAME_CONTROL_RECORDER_REWIND]
 										.analogic.value > 0.1f) {
-		game_state->vars.mode = GM_DEBUGUI;
+		game_state->vars.mode = GM_VCR;
 	}
 
 	// debug layer
@@ -411,7 +412,7 @@ void draw(struct game_state *game_state)
 	}
 
 	// Debug UI
-	if (game_state->vars.mode == GM_DEBUGUI) {
+	if (game_state->vars.mode == GM_VCR) {
 		rlImGuiBegin();
 
 		debugui_constants_inspector_draw(game_state->debugui, game_state);
