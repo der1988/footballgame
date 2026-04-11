@@ -116,13 +116,13 @@ void systems_player_control_ai(struct game_state *game_state)
 					player_controls->long_pass = power;
 					break;
 				case PAAD_TACKLE:
-					player_controls->sliding_tackle = power;
+					player_controls->sliding_tackle = true;
 					break;
 				case PAAD_HEADER_SHOOT:
-					player_controls->header_shot = power;
+					player_controls->header_shot = true;
 					break;
 				case PAAD_HEADER_PASS:
-					player_controls->header_pass = power;
+					player_controls->header_pass = true;
 					break;
 				case PAAD_NO_ACTION:
 					break;
