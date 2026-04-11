@@ -95,7 +95,7 @@ void systems_render_debug(struct game_state *game_state)
 				struct future_position *future_bounce =
 					&ball->future_positions[FUTURE_POSITION_BOUNCE];
 				if (future_bounce->available) {
-					DrawCircle(future_bounce->position.x, future_bounce->position.y, 1, PURPLE);
+					DrawCircle(future_bounce->position.x, future_bounce->position.z, 1, PURPLE);
 				}
 			}
 
