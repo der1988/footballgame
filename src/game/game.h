@@ -198,6 +198,9 @@ struct game_state *game_play_init(struct game_config gameConfig,
 								  memory_arena_handle_t *memory_arena);
 void game_play_destroy(struct game_state *game_state);
 b32 game_play_update(struct game_state *game_state);
+void game_play_draw_scene_to_texture(struct game_state *game_state,
+									 render_texture_t target,
+									 camera2d_t cam);
 
 enum game_scene {
 	GSC_NONE,

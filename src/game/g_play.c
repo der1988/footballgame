@@ -15,8 +15,8 @@
 #include "platform/platform.h"
 #include "debugui/debugui.h"
 
-void update(struct game_state *game_state);
-void draw(struct game_state *game_state);
+static void update(struct game_state *game_state);
+static void draw(struct game_state *game_state);
 
 struct game_state *game_play_init(struct game_config game_config,
 								  struct assets assets,
@@ -309,7 +309,7 @@ b32 game_play_update(struct game_state *game_state)
 	return quit;
 }
 
-void update(struct game_state *game_state)
+static void update(struct game_state *game_state)
 {
 	// These should be reset every update
 	memory_arena_reset(game_state->memory_by_lifetime[MAL_UPDATE]);
@@ -343,7 +343,35 @@ void update(struct game_state *game_state)
 	systems_time_machine(game_state);
 }
 
-void draw(struct game_state *game_state)
+void game_play_draw_scene_to_texture(struct game_state *game_state,
+									 render_texture_t target,
+									 camera2d_t cam)
+{
+	texture_t pitch_texture = game_state->pitch_texture->texture;
+
+	BeginTextureMode(target);
+	ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
+
+	BeginMode2D(cam);
+
+	f32 stretched_width = pitch_texture.width * 1.0f;
+	f32 stretched_height = pitch_texture.height * 1.0f;
+	DrawTexturePro(
+		pitch_texture,
+		(rect_t){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
+		(rect_t){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
+		Vector2Zero(),
+		0,
+		WHITE);
+
+	systems_render(game_state);
+
+	EndMode2D();
+
+	EndTextureMode();
+}
+
+static void draw(struct game_state *game_state)
 {
 	assert(game_state->initialised);
 

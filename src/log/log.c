@@ -20,6 +20,7 @@ const char *utils_log_systems_desc[LS_COUNT] = {
 	"EVENTS",
 	"TIME_MACHINE",
 	"DEBUGUI",
+	"VIDEO_EXPORT",
 };
 
 void log_line(char *file,
