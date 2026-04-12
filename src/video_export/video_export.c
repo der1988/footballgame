@@ -100,8 +100,8 @@ b32 video_export_range(usize start_frame,
 
 		// Update camera target from restored capsule state
 		struct component_transform *camera_transform = &game_state->vars.camera_entity->transform;
-		export_cam.target.x = (u64)camera_transform->position.x;
-		export_cam.target.y = (u64)camera_transform->position.y;
+		export_cam.target.x = (i64)camera_transform->position.x;
+		export_cam.target.y = (i64)camera_transform->position.y;
 
 		game_play_draw_scene_to_texture(game_state, export_rt, export_cam);
 

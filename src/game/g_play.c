@@ -383,12 +383,12 @@ static void draw(struct game_state *game_state)
 	f32 virtual_ratio =
 		(f32)game_state->config.screen_width / (f32)game_state->config.virtual_screen_width;
 
-	game_state->virtual_camera.target.x = (u64)camera_transform->position.x;
+	game_state->virtual_camera.target.x = (i64)camera_transform->position.x;
 	game_state->camera.target.x =
 		camera_transform->position.x - game_state->virtual_camera.target.x;
 	game_state->camera.target.x *= virtual_ratio;
 
-	game_state->virtual_camera.target.y = (u64)camera_transform->position.y;
+	game_state->virtual_camera.target.y = (i64)camera_transform->position.y;
 	game_state->camera.target.y =
 		camera_transform->position.y - game_state->virtual_camera.target.y;
 	game_state->camera.target.y *= virtual_ratio;
