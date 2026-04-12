@@ -2,6 +2,8 @@
 #include "as_manager.h"
 #include <stdlib.h>
 
+#define TOTAL_MEMORY_MBS 3000
+
 int main()
 {
 	// Initialization
@@ -17,9 +19,9 @@ int main()
 
 	SetWindowMonitor(0);
 
-	void *memory = malloc(Megabytes(256));
+	void *memory = malloc(Megabytes(TOTAL_MEMORY_MBS));
 	memory_arena_handle_t *main_memory_arena =
-		memory_arena_create_default("main", memory, Megabytes(256));
+		memory_arena_create_default("main", memory, Megabytes(TOTAL_MEMORY_MBS));
 
 	// Load assets
 	struct assets assets = asset_manager_load_everything(main_memory_arena);

@@ -3,7 +3,7 @@
 
 // we record 30 time capsules every second for 30 seconds
 #define TIME_MACHINE_MAX_REWIND_TIME 30
-#define TIME_CAPSULES_PER_SECOND	 60
+#define TIME_CAPSULES_PER_SECOND	 480
 #define TIME_CAPSULES_MAX			 TIME_MACHINE_MAX_REWIND_TIME *TIME_CAPSULES_PER_SECOND
 
 struct time_capsule {

@@ -39,7 +39,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->debug_flags = (struct debug_flags){0};
 
 	// Push some memory for our own arenas onto main memory arena
-	void *game_memory = memory_arena_push(memory_arena, Megabytes(97));
+	void *game_memory = memory_arena_push(memory_arena, Megabytes(1600));
 	assert(game_memory);
 	game_state->memory_by_lifetime[MAL_LEVEL] =
 		memory_arena_create_default("level", game_memory, Megabytes(1));
@@ -48,7 +48,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->memory_by_lifetime[MAL_DRAW] =
 		memory_arena_create_default("draw", game_memory + Megabytes(2), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_TIME_MACHINE] =
-		memory_arena_create_default("time_machine", game_memory + Megabytes(3), Megabytes(200));
+		memory_arena_create_default("time_machine", game_memory + Megabytes(3), Megabytes(1597));
 
 	// Initialise events router
 	game_state->events_router = events_router_create(game_state->memory_by_lifetime[MAL_LEVEL]);

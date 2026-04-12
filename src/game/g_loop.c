@@ -18,11 +18,11 @@ void game_loop(struct game_config config,
 			   struct assets assets,
 			   memory_arena_handle_t *main_memory_arena_handle)
 {
-	void *memory_for_current_scene = memory_arena_push(main_memory_arena_handle, Megabytes(100));
+	void *memory_for_current_scene = memory_arena_push(main_memory_arena_handle, Megabytes(1650));
 	assert(memory_for_current_scene);
 
 	memory_arena_handle_t *current_scene_memory_arena =
-		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(100));
+		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(1650));
 
 	enum game_scene current_scene = GSC_NONE;
 	void *current_scene_handle = NULL;

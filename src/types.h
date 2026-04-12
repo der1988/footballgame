@@ -6,8 +6,8 @@
 #include <stdint.h>
 
 // General
-#define Kilobytes(S)  (S * 1024)
-#define Megabytes(S)  (S * 1024 * 1024)
+#define Kilobytes(S)  ((u64)S * 1024)
+#define Megabytes(S)  ((u64)S * 1024 * 1024)
 #define Gigabytes(S)  ((u64)S * 1024 * 1024 * 1024)
 #define EID_NOT_VALID 0xffffffff
 
