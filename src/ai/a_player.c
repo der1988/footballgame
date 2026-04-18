@@ -260,7 +260,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		if (!team_has_human &&
 			HAS_TIME_PASSED(game_state->time, player_entity->player.last_header_time, 0.5f)) {
 			if (!player_entity->player.is_colliding_with_ball &&
-				ball_transform->virtual_height > 20 &&
+				ball_transform->virtual_height > game_state->constants.player_header_min_height &&
 				ball_transform->virtual_height <
 					game_state->constants.player_header_max_height * 1.3f &&
 				Vector2Distance(transform->position, ball_transform->position) < 50.0f) {
