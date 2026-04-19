@@ -249,11 +249,7 @@ void entity_ball_shoot(struct entity *ball_entity,
 		(Vector3){.x = 0,
 				  .y = math_ext_split_lerp(game_state->constants.ball_shot_height, 0.2f, height),
 				  .z = 0});
-	if (game_state->constants.shoot_aid_no_inertia) {
-		// reset velocity to avoid existing inertia affecting the trajectory: not sure this is
-		// better though, need to test
-		physics3d->velocity = Vector3Zero();
-	}
+
 	// Calculate shot force
 	// Max power is achieved at 80%, if you go over you actually lose power
 	if (power > 0.8f) {
@@ -261,7 +257,7 @@ void entity_ball_shoot(struct entity *ball_entity,
 	} else {
 		power = power / 0.8f;
 	}
-	f32 shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.6f, power);
+	f32 shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.5f, power);
 	f32 ball_radius = collider->colliders[0].props.circle.radius;
 	if (!ball->is_on_the_ground) {
 		if (transform->virtual_height > (ball_radius + 12)) {
@@ -287,6 +283,12 @@ void entity_ball_shoot(struct entity *ball_entity,
 				}
 			}
 		}
+	}
+
+	if (game_state->constants.shoot_aid_no_inertia) {
+		// reset velocity to avoid existing inertia affecting the trajectory: not sure this is
+		// better though, need to test
+		physics3d->velocity = Vector3Zero();
 	}
 
 	physics3d->accel =
