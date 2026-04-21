@@ -307,13 +307,9 @@ void entity_ball_short_pass(struct entity *ball_entity,
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
 
-	if (auto_pass) {
-		// reset velocity to avoid existing inertia affecting the trajectory
-		physics3d->velocity = Vector3Zero();
-		power = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power);
-	} else {
-		power = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.25f, power);
-	}
+	// reset velocity to avoid existing inertia affecting the trajectory
+	physics3d->velocity = Vector3Zero();
+	power = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power);
 
 	physics3d->accel =
 		Vector3Add(physics3d->accel, Vector3Scale(direction, power / game_state->dt));
@@ -325,10 +321,16 @@ void entity_ball_long_pass(struct entity *ball_entity,
 						   entity_id_t kicker_entity_id,
 						   v2 direction,
 						   f32 power,
+						   b32 cross,
 						   struct game_state *game_state)
 {
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
+
+	if (cross) {
+		// reset velocity to avoid existing inertia affecting the trajectory
+		physics3d->velocity = Vector3Zero();
+	}
 
 	v3 long_pass_direction =
 		Vector3Add(Vector3Normalize(V2_TO_V3(direction, 0)),

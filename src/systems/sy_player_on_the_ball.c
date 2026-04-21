@@ -133,6 +133,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			} else if (player_controls->long_pass && steering_magnitude > 0.1f) {
 				v2 normalised_steering = Vector2Normalize(player_controls->steering);
 				v2 long_pass_direction = normalised_steering;
+				b32 cross = false;
 
 				enum cross_area cross_area;
 				if (football_pitch_is_position_inside_cross_area(
@@ -154,10 +155,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 							((attacking_north ? 1 : -1) + normalised_steering.y) * 0.5f;
 						cross_target = Vector2Add(goal_center, Vector2Scale(cross_target, 200));
 
-						printf("%.2f %.2f\n", cross_target.x, cross_target.y);
-
 						long_pass_direction =
 							Vector2Subtract(cross_target, ball_transform->position);
+
+						cross = true;
 					}
 				}
 
@@ -176,6 +177,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 									  player_on_the_ball_entity_id,
 									  long_pass_direction,
 									  player_controls->long_pass,
+									  cross,
 									  game_state);
 				kicked_ball = true;
 			} else if (!kicked_ball) {

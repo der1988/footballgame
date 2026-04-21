@@ -404,7 +404,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 								 goalie_collider->props.circle.radius + ball_radius + 7));
 			entity_ball_set_position_and_velocity(
 				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
-			entity_ball_long_pass(ball_entity, entity_id, (v2){.y = direction}, 0.7f, game_state);
+			entity_ball_long_pass(
+				ball_entity, entity_id, (v2){.y = direction}, 0.7f, false, game_state);
 			entity_goalie_state_machine_change_state_to(
 				&goalie->state_machine, GS_PROTECT_GOAL, game_state);
 			break;

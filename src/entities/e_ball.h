@@ -67,6 +67,7 @@ void entity_ball_long_pass(struct entity *ball_entity,
 						   entity_id_t kicker_entity_id,
 						   v2 direction,
 						   f32 power,
+						   b32 cross,
 						   struct game_state *game_state);
 void entity_ball_tackle(struct entity *ball_entity,
 						entity_id_t tackling_entity_id,
