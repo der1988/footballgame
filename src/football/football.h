@@ -59,6 +59,8 @@ struct pitch {
 	u16 goal_height;
 	u16 penalty_box_width;
 	u16 penalty_box_height;
+	u16 cross_area_width;
+	u16 cross_area_height;
 	struct goal goal[PSI_COUNT];
 	enum pitch_type type;
 };
@@ -147,6 +149,13 @@ enum save_type {
 	ST_COUNT
 };
 
+enum cross_area {
+	CROSS_AREA_UPPER_LEFT,
+	CROSS_AREA_UPPER_RIGHT,
+	CROSS_AREA_BOTTOM_LEFT,
+	CROSS_AREA_BOTTOM_RIGHT,
+};
+
 struct team_formation_position *football_tactics_get_team_formation(enum team_formation formation);
 
 struct team_formation_position *
@@ -156,6 +165,9 @@ b32 football_pitch_is_position_inside_penalty_area(v2 pos,
 												   enum pitch_side side,
 												   struct game_state *game_state);
 b32 football_pitch_is_position_inside(v2 pos, struct game_state *game_state);
+b32 football_pitch_is_position_inside_cross_area(v2 pos,
+												 enum cross_area *cross_area,
+												 struct game_state *game_state);
 
 INLINE v2 football_pitch_position_normalized_to_abs(rect_t pitch, v2 pos)
 {

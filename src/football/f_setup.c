@@ -16,9 +16,14 @@ static struct goal setup_goal(struct entity *entity,
 
 static struct player_characteristics characteristics_for_position(u8 idx)
 {
-	if (idx <= 3) return (struct player_characteristics){.speed = 4, .acceleration = 3, .strength = 4, .weight = 4}; // Defenders
-	if (idx <= 6) return (struct player_characteristics){.speed = 3, .acceleration = 3, .strength = 3, .weight = 3}; // Midfielders
-	return (struct player_characteristics){.speed = 4, .acceleration = 4, .strength = 2, .weight = 2};               // Forwards
+	if (idx <= 3)
+		return (struct player_characteristics){
+			.speed = 4, .acceleration = 3, .strength = 4, .weight = 4}; // Defenders
+	if (idx <= 6)
+		return (struct player_characteristics){
+			.speed = 3, .acceleration = 3, .strength = 3, .weight = 3}; // Midfielders
+	return (struct player_characteristics){
+		.speed = 4, .acceleration = 4, .strength = 2, .weight = 2}; // Forwards
 }
 
 void football_setup(struct game_state *game_state)
@@ -28,6 +33,8 @@ void football_setup(struct game_state *game_state)
 	game_state->vars.pitch.goal_height = 27;
 	game_state->vars.pitch.penalty_box_width = 374;
 	game_state->vars.pitch.penalty_box_height = 167;
+	game_state->vars.pitch.cross_area_width = 280;
+	game_state->vars.pitch.cross_area_height = 200;
 	game_state->vars.pitch.midfield_spot =
 		(v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
 			 .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height * 0.5f};
@@ -63,25 +70,25 @@ void football_setup(struct game_state *game_state)
 	for (usize i = 0; i < 10; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
 		pos.y = 1 - pos.y;
-		entity_player_create((struct player_config){.position =
-														football_pitch_position_normalized_to_abs(
-															game_state->vars.pitch.field, pos),
-													.team_side = TS_HOME,
-													.team_formation_position_idx = i,
-													.characteristics = characteristics_for_position(i)},
-							 game_state);
+		entity_player_create(
+			(struct player_config){.position = football_pitch_position_normalized_to_abs(
+									   game_state->vars.pitch.field, pos),
+								   .team_side = TS_HOME,
+								   .team_formation_position_idx = i,
+								   .characteristics = characteristics_for_position(i)},
+			game_state);
 	}
 
 	// Team 2
 	for (usize i = 0; i < 10; ++i) {
 		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
-		entity_player_create((struct player_config){.position =
-														football_pitch_position_normalized_to_abs(
-															game_state->vars.pitch.field, pos),
-													.team_side = TS_AWAY,
-													.team_formation_position_idx = i,
-													.characteristics = characteristics_for_position(i)},
-							 game_state);
+		entity_player_create(
+			(struct player_config){.position = football_pitch_position_normalized_to_abs(
+									   game_state->vars.pitch.field, pos),
+								   .team_side = TS_AWAY,
+								   .team_formation_position_idx = i,
+								   .characteristics = characteristics_for_position(i)},
+			game_state);
 	}
 
 	entity_player_create((struct player_config){.is_goalie = true,

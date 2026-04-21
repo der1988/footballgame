@@ -20,6 +20,8 @@ void debugui_debug_flags_draw(debugui_t *handle, struct game_state *game_state)
 		if (igBeginTabItem("General", NULL, 0)) {
 			igCheckbox("Debug Render", (bool *)&game_state->debug_flags.debug_render);
 			igCheckbox("Show Bounding Boxes", (bool *)&game_state->debug_flags.show_bounding_boxes);
+			igCheckbox("Show Pitch Lines", (bool *)&game_state->debug_flags.show_pitch_lines);
+			igCheckbox("Show Cross Areas", (bool *)&game_state->debug_flags.show_cross_areas);
 			igEndTabItem();
 		}
 

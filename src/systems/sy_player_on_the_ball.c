@@ -2,6 +2,7 @@
 #include "entities.h"
 #include "e_ball.h"
 #include "e_player.h"
+#include "football.h"
 #include "game.h"
 #include "layers.h"
 #include "ai.h"
@@ -130,9 +131,37 @@ void systems_player_on_the_ball(struct game_state *game_state)
 									   game_state);
 				kicked_ball = true;
 			} else if (player_controls->long_pass && steering_magnitude > 0.1f) {
-				// Long pass
+				v2 normalised_steering = Vector2Normalize(player_controls->steering);
+				v2 long_pass_direction = normalised_steering;
+
+				enum cross_area cross_area;
+				if (football_pitch_is_position_inside_cross_area(
+						player_position, &cross_area, game_state)) {
+
+					b32 attacking_north =
+						game_state->vars.teams[player->team_side].play_context.pitch_side ==
+						PSI_SOUTH;
+
+					if ((attacking_north && (cross_area == CROSS_AREA_UPPER_LEFT ||
+											 cross_area == CROSS_AREA_UPPER_RIGHT)) ||
+						(!attacking_north && (cross_area == CROSS_AREA_BOTTOM_LEFT ||
+											  cross_area == CROSS_AREA_BOTTOM_RIGHT))) {
+						v2 goal_center = game_state->vars.pitch.goal[1 - player->team_side].center;
+
+						v2 cross_target;
+						cross_target.x = normalised_steering.x;
+						cross_target.y =
+							((attacking_north ? 1 : -1) + normalised_steering.y) * 0.5f;
+						cross_target = Vector2Add(goal_center, Vector2Scale(cross_target, 200));
+
+						printf("%.2f %.2f\n", cross_target.x, cross_target.y);
+
+						long_pass_direction =
+							Vector2Subtract(cross_target, ball_transform->position);
+					}
+				}
+
 				player->last_kick_time = game_state->time;
-				v2 long_pass_direction = Vector2Normalize(player_controls->steering);
 				// Limit angle between requested shoot direction and current velocity
 				f32 angle = Vector2Angle(player_velocity, long_pass_direction);
 				f32 max_angle = 120 * DEG2RAD;
