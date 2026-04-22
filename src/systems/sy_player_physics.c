@@ -74,7 +74,6 @@ void systems_player_physics(struct game_state *game_state)
 						v2 steering_dir = Vector2Normalize(effective_steering);
 						f32 dot = Vector2DotProduct(steering_dir, dir_to_ball);
 						f32 max_angle_cos = 0.85f; // ~30 degrees
-						printf("dot: %.2f\n", dot);
 
 						if (dot > max_angle_cos) {
 							// Blend strength: stronger when closer to ball
