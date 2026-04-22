@@ -61,6 +61,31 @@ void systems_player_physics(struct game_state *game_state)
 					effective_steering = Vector2Normalize(
 						Vector2Subtract(ball_transform->position, transform->position));
 				}
+				// Ball magnetism: gently bend steering toward the ball when
+				// the player is already heading roughly in the right direction
+				else if (Vector2Length(effective_steering) > 0.3f &&
+						 player_in_possession_entity_id != entity_id) {
+					v2 to_ball = Vector2Subtract(ball_transform->position, transform->position);
+					f32 dist_to_ball = Vector2Length(to_ball);
+					f32 magnet_radius = 80.0f;
+
+					if (dist_to_ball > 1.0f && dist_to_ball < magnet_radius) {
+						v2 dir_to_ball = Vector2Scale(to_ball, 1.0f / dist_to_ball);
+						v2 steering_dir = Vector2Normalize(effective_steering);
+						f32 dot = Vector2DotProduct(steering_dir, dir_to_ball);
+						f32 max_angle_cos = 0.85f; // ~30 degrees
+						printf("dot: %.2f\n", dot);
+
+						if (dot > max_angle_cos) {
+							// Blend strength: stronger when closer to ball
+							f32 proximity = 1.0f - (dist_to_ball * dist_to_ball) /
+													   (magnet_radius * magnet_radius);
+							f32 blend = 1.0f * proximity;
+							effective_steering =
+								Vector2Normalize(Vector2Lerp(steering_dir, dir_to_ball, blend));
+						}
+					}
+				}
 			}
 
 			v2 force_to_apply = Vector2Zero();
