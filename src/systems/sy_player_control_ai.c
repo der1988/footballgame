@@ -86,8 +86,8 @@ void systems_player_control_ai(struct game_state *game_state)
 					break;
 				}
 				case PAS_SEEK_POSITION: {
-					player_controls->steering = steering_seek(
-						transform->position, physics->velocity, physics->max_velocity, target_pos);
+					player_controls->steering = Vector2Normalize(
+						Vector2Subtract(target_pos, transform->position));
 					break;
 				}
 				case PAS_ARRIVE_TO_POSITION: {
