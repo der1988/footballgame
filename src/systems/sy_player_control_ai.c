@@ -86,8 +86,10 @@ void systems_player_control_ai(struct game_state *game_state)
 					break;
 				}
 				case PAS_SEEK_POSITION: {
-					player_controls->steering = Vector2Normalize(
-						Vector2Subtract(target_pos, transform->position));
+					// TODO: Using this instead of steering_seek has fixed the slow down when running
+					// I'm not sure it's the right approach but it does the trick for now.
+					player_controls->steering =
+						Vector2Normalize(Vector2Subtract(target_pos, transform->position));
 					break;
 				}
 				case PAS_ARRIVE_TO_POSITION: {
