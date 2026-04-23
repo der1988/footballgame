@@ -315,7 +315,7 @@
     "duration": 100
    },
    {
-    "filename": "player_headert_right_0",
+    "filename": "player_header_right_0",
     "frame": { "x": 671, "y": 122, "w": 61, "h": 61 },
     "rotated": false,
     "trimmed": false,
@@ -324,7 +324,7 @@
     "duration": 100
    },
    {
-    "filename": "player_headert_right_1",
+    "filename": "player_header_right_1",
     "frame": { "x": 0, "y": 183, "w": 61, "h": 61 },
     "rotated": false,
     "trimmed": false,
@@ -333,7 +333,7 @@
     "duration": 100
    },
    {
-    "filename": "player_headert_right_2",
+    "filename": "player_header_right_2",
     "frame": { "x": 61, "y": 183, "w": 61, "h": 61 },
     "rotated": false,
     "trimmed": false,
@@ -342,7 +342,7 @@
     "duration": 100
    },
    {
-    "filename": "player_headert_right_3",
+    "filename": "player_header_right_3",
     "frame": { "x": 122, "y": 183, "w": 61, "h": 61 },
     "rotated": false,
     "trimmed": false,
@@ -351,7 +351,7 @@
     "duration": 100
    },
    {
-    "filename": "player_headert_right_4",
+    "filename": "player_header_right_4",
     "frame": { "x": 183, "y": 183, "w": 61, "h": 61 },
     "rotated": false,
     "trimmed": false,
@@ -1220,7 +1220,7 @@
    { "name": "player_header_front", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
    { "name": "player_header_back", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
    { "name": "player_header_left", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
-   { "name": "player_headert_right", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
+   { "name": "player_header_right", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
    { "name": "player_header_front_left", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
    { "name": "player_header_front_right", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
    { "name": "player_header_back_left", "group": "head_hit", "opacity": 255, "blendMode": "normal" },
