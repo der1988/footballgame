@@ -120,15 +120,18 @@ void systems_render(struct game_state *game_state)
 				Vector2Multiply(sprite_to_draw->shadow_offset,
 								sprite_to_draw->sprite_frame->source_size),
 				(v2){.x = -sprite_to_draw->height * 0.1f, .y = -sprite_to_draw->height * 0.1f});
-			render_sprite_draw(sprite_to_draw->sprite_frame,
-							   Vector2Add(sprite_to_draw->position, shadow_final_offset),
-							   sprite_to_draw->rotation - 45,
-							   Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
-							   sprite_to_draw->shadow_color,
-							   sprite_to_draw->flipX,
-							   true,
-							   sprite_to_draw->pivot_override,
-							   sprite_to_draw->texture);
+			f32 height_factor = 1.0f / (1.0f + fabsf(sprite_to_draw->height) * 0.005f);
+			render_sprite_draw(
+				sprite_to_draw->sprite_frame,
+				Vector2Add(sprite_to_draw->position, shadow_final_offset),
+				sprite_to_draw->rotation - 45,
+				Vector2Scale(Vector2Multiply(sprite_to_draw->shadow_scale, sprite_to_draw->scale),
+							 height_factor),
+				sprite_to_draw->shadow_color,
+				sprite_to_draw->flipX,
+				true,
+				sprite_to_draw->pivot_override,
+				sprite_to_draw->texture);
 		}
 	}
 

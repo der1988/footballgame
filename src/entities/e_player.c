@@ -884,40 +884,52 @@ void player_custom_begin_draw(struct entity *entity, struct game_state *game_sta
 	color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
 
 	palette = (u32[]){
-		// Hair
+		// 0 - Hair
 		0,
 		0,
 		0,
-		// Skin
-		201,
-		147,
-		120,
-		// Skin shadow
-		166,
-		111,
-		90,
-		// Kit
+		// 1 - Unused
+		0,
+		0,
+		0,
+		// 2 - Skin dark
+		181,
+		127,
+		100,
+		// 3 - Kit light
 		kit_color.r,
 		kit_color.g,
 		kit_color.b,
-		// Kit shadow
+		// 4 - Unused
+		0,
+		0,
+		0,
+		// 5 - Pantaloncini
+		255,
+		255,
+		255,
+		// 6 - Shoes
+		0,
+		0,
+		0,
+		// 7 - Shadow
+		0,
+		0,
+		0,
+		// 8 - Skin light
 		201,
 		147,
 		120,
-		// Pantaloncini
-		255,
-		255,
-		255,
-		// Shoes
-		0,
-		0,
-		0,
+		// 9 - Kit dark
+		kit_color.r,
+		kit_color.g,
+		kit_color.b,
 	};
 
 	struct asset_shader *assets_shader =
 		asset_shader_get_by_name(game_state->assets.shader_cache, "shader_palette");
 	u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
-	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC3, 7);
+	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC3, 10);
 
 	BeginShaderMode(assets_shader->shader);
 }
