@@ -878,58 +878,68 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
 	u32 *palette =
-		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 3 * 10);
+		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 4 * 10);
 	assert(palette);
 
 	color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
 
-	palette = (u32[]){
-		// 0 - Hair
-		0,
-		0,
-		0,
-		// 1 - Unused
-		0,
-		0,
-		0,
-		// 2 - Skin dark
-		181,
-		127,
-		100,
-		// 3 - Kit light
-		kit_color.r,
-		kit_color.g,
-		kit_color.b,
-		// 4 - Unused
-		0,
-		0,
-		0,
-		// 5 - Pantaloncini
-		255,
-		255,
-		255,
-		// 6 - Shoes
-		0,
-		0,
-		0,
-		// 7 - Shadow
-		0,
-		0,
-		0,
-		// 8 - Skin light
-		201,
-		147,
-		120,
-		// 9 - Kit dark
-		kit_color.r,
-		kit_color.g,
-		kit_color.b,
-	};
+	color_t kit_dark_color = ColorBrightness(kit_color, -0.25f);
+
+	palette = (u32[]){// 0 - Hair
+					  0,
+					  0,
+					  0,
+					  255,
+					  // 1 - Unused
+					  0,
+					  0,
+					  0,
+					  255,
+					  // 2 - Skin dark
+					  181,
+					  127,
+					  100,
+					  255,
+					  // 3 - Kit light
+					  kit_color.r,
+					  kit_color.g,
+					  kit_color.b,
+					  255,
+					  // 4 - Unused
+					  0,
+					  0,
+					  0,
+					  255,
+					  // 5 - Pantaloncini
+					  255,
+					  255,
+					  255,
+					  255,
+					  // 6 - Shoes
+					  0,
+					  0,
+					  0,
+					  255,
+					  // 7 - Shadow
+					  0,
+					  0,
+					  0,
+					  100,
+					  // 8 - Skin light
+					  201,
+					  147,
+					  120,
+					  255,
+					  // 9 - Kit dark
+					  kit_dark_color.r,
+					  kit_dark_color.g,
+					  kit_dark_color.b,
+					  255};
 
 	struct asset_shader *assets_shader =
 		asset_shader_get_by_name(game_state->assets.shader_cache, "shader_palette");
 	u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
-	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC3, 10);
+	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC4, 10);
 
 	BeginShaderMode(assets_shader->shader);
 }
