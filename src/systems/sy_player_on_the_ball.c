@@ -72,9 +72,15 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// Shot
 				player->last_kick_time = game_state->time;
 
-				f32 accuracy = 40 + (player_controls->shot > 0.8f ? GetRandomValue(11, 20) :
-																	GetRandomValue(0, 10));
+				// Going over 80% of charge it's going to be bad for the shot
+				// - accuracy will decrease
+				// - shot power will decrease
+				// - shot height will rise
+				f32 power = player_controls->shot;
 
+				f32 accuracy = 40 + (power > 0.8f ? GetRandomValue(11, 20) : GetRandomValue(0, 10));
+
+				// Calculate shot direction
 				v2 center_of_goal = game_state->vars.pitch.goal[1 - player_pitch_side].center;
 				v2 shot_direction_to_center =
 					Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
@@ -86,10 +92,6 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				v2 shot_direction = Vector2Rotate(
 					shot_direction_to_center, angle_center_to_post * player_controls->steering.x);
 				// v2 shot_direction = player_controls->steering;
-				// Stick Y controls shot height: toward goal = high, away = low
-				f32 attack_sign = shot_direction_to_center.y > 0 ? -1.0f : 1.0f;
-				f32 toward_goal = player_controls->steering.y * attack_sign;
-				f32 shot_height = Clamp01((1.0f - toward_goal) * 0.46f);
 
 				// Limit angle between requested shoot direction and current velocity
 				f32 angle = Vector2Angle(player_velocity, shot_direction);
@@ -99,11 +101,31 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				} else if (angle < -max_angle) {
 					shot_direction = Vector2Normalize(Vector2Rotate(player_velocity, -max_angle));
 				}
+
+				// Stick Y controls shot height: toward goal = high, away = low
+				f32 attack_sign = shot_direction_to_center.y > 0 ? -1.0f : 1.0f;
+				f32 toward_goal = player_controls->steering.y * attack_sign;
+				// 0.4 should allow a shot to hit the goal even when the stick if fully tilted towards goal
+				// unless shot power is overcharged
+				f32 shot_height = Clamp01((1.0f - toward_goal) * 0.4f);
+
+				// Calculate shot force
+				// Max power is achieved at 80%, if you go over you actually lose power
+				if (power > 0.8f) {
+					f32 overcharge_pct = (power - 0.8f) / 0.2f;
+					// Lose 20% of power immediately and another 12,5% proportionally to overcharge
+					power = 0.8f - 0.1f * overcharge_pct;
+					// Shot height is increased by 30% immediately and by another 30% proportionally to overcharge
+					shot_height *= 1 + 0.3f + 0.3f * overcharge_pct;
+				} else {
+					power = power / 0.8f;
+				}
+
 				entity_ball_shoot(ball_entity,
 								  player_on_the_ball_entity_id,
 								  shot_direction,
 								  shot_height,
-								  player_controls->shot,
+								  power,
 								  game_state);
 				kicked_ball = true;
 			} else if (player_controls->pass > 0 && steering_magnitude > 0.1f) {

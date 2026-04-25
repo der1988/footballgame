@@ -253,13 +253,6 @@ void entity_ball_shoot(struct entity *ball_entity,
 				  .y = math_ext_split_lerp(game_state->constants.ball_shot_height, 0.2f, height),
 				  .z = 0});
 
-	// Calculate shot force
-	// Max power is achieved at 80%, if you go over you actually lose power
-	if (power > 0.8f) {
-		power = 0.8f - 0.2f * ((power - 0.8f) / 0.2f);
-	} else {
-		power = power / 0.8f;
-	}
 	f32 shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.5f, power);
 	f32 ball_radius = collider->colliders[0].props.circle.radius;
 	if (!ball->is_on_the_ground) {
