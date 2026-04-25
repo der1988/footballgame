@@ -86,10 +86,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				v2 shot_direction = Vector2Rotate(
 					shot_direction_to_center, angle_center_to_post * player_controls->steering.x);
 				// v2 shot_direction = player_controls->steering;
-				// Stick Y controls shot height: toward goal = low, away = high
+				// Stick Y controls shot height: toward goal = high, away = low
 				f32 attack_sign = shot_direction_to_center.y > 0 ? -1.0f : 1.0f;
 				f32 toward_goal = player_controls->steering.y * attack_sign;
-				f32 shot_height = Clamp01((1.0f - toward_goal) * 0.5f);
+				f32 shot_height = Clamp01((1.0f - toward_goal) * 0.46f);
 
 				// Limit angle between requested shoot direction and current velocity
 				f32 angle = Vector2Angle(player_velocity, shot_direction);
