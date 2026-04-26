@@ -102,6 +102,7 @@ struct game_state *game_play_init(struct game_config game_config,
 								.player_header_min_height = 19,
 								.player_header_max_height = 27,
 								.player_run_control_max_angle = 45,
+								.player_pass_target_not_selectable = false,
 
 								// Elite goalie has 150ms reaction time
 								.goalie_dive_reaction_time = 0.150f,

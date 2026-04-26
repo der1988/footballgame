@@ -110,6 +110,8 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 		}
 
 		if (igBeginTabItem("Player", NULL, 0)) {
+			igCheckbox("Player pass target not selectable",
+					   (bool *)&game_state->constants.player_pass_target_not_selectable);
 			igSliderFloat("Player movement force",
 						  &game_state->constants.player_movement_force,
 						  0.0f,

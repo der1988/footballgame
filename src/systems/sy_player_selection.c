@@ -144,6 +144,12 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 			is_player_in_possession_controlled_by_human = true;
 		}
 
+		if (game_state->constants.player_pass_target_not_selectable &&
+			ball->pass_target_entity_id != EID_NOT_VALID) {
+			// We don't want to select the target of an automatic pass until he gets the ball
+			LIST_ADD(excluded_players_list, ball->pass_target_entity_id);
+		}
+
 		struct list_human_players ordered_list =
 			order_humans_by_distance_from_ball(game_state->human_players,
 											   team_side_idx,
