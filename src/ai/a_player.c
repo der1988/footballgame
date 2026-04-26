@@ -226,7 +226,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			// Let's move towards the ball
 			*target_position =
 				calculate_position_to_seek_to_reach_ball(player_entity, ball_entity, game_state);
-			ai_state = PAS_SEEK_POSITION;
+			ai_state = PAS_ARRIVE_TO_POSITION;
 		} else if (ball_future_reachable_position->available &&
 				   Vector2Distance(transform->position,
 								   V3_TO_V2(ball_future_reachable_position->position)) < 50) {
@@ -316,7 +316,8 @@ v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
 	// Let's move towards the ball
 	struct player_ball_reachability_prediction prediction =
 		entity_player_can_reach_future_ball_position(player_entity,
-													 game_state->constants.player_run_max_velocity,
+													 game_state->constants.player_run_max_velocity *
+														 0.8f,
 													 ball_entity->ball.lookahead_positions,
 													 NULL,
 													 game_state);
