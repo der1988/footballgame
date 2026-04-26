@@ -383,6 +383,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 			v2 hit_direction;
 
+			enum header_phase header_phase =
+				player_entity->player.state_machine.state_data.header.phase;
+			f32 ball_height = ball_transform->virtual_height;
+
 			// We normalize later
 			if (Vector2Length(player_controls->steering) > 0.1f) {
 				hit_direction = player_controls->steering;
@@ -391,18 +395,31 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				hit_direction = ORIENTATION_VECTORS[player_entity->sprite.orientation];
 			}
 
-			// Impact of hit direction on the header goes from 0.0 to 1.0:
-			// 1.0 when ball direction and hit direction are opposite, 0.0 when ball direction and hit direction coincide
-			f32 hit_direction_impact =
-				0.5 - Vector2ProjectScalar(hit_direction,
-										   Vector2Normalize(V3_TO_V2(ball_physics_3d->velocity))) *
-						  0.5f;
+			// Here we determine how hit direction is compatible with ball direction.
+			// Logic is if the ball is moving in the same direction of the hit we will not be
+			// able to apply any force at all.
+			f32 hit_direction_impact = 1;
+			// Projection is positive if vectors are mostly aligned, negative is they are opposite
+			f32 hit_direction_projection_on_ball_velocity = Vector2ProjectScalar(
+				hit_direction, Vector2Normalize(V3_TO_V2(ball_physics_3d->velocity)));
+			if (hit_direction_projection_on_ball_velocity > 0.5f) {
+				// After 90 degrees of angle between hit and ball direction the hit is considered suboptimal
+				// because it becomes difficult to apply force
+				hit_direction_impact = 1 - (hit_direction_projection_on_ball_velocity - 0.5f) * 2;
+			}
+
+			// If player is in the falling phase of the header we won't be able to apply any force.
+			f32 fall_down_impact = 1;
+			if (player_entity->player.state_machine.state_data.header.should_fall_down) {
+				fall_down_impact =
+					1 -
+					(player_entity->player.state_machine.state_data.header.max_elevation_frame_id -
+					 player_entity->player.state_machine.state_data.header.last_frame_id) /
+						10.0f;
+			}
 
 			f32 ball_height_impact = 0.0f;
 			f32 impact_vertical_angle = 0.0f;
-			enum header_phase header_phase =
-				player_entity->player.state_machine.state_data.header.phase;
-			f32 ball_height = ball_transform->virtual_height;
 
 			f32 header_force = 0;
 
@@ -436,21 +453,22 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 				ball_height_impact = 1 - fabsf(impact_factor);
 				printf(
-					"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - vertical_angle: %.2f\n",
+					"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - fall_down: %.2f - vertical_angle: %.2f\n",
 					ball_height,
 					header_phase,
 					ball_height_impact,
 					hit_direction_impact,
 					player->collision_force,
+					fall_down_impact,
 					impact_vertical_angle);
 
 				// Weight of different impacts:
 				// - steering -> 1
 				// - collision force -> 2
 				// - ball height -> 3
-				header_force = (hit_direction_impact * 2 + player->collision_force * 2 +
-								ball_height_impact * 3) /
-							   7.0f;
+				header_force = (hit_direction_impact + player->collision_force + fall_down_impact +
+								ball_height_impact) /
+							   4.0f;
 
 				if (ball_height < hpw.low) {
 					// Ball is too low, just fumble!
