@@ -7,13 +7,13 @@
 #include "layers.h"
 #include "ai.h"
 #include "input.h"
+#include "log.h"
 #include "sprite.h"
 #include "types.h"
 #include <math.h>
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 
 struct header_phase_window {
 	u8 low;
@@ -61,7 +61,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// TODO: this deviation has to be happen just once per collision
 				b32 deviate_trajectory = true;
 				if (deviate_trajectory) {
-					printf("deviating trajectory\n");
+					GLOG_DEBUG_CTX(LS_GAME, player_entity->header.name, "deviating trajectory\n");
 					entity_ball_deviate_trajectory(
 						ball_entity, player_on_the_ball_entity_id, game_state);
 				}
@@ -361,7 +361,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				Vector2Length(Vector2Scale(player_physics->velocity, player->collision_force)) /
 				player_physics->max_velocity;
 
-			printf("tackle force: %.2f\n", tackle_force);
+			GLOGF_DEBUG_CTX(
+				LS_GAME, player_entity->header.name, "tackle force: %.2f\n", tackle_force);
 			entity_ball_tackle(ball_entity,
 							   player_on_the_ball_entity_id,
 							   V2_TO_V3(player->collision_direction, 0),
@@ -440,7 +441,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 				if (ball_height > hpw.high) {
 					// Ball is too high, no hit!
-					printf("missed header, ball too high: %.2f > %d\n", ball_height, hpw.high);
+					GLOGF_DEBUG_CTX(LS_GAME,
+									player_entity->header.name,
+									"missed header, ball too high: %.2f > %d\n",
+									ball_height,
+									hpw.high);
 					break;
 				}
 
@@ -452,7 +457,10 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				impact_vertical_angle = impact_factor * impact_factor * 0.5f;
 
 				ball_height_impact = 1 - fabsf(impact_factor);
-				printf(
+
+				GLOGF_DEBUG_CTX(
+					LS_GAME,
+					player_entity->header.name,
 					"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - fall_down: %.2f - vertical_angle: %.2f\n",
 					ball_height,
 					header_phase,
@@ -472,7 +480,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 				if (ball_height < hpw.low) {
 					// Ball is too low, just fumble!
-					printf("fumble header, ball too low: %.2f < %d\n", ball_height, hpw.low);
+					GLOGF_DEBUG_CTX(LS_GAME,
+									player_entity->header.name,
+									"fumbled header, ball too low: %.2f < %d\n",
+									ball_height,
+									hpw.low);
 					header_force *= 0.1f;
 				}
 
@@ -480,12 +492,16 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
 					header_force *= 0.5f;
 			} else {
-				printf("ball is not high enough: %d\n", header_phase);
+				GLOGF_DEBUG_CTX(LS_GAME,
+								player_entity->header.name,
+								"ball is not high enough: %d\n",
+								header_phase);
 			}
 
 			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
 
-			printf("header force: %.2f\n", header_force);
+			GLOGF_DEBUG_CTX(
+				LS_GAME, player_entity->header.name, "header force: %.2f\n", header_force);
 
 			entity_ball_header(ball_entity,
 							   player_on_the_ball_entity_id,
