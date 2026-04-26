@@ -890,25 +890,25 @@ void player_custom_begin_draw(struct entity *entity, struct game_state *game_sta
 					  0,
 					  0,
 					  255,
-					  // 1 - Unused
-					  0,
-					  0,
-					  0,
+					  // 1 - Socks light
+					  255,
+					  255,
+					  255,
 					  255,
 					  // 2 - Skin dark
-					  181,
-					  127,
-					  100,
+					  199,
+					  137,
+					  137,
 					  255,
 					  // 3 - Kit light
 					  kit_color.r,
 					  kit_color.g,
 					  kit_color.b,
 					  255,
-					  // 4 - Unused
-					  0,
-					  0,
-					  0,
+					  // 4 - Socks dark
+					  208,
+					  208,
+					  208,
 					  255,
 					  // 5 - Pantaloncini
 					  255,
@@ -926,9 +926,9 @@ void player_custom_begin_draw(struct entity *entity, struct game_state *game_sta
 					  0,
 					  100,
 					  // 8 - Skin light
-					  201,
-					  147,
-					  120,
+					  243,
+					  170,
+					  170,
 					  255,
 					  // 9 - Kit dark
 					  kit_dark_color.r,
