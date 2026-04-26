@@ -76,10 +76,8 @@ struct list_human_players order_humans_by_distance_from_ball(struct human_player
 	return sorted_human_players;
 }
 
-void systems_player_selection(struct game_state *game_state, struct input *input)
+void systems_player_selection(struct game_state *game_state)
 {
-	UNUSED(input);
-
 	struct entity *ball_entity = game_state->vars.ball_entity;
 
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
@@ -141,7 +139,6 @@ void systems_player_selection(struct game_state *game_state, struct input *input
 		if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
 			ball->last_kicker_entity_id != EID_NOT_VALID) {
 			LIST_ADD(excluded_players_list, ball->last_kicker_entity_id);
-			is_player_in_possession_controlled_by_human = true;
 		}
 
 		if (game_state->constants.player_pass_target_not_selectable &&
