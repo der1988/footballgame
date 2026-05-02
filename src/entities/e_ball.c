@@ -226,9 +226,9 @@ void entity_ball_control_running(struct entity *ball_entity,
 
 	// TODO: vertical component of the velocity to add should depend on the player's technique:
 	// good players might have low value which translates to better control in all conditions,
-	// let's not raise above 0.02f for bad players though,  otherwise things start to break apart.
 	v3 velocity_to_add =
-		Vector3Scale(V2_TO_V3(Vector2Normalize(control_direction), 0.015f),
+		Vector3Scale(V2_TO_V3(Vector2Normalize(control_direction),
+							  ball_entity->ball.is_on_the_ground ? 0.5f : 0),
 					 math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
 	physics3d->velocity =
 		Vector3Add(V2_TO_V3(player_velocity, physics3d->velocity.y), velocity_to_add);
