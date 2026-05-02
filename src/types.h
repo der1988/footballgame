@@ -51,5 +51,6 @@ typedef u32 platform_gamepad_device_id_t;
 typedef u32 platform_gamepad_input_axis_id_t;
 typedef u32 platform_gamepad_input_button_id_t;
 typedef u32 platform_keyboard_input_id_t;
+typedef u32 human_player_id_t;
 
 #endif // !TYPES_H

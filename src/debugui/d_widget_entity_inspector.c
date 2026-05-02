@@ -102,7 +102,9 @@ static void draw_component_camera(struct component_camera *c)
 	}
 }
 
-static void draw_component_collider(struct component_collider *c, const char **names, u16 names_count)
+static void draw_component_collider(struct component_collider *c,
+									const char **names,
+									u16 names_count)
 {
 	if (!c->header.enabled)
 		return;
@@ -331,11 +333,12 @@ void debugui_entity_inspector_draw(debugui_t *handle, struct game_state *game_st
 				continue;
 
 			bool is_selected = (handle->entity_inspector_selected_entity_id == entity->header.id);
-			b32 is_human = game_input_human_player(game_state, entity->header.id) != NULL;
+			b32 is_human =
+				game_input_human_player_by_player_entity_id(game_state, entity->header.id) != NULL;
 			const char *label = TextFormat("%s (%s)%s",
-										  entity->header.name,
-										  entity_type_to_string[entity->header.type],
-										  is_human ? " [H]" : "");
+										   entity->header.name,
+										   entity_type_to_string[entity->header.type],
+										   is_human ? " [H]" : "");
 			igPushID_Int((int)entity->header.id);
 			if (igSelectable_Bool(label, is_selected, 0, (ImVec2){0, 0})) {
 				handle->entity_inspector_selected_entity_id = entity->header.id;

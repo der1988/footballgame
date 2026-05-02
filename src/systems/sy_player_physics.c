@@ -53,7 +53,7 @@ void systems_player_physics(struct game_state *game_state)
 
 			// If charging kick we seek the ball
 			struct human_player *human_player =
-				game_input_get_human_player_by_player_entity_id(game_state, entity_id);
+				game_input_human_player_by_player_entity_id(game_state, entity_id);
 			if (human_player) {
 				struct game_controller *gc =
 					&game_state->input_manager->game_controllers[human_player->game_controller_id];

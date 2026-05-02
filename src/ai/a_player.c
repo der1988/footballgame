@@ -23,16 +23,14 @@ enum whos_on_the_ball {
 	WOTB_NO_ONE
 };
 
-enum whos_on_the_ball identify_whos_in_possession(struct entity *player_entity,
-												  struct entity *player_in_possession_entity);
+static enum whos_on_the_ball identify_whos_in_possession(
+	struct entity *player_entity, struct entity *player_in_possession_entity);
 
-v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
-											struct entity *ball_entity,
-											struct game_state *game_state);
+static v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
+												   struct entity *ball_entity,
+												   struct game_state *game_state);
 
-v2 get_target_position_based_on_tactics(struct entity *entity,
-										v2 ball_position,
-										struct game_state *game_state);
+static b32 team_has_human_players(enum team_side team_side, struct game_state *game_state);
 
 enum player_ai_state ai_player_think(struct entity *player_entity,
 									 v2 *target_position,
@@ -58,15 +56,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
-	b32 team_has_human = false;
-	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-		if (game_state->human_players[i].enabled &&
-			player_entity->player.team_side == game_state->human_players[i].team_side) {
-			team_has_human = true;
-			break;
-		}
-	}
-
+	const b32 team_has_human_players =
+		team_has_human_players(player_entity->player.team_side, game_state);
 	if (game_state->vars.match.state != MS_PLAY || ball_in_keeper_hands) {
 		return PAS_KEEP_POSITION;
 	}
@@ -79,16 +70,10 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	switch (whos_on_the_ball) {
 	case WOTB_PLAYER: {
 		// We possess the ball
-		b32 should_be_human_controlled = false;
-		for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-			if (game_state->human_players[i].enabled &&
-				player_entity->player.team_side == game_state->human_players[i].team_side) {
-				// Player should really be controlled by human
-				should_be_human_controlled = true;
-				break;
-			}
-		}
-		if (should_be_human_controlled) {
+
+		// If the player who has possession of the ball is controlled by AI, but the team has a human player,
+		// then we should really hand over control to the human
+		if (team_has_human_players) {
 			ai_state = PAS_KEEP_POSITION;
 			break;
 		}
@@ -181,15 +166,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 												V3_TO_V2(ball_physics_3d->velocity));
 
 			// Consider tackling if this is a fully AI-controlled team
-			b32 team_has_human = false;
-			for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-				if (game_state->human_players[i].enabled &&
-					player_entity->player.team_side == game_state->human_players[i].team_side) {
-					team_has_human = true;
-					break;
-				}
-			}
-			if (!team_has_human) {
+			if (!team_has_human_players) {
 				f32 dist_to_ball =
 					Vector2Distance(player_entity->transform.position, ball_transform->position);
 				if (dist_to_ball < 20.0f && player_in_possession_entity) {
@@ -260,7 +237,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		*action_decision = PAAD_NO_ACTION;
 
 		// Header attempt - only when not ball is high, team is fully AI controlled and enough passed from previous attempt
-		if (!team_has_human &&
+		if (!team_has_human_players &&
 			HAS_TIME_PASSED(game_state->time, player_entity->player.last_header_time, 0.5f)) {
 			if (!player_entity->player.is_colliding_with_ball &&
 				ball_transform->virtual_height > game_state->constants.player_header_min_height &&
@@ -295,8 +272,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	return ai_state;
 }
 
-enum whos_on_the_ball identify_whos_in_possession(struct entity *player_entity,
-												  struct entity *player_in_possession_entity)
+static enum whos_on_the_ball identify_whos_in_possession(struct entity *player_entity,
+														 struct entity *player_in_possession_entity)
 {
 	if (player_entity->header.id == player_in_possession_entity->header.id) {
 		return WOTB_PLAYER;
@@ -312,9 +289,9 @@ enum whos_on_the_ball identify_whos_in_possession(struct entity *player_entity,
 	}
 }
 
-v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
-											struct entity *ball_entity,
-											struct game_state *game_state)
+static v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
+												   struct entity *ball_entity,
+												   struct game_state *game_state)
 {
 	// Let's move towards the ball
 	struct player_ball_reachability_prediction prediction =
@@ -331,4 +308,14 @@ v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
 		ball_future_pos =
 			V2_TO_V3(ball_entity->transform.position, ball_entity->transform.virtual_height);
 	return V3_TO_V2(ball_future_pos);
+}
+
+static b32 team_has_human_players(enum team_side team_side, struct game_state *game_state)
+{
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		if (game_state->human_players[i].enabled &&
+			game_state->human_players[i].team_side == team_side) {
+			return true;
+		}
+	}
 }
