@@ -89,19 +89,6 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 							 .center;
 		f32 distance_from_goal = Vector2Distance(goal_center, player_entity->transform.position);
 		if (distance_from_goal < 250) {
-			// f32 accuracy =
-			// 	40 + GetRandomValue(
-			// 			 0, 20); // TODO: this should really depend on ai level and player stats
-
-			// v2 shot_direction_to_center =
-			// 	Vector2Normalize(Vector2Subtract(goal_center, ball_transform->position));
-			// v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
-			// 	Vector2Add(goal_center, (v2){.x = accuracy}), ball_transform->position));
-			// f32 angle_center_to_post =
-			// 	Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
-
-			// v2 shot_direction = Vector2Rotate(
-			// 	shot_direction_to_center, angle_center_to_post * GetRandomValue(-100, 100) / 100.f);
 
 			v2 to_target_goal = Vector2Subtract(goal_center, player_entity->transform.position);
 			f32 angle =
@@ -109,10 +96,30 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			if (angle < 30) {
 				*action_decision = PAAD_SHOOT;
 				*power = 0.5f + 0.5f * RANDOM_01(100);
-				v2 shoot_target = Vector2Zero();
-				shoot_target.x += GetRandomValue(-60, 60) / 60.f;
-				*target_position = shoot_target;
-				// *target_position = shot_direction;
+
+				if (game_state->constants.shoot_aid_auto_aim) {
+					v2 shoot_target = Vector2Zero();
+					shoot_target.x += GetRandomValue(-60, 60) / 60.f;
+					*target_position = shoot_target;
+				} else {
+					f32 accuracy =
+						40 +
+						GetRandomValue(
+							0, 20); // TODO: this should really depend on ai level and player stats
+
+					v2 shot_direction_to_center =
+						Vector2Normalize(Vector2Subtract(goal_center, ball_transform->position));
+					v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
+						Vector2Add(goal_center, (v2){.x = accuracy}), ball_transform->position));
+					f32 angle_center_to_post =
+						Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
+
+					v2 shot_direction =
+						Vector2Rotate(shot_direction_to_center,
+									  angle_center_to_post * GetRandomValue(-100, 100) / 100.f);
+
+					*target_position = shot_direction;
+				}
 			} else {
 				*target_position = Vector2Normalize(
 					Vector2Subtract(goal_center, player_entity->transform.position));

@@ -80,18 +80,24 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 				f32 accuracy = 40 + (power > 0.8f ? GetRandomValue(11, 20) : GetRandomValue(0, 10));
 
-				// Calculate shot direction
 				v2 center_of_goal = game_state->vars.pitch.goal[1 - player_pitch_side].center;
 				v2 shot_direction_to_center =
 					Vector2Normalize(Vector2Subtract(center_of_goal, ball_transform->position));
-				v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
-					Vector2Add(center_of_goal, (v2){.x = accuracy}), ball_transform->position));
-				f32 angle_center_to_post =
-					Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
+				v2 shot_direction = player_controls->steering;
+				if (Vector2ProjectScalar(shot_direction_to_center, shot_direction) < 0) {
+					shot_direction.y *= -1;
+				}
+				if (game_state->constants.shoot_aid_auto_aim) {
+					// Calculate shot direction for auto aim
+					v2 shot_direction_to_right_post = Vector2Normalize(Vector2Subtract(
+						Vector2Add(center_of_goal, (v2){.x = accuracy}), ball_transform->position));
+					f32 angle_center_to_post =
+						Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
 
-				v2 shot_direction = Vector2Rotate(
-					shot_direction_to_center, angle_center_to_post * player_controls->steering.x);
-				// v2 shot_direction = player_controls->steering;
+					shot_direction =
+						Vector2Rotate(shot_direction_to_center,
+									  angle_center_to_post * player_controls->steering.x);
+				}
 
 				// Limit angle between requested shoot direction and current velocity
 				f32 angle = Vector2Angle(player_velocity, shot_direction);

@@ -115,6 +115,7 @@ struct game_state *game_play_init(struct game_config game_config,
 								.goalie_reach_max_height = 35.4f,
 								.ai_enabled = true,
 								.shoot_aid_no_inertia = true,
+								.shoot_aid_auto_aim = true,
 								.kick_charge_reset_time = 1.5f};
 
 	// Initialise entities repository
