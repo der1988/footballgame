@@ -60,7 +60,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	b32 team_has_human = false;
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-		if (player_entity->player.team_side == game_state->human_players[i].team_side) {
+		if (game_state->human_players[i].enabled &&
+			player_entity->player.team_side == game_state->human_players[i].team_side) {
 			team_has_human = true;
 			break;
 		}
@@ -80,7 +81,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		// We possess the ball
 		b32 should_be_human_controlled = false;
 		for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-			if (player_entity->player.team_side == game_state->human_players[i].team_side) {
+			if (game_state->human_players[i].enabled &&
+				player_entity->player.team_side == game_state->human_players[i].team_side) {
 				// Player should really be controlled by human
 				should_be_human_controlled = true;
 				break;
@@ -181,7 +183,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			// Consider tackling if this is a fully AI-controlled team
 			b32 team_has_human = false;
 			for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-				if (player_entity->player.team_side == game_state->human_players[i].team_side) {
+				if (game_state->human_players[i].enabled &&
+					player_entity->player.team_side == game_state->human_players[i].team_side) {
 					team_has_human = true;
 					break;
 				}

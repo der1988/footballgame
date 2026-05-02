@@ -36,7 +36,8 @@ struct entity *entities_player_select_press_player(struct entity *ball_entity,
 
 		b32 is_player_human_controlled = false;
 		for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-			if (game_state->human_players[i].controlled_player.entity_id == entity_id) {
+			if (game_state->human_players[i].enabled &&
+				game_state->human_players[i].controlled_player.entity_id == entity_id) {
 				is_player_human_controlled = true;
 				break;
 			}
