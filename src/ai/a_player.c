@@ -56,8 +56,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
-	const b32 team_has_human_players =
-		team_has_human_players(player_entity->player.team_side, game_state);
+	const b32 team_has_humans = team_has_human_players(player_entity->player.team_side, game_state);
 	if (game_state->vars.match.state != MS_PLAY || ball_in_keeper_hands) {
 		return PAS_KEEP_POSITION;
 	}
@@ -73,7 +72,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 		// If the player who has possession of the ball is controlled by AI, but the team has a human player,
 		// then we should really hand over control to the human
-		if (team_has_human_players) {
+		if (team_has_humans) {
 			ai_state = PAS_KEEP_POSITION;
 			break;
 		}
@@ -166,7 +165,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 												V3_TO_V2(ball_physics_3d->velocity));
 
 			// Consider tackling if this is a fully AI-controlled team
-			if (!team_has_human_players) {
+			if (!team_has_humans) {
 				f32 dist_to_ball =
 					Vector2Distance(player_entity->transform.position, ball_transform->position);
 				if (dist_to_ball < 20.0f && player_in_possession_entity) {
@@ -237,7 +236,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		*action_decision = PAAD_NO_ACTION;
 
 		// Header attempt - only when not ball is high, team is fully AI controlled and enough passed from previous attempt
-		if (!team_has_human_players &&
+		if (!team_has_humans &&
 			HAS_TIME_PASSED(game_state->time, player_entity->player.last_header_time, 0.5f)) {
 			if (!player_entity->player.is_colliding_with_ball &&
 				ball_transform->virtual_height > game_state->constants.player_header_min_height &&
@@ -318,4 +317,5 @@ static b32 team_has_human_players(enum team_side team_side, struct game_state *g
 			return true;
 		}
 	}
+	return false;
 }
