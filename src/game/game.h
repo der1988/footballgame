@@ -218,8 +218,8 @@ void game_loop(struct game_config config,
 
 void game_set_next_scene(enum game_scene next_scene);
 
-INLINE struct human_player *game_input_human_player(struct game_state *game_state,
-													entity_id_t player_entity_id)
+INLINE struct human_player *game_input_get_human_player_by_player_entity_id(
+	struct game_state *game_state, entity_id_t player_entity_id)
 {
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		if (game_state->human_players[i].enabled &&
