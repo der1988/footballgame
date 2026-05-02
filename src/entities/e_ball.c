@@ -10,7 +10,6 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <stdio.h>
 #include <string.h>
 #include "game.h"
 #include "gfx.h"
@@ -22,6 +21,9 @@ forward_declare_state_machine_functions(ball);
 implement_state_machine_functions(ball);
 
 static void on_goal_scored(enum event_type event_type, void *context);
+
+static void set_after_touch(struct component_ball *ball);
+static void reset_after_touch(struct component_ball *ball);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state)
 {
@@ -195,6 +197,8 @@ void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v
 	for (usize i = 0; i < FUTURE_POSITION_COUNT; i++) {
 		ball_entity->ball.future_positions[i].available = false;
 	}
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_control_precision(struct entity *ball_entity,
@@ -291,6 +295,8 @@ void entity_ball_shoot(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
+
+	set_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_short_pass(struct entity *ball_entity,
@@ -311,6 +317,8 @@ void entity_ball_short_pass(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(direction, power / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
+
+	set_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_long_pass(struct entity *ball_entity,
@@ -338,6 +346,8 @@ void entity_ball_long_pass(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
+
+	set_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_tackle(struct entity *ball_entity,
@@ -359,6 +369,8 @@ void entity_ball_tackle(struct entity *ball_entity,
 	ball->last_tackle_entity_id = tackler_entity_id;
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = tackler_entity_id;
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_header(struct entity *ball_entity,
@@ -378,6 +390,8 @@ void entity_ball_header(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = header_entity_id;
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_deviate_trajectory(struct entity *ball_entity,
@@ -403,6 +417,8 @@ void entity_ball_deviate_trajectory(struct entity *ball_entity,
 									game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = player_entity_id;
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_held_by_goalie(struct entity *ball_entity,
@@ -414,6 +430,8 @@ void entity_ball_held_by_goalie(struct entity *ball_entity,
 	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
 
 	entity_ball_state_machine_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_saved_by_goalie(struct entity *ball_entity,
@@ -423,6 +441,8 @@ void entity_ball_saved_by_goalie(struct entity *ball_entity,
 	struct component_ball *ball = &ball_entity->ball;
 
 	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *game_state)
@@ -469,4 +489,16 @@ static void on_goal_scored(enum event_type event_type, void *context)
 	struct game_state *game_state = (struct game_state *)context;
 
 	football_match_change_state(game_state, MS_GOAL);
+}
+
+static void set_after_touch(struct component_ball *ball)
+{
+	ball->after_touch.active = true;
+	ball->after_touch.selected_side = ball->after_touch.activation_direction = Vector2Zero();
+}
+
+static void reset_after_touch(struct component_ball *ball)
+{
+	ball->after_touch.active = false;
+	ball->after_touch.selected_side = ball->after_touch.activation_direction = Vector2Zero();
 }

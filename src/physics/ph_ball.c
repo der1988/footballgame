@@ -1,3 +1,4 @@
+#include "components.h"
 #include "game.h"
 #include "types.h"
 #include <raymath.h>
@@ -7,6 +8,7 @@ void physics_ball_simulation(v3 *out_position,
 							 v3 accel,
 							 f32 mass,
 							 f32 radius,
+							 v3 after_touch_accel,
 							 b32 *out_on_the_ground,
 							 b32 *out_bounced,
 							 struct game_state *game_state)
@@ -60,6 +62,8 @@ void physics_ball_simulation(v3 *out_position,
 		accel.x += direction.x * deceleration;
 		accel.z += direction.y * deceleration;
 	}
+
+	accel = Vector3Add(accel, after_touch_accel);
 
 	// Apply acceleration...
 	velocity = Vector3Add(velocity, Vector3Scale(accel, game_state->dt));

@@ -88,6 +88,12 @@ struct game_state *game_play_init(struct game_config game_config,
 								.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
 								.ball_lookaheads = 10,
 								.ball_lookahead_dts = 48,
+
+								// After touch
+								.ball_after_touch_delay_time = 0.1f,
+								.ball_after_touch_max_time = 0.6f,
+								.ball_after_touch_force = 400.0f,
+
 								// Crossbar is at 2.44m height
 								.crossbar_height = 27,
 

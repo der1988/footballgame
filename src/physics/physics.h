@@ -13,6 +13,7 @@ void physics_ball_simulation(v3 *out_position,
 							 v3 accel,
 							 f32 mass,
 							 f32 radius,
+							 v3 after_touch_accel,
 							 b32 *out_on_the_ground,
 							 b32 *out_bounced,
 							 struct game_state *game_state);

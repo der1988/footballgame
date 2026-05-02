@@ -189,6 +189,14 @@ struct component_ball {
 	fg_time_t last_tackle_time;
 	entity_id_t last_tackle_entity_id;
 
+	// After touch
+	struct {
+		b32 active;
+		fg_time_t activated_at;
+		v2 activation_direction;
+		v2 selected_side;
+	} after_touch;
+
 	// Animation
 	u16 last_running_frame_idx;
 	fg_time_t last_frame_update_time;
