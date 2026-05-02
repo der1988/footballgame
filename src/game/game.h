@@ -79,7 +79,6 @@ struct game_constants {
 	f32 player_control_height;
 	f32 player_header_min_height;
 	f32 player_header_max_height;
-	f32 player_run_control_max_angle;
 	f32 player_pass_target_not_selectable;
 
 	f32 goalie_dive_reaction_time;

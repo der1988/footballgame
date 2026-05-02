@@ -107,7 +107,6 @@ struct game_state *game_play_init(struct game_config game_config,
 								// Ronaldo's record is 2.93m but average is just above crossbar
 								.player_header_min_height = 19,
 								.player_header_max_height = 27,
-								.player_run_control_max_angle = 45,
 								.player_pass_target_not_selectable = false,
 
 								// Elite goalie has 150ms reaction time
