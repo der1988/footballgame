@@ -39,33 +39,42 @@ static inline v2 to_radar_position(v2 pos, rect_t pitch_rect, v2 radar_pos, f32 
 
 void layer_hud_draw(layer_hud_t *handle, struct game_state *game_state)
 {
-	struct game_controller *gc =
-		&game_state->input_manager
-			 ->game_controllers[game_state->human_players[0].game_controller_id];
+	f32 section_width = game_state->config.screen_width / 4.0f;
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		struct human_player *hp = &game_state->human_players[i];
+		if (!hp->enabled)
+			continue;
 
-	f32 power = 0;
+		struct game_controller *gc =
+			&game_state->input_manager->game_controllers[hp->game_controller_id];
 
-	if (gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
-		gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
-		fg_time_t current_duration = gc->charge_lock.end_time - gc->charge_lock.start_time;
-		switch (gc->charge_lock.control_id) {
-		case GAME_CONTROL_SHOOT:
-			power = SHOOT_POWER(current_duration);
-			break;
-		case GAME_CONTROL_PASS:
-			power = PASS_POWER(current_duration);
-			break;
-		case GAME_CONTROL_LONG_PASS:
-			power = LONG_PASS_POWER(current_duration);
-			break;
-		default:
-			break;
+		f32 power = 0;
+
+		if (gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
+			gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
+			fg_time_t current_duration = gc->charge_lock.end_time - gc->charge_lock.start_time;
+			switch (gc->charge_lock.control_id) {
+			case GAME_CONTROL_SHOOT:
+				power = SHOOT_POWER(current_duration);
+				break;
+			case GAME_CONTROL_PASS:
+				power = PASS_POWER(current_duration);
+				break;
+			case GAME_CONTROL_LONG_PASS:
+				power = LONG_PASS_POWER(current_duration);
+				break;
+			default:
+				break;
+			}
 		}
-	}
 
-	rect_t charge_box = {
-		.x = 150, .y = game_state->config.screen_height - 100, .width = 300 * power, .height = 20};
-	DrawRectangleRec(charge_box, power > 0.8f ? RED : WHITE);
+		f32 bar_max_width = section_width - 20;
+		rect_t charge_box = {.x = section_width * i + 10,
+							 .y = game_state->config.screen_height - 100,
+							 .width = bar_max_width * power,
+							 .height = 20};
+		DrawRectangleRec(charge_box, power > 0.8f ? RED : WHITE);
+	}
 
 	// Radar
 	f32 radar_ratio = 0.3f;
