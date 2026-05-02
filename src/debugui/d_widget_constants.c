@@ -56,6 +56,19 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						20,
 						"%d",
 						0);
+			igSliderFloat("Ball max velocity",
+						  &game_state->constants.ball_max_velocity,
+						  0.0f,
+						  1000.0f,
+						  TextFormat("%.2f", game_state->constants.ball_max_velocity),
+						  0);
+			igSliderFloat("Ball max velocity to gain possession",
+						  &game_state->constants.ball_max_velocity_to_gain_possession,
+						  0.0f,
+						  1000.0f,
+						  TextFormat("%.2f",
+									 game_state->constants.ball_max_velocity_to_gain_possession),
+						  0);
 			igSliderFloat("Ball run force",
 						  &game_state->constants.ball_run_force,
 						  0.0f,
