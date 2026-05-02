@@ -218,6 +218,8 @@ void entity_ball_control_precision(struct entity *ball_entity,
 			Vector3Normalize(
 				Vector3Subtract(V2_TO_V3(position_to_seek, 0), V2_TO_V3(transform->position, 0))),
 			math_ext_split_lerp(game_state->constants.ball_control_force, 0.5f, 1 - difficulty)));
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_control_running(struct entity *ball_entity,
@@ -236,6 +238,8 @@ void entity_ball_control_running(struct entity *ball_entity,
 					 math_ext_split_lerp(game_state->constants.ball_run_force, 0.25f, difficulty));
 	physics3d->velocity =
 		Vector3Add(V2_TO_V3(player_velocity, physics3d->velocity.y), velocity_to_add);
+
+	reset_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_shoot(struct entity *ball_entity,
