@@ -29,10 +29,10 @@ static struct player_characteristics characteristics_for_position(u8 idx)
 void football_setup(struct game_state *game_state)
 {
 	game_state->vars.pitch.field = (rect_t){.x = 72, .y = 233, .width = 856, .height = 360 * 3 - 2};
-	game_state->vars.pitch.goal_width = 79;
-	game_state->vars.pitch.goal_height = 27;
-	game_state->vars.pitch.penalty_box_width = 374;
-	game_state->vars.pitch.penalty_box_height = 167;
+	game_state->vars.pitch.goal_width = 120;
+	game_state->vars.pitch.goal_height = 32;
+	game_state->vars.pitch.penalty_box_width = 478;
+	game_state->vars.pitch.penalty_box_height = 149;
 	game_state->vars.pitch.cross_area_width = 280;
 	game_state->vars.pitch.cross_area_height = 200;
 	game_state->vars.pitch.midfield_spot =
@@ -147,7 +147,7 @@ static struct goal setup_goal(struct entity *entity,
 	struct goal goal = (struct goal){
 		.entity = entity,
 		.center = center,
-		.penalty_box = (rect_t){.x = 312,
+		.penalty_box = (rect_t){.x = center.x - penalty_box_width * 0.5f,
 								.y = center.y - (side == PSI_NORTH ? 0 : penalty_box_height),
 								.width = penalty_box_width,
 								.height = penalty_box_height},

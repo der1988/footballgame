@@ -1,3 +1,8 @@
-struct game_state;
+#ifndef ENTITY_GOAL_NET_H
+#define ENTITY_GOAL_NET_H
 
-struct entity *entity_goal_net_create(struct game_state *game_state);
+#include "e_goal.h"
+
+struct entity *entity_goal_net_create(struct goal_config config, struct game_state *game_state);
+
+#endif // !ENTITY_GOAL_NET_H

@@ -1,6 +1,7 @@
 #include "entities.h"
 #include "e_goal.h"
 #include "e_goal_net.h"
+#include "football.h"
 #include "log.h"
 #include <assert.h>
 #include <raymath.h>
@@ -16,13 +17,13 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	transform->rotation = 0;
 	transform->virtual_height = 0;
 	transform->scale = (v2){.x = 1, .y = 1};
-	transform->position = config.center;
+	transform->position = Vector2Add(config.center, (v2){.x = 0, .y = 12});
 
 	// Create goal net
-	struct entity *goal_net_entity = entity_goal_net_create(game_state);
+	struct entity *goal_net_entity = entity_goal_net_create(config, game_state);
 	struct component_transform *goal_net_transform = &goal_net_entity->transform;
 	goal_net_transform->parent = transform;
-	goal_net_transform->position = Vector2Zero();
+	goal_net_transform->position = (v2){.x = 0, .y = config.side == PSI_NORTH ? 0 : 22};
 
 	// Initialise sprite
 	struct component_sprite *sprite = &entity->sprite;
@@ -54,7 +55,9 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	collider->colliders[0].props.rectangle.size =
 		(v2){.x = game_state->vars.pitch.goal_width, .y = game_state->vars.pitch.goal_height};
 	collider->colliders[0].props.rectangle.offset =
-		(v2){.x = 0, .y = -collider->colliders[0].props.rectangle.size.y * 0.5f};
+		(v2){.x = 0,
+			 .y = config.side == PSI_NORTH ? -collider->colliders[0].props.rectangle.size.y + 5 :
+											 -collider->colliders[0].props.rectangle.size.y + 5};
 
 	// Initialise goal
 	struct component_goal *goal = &entity->goal;
