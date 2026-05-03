@@ -211,9 +211,16 @@ void systems_player_selection(struct game_state *game_state)
 					}
 				} else {
 					// If no human is controlling player in possession we assign it to the first human player
+					// But not if it's a goalie who isn't holding the ball (e.g. mid-dive save)
+					b32 is_goalie_but_not_holding_ball =
+						player_in_possession_entity->player.state_machine.current_state ==
+							PS_GOALIE &&
+						player_in_possession_entity->goalie.state_machine.current_state !=
+							GS_HOLD_BALL;
 					if (!is_player_in_possession_controlled_by_human &&
 						human_player->team_side == team_side_idx &&
-						!player_in_possession_entity->player.kicked_ball) {
+						!player_in_possession_entity->player.kicked_ball &&
+						!is_goalie_but_not_holding_ball) {
 						human_player->controlled_player.entity_id = player_in_possession_entity_id;
 						is_player_in_possession_controlled_by_human = true;
 						continue;
