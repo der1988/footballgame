@@ -55,13 +55,27 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 # Tests
 TEST_SRC_DIRS := ./test
+TEST_BUILD_DIR := $(BUILD_DIR)/test
 
 UNITY_SRC_DIRS := $(TEST_SRC_DIRS)/unity
 
 TESTS := $(shell find $(TEST_SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
-TEST_OBJS := $(TESTS:%=$(BUILD_DIR)/%.o)
+TEST_OBJS := $(TESTS:%=$(TEST_BUILD_DIR)/%.o)
 
 TEST_FLAGS := -DRUNNING_TEST
+
+# Source objects recompiled for tests (with TEST_FLAGS)
+TEST_SRC_OBJS := $(SRCS:%=$(TEST_BUILD_DIR)/%.o)
+
+# Build step for C source (test build)
+$(TEST_BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TEST_FLAGS) -c $< -o $@
+
+# Build step for C++ source (test build)
+$(TEST_BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TEST_FLAGS) -c $< -o $@
 
 .PHONY: test
 test: $(BUILD_DIR)/test_caches $(BUILD_DIR)/test_memory $(BUILD_DIR)/test_actions $(BUILD_DIR)/test_entity_repo $(BUILD_DIR)/test_events
@@ -77,55 +91,50 @@ test: $(BUILD_DIR)/test_caches $(BUILD_DIR)/test_memory $(BUILD_DIR)/test_action
 		echo "All test suites passed."; \
 	fi
 
-test_caches: CFLAGS += $(TEST_FLAGS)
 test_caches: $(BUILD_DIR)/test_caches
 	@echo
 	@echo === Testing caches ===
 	@echo
 	$(BUILD_DIR)/$@
 
-test_memory: CFLAGS += $(TEST_FLAGS)
 test_memory: $(BUILD_DIR)/test_memory
 	@echo
 	@echo === Testing memory ===
 	@echo
 	$(BUILD_DIR)/$@
 
-test_actions: CFLAGS += $(TEST_FLAGS)
 test_actions: $(BUILD_DIR)/test_actions
 	@echo
 	@echo === Testing actions ===
 	@echo
 	$(BUILD_DIR)/$@
 
-test_entity_repo: CFLAGS += $(TEST_FLAGS)
 test_entity_repo: $(BUILD_DIR)/test_entity_repo
 	@echo
 	@echo === Testing entity repo ===
 	@echo
 	$(BUILD_DIR)/$@
 
-test_events: CFLAGS += $(TEST_FLAGS)
 test_events: $(BUILD_DIR)/test_events
 	@echo
 	@echo === Testing events ===
 	@echo
 	$(BUILD_DIR)/$@
 
-$(BUILD_DIR)/test_caches: $(TEST_OBJS) $(OBJS)
-	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
+$(BUILD_DIR)/test_caches: $(TEST_OBJS) $(TEST_SRC_OBJS)
+	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/test_memory: $(TEST_OBJS) $(OBJS)
-	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
+$(BUILD_DIR)/test_memory: $(TEST_OBJS) $(TEST_SRC_OBJS)
+	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/test_actions: $(TEST_OBJS) $(OBJS)
-	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
+$(BUILD_DIR)/test_actions: $(TEST_OBJS) $(TEST_SRC_OBJS)
+	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/test_entity_repo: $(TEST_OBJS) $(OBJS)
-	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
+$(BUILD_DIR)/test_entity_repo: $(TEST_OBJS) $(TEST_SRC_OBJS)
+	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
-$(BUILD_DIR)/test_events: $(TEST_OBJS) $(OBJS)
-	$(CXX) $(filter $(BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(OBJS)) -o $@ $(LDFLAGS)
+$(BUILD_DIR)/test_events: $(TEST_OBJS) $(TEST_SRC_OBJS)
+	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
 .PHONY: clean
 clean:

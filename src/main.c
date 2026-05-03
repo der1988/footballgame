@@ -2,7 +2,7 @@
 #include "as_manager.h"
 #include <stdlib.h>
 
-#define TOTAL_MEMORY_MBS 3000
+#define TOTAL_MEMORY_MBS 2000
 
 int main()
 {

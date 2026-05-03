@@ -15,6 +15,18 @@
 #include "platform/platform.h"
 #include "debugui/debugui.h"
 
+#ifdef RUNNING_TEST
+#define DISABLE_TIME_MACHINE 1
+#endif
+
+#ifndef DISABLE_TIME_MACHINE
+#define TIME_MACHINE_MEMORY_MBS 1597
+#else
+#define TIME_MACHINE_MEMORY_MBS 0
+#endif
+
+#define GAMEPLAY_SCENE_MEMORY_MBS (8 + TIME_MACHINE_MEMORY_MBS)
+
 static void update(struct game_state *game_state);
 static void draw(struct game_state *game_state);
 
@@ -39,7 +51,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->debug_flags = (struct debug_flags){0};
 
 	// Push some memory for our own arenas onto main memory arena
-	void *game_memory = memory_arena_push(memory_arena, Megabytes(1600));
+	void *game_memory = memory_arena_push(memory_arena, Megabytes(GAMEPLAY_SCENE_MEMORY_MBS));
 	assert(game_memory);
 	game_state->memory_by_lifetime[MAL_LEVEL] =
 		memory_arena_create_default("level", game_memory, Megabytes(1));
@@ -47,8 +59,10 @@ struct game_state *game_play_init(struct game_config game_config,
 		memory_arena_create_default("update", game_memory + Megabytes(1), Megabytes(1));
 	game_state->memory_by_lifetime[MAL_DRAW] =
 		memory_arena_create_default("draw", game_memory + Megabytes(2), Megabytes(1));
-	game_state->memory_by_lifetime[MAL_TIME_MACHINE] =
-		memory_arena_create_default("time_machine", game_memory + Megabytes(3), Megabytes(1597));
+#ifndef DISABLE_TIME_MACHINE
+	game_state->memory_by_lifetime[MAL_TIME_MACHINE] = memory_arena_create_default(
+		"time_machine", game_memory + Megabytes(3), Megabytes(TIME_MACHINE_MEMORY_MBS));
+#endif
 
 	// Initialise events router
 	game_state->events_router = events_router_create(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -127,9 +141,11 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->entity_repository =
 		entity_repository_init(game_state->memory_by_lifetime[MAL_LEVEL]);
 
+#ifndef DISABLE_TIME_MACHINE
 	// Initialise time machine
 	game_state->time_machine =
 		time_machine_create(game_state->memory_by_lifetime[MAL_TIME_MACHINE]);
+#endif
 
 	// Initialise input manager
 	game_state->input_manager = input_manager_create(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -151,9 +167,7 @@ struct game_state *game_play_init(struct game_config game_config,
 												   (f32)game_state->config.virtual_screen_height);
 
 #ifndef RUNNING_TEST
-
 	football_setup(game_state);
-
 #endif
 
 	game_state->initialised = true;
@@ -176,12 +190,17 @@ void game_play_destroy(struct game_state *game_state)
 
 	input_manager_destroy(game_state->input_manager);
 
+#ifndef DISABLE_TIME_MACHINE
 	time_machine_destroy(game_state->time_machine);
+#endif
 
 	entity_repository_destroy(game_state->entity_repository);
 
 	events_router_destroy(game_state->events_router);
 
+#ifndef DISABLE_TIME_MACHINE
+	memory_arena_destroy(game_state->memory_by_lifetime[MAL_TIME_MACHINE]);
+#endif
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_DRAW]);
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_UPDATE]);
 	memory_arena_destroy(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -347,7 +366,9 @@ static void update(struct game_state *game_state)
 	systems_goal(game_state);
 	systems_action(game_state);
 	systems_camera(game_state);
+#ifndef DISABLE_TIME_MACHINE
 	systems_time_machine(game_state);
+#endif
 }
 
 void game_play_draw_scene_to_texture(struct game_state *game_state,

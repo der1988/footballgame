@@ -6,6 +6,8 @@
 #define TARGET_FRAMERATE 60
 #define FRAME_TIME		 (1.0f / TARGET_FRAMERATE)
 
+#define SCENE_MEMORY_MBS 1614
+
 enum game_scene g_next_scene = GSC_NONE;
 
 static void *handle_scene_creation(struct game_config config,
@@ -18,11 +20,12 @@ void game_loop(struct game_config config,
 			   struct assets assets,
 			   memory_arena_handle_t *main_memory_arena_handle)
 {
-	void *memory_for_current_scene = memory_arena_push(main_memory_arena_handle, Megabytes(1650));
+	void *memory_for_current_scene =
+		memory_arena_push(main_memory_arena_handle, Megabytes(SCENE_MEMORY_MBS));
 	assert(memory_for_current_scene);
 
 	memory_arena_handle_t *current_scene_memory_arena =
-		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(1650));
+		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(SCENE_MEMORY_MBS));
 
 	enum game_scene current_scene = GSC_NONE;
 	void *current_scene_handle = NULL;
