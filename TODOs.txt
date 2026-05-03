@@ -140,3 +140,4 @@ v fix bug when player slide tackles instead of shooting if goalkeeper saved the 
 - ball deviation has to happen just once per collision
 - header jump height should be proportional to player velocity
 - goalkeeper should go out when facing player alone to reduce the size of the available goal
+- fix bug where gk dives when the ball hits a post
