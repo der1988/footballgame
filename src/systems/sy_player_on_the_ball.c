@@ -78,7 +78,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// - shot height will rise
 				f32 power = player_controls->shot;
 
-				f32 accuracy = 40 + (power > 0.8f ? GetRandomValue(11, 20) : GetRandomValue(0, 10));
+				f32 accuracy = game_state->vars.pitch.goal_width * 0.5f +
+							   (power > 0.8f ? GetRandomValue(11, 20) : GetRandomValue(0, 10));
 
 				v2 center_of_goal = game_state->vars.pitch.goal[1 - player_pitch_side].center;
 				v2 shot_direction_to_center =
