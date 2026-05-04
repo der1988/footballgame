@@ -240,7 +240,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					v2 intersection_point;
 					if (is_line_intersecting_line(
 							prev_pos, new_pos, left_pos, right_pos, &intersection_point)) {
-						physics->max_velocity = game_state->constants.player_run_max_velocity * 1;
+						physics->max_velocity =
+							game_state->constants.player_run_max_velocity * 0.5f;
 						force = game_state->constants.player_movement_force;
 						destination = intersection_point;
 						move_on_the_line = true;
