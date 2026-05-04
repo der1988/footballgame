@@ -125,9 +125,9 @@ struct game_state *game_play_init(struct game_config game_config,
 
 								// Elite goalie has 150ms reaction time
 								.goalie_dive_reaction_time = 0.150f,
-								.goalie_dive_force = 8500,
+								.goalie_dive_force = 10200,
 								// TODO: This parameter should depend on goalie's quality
-								.goalie_dive_max_velocity = 5 * PIXELS_PER_METER,
+								.goalie_dive_max_velocity = 6 * PIXELS_PER_METER,
 								// Minimum speed for goalie to dive is 54km/h
 								.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
 								// Average max reach for a gk is 3.2m
