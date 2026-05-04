@@ -23,7 +23,7 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	struct entity *goal_net_entity = entity_goal_net_create(config, game_state);
 	struct component_transform *goal_net_transform = &goal_net_entity->transform;
 	goal_net_transform->parent = transform;
-	goal_net_transform->position = (v2){.x = 0, .y = config.side == PSI_NORTH ? 0 : 22};
+	goal_net_transform->position = (v2){.x = 0, .y = config.side == PSI_NORTH ? -18 : 14};
 
 	// Initialise sprite
 	struct component_sprite *sprite = &entity->sprite;
@@ -57,7 +57,7 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	collider->colliders[0].props.rectangle.offset =
 		(v2){.x = 0,
 			 .y = config.side == PSI_NORTH ? -collider->colliders[0].props.rectangle.size.y + 5 :
-											 -collider->colliders[0].props.rectangle.size.y + 5};
+											 -collider->colliders[0].props.rectangle.size.y + 4};
 
 	// Initialise goal
 	struct component_goal *goal = &entity->goal;

@@ -29,7 +29,7 @@ static struct player_characteristics characteristics_for_position(u8 idx)
 void football_setup(struct game_state *game_state)
 {
 	game_state->vars.pitch.field = (rect_t){.x = 72, .y = 233, .width = 856, .height = 360 * 3 - 2};
-	game_state->vars.pitch.goal_width = 120;
+	game_state->vars.pitch.goal_width = 100;
 	game_state->vars.pitch.goal_height = 32;
 	game_state->vars.pitch.penalty_box_width = 478;
 	game_state->vars.pitch.penalty_box_height = 149;
