@@ -967,7 +967,9 @@ b32 check_whether_goalie_should_dive(v3 pos_to_check,
 	f32 y_diff = pos_to_check.z - goalie_entity->transform.position.y;
 	f32 distance_to_cover = fabsf(x_diff);
 	if ((attacking_south ? (y_diff > 0 && y_diff < 5) : (y_diff > -5 && y_diff < 0)) &&
-		distance_to_cover < 60 && pos_to_check.y < game_state->constants.crossbar_height) {
+		// Maximum distance gk can cover with a dive is half the goal width + 10%
+		distance_to_cover < (game_state->vars.pitch.goal_width * 0.5f * 1.1f) &&
+		pos_to_check.y < game_state->constants.crossbar_height) {
 		f32 max_distance_we_can_cover_in_available_time =
 			game_state->constants.goalie_dive_max_velocity * time_to_unsaveable / 1.0f;
 		*dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
