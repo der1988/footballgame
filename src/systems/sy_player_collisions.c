@@ -215,7 +215,7 @@ void systems_player_collisions(struct game_state *game_state)
 	}
 
 	// Handle player-to-player body collisions
-	const f32 bounce_factor = 0.5f;
+	const f32 bounce_factor = 0.45f;
 
 	for (usize i = 0; i < repo->max_slots; ++i) {
 		struct entity *player_entity_a = entity_get(repo, i);
