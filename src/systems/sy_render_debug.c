@@ -106,23 +106,6 @@ void systems_render_debug(struct game_state *game_state)
 				DrawCircleV(game_state->vars.pitch.goal[PSI_NORTH].center, 1, RED);
 				DrawCircleV(game_state->vars.pitch.goal[PSI_SOUTH].center, 1, RED);
 			}
-
-			// Cross areas
-			if (game_state->debug_flags.show_cross_areas) {
-				for (u8 i = 0; i < 2; ++i) {
-					for (u8 j = 0; j < 2; ++j) {
-						rect_t area = (rect_t){.x = game_state->vars.pitch.field.x +
-													i * game_state->vars.pitch.field.width -
-													i * game_state->vars.pitch.cross_area_width,
-											   .y = game_state->vars.pitch.field.y +
-													j * game_state->vars.pitch.field.height -
-													j * game_state->vars.pitch.cross_area_height,
-											   .width = game_state->vars.pitch.cross_area_width,
-											   .height = game_state->vars.pitch.cross_area_height};
-						DrawRectangleLinesEx(area, 1, BLACK);
-					}
-				}
-			}
 		}
 	}
 }

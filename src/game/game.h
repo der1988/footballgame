@@ -156,7 +156,6 @@ struct debug_flags {
 	b32 show_bounding_boxes;
 
 	b32 show_pitch_lines;
-	b32 show_cross_areas;
 
 	b32 show_ball_future_bounce_position;
 	b32 show_ball_lookahead_positions;

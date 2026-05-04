@@ -33,8 +33,6 @@ void football_setup(struct game_state *game_state)
 	game_state->vars.pitch.goal_height = 32;
 	game_state->vars.pitch.penalty_box_width = 478;
 	game_state->vars.pitch.penalty_box_height = 149;
-	game_state->vars.pitch.cross_area_width = 280;
-	game_state->vars.pitch.cross_area_height = 200;
 	game_state->vars.pitch.midfield_spot =
 		(v2){.x = game_state->vars.pitch.field.x + game_state->vars.pitch.field.width * 0.5f,
 			 .y = game_state->vars.pitch.field.y + game_state->vars.pitch.field.height * 0.5f};
