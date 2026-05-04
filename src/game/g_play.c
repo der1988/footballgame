@@ -75,67 +75,69 @@ struct game_state *game_play_init(struct game_config game_config,
 	// pitch in game is 1080 pixels long
 	// 1m is ~10 pixels in game
 	// gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
-	game_state->constants =
-		(struct game_constants){.fixed_timestep = fixed_timestep,
-								.input_stick_dead_zone = 0.05f,
-								// Coefficient of restitution
-								.ball_cr = 0.5f,
-								.ball_cr_against_post = 0.7f,
-								.pixels_per_meter = PIXELS_PER_METER,
-								.air_density = 1.21f,
-								.ball_cross_sectional_area = 0.038f,
-								.ball_drag_coefficient = 0.25f,
-								.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
-								.ball_rolling_resistance_mult = 5,
-								.ball_run_force = 40,
-								.ball_control_force = 30,
-								// This will translate to instant velocity, so 144km/h
-								.ball_shot_force = 40 * PIXELS_PER_METER,
-								.ball_shot_height = 0.25f,
-								.ball_pass_force = 30 * PIXELS_PER_METER,
-								.ball_long_pass_force = 32 * PIXELS_PER_METER,
-								.ball_long_pass_height = 0.54f,
-								.ball_tackle_force = 20 * PIXELS_PER_METER,
-								.ball_header_force = 25 * PIXELS_PER_METER,
-								// 36m/s seems fair, that would be 129km/h
-								.ball_max_velocity = 36 * PIXELS_PER_METER,
-								.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
-								.ball_lookaheads = 10,
-								.ball_lookahead_dts = 48,
+	game_state->constants = (struct game_constants){
+		.fixed_timestep = fixed_timestep,
+		.input_stick_dead_zone = 0.05f,
+		// Coefficient of restitution
+		.ball_cr = 0.5f,
+		.ball_cr_against_post = 0.7f,
+		.pixels_per_meter = PIXELS_PER_METER,
+		.air_density = 1.21f,
+		.ball_cross_sectional_area = 0.038f,
+		.ball_drag_coefficient = 0.25f,
+		.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
+		.ball_rolling_resistance_mult = 5,
+		.ball_run_force = 40,
+		.ball_control_force = 30,
+		// This will translate to instant velocity, so 144km/h
+		.ball_shot_force = 40 * PIXELS_PER_METER,
+		.ball_shot_height = 0.25f,
+		.ball_pass_force = 30 * PIXELS_PER_METER,
+		.ball_long_pass_force = 32 * PIXELS_PER_METER,
+		.ball_long_pass_height = 0.54f,
+		.ball_tackle_force = 20 * PIXELS_PER_METER,
+		.ball_header_force = 25 * PIXELS_PER_METER,
+		// 36m/s seems fair, that would be 129km/h
+		.ball_max_velocity = 36 * PIXELS_PER_METER,
+		.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
+		.ball_lookaheads = 10,
+		.ball_lookahead_dts = 48,
 
-								// After touch
-								.ball_after_touch_delay_time = 0.1f,
-								.ball_after_touch_max_time = 0.6f,
-								.ball_after_touch_force = 400.0f,
+		// After touch
+		.ball_after_touch_delay_time = 0.1f,
+		.ball_after_touch_max_time = 0.6f,
+		.ball_after_touch_force = 400.0f,
 
-								// Crossbar is at 2.44m height
-								.crossbar_height = 27,
+		// Crossbar should be at 2.44m height, which is 27 pixels but we decided to raise it a little bit
+		.crossbar_height = 31,
 
-								.player_movement_force = 27000,
-								.player_movement_drag = 4166,
-								.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
-								// Fastest player should reach ~10.5m/s, slowest 7.8m/s
-								.player_run_max_velocity = 10.5f * PIXELS_PER_METER,
-								.player_control_radius = 6,
-								.player_control_height = 19,
-								// Ronaldo's record is 2.93m but average is just above crossbar
-								.player_header_min_height = 19,
-								.player_header_max_height = 27,
-								.player_pass_target_not_selectable = false,
+		.player_movement_force = 27000,
+		.player_movement_drag = 4166,
+		.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
+		// Fastest player should reach ~10.5m/s, slowest 7.8m/s
+		.player_run_max_velocity = 10.5f * PIXELS_PER_METER,
+		.player_control_radius = 6,
+		.player_control_height = 19,
+		// Ronaldo's record is 2.93m but average is just above crossbar
+		.player_header_min_height = 19,
+		.player_header_max_height = 27,
+		.player_pass_target_not_selectable = false,
 
-								// Elite goalie has 150ms reaction time
-								.goalie_dive_reaction_time = 0.150f,
-								.goalie_dive_force = 10200,
-								// TODO: This parameter should depend on goalie's quality
-								.goalie_dive_max_velocity = 6 * PIXELS_PER_METER,
-								// Minimum speed for goalie to dive is 54km/h
-								.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
-								// Average max reach for a gk is 3.2m
-								.goalie_reach_max_height = 35.4f,
-								.ai_enabled = true,
-								.shoot_aid_no_inertia = true,
-								.shoot_aid_auto_aim = true,
-								.kick_charge_reset_time = 1.5f};
+		// Elite goalie has 150ms reaction time
+		.goalie_dive_reaction_time = 0.150f,
+		.goalie_dive_force = 60000,
+		.goalie_dive_friction_force = 50000,
+		// TODO: This parameter should depend on goalie's quality
+		.goalie_dive_max_velocity = 6 * PIXELS_PER_METER,
+		// Minimum speed for goalie to dive is 54km/h
+		.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
+		.goalie_dive_recover_time = 0.75f,
+		// Average max reach for a gk is 3.2m
+		.goalie_reach_max_height = 35.4f,
+		.ai_enabled = true,
+		.shoot_aid_no_inertia = true,
+		.shoot_aid_auto_aim = true,
+		.kick_charge_reset_time = 1.5f};
 
 	// Initialise entities repository
 	game_state->entity_repository =

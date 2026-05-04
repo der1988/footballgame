@@ -195,8 +195,14 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 			igSliderFloat("Dive force",
 						  &game_state->constants.goalie_dive_force,
 						  5000.0f,
-						  20000.0f,
+						  100000.0f,
 						  TextFormat("%.2f", game_state->constants.goalie_dive_force),
+						  0);
+			igSliderFloat("Dive friction force",
+						  &game_state->constants.goalie_dive_friction_force,
+						  5000.0f,
+						  100000.0f,
+						  TextFormat("%.2f", game_state->constants.goalie_dive_friction_force),
 						  0);
 			igSliderFloat("Dive max velocity",
 						  &game_state->constants.goalie_dive_max_velocity,
@@ -209,6 +215,12 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  0.0f,
 						  400.0f,
 						  TextFormat("%.2f", game_state->constants.goalie_dive_min_ball_velocity),
+						  0);
+			igSliderFloat("Dive recover time",
+						  &game_state->constants.goalie_dive_recover_time,
+						  0.1f,
+						  2.0f,
+						  TextFormat("%.2f", game_state->constants.goalie_dive_recover_time),
 						  0);
 			igEndTabItem();
 		}

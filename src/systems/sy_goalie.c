@@ -466,11 +466,13 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			v2 force_to_apply = Vector2Zero();
 			if (dive_state_data->animation_completed) {
 				// Apply friction
-				force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
-											  50000); // TODO: this should depend on type of pitch
+				force_to_apply = Vector2Scale(
+					Vector2Negate(Vector2Normalize(physics->velocity)),
+					game_state->constants
+						.goalie_dive_friction_force); // TODO: this should depend on type of pitch
 			} else {
 				v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
-				force_to_apply = Vector2Scale(steering, 60000);
+				force_to_apply = Vector2Scale(steering, game_state->constants.goalie_dive_force);
 			}
 			entity_player_physics_apply_force(entity, force_to_apply, game_state);
 			entity_player_physics_apply_velocity(entity, game_state);
@@ -517,15 +519,18 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
 
 					entity_ball_set_position_and_velocity(
-						ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
+						ball_entity,
+						where_to_place_ball,
+						Vector3Scale(new_ball_velocity, 0.3f)); // TODO: this should be randomised
 					entity_ball_saved_by_goalie(ball_entity, entity_id, game_state);
 				}
 
 				goalie->last_save_time = game_state->time;
 				dive_state_data->ball_saved = true;
 			} else if (dive_state_data->animation_completed &&
-					   HAS_TIME_PASSED(
-						   game_state->time, dive_state_data->animation_end_time, 0.75f)) {
+					   HAS_TIME_PASSED(game_state->time,
+									   dive_state_data->animation_end_time,
+									   game_state->constants.goalie_dive_recover_time)) {
 				if (dive_state_data->ball_held) {
 					entity_goalie_state_machine_change_state_to(
 						&goalie->state_machine, GS_HOLD_BALL, game_state);

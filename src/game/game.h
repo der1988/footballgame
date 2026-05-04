@@ -83,8 +83,10 @@ struct game_constants {
 
 	f32 goalie_dive_reaction_time;
 	f32 goalie_dive_force;
+	f32 goalie_dive_friction_force;
 	f32 goalie_dive_max_velocity;
 	f32 goalie_dive_min_ball_velocity;
+	f32 goalie_dive_recover_time;
 	f32 goalie_reach_max_height;
 
 	f32 kick_charge_reset_time;
