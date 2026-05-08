@@ -321,8 +321,6 @@ void entity_ball_short_pass(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(direction, power / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-
-	set_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_long_pass(struct entity *ball_entity,
