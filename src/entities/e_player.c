@@ -237,7 +237,7 @@ void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 		f32 player_speed_ratio = player_speed / max_player_velocity;
 
 		if ((game_state->time - player->last_frame_update_time) >
-			(animation->delay * (2.5f - player_speed_ratio))) {
+			(animation->delay * (2.5f - player_speed_ratio * 1.2f))) {
 			player->last_frame_update_time = game_state->time;
 			u16 new_frame_id = (player->last_running_frame_idx + 1) % animation->frames_count;
 			sprite->frame_id = animation->frames[new_frame_id];
