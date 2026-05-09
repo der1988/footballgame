@@ -250,10 +250,11 @@ struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_
 											  f32 max_distance,
 											  struct game_state *game_state);
 
-struct nearest_player *find_nearest_player(v2 position,
-										   enum team_side team_side,
-										   struct list_entity_ids exclusion_list,
-										   struct game_state *game_state);
+b32 find_nearest_player(v2 position,
+						enum team_side team_side,
+						struct list_entity_ids exclusion_list,
+						struct nearest_player *out_nearest_player,
+						struct game_state *game_state);
 
 struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 																  struct game_state *game_state);

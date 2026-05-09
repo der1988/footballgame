@@ -45,6 +45,8 @@ int compare_distances(const void *a, const void *b)
 	return 0;
 }
 
+// Orders human players by distance from ball, nearest first.
+// If human doesn't have a selected player it's scored last.
 struct list_human_players order_humans_by_distance_from_ball(struct human_player *human_players,
 															 enum team_side team_side,
 															 v2 ball_position,
@@ -154,7 +156,10 @@ void systems_player_selection(struct game_state *game_state)
 											   game_state->memory_by_lifetime[MAL_UPDATE],
 											   game_state);
 
-		for (usize i = 0; i < ordered_list.count; ++i) {
+		// Iterate in the following order:
+		// not selected -> farthest -> nearest
+		for (size i = ordered_list.count - 1; i >= 0; --i) {
+			// for (usize i = 0; i < ordered_list.count; ++i) {
 			struct human_player *human_player =
 				&game_state->human_players[ordered_list.array[i].human_player_idx];
 
@@ -197,6 +202,7 @@ void systems_player_selection(struct game_state *game_state)
 			if (ball_possession == BALL_POSSESSION_TEAM) {
 				if (human_player->controlled_player.entity_id ==
 					player_in_possession_entity->header.id) {
+					// Current human player is in possession of the ball
 					// Reset the manually selected flag
 					human_player->controlled_player.is_manually_selected = false;
 
@@ -238,9 +244,9 @@ void systems_player_selection(struct game_state *game_state)
 			// Add team wide excluded players to the temporary list of this iteration
 			LIST_ITERATE(excluded_player, excluded_players_list)
 			{
-				if (excluded_player != human_player->controlled_player.entity_id) {
-					LIST_ADD(tmp_excluded_players_list, excluded_player);
-				}
+				// if (excluded_player != human_player->controlled_player.entity_id) {
+				LIST_ADD(tmp_excluded_players_list, excluded_player);
+				// }
 			}
 
 			// Shift epicenter toward own goal when opponent has possession
@@ -252,17 +258,24 @@ void systems_player_selection(struct game_state *game_state)
 			}
 
 			// Find player nearest to the epicenter
-			struct nearest_player *nearest_player = find_nearest_player(
-				epicenter, human_player->team_side, tmp_excluded_players_list, game_state);
-			// nearest_player is always valid
-			entity_id_t new_controlled_player_id = nearest_player->entity->header.id;
+			struct nearest_player nearest_player = {0};
+			const b32 found = find_nearest_player(epicenter,
+												  human_player->team_side,
+												  tmp_excluded_players_list,
+												  &nearest_player,
+												  game_state);
+			if (found) {
+				// nearest_player is always valid
+				entity_id_t new_controlled_player_id = nearest_player.entity->header.id;
 
-			if (new_controlled_player_id != EID_NOT_VALID &&
-				new_controlled_player_id != human_player->controlled_player.entity_id) {
-				// human is controlling a new player compared to previous frame
-				game_controller_reset(
-					&game_state->input_manager->game_controllers[human_player->game_controller_id]);
-				human_player->controlled_player.entity_id = new_controlled_player_id;
+				if (new_controlled_player_id != EID_NOT_VALID &&
+					new_controlled_player_id != human_player->controlled_player.entity_id) {
+					// human is controlling a new player compared to previous frame
+					game_controller_reset(
+						&game_state->input_manager
+							 ->game_controllers[human_player->game_controller_id]);
+					human_player->controlled_player.entity_id = new_controlled_player_id;
+				}
 			}
 		}
 	}

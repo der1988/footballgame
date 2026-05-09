@@ -784,10 +784,11 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 	return tackled_players;
 }
 
-struct nearest_player *find_nearest_player(v2 position,
-										   enum team_side team_side,
-										   struct list_entity_ids exclusion_list,
-										   struct game_state *game_state)
+b32 find_nearest_player(v2 position,
+						enum team_side team_side,
+						struct list_entity_ids exclusion_list,
+						struct nearest_player *out_nearest_player,
+						struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
@@ -797,6 +798,7 @@ struct nearest_player *find_nearest_player(v2 position,
 		entity = entity_get(game_state->entity_repository, entity_id);
 		if (entity->header.alive && entity->header.type == ET_PLAYER) {
 			struct component_transform *transform = &entity->transform;
+			struct component_player *player = &entity->player;
 			struct component_goalie *goalie = &entity->goalie;
 
 			b32 should_be_excluded = false;
@@ -809,9 +811,16 @@ struct nearest_player *find_nearest_player(v2 position,
 			}
 
 			if (entity->player.team_side != team_side ||
+				(player->state_machine.current_state != PS_NORMAL &&
+				 player->state_machine.current_state != PS_GOALIE) ||
 				(goalie->header.enabled && goalie->state_machine.current_state != GS_HOLD_BALL) ||
 				should_be_excluded) {
-				// If player is an opponent or a goalie or is in exclusion list let's skip it
+				// If player is either:
+				// - an opponent
+				// - not in normal state (tackling, heading, etc...)
+				// - a goalie that isn't holding the ball
+				// - is in exclusion list
+				// let's skip it
 				continue;
 			}
 
@@ -822,14 +831,13 @@ struct nearest_player *find_nearest_player(v2 position,
 			}
 		}
 	}
-	assert(selected_entity);
+	if (!selected_entity) {
+		return false;
+	}
 
-	struct nearest_player *nearest_player = memory_arena_push(
-		game_state->memory_by_lifetime[MAL_UPDATE], sizeof(struct nearest_player));
-	assert(nearest_player);
-	nearest_player->entity = selected_entity;
-	nearest_player->distance = selected_distance;
-	return nearest_player;
+	out_nearest_player->entity = selected_entity;
+	out_nearest_player->distance = selected_distance;
+	return true;
 }
 
 b32 entity_player_is_trajectory_clear(v2 passer_position,
