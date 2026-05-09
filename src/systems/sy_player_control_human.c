@@ -87,8 +87,18 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				}
 				// Sliding tackle
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
-					if (last_entity_that_touched_ball->header.id != entity->header.id) {
-						// We don't want to trigger a tackle if we are running and we just want to make a long pass
+					if (last_entity_that_touched_ball->header.id != entity->header.id &&
+						(last_entity_that_touched_ball->player.team_side !=
+							 entity->player.team_side ||
+						 football_pitch_is_position_inside_penalty_area(
+							 entity->transform.position,
+							 game_state->vars.teams[entity->player.team_side]
+								 .play_context.pitch_side,
+							 game_state))) {
+						// We don't want to trigger a tackle if:
+						// - we are running and we just want to make a long pass
+						// - we are running to get a pass from our teammate and we want to cross immediately
+						// - our gk just rebounded a shot and we want to do a sliding tackle to clear the ball
 						player_controls->sliding_tackle = true;
 					}
 				}
