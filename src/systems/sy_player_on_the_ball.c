@@ -139,10 +139,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// Pass
 				player->last_kick_time = game_state->time;
 				v3 pass_direction;
-				struct entity *teammate_entity =
-					entity_player_find_pass_target(player_entity, 35, 300, game_state);
+				struct entity *teammate_entity;
+				b32 found = entity_player_find_pass_target(
+					player_entity, player_controls->steering, 45, 300, &teammate_entity, game_state);
 				f32 power = player_controls->pass;
-				b32 automatic_pass = teammate_entity != NULL && player_controls->automatic_pass;
+				b32 automatic_pass = found && player_controls->automatic_pass;
 				if (automatic_pass) {
 					struct component_transform *teammate_transform = &teammate_entity->transform;
 					v2 to_teammate = Vector2Subtract(teammate_transform->position, player_position);

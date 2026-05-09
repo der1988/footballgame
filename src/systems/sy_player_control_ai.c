@@ -6,6 +6,7 @@
 #include "game.h"
 #include "input.h"
 #include "macro.h"
+#include "sprite.h"
 #include "steering.h"
 #include <math_ext.h>
 #include <raymath.h>
@@ -150,9 +151,15 @@ void systems_player_control_ai(struct game_state *game_state)
 					player_controls->steering =
 						Vector2Normalize(Vector2Subtract(goal_center, entity->transform.position));
 				} else {
-					struct entity *teammate =
-						entity_player_find_pass_target(entity, 35, 300, game_state);
-					if (teammate && teammate->player.state_machine.current_state != PS_GOALIE) {
+					struct entity *teammate;
+					b32 found = entity_player_find_pass_target(
+						entity,
+						ORIENTATION_VECTORS[entity->sprite.orientation],
+						180,
+						300,
+						&teammate,
+						game_state);
+					if (found && teammate->player.state_machine.current_state != PS_GOALIE) {
 						player_controls->steering = Vector2Normalize(Vector2Subtract(
 							teammate->transform.position, entity->transform.position));
 					}

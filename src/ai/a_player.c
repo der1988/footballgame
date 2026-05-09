@@ -5,6 +5,7 @@
 #include "entities.h"
 #include "football.h"
 #include "math_ext.h"
+#include "sprite.h"
 #include "steering.h"
 #include "types.h"
 #include "game.h"
@@ -125,11 +126,18 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
 		} else {
-			struct nearest_player *opponent_entity =
-				entity_player_find_nearest_facing_opponent(player_entity, game_state);
-			struct entity *teammate_entity =
-				entity_player_find_pass_target(player_entity, 35, 300, game_state);
-			if (opponent_entity && teammate_entity) {
+			struct nearest_player nearest_facing_oppo = {0};
+			b32 nearest_facing_oppo_found = entity_player_find_nearest_facing_opponent(
+				player_entity, &nearest_facing_oppo, game_state);
+			struct entity *teammate_entity;
+			const b32 pass_target_found = entity_player_find_pass_target(
+				player_entity,
+				ORIENTATION_VECTORS[player_entity->sprite.orientation],
+				90,
+				300,
+				&teammate_entity,
+				game_state);
+			if (pass_target_found && nearest_facing_oppo_found) {
 				// Facing an opponent and we have someone to pass to, let's pass
 				*action_decision = PAAD_PASS;
 				*power = 0.1f;
@@ -242,7 +250,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 		*action_decision = PAAD_NO_ACTION;
 
-		// Header attempt - only when not ball is high, team is fully AI controlled and enough passed from previous attempt
+		// Header attempt - only when ball is not high, team is fully AI controlled and enough passed from previous attempt
 		if (!team_has_humans &&
 			HAS_TIME_PASSED(game_state->time, player_entity->player.last_header_time, 0.5f)) {
 			if (!player_entity->player.is_colliding_with_ball &&
@@ -259,15 +267,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				f32 distance_from_goal =
 					Vector2Distance(goal_center, player_entity->transform.position);
 
-				if (distance_from_goal < 250) {
-					*action_decision = PAAD_HEADER_SHOOT;
-				} else {
-					struct entity *teammate =
-						entity_player_find_pass_target(player_entity, 35, 300, game_state);
-					if (teammate && teammate->player.state_machine.current_state != PS_GOALIE) {
-						*action_decision = PAAD_HEADER_PASS;
-					}
-				}
+				*action_decision = distance_from_goal < 250 ? PAAD_HEADER_SHOOT : PAAD_HEADER_PASS;
 			}
 		}
 
