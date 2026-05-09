@@ -291,6 +291,14 @@ void systems_player_selection(struct game_state *game_state)
 
 				if (new_controlled_player_id != EID_NOT_VALID &&
 					new_controlled_player_id != human_player->controlled_player.entity_id) {
+					// Hysteresis: only switch if the new player is meaningfully closer
+					if (!is_human_requiring_player_switch && currently_selected_player_entity) {
+						f32 current_distance = Vector2DistanceSqr(
+							epicenter, currently_selected_player_entity->transform.position);
+						if (nearest_player.distance > current_distance * 0.85f) {
+							continue;
+						}
+					}
 					// human is controlling a new player compared to previous frame
 					game_controller_reset(
 						&game_state->input_manager
