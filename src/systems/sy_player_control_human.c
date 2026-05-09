@@ -87,7 +87,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				}
 				// Sliding tackle
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
-					if (team_idx_last_ball_possession != player->team_side) {
+					if (last_entity_that_touched_ball->header.id != entity->header.id) {
+						// We don't want to trigger a tackle if we are running and we just want to make a long pass
 						player_controls->sliding_tackle = true;
 					}
 				}
