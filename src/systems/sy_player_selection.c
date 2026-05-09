@@ -13,6 +13,7 @@
 #include <float.h>
 #include <raymath.h>
 #include <stdlib.h>
+#include <string.h>
 
 enum ball_possession {
 	BALL_POSSESSION_NONE,
@@ -127,7 +128,7 @@ void systems_player_selection(struct game_state *game_state)
 		}
 
 		LIST_CREATE(struct list_entity_ids,
-					excluded_players_list,
+					team_excluded_players_list,
 					10,
 					game_state->memory_by_lifetime[MAL_UPDATE]);
 
@@ -140,13 +141,13 @@ void systems_player_selection(struct game_state *game_state)
 		// Let's not bother to check whether kicker is in our team or not, we don't care.
 		if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
 			ball->last_kicker_entity_id != EID_NOT_VALID) {
-			LIST_ADD(excluded_players_list, ball->last_kicker_entity_id);
+			LIST_ADD(team_excluded_players_list, ball->last_kicker_entity_id);
 		}
 
 		if (game_state->constants.player_pass_target_not_selectable &&
 			ball->pass_target_entity_id != EID_NOT_VALID) {
 			// We don't want to select the target of an automatic pass until he gets the ball
-			LIST_ADD(excluded_players_list, ball->pass_target_entity_id);
+			LIST_ADD(team_excluded_players_list, ball->pass_target_entity_id);
 		}
 
 		struct list_human_players ordered_list =
@@ -159,7 +160,6 @@ void systems_player_selection(struct game_state *game_state)
 		// Iterate in the following order:
 		// not selected -> farthest -> nearest
 		for (size i = ordered_list.count - 1; i >= 0; --i) {
-			// for (usize i = 0; i < ordered_list.count; ++i) {
 			struct human_player *human_player =
 				&game_state->human_players[ordered_list.array[i].human_player_idx];
 
@@ -171,8 +171,11 @@ void systems_player_selection(struct game_state *game_state)
 			const b32 is_human_requiring_player_switch =
 				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.released;
 
-			const b32 is_current_selected_player_manually_selected =
+			const b32 is_currently_selected_player_manually_selected =
 				human_player->controlled_player.is_manually_selected;
+
+			struct entity *currently_selected_player_entity = entity_get(
+				game_state->entity_repository, human_player->controlled_player.entity_id);
 
 			// Human required player switch so we OR the flag as we don't want to reset it when the player releases the switch control.
 			// It's going to be reset when the player gets the ball, or other cases still TBD.
@@ -191,10 +194,9 @@ void systems_player_selection(struct game_state *game_state)
 
 			// Don't switch away from a player performing a header
 			{
-				struct entity *controlled_entity = entity_get(
-					game_state->entity_repository, human_player->controlled_player.entity_id);
-				if (controlled_entity &&
-					controlled_entity->player.state_machine.current_state == PS_HEADER &&
+				if (currently_selected_player_entity &&
+					currently_selected_player_entity->player.state_machine.current_state ==
+						PS_HEADER &&
 					!is_human_requiring_player_switch) {
 					continue;
 				}
@@ -257,8 +259,8 @@ void systems_player_selection(struct game_state *game_state)
 
 			// If current player was manually selected and didn't kick the ball in this frame we can return early.
 			// If the human is requiring another switch though we have to comply.
-			if (is_current_selected_player_manually_selected && !is_human_requiring_player_switch &&
-				!currently_selected_player_kicked_ball) {
+			if (is_currently_selected_player_manually_selected &&
+				!is_human_requiring_player_switch && !currently_selected_player_kicked_ball) {
 				continue;
 			}
 
