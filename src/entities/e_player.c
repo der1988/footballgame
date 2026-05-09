@@ -629,10 +629,12 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 	return prediction;
 }
 
-struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
-											  f32 detection_angle,
-											  f32 max_distance,
-											  struct game_state *game_state)
+b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
+								   v2 scan_direction,
+								   f32 detection_angle,
+								   f32 max_distance,
+								   struct entity **out_pass_target,
+								   struct game_state *game_state)
 {
 	b32 is_player_human_controlled = game_input_human_player_by_player_entity_id(
 										 game_state, player_on_the_ball_entity->header.id) != NULL;
@@ -655,11 +657,10 @@ struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_
 				continue;
 			}
 
-			v2 selected_direction = player_on_the_ball_entity->player_controls.steering;
 			v2 to_player =
 				Vector2Subtract(transform->position, player_on_the_ball_entity->transform.position);
 			f32 distance_from_player_sqr = Vector2LengthSqr(to_player);
-			f32 angle = fabs(Vector2Angle(selected_direction, to_player) * RAD2DEG);
+			f32 angle = fabs(Vector2Angle(scan_direction, to_player) * RAD2DEG);
 
 			if (angle > detection_angle)
 				continue;
@@ -705,12 +706,14 @@ struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_
 					"selected pass target %zu with score %.2f",
 					selected_entity->header.id,
 					selected_score);
+		*out_pass_target = selected_entity;
 	}
-	return selected_entity;
+	return selected_entity != NULL;
 }
 
-struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity *player_entity,
-																  struct game_state *game_state)
+b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
+											   struct nearest_player *out_nearest_facing_oppo,
+											   struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *opponent_entity;
@@ -731,16 +734,13 @@ struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity 
 
 			f32 distance = Vector2Distance(player_entity->transform.position, transform->position);
 			if (distance < 100 && angle < 30) {
-				struct nearest_player *nearest_player = memory_arena_push(
-					game_state->memory_by_lifetime[MAL_UPDATE], sizeof(struct nearest_player));
-				assert(nearest_player);
-				nearest_player->entity = opponent_entity;
-				nearest_player->distance = distance;
-				return nearest_player;
+				out_nearest_facing_oppo->entity = opponent_entity;
+				out_nearest_facing_oppo->distance = distance;
+				return true;
 			}
 		}
 	}
-	return NULL;
+	return false;
 }
 
 struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,

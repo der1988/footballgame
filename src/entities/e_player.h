@@ -245,10 +245,12 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 	b32(predicate)(v3 pos_to_check, struct entity *seeker_entity, struct game_state *game_state),
 	struct game_state *game_state);
 
-struct entity *entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
-											  f32 detection_angle,
-											  f32 max_distance,
-											  struct game_state *game_state);
+b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
+								   v2 scan_direction,
+								   f32 detection_angle,
+								   f32 max_distance,
+								   struct entity **out_pass_target,
+								   struct game_state *game_state);
 
 b32 find_nearest_player(v2 position,
 						enum team_side team_side,
@@ -256,8 +258,9 @@ b32 find_nearest_player(v2 position,
 						struct nearest_player *out_nearest_player,
 						struct game_state *game_state);
 
-struct nearest_player *entity_player_find_nearest_facing_opponent(struct entity *player_entity,
-																  struct game_state *game_state);
+b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
+											   struct nearest_player *out_nearest_facing_oppo,
+											   struct game_state *game_state);
 
 struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,
 														  struct game_state *game_state);
