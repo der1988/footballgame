@@ -77,42 +77,53 @@ void layer_hud_draw(layer_hud_t *handle, struct game_state *game_state)
 	}
 
 	// Radar
-	f32 radar_ratio = 0.3f;
-	rect_t radar_rect = (rect_t){.width = game_state->vars.pitch.field.width * radar_ratio,
-								 .height = game_state->vars.pitch.field.height * radar_ratio,
-								 .x = handle->radar_position.x,
-								 .y = handle->radar_position.y};
+	if (game_state->constants.show_radar) {
+		f32 radar_ratio = 0.3f;
+		rect_t radar_rect = (rect_t){.width = game_state->vars.pitch.field.width * radar_ratio,
+									 .height = game_state->vars.pitch.field.height * radar_ratio,
+									 .x = handle->radar_position.x,
+									 .y = handle->radar_position.y};
 
-	DrawRectangleLinesEx(radar_rect, 1.0f, WHITE);
+		DrawRectangleLinesEx(radar_rect, 1.0f, WHITE);
 
-	struct entity *ball_entity = game_state->vars.ball_entity;
+		struct entity *ball_entity = game_state->vars.ball_entity;
 
-	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
-	UNUSED(ball_physics_3d);
-	UNUSED(ball);
-	UNUSED(ball_collider);
+		DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
+		UNUSED(ball_physics_3d);
+		UNUSED(ball);
+		UNUSED(ball_collider);
 
-	DrawCircleV(to_radar_position(ball_transform->position,
-								  game_state->vars.pitch.field,
-								  handle->radar_position,
-								  radar_ratio),
-				3,
-				WHITE);
+		DrawCircleV(to_radar_position(ball_transform->position,
+									  game_state->vars.pitch.field,
+									  handle->radar_position,
+									  radar_ratio),
+					3,
+					WHITE);
 
-	FOR_EACH_ENTITY(entity, game_state->entity_repository)
-	{
-		if (!entity_is_alive_and_has_components(
-				entity, 5, C_TRANSFORM, C_PHYSICS, C_SPRITE, C_PLAYER, C_COLLIDER)) {
-			continue;
+		FOR_EACH_ENTITY(entity, game_state->entity_repository)
+		{
+			if (entity->header.type != ET_PLAYER) {
+				continue;
+			}
+
+			DECLARE_ENTITY_COMPONENT(entity, transform);
+
+			DrawRectangleV(to_radar_position(transform->position,
+											 game_state->vars.pitch.field,
+											 handle->radar_position,
+											 radar_ratio),
+						   (v2){.x = 6, .y = 4},
+						   entity->player.team_side == TS_HOME ? RED : BLUE);
+
+			if (game_input_human_player_by_player_entity_id(game_state, entity->header.id)) {
+				v2 pos = to_radar_position(transform->position,
+										   game_state->vars.pitch.field,
+										   handle->radar_position,
+										   radar_ratio);
+				rect_t player_selection_rect =
+					(rect_t){.x = pos.x, .y = pos.y, .width = 7, .height = 5};
+				DrawRectangleLinesEx(player_selection_rect, 1, WHITE);
+			}
 		}
-
-		DECLARE_ENTITY_COMPONENT(entity, transform);
-
-		DrawRectangleV(to_radar_position(transform->position,
-										 game_state->vars.pitch.field,
-										 handle->radar_position,
-										 radar_ratio),
-					   (v2){.x = 6, .y = 4},
-					   entity->player.team_side == TS_HOME ? RED : BLUE);
 	}
 }
