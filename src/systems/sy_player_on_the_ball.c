@@ -146,11 +146,13 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				if (automatic_pass) {
 					struct component_transform *teammate_transform = &teammate_entity->transform;
 					v2 to_teammate = Vector2Subtract(teammate_transform->position, player_position);
-					pass_direction = Vector3Normalize(V2_TO_V3(to_teammate, 0));
+					pass_direction = Vector3Normalize(
+						V2_TO_V3(to_teammate, game_state->constants.ball_pass_height));
 					ball->pass_target_entity_id = teammate_entity->header.id;
 					power = Clamp01(Vector2Length(to_teammate) / 300.0f);
 				} else {
-					pass_direction = Vector3Normalize(V2_TO_V3(player_controls->steering, 0));
+					pass_direction = Vector3Normalize(V2_TO_V3(
+						player_controls->steering, game_state->constants.ball_pass_height));
 				}
 				entity_ball_short_pass(ball_entity,
 									   player_on_the_ball_entity_id,
