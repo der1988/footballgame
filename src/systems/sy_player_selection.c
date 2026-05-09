@@ -263,12 +263,11 @@ void systems_player_selection(struct game_state *game_state)
 			}
 
 			// Add team wide excluded players to the temporary list of this iteration
-			LIST_ITERATE(excluded_player, excluded_players_list)
-			{
-				// if (excluded_player != human_player->controlled_player.entity_id) {
-				LIST_ADD(tmp_excluded_players_list, excluded_player);
-				// }
-			}
+			assert(tmp_excluded_players_list.size >
+				   (tmp_excluded_players_list.count + team_excluded_players_list.count));
+			memcpy(&tmp_excluded_players_list.array[tmp_excluded_players_list.count],
+				   team_excluded_players_list.array,
+				   sizeof(entity_id_t) * team_excluded_players_list.count);
 
 			// Shift epicenter toward own goal when opponent has possession
 			if (ball_possession == BALL_POSSESSION_OPPO) {
