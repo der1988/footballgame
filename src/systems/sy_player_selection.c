@@ -179,6 +179,27 @@ void systems_player_selection(struct game_state *game_state)
 			human_player->controlled_player.is_manually_selected |=
 				is_human_requiring_player_switch;
 
+			// Don't switch away from the kicker while after touch is active
+			if (ball->after_touch.active &&
+				human_player->controlled_player.entity_id == ball->last_kicker_entity_id &&
+				!HAS_TIME_PASSED(game_state->time,
+								 ball->last_kick_time,
+								 game_state->constants.ball_after_touch_max_time) &&
+				!is_human_requiring_player_switch) {
+				continue;
+			}
+
+			// Don't switch away from a player performing a header
+			{
+				struct entity *controlled_entity = entity_get(
+					game_state->entity_repository, human_player->controlled_player.entity_id);
+				if (controlled_entity &&
+					controlled_entity->player.state_machine.current_state == PS_HEADER &&
+					!is_human_requiring_player_switch) {
+					continue;
+				}
+			}
+
 			// Build list of other players currently controlled by humans in this team, to avoid stepping on their shoes
 			// We do this at every iteration because this list might change.
 			LIST_RESET(tmp_excluded_players_list);
