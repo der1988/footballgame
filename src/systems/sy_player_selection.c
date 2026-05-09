@@ -10,6 +10,7 @@
 #include "types.h"
 #include "assert.h"
 #include "ai.h"
+#include "game_controller.h"
 #include <float.h>
 #include <raymath.h>
 #include <stdlib.h>
@@ -32,52 +33,18 @@ struct list_human_players {
 	usize size;
 };
 
-int compare_distances(const void *a, const void *b)
-{
-	const struct human_info *human_info_a = (const struct human_info *)a;
-	const struct human_info *human_info_b = (const struct human_info *)b;
+static int compare_distances(const void *a, const void *b);
 
-	if (human_info_a->controlled_player_distance_from_ball <
-		human_info_b->controlled_player_distance_from_ball)
-		return -1;
-	if (human_info_a->controlled_player_distance_from_ball >
-		human_info_b->controlled_player_distance_from_ball)
-		return 1;
-	return 0;
-}
+static struct list_human_players
+order_humans_by_distance_from_ball(struct human_player *human_players,
+								   enum team_side team_side,
+								   v2 ball_position,
+								   memory_arena_handle_t *memory_arena,
+								   struct game_state *game_state);
 
-// Orders human players by distance from ball, nearest first.
-// If human doesn't have a selected player it's scored last.
-struct list_human_players order_humans_by_distance_from_ball(struct human_player *human_players,
-															 enum team_side team_side,
-															 v2 ball_position,
-															 memory_arena_handle_t *memory_arena,
-															 struct game_state *game_state)
-{
-	LIST_CREATE(struct list_human_players, sorted_human_players, MAX_HUMAN_PLAYERS, memory_arena);
-
-	usize total = 0;
-	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
-		struct human_player *human_player = &human_players[i];
-
-		if (human_player->enabled && team_side == human_player->team_side) {
-			struct entity *player_entity = entity_get(game_state->entity_repository,
-													  human_player->controlled_player.entity_id);
-			f32 distance = FLT_MAX;
-			if (player_entity) {
-				distance = Vector2DistanceSqr(ball_position, player_entity->transform.position);
-			}
-			struct human_info hi = {.human_player_idx = i,
-									.controlled_player_distance_from_ball = distance};
-			LIST_ADD(sorted_human_players, hi);
-			total++;
-		}
-	}
-
-	qsort(sorted_human_players.array, total, sizeof(struct human_info), compare_distances);
-
-	return sorted_human_players;
-}
+static void switch_to_player(entity_id_t switch_to,
+							 struct human_player *human_player,
+							 struct game_state *game_state);
 
 void systems_player_selection(struct game_state *game_state)
 {
@@ -168,7 +135,7 @@ void systems_player_selection(struct game_state *game_state)
 			struct game_controller_state *game_controller_state = &game_controller->state;
 
 			// Let's use released so that if we have second thoughts we can keep the button pressed and delay the switch.
-			const b32 is_human_requiring_player_switch =
+			const b32 is_human_required_player_switch =
 				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.released;
 
 			const b32 is_currently_selected_player_manually_selected =
@@ -179,8 +146,7 @@ void systems_player_selection(struct game_state *game_state)
 
 			// Human required player switch so we OR the flag as we don't want to reset it when the player releases the switch control.
 			// It's going to be reset when the player gets the ball, or other cases still TBD.
-			human_player->controlled_player.is_manually_selected |=
-				is_human_requiring_player_switch;
+			human_player->controlled_player.is_manually_selected |= is_human_required_player_switch;
 
 			// Don't switch away from the kicker while after touch is active
 			if (ball->after_touch.active &&
@@ -188,7 +154,7 @@ void systems_player_selection(struct game_state *game_state)
 				!HAS_TIME_PASSED(game_state->time,
 								 ball->last_kick_time,
 								 game_state->constants.ball_after_touch_max_time) &&
-				!is_human_requiring_player_switch) {
+				!is_human_required_player_switch) {
 				continue;
 			}
 
@@ -197,7 +163,7 @@ void systems_player_selection(struct game_state *game_state)
 				if (currently_selected_player_entity &&
 					currently_selected_player_entity->player.state_machine.current_state ==
 						PS_HEADER &&
-					!is_human_requiring_player_switch) {
+					!is_human_required_player_switch) {
 					continue;
 				}
 			}
@@ -209,7 +175,7 @@ void systems_player_selection(struct game_state *game_state)
 				struct human_player *other_human_player = &game_state->human_players[j];
 
 				if (other_human_player->enabled && other_human_player->team_side == team_side_idx &&
-					(is_human_requiring_player_switch ||
+					(is_human_required_player_switch ||
 					 j !=
 						 ordered_list.array[i]
 							 .human_player_idx) && // If human is requiring player switch we want to exclude currently selected player
@@ -260,7 +226,7 @@ void systems_player_selection(struct game_state *game_state)
 			// If current player was manually selected and didn't kick the ball in this frame we can return early.
 			// If the human is requiring another switch though we have to comply.
 			if (is_currently_selected_player_manually_selected &&
-				!is_human_requiring_player_switch && !currently_selected_player_kicked_ball) {
+				!is_human_required_player_switch && !currently_selected_player_kicked_ball) {
 				continue;
 			}
 
@@ -279,6 +245,36 @@ void systems_player_selection(struct game_state *game_state)
 				epicenter = Vector2Lerp(epicenter, own_goal, 0.15f);
 			}
 
+			if (is_human_required_player_switch) {
+				// First we look for a player in the opposite direction of current steering, as the human
+				// is probably pressing in the direction he wants his candidate player to move to.
+				struct game_controller *game_controller =
+					&game_state->input_manager->game_controllers[human_player->game_controller_id];
+
+				v2 scan_direction = Vector2Negate(calculate_movement_vector(game_controller));
+
+				struct entity *switch_target;
+				const b32 switch_target_found = entity_player_find_switch_target(
+					ball_transform->position,
+					scan_direction,
+					30,
+					300,
+					human_player->team_side,
+					currently_selected_player_entity ? currently_selected_player_entity->header.id :
+													   EID_NOT_VALID,
+					tmp_excluded_players_list,
+					&switch_target,
+					game_state);
+				if (switch_target_found) {
+					entity_id_t new_controlled_player_id = switch_target->header.id;
+					if (new_controlled_player_id != EID_NOT_VALID &&
+						new_controlled_player_id != human_player->controlled_player.entity_id) {
+						// human is controlling a new player compared to previous frame
+						switch_to_player(new_controlled_player_id, human_player, game_state);
+						return;
+					}
+				}
+			}
 			// Find player nearest to the epicenter
 			struct nearest_player nearest_player = {0};
 			const b32 found = entity_player_find_nearest(epicenter,
@@ -286,14 +282,14 @@ void systems_player_selection(struct game_state *game_state)
 														 tmp_excluded_players_list,
 														 &nearest_player,
 														 game_state);
+
 			if (found) {
-				// nearest_player is always valid
 				entity_id_t new_controlled_player_id = nearest_player.entity->header.id;
 
 				if (new_controlled_player_id != EID_NOT_VALID &&
 					new_controlled_player_id != human_player->controlled_player.entity_id) {
 					// Hysteresis: only switch if the new player is meaningfully closer
-					if (!is_human_requiring_player_switch && currently_selected_player_entity) {
+					if (!is_human_required_player_switch && currently_selected_player_entity) {
 						f32 current_distance = Vector2DistanceSqr(
 							epicenter, currently_selected_player_entity->transform.position);
 						if (nearest_player.distance > current_distance * 0.85f) {
@@ -301,10 +297,7 @@ void systems_player_selection(struct game_state *game_state)
 						}
 					}
 					// human is controlling a new player compared to previous frame
-					game_controller_reset(
-						&game_state->input_manager
-							 ->game_controllers[human_player->game_controller_id]);
-					human_player->controlled_player.entity_id = new_controlled_player_id;
+					switch_to_player(new_controlled_player_id, human_player, game_state);
 				}
 			}
 		}
@@ -319,4 +312,61 @@ void systems_player_selection(struct game_state *game_state)
 	// 			   human_player->controlled_player.entity_id);
 	// 	}
 	// }
+}
+
+static int compare_distances(const void *a, const void *b)
+{
+	const struct human_info *human_info_a = (const struct human_info *)a;
+	const struct human_info *human_info_b = (const struct human_info *)b;
+
+	if (human_info_a->controlled_player_distance_from_ball <
+		human_info_b->controlled_player_distance_from_ball)
+		return -1;
+	if (human_info_a->controlled_player_distance_from_ball >
+		human_info_b->controlled_player_distance_from_ball)
+		return 1;
+	return 0;
+}
+
+// Orders human players by distance from ball, nearest first.
+// If human doesn't have a selected player it's scored last.
+static struct list_human_players
+order_humans_by_distance_from_ball(struct human_player *human_players,
+								   enum team_side team_side,
+								   v2 ball_position,
+								   memory_arena_handle_t *memory_arena,
+								   struct game_state *game_state)
+{
+	LIST_CREATE(struct list_human_players, sorted_human_players, MAX_HUMAN_PLAYERS, memory_arena);
+
+	usize total = 0;
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		struct human_player *human_player = &human_players[i];
+
+		if (human_player->enabled && team_side == human_player->team_side) {
+			struct entity *player_entity = entity_get(game_state->entity_repository,
+													  human_player->controlled_player.entity_id);
+			f32 distance = FLT_MAX;
+			if (player_entity) {
+				distance = Vector2DistanceSqr(ball_position, player_entity->transform.position);
+			}
+			struct human_info hi = {.human_player_idx = i,
+									.controlled_player_distance_from_ball = distance};
+			LIST_ADD(sorted_human_players, hi);
+			total++;
+		}
+	}
+
+	qsort(sorted_human_players.array, total, sizeof(struct human_info), compare_distances);
+
+	return sorted_human_players;
+}
+
+static void switch_to_player(entity_id_t switch_to,
+							 struct human_player *human_player,
+							 struct game_state *game_state)
+{
+	game_controller_reset(
+		&game_state->input_manager->game_controllers[human_player->game_controller_id]);
+	human_player->controlled_player.entity_id = switch_to;
 }
