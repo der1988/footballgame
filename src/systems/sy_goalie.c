@@ -140,11 +140,12 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			// not reachable by players because it's floating high in the air.
 			v2 ball_future_reachable_position = V3_TO_V2(future_reachable_position->position);
 			struct nearest_player nearest_opponent_to_the_ball = {0};
-			const b32 found = find_nearest_player(ball_future_reachable_position,
-												  OPPONENT_TEAM_SIDE(entity->player.team_side),
-												  LIST_ENTITY_IDS_EMPTY,
-												  &nearest_opponent_to_the_ball,
-												  game_state);
+			const b32 found =
+				entity_player_find_nearest(ball_future_reachable_position,
+										   OPPONENT_TEAM_SIDE(entity->player.team_side),
+										   LIST_ENTITY_IDS_EMPTY,
+										   &nearest_opponent_to_the_ball,
+										   game_state);
 
 			b32 protect_goal = false;
 			if ((future_reachable_position->available &&

@@ -784,11 +784,11 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 	return tackled_players;
 }
 
-b32 find_nearest_player(v2 position,
-						enum team_side team_side,
-						struct list_entity_ids exclusion_list,
-						struct nearest_player *out_nearest_player,
-						struct game_state *game_state)
+b32 entity_player_find_nearest(v2 position,
+							   enum team_side team_side,
+							   struct list_entity_ids exclusion_list,
+							   struct nearest_player *out_nearest_player,
+							   struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;

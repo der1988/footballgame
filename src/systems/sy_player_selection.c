@@ -281,11 +281,11 @@ void systems_player_selection(struct game_state *game_state)
 
 			// Find player nearest to the epicenter
 			struct nearest_player nearest_player = {0};
-			const b32 found = find_nearest_player(epicenter,
-												  human_player->team_side,
-												  tmp_excluded_players_list,
-												  &nearest_player,
-												  game_state);
+			const b32 found = entity_player_find_nearest(epicenter,
+														 human_player->team_side,
+														 tmp_excluded_players_list,
+														 &nearest_player,
+														 game_state);
 			if (found) {
 				// nearest_player is always valid
 				entity_id_t new_controlled_player_id = nearest_player.entity->header.id;
