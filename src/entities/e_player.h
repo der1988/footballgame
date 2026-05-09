@@ -274,4 +274,14 @@ struct player_derived_physics entity_player_derive_physics(const struct player_c
 
 void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state);
 
+b32 entity_player_find_switch_target(v2 position,
+									 v2 scan_direction,
+									 f32 detection_angle,
+									 f32 max_distance,
+									 enum team_side team_side,
+									 entity_id_t current_player_entity_id,
+									 struct list_entity_ids exclusion_list,
+									 struct entity **out_switch_target,
+									 struct game_state *game_state);
+
 #endif // !ENTITY_PLAYER_H

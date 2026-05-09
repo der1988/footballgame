@@ -883,6 +883,79 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 	return true; // Pass trajectory is clear
 };
 
+b32 entity_player_find_switch_target(v2 position,
+									 v2 scan_direction,
+									 f32 detection_angle,
+									 f32 max_distance,
+									 enum team_side team_side,
+									 entity_id_t current_player_entity_id,
+									 struct list_entity_ids exclusion_list,
+									 struct entity **out_switch_target,
+									 struct game_state *game_state)
+{
+	struct entity_repository *entity_repository = game_state->entity_repository;
+	struct entity *selected_entity = NULL;
+	f32 selected_score = 0;
+	struct entity *potential_switch_target_entity;
+	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
+		potential_switch_target_entity = entity_get(game_state->entity_repository, entity_id);
+		if (potential_switch_target_entity->header.alive &&
+			potential_switch_target_entity->header.type == ET_PLAYER) {
+
+			if (current_player_entity_id == entity_id ||
+				team_side != potential_switch_target_entity->player.team_side) {
+				// We don't want to pass to ourselves nor to the other team, right?
+				continue;
+			}
+
+			struct component_transform *transform = &potential_switch_target_entity->transform;
+
+			b32 should_be_excluded = false;
+			LIST_ITERATE(excluded_entity_id, exclusion_list)
+			{
+				if (entity_id == excluded_entity_id) {
+					should_be_excluded = true;
+					break;
+				}
+			}
+			if (should_be_excluded) {
+				continue;
+			}
+
+			v2 to_player = Vector2Subtract(transform->position, position);
+			f32 distance_from_player_sqr = Vector2LengthSqr(to_player);
+			f32 angle = fabs(Vector2Angle(scan_direction, to_player) * RAD2DEG);
+
+			if (angle > detection_angle)
+				continue;
+
+			f32 score = 1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance));
+
+			if (score > selected_score) {
+				selected_entity = potential_switch_target_entity;
+				selected_score = score;
+			}
+		}
+	}
+	if (selected_entity) {
+		GLOGF_TRACE(LS_GAME,
+					"selected switch target %zu with score %.2f",
+					selected_entity->header.id,
+					selected_score);
+		*out_switch_target = selected_entity;
+	}
+	return selected_entity != NULL;
+}
+
+void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state)
+{
+	player_entity->player.last_header_time = game_state->time;
+	// Once we hit the ball we can stop elevation
+	player_entity->player.state_machine.state_data.header.elevation_completed = true;
+	player_entity->player.state_machine.state_data.header.elevation_completion_time =
+		game_state->time;
+}
+
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
 	u32 *palette =
@@ -995,13 +1068,4 @@ b32 check_whether_goalie_should_dive(v3 pos_to_check,
 		should_dive = true;
 	}
 	return should_dive;
-}
-
-void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state)
-{
-	player_entity->player.last_header_time = game_state->time;
-	// Once we hit the ball we can stop elevation
-	player_entity->player.state_machine.state_data.header.elevation_completed = true;
-	player_entity->player.state_machine.state_data.header.elevation_completion_time =
-		game_state->time;
 }
