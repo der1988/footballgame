@@ -37,8 +37,10 @@ struct game_config {
 struct game_constants {
 	f64 fixed_timestep;
 	b32 ai_enabled;
+	b32 show_radar;
 	b32 shoot_aid_auto_aim;
 	b32 shoot_aid_no_inertia;
+
 	f32 input_stick_dead_zone;
 	v3 gravity_force;
 	f32 pixels_per_meter;

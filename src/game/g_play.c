@@ -77,7 +77,15 @@ struct game_state *game_play_init(struct game_config game_config,
 	// gravity is -9.81m/s^2 in reality, so -98.1 pixels/s^2 in game
 	game_state->constants = (struct game_constants){
 		.fixed_timestep = fixed_timestep,
+
+		// General settings
+		.ai_enabled = true,
+		.show_radar = true,
+		.shoot_aid_no_inertia = true,
+		.shoot_aid_auto_aim = false,
 		.input_stick_dead_zone = 0.05f,
+
+		// Ball
 		// Coefficient of restitution
 		.ball_cr = 0.5f,
 		.ball_cr_against_post = 0.7f,
@@ -87,19 +95,20 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ball_drag_coefficient = 0.25f,
 		.gravity_force = {.y = -9.81f * PIXELS_PER_METER},
 		.ball_rolling_resistance_mult = 5,
-		.ball_run_force = 40,
+		.ball_run_force = 32,
 		.ball_control_force = 30,
 		// This will translate to instant velocity, so 144km/h
 		.ball_shot_force = 40 * PIXELS_PER_METER,
 		.ball_shot_height = 0.25f,
-		.ball_pass_force = 30 * PIXELS_PER_METER,
+		.ball_pass_force = 32 * PIXELS_PER_METER,
+		.ball_pass_height = 0.10f,
 		.ball_long_pass_force = 32 * PIXELS_PER_METER,
 		.ball_long_pass_height = 0.54f,
 		.ball_tackle_force = 20 * PIXELS_PER_METER,
 		.ball_header_force = 25 * PIXELS_PER_METER,
 		// 36m/s seems fair, that would be 129km/h
 		.ball_max_velocity = 36 * PIXELS_PER_METER,
-		.ball_max_velocity_to_gain_possession = 20 * PIXELS_PER_METER,
+		.ball_max_velocity_to_gain_possession = 25 * PIXELS_PER_METER,
 		.ball_lookaheads = 10,
 		.ball_lookahead_dts = 48,
 
@@ -111,6 +120,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		// Crossbar should be at 2.44m height, which is 27 pixels but we decided to raise it a little bit
 		.crossbar_height = 31,
 
+		// Player
 		.player_movement_force = 27000,
 		.player_movement_drag = 4166,
 		.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
@@ -121,8 +131,9 @@ struct game_state *game_play_init(struct game_config game_config,
 		// Ronaldo's record is 2.93m but average is just above crossbar
 		.player_header_min_height = 19,
 		.player_header_max_height = 27,
-		.player_pass_target_not_selectable = false,
+		.player_pass_target_not_selectable = true,
 
+		// Goalie
 		// Elite goalie has 150ms reaction time
 		.goalie_dive_reaction_time = 0.150f,
 		.goalie_dive_force = 60000,
@@ -134,9 +145,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.goalie_dive_recover_time = 0.75f,
 		// Average max reach for a gk is 3.2m
 		.goalie_reach_max_height = 35.4f,
-		.ai_enabled = true,
-		.shoot_aid_no_inertia = true,
-		.shoot_aid_auto_aim = true,
+
 		.kick_charge_reset_time = 1.5f};
 
 	// Initialise entities repository
