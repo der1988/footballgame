@@ -236,6 +236,7 @@ void systems_player_selection(struct game_state *game_state)
 			memcpy(&tmp_excluded_players_list.array[tmp_excluded_players_list.count],
 				   team_excluded_players_list.array,
 				   sizeof(entity_id_t) * team_excluded_players_list.count);
+			tmp_excluded_players_list.count += team_excluded_players_list.count;
 
 			// Shift epicenter toward own goal when opponent has possession
 			if (ball_possession == BALL_POSSESSION_OPPO) {
