@@ -181,6 +181,24 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  30.0f,
 						  TextFormat("%.2f", game_state->constants.player_control_height),
 						  0);
+			igSliderFloat("Header min height",
+						  &game_state->constants.player_header_min_height,
+						  10.0f,
+						  30.0f,
+						  TextFormat("%.2f", game_state->constants.player_header_min_height),
+						  0);
+			igSliderFloat("Header max height",
+						  &game_state->constants.player_header_max_height,
+						  20.0f,
+						  40.0f,
+						  TextFormat("%.2f", game_state->constants.player_header_max_height),
+						  0);
+			igSliderFloat("Max reachable height",
+						  &game_state->constants.player_max_reachable_height,
+						  20.0f,
+						  40.0f,
+						  TextFormat("%.2f", game_state->constants.player_max_reachable_height),
+						  0);
 			igCheckbox("Pass target not selectable",
 					   (bool *)&game_state->constants.player_pass_target_not_selectable);
 			igEndTabItem();
@@ -222,6 +240,12 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  0.1f,
 						  2.0f,
 						  TextFormat("%.2f", game_state->constants.goalie_dive_recover_time),
+						  0);
+			igSliderFloat("Max reachable height",
+						  &game_state->constants.goalie_max_reachable_height,
+						  20.0f,
+						  40.0f,
+						  TextFormat("%.2f", game_state->constants.goalie_max_reachable_height),
 						  0);
 			igEndTabItem();
 		}
