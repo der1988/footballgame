@@ -148,7 +148,7 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 			igSliderFloat("Movement force",
 						  &game_state->constants.player_movement_force,
 						  0.0f,
-						  40000.0f,
+						  100000.0f,
 						  TextFormat("%.2f", game_state->constants.player_movement_force),
 						  0);
 			igSliderFloat("Movement drag",
