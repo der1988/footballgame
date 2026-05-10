@@ -128,7 +128,8 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 				&ball->future_positions[FUTURE_POSITION_REACHABLE_TO_GOALIE];
 
 			// can we get the ball in our hands without moving by any chance?
-			if (ball_transform->virtual_height > game_state->constants.goalie_reach_max_height &&
+			if (ball_transform->virtual_height >
+					game_state->constants.goalie_max_reachable_height &&
 				future_reachable_position->available && future_reachable_position->dts < 20 &&
 				Vector2Distance(V3_TO_V2(future_reachable_position->position),
 								transform->position) < 5) {

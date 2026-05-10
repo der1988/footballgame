@@ -256,7 +256,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			if (!player_entity->player.is_colliding_with_ball &&
 				ball_transform->virtual_height > game_state->constants.player_header_min_height &&
 				ball_transform->virtual_height <
-					game_state->constants.player_header_max_height * 1.3f &&
+					game_state->constants.player_max_reachable_height &&
 				Vector2Distance(transform->position, ball_transform->position) < 50.0f) {
 
 				v2 goal_center =

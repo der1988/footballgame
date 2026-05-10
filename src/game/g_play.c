@@ -82,7 +82,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ai_enabled = true,
 		.show_radar = true,
 		.shoot_aid_no_inertia = true,
-		.shoot_aid_auto_aim = false,
+		.shoot_aid_auto_aim = true,
 		.input_stick_dead_zone = 0.05f,
 
 		// Ball
@@ -124,13 +124,14 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_movement_force = 27000,
 		.player_movement_drag = 4166,
 		.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
-		// Fastest player should reach ~10.5m/s, slowest 7.8m/s
-		.player_run_max_velocity = 10.5f * PIXELS_PER_METER,
+		// Fastest player should reach ~11m/s, slowest 7.8m/s
+		.player_run_max_velocity = 11.0f * PIXELS_PER_METER,
 		.player_control_radius = 6,
 		.player_control_height = 19,
 		// Ronaldo's record is 2.93m but average is just above crossbar
 		.player_header_min_height = 19,
 		.player_header_max_height = 27,
+		.player_max_reachable_height = 32,
 		.player_pass_target_not_selectable = true,
 
 		// Goalie
@@ -144,7 +145,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.goalie_dive_min_ball_velocity = 15 * PIXELS_PER_METER,
 		.goalie_dive_recover_time = 0.75f,
 		// Average max reach for a gk is 3.2m
-		.goalie_reach_max_height = 35.4f,
+		.goalie_max_reachable_height = 35.4f,
 
 		.kick_charge_reset_time = 1.5f};
 
