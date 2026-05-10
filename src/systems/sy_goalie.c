@@ -439,7 +439,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			} else if ((dive_state_data->ball_held ||
 						HAS_TIME_PASSED(game_state->time,
 										dive_state_data->animation_first_phase_end_time,
-										Clamp(goalie->dive_speed * 0.35f, 0.15f, 0.35f))) &&
+										Clamp(goalie->dive_speed * 0.35f, 0.25f, 0.35f))) &&
 					   !dive_state_data->animation_completed) {
 				if (!dive_state_data->animation_second_phase_started) {
 					dive_state_data->animation_second_phase_started = true;
