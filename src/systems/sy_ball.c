@@ -1,10 +1,12 @@
 #include "components.h"
 #include "entities.h"
 #include "e_ball.h"
+#include "football.h"
 #include "game.h"
 #include "input.h"
 #include "physics/physics.h"
 #include "math_ext.h"
+#include "render.h"
 #include "sprite.h"
 #include "game_controller.h"
 #include "types.h"
@@ -220,6 +222,25 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				ball->last_running_frame_idx = new_frame_id;
 			}
 			sprite->orientation = sprite_orientation;
+		}
+
+		// Handle ball sprite layer
+		if (transform->virtual_height > game_state->constants.crossbar_height + ball_radius) {
+			// If ball is very high it's going to be over everything
+			sprite->layer = SL_FOREGROUND;
+		} else if (game_state->vars.match.state == MS_GOAL) {
+			// If ball is in goal then it depends on which goal
+			if (transform->position.y < game_state->vars.pitch.field.y) {
+				sprite->layer = SL_BACKGROUND;
+			} else {
+				sprite->layer = SL_FOREGROUND;
+			}
+		} else if (transform->position.y >
+				   (game_state->vars.pitch.field.y + game_state->vars.pitch.field.height)) {
+			// Ball is not in goal and it's out of the pitch on the south side
+			sprite->layer = SL_FOREGROUND;
+		} else {
+			sprite->layer = SL_PLAYERS_AND_BALL;
 		}
 	} break;
 	case BS_OUT_OF_PLAY: {
