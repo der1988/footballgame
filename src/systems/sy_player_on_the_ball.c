@@ -455,8 +455,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 				// Weight of different impacts:
 				// - steering -> 1
-				// - collision force -> 2
-				// - ball height -> 3
+				// - collision force -> 1
+				// - fall down -> 1
+				// - ball height -> 1
 				header_force = (hit_direction_impact + player->collision_force + fall_down_impact +
 								ball_height_impact) /
 							   4.0f;
@@ -471,9 +472,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					header_force *= 0.1f;
 				}
 
-				// Passes work just like shoots but half the force.
+				// Passes work just like shoots but 75% of the force.
 				if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
-					header_force *= 0.5f;
+					header_force *= 0.75f;
 			} else {
 				GLOGF_DEBUG_CTX(LS_GAME,
 								player_entity->header.name,
