@@ -38,7 +38,8 @@ static i32 cmp_sprite_order(const void *s1, const void *s2)
 		if (diff == 0) {
 			// Order by y position: on the pitch a sprite positioned lower is in front of a
 			// sprite positioned higher.
-			diff = sprite_1->position.y - sprite_2->position.y;
+			f32 dy = sprite_1->position.y - sprite_2->position.y;
+			diff = (dy > 0) - (dy < 0);
 		}
 	}
 
