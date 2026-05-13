@@ -163,7 +163,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		u32 lookahead_dts = game_state->constants.ball_lookahead_dts;
 		for (u16 i = 0; i < lookaheads; ++i) {
 			for (u16 j = 0; j < lookahead_dts; ++j) {
-				u32 dts = i * game_state->constants.ball_lookaheads + j + 1;
+				u32 dts = i * lookahead_dts + j + 1;
 
 				// We calculate after touch acceleration at this future point in time
 				v3 after_touch_accel =
