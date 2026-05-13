@@ -9,6 +9,7 @@
 #include "macro.h"
 #include "ai.h"
 #include "constants.h"
+#include "steering.h"
 #include <math_ext.h>
 #include <raymath.h>
 #include <string.h>
@@ -109,6 +110,19 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
 						player_controls->header_pass = !player_controls->header_shot;
 					}
+				} else if (ball_transform->virtual_height >
+							   game_state->constants.player_max_reachable_height &&
+						   Vector2Length(player_controls->steering) < 0.1f) {
+					// Let's steer the player towards where the ball should be reachable again:
+					// this is going to help a lot with headers.
+					player_controls->steering = steering_arrive(
+						entity->transform.position,
+						entity->physics.velocity,
+						entity->physics.max_velocity,
+						V3_TO_V2(game_state->vars.ball_entity->ball
+									 .future_positions[FUTURE_POSITION_REACHABLE_TO_PLAYER]
+									 .position),
+						20);
 				}
 				// Sliding tackle
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
