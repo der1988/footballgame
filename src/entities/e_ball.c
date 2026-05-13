@@ -348,8 +348,6 @@ void entity_ball_long_pass(struct entity *ball_entity,
 						 game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
-
-	set_after_touch(&ball_entity->ball);
 }
 
 void entity_ball_tackle(struct entity *ball_entity,
