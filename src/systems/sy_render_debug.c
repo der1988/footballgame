@@ -84,7 +84,7 @@ void systems_render_debug(struct game_state *game_state)
 			// Ball lookahead positions
 			struct component_ball *ball = &game_state->vars.ball_entity->ball;
 			if (game_state->debug_flags.show_ball_lookahead_positions) {
-				for (u8 i = 0; i < 25; ++i) {
+				for (u8 i = 0; i < game_state->constants.ball_lookaheads; ++i) {
 					f32 size = 1 + Clamp01(ball->lookahead_positions[i].y / 100.0f) * 4;
 					DrawCircle(
 						ball->lookahead_positions[i].x, ball->lookahead_positions[i].z, size, GRAY);
