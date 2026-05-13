@@ -9,7 +9,8 @@ enum sprite_layer {
 	SL_NORTH_GOAL = -10,
 	SL_DEFAULT = 0,
 	SL_PLAYERS_AND_BALL = 10,
-	SL_SOUTH_GOAL = 20
+	SL_SOUTH_GOAL = 20,
+	SL_FOREGROUND = 100
 };
 
 enum sprite_orientation {

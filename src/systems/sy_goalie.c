@@ -10,6 +10,7 @@
 #include "constants.h"
 #include "physics/physics.h"
 #include "types.h"
+#include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
 #include "collision.h"
@@ -492,26 +493,62 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 			if (!dive_state_data->ball_saved &&
 				HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
 				collision_with_ball_info.is_colliding &&
+				// If the ball hits the post and comes back we don't want to touch the ball
+				((pitch_side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
+				 (pitch_side == PSI_SOUTH && ball_physics_3d->velocity.z > 0)) &&
 				(!dive_state_data->animation_completed ||
 				 // If ball height is very low we are going to make the save even when
 				 // lying on the floor after the dive
 				 ball_transform->virtual_height < ball_radius)) {
+
 				// Choose whether to bounce or hold the ball
 				// Definitely hold if ball velocity is lower than 54km/h
 				// Sometimes hold if ball velocity is lower than 108km/h
+				// Definitely don't hold the ball if ball is very high
 				// Otherwise bounce it
-				dive_state_data->ball_held =
-					GOALIE_HOLD_OR_BOUNCE(ball_velocity) &&
-					((pitch_side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
-					 (pitch_side == PSI_SOUTH && ball_physics_3d->velocity.z > 0));
+				dive_state_data->ball_held = GOALIE_HOLD_OR_BOUNCE(ball_velocity) &&
+											 ball_transform->virtual_height < 25;
 
-				// TODO: if the ball hits the post and comes back we don't want to hold
-				// the ball
 				if (dive_state_data->ball_held) {
 					entity_ball_held_by_goalie(ball_entity, entity_id, game_state);
 				} else {
 					// Bounce ball
-					v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
+					// Type of deflection depends on where the ball hit the diving goalkeeper
+
+					f32 deflection_x = ball_transform->position.x - entity->transform.position.x;
+					f32 dive_collider_width =
+						entity->collider.colliders[PCT_DIVE].props.rectangle.size.x;
+					f32 deflection_factor_x = Clamp1(deflection_x / (dive_collider_width * 0.5f));
+
+					// Deflection velocity is scaled down from the impact velocity.
+					// Minimum is 0.3x the original, max 0.5x.
+					// If the ball is saved in the middle of the collider it's going to be near to 0.3x
+					// If it's saved at the edges it's going to be near to 0.5x
+					f32 velocity_scale =
+						0.5f - (1 - deflection_factor_x * deflection_factor_x) * 0.2f;
+
+					printf("defacx: %.2f\n", deflection_factor_x);
+
+					v3 deflection =
+						(v3){.x = 0, .y = 0, .z = ball_physics_3d->velocity.z > 0 ? -1 : 1};
+					deflection = Vector3RotateByAxisAngle(
+						deflection, (v3){.y = 1}, -deflection_factor_x * 90 * DEG2RAD);
+
+					// Deflection over the bar
+					if (ball_transform->virtual_height >= 25) {
+						deflection = Vector3RotateByAxisAngle(
+							deflection, (v3){.x = 1}, GetRandomValue(130, 170) * DEG2RAD);
+						// Deflections over the bar keep most of the original velocity
+						velocity_scale =
+							0.9f - (1 - deflection_factor_x * deflection_factor_x) * 0.2f;
+					}
+
+					printf("velocity scale: %.2f\n", velocity_scale);
+
+					deflection = Vector3Scale(
+						deflection, Vector3Length(ball_physics_3d->velocity) * velocity_scale);
+
+					// v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
 					// new_ball_velocity = Vector3RotateByAxisAngle(
 					//     new_ball_velocity, (v3){.y = 1},
 					//     30 - 60 * GetRandomValue(0, 100) / 100.0f * DEG2RAD);
@@ -522,9 +559,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
 
 					entity_ball_set_position_and_velocity(
-						ball_entity,
-						where_to_place_ball,
-						Vector3Scale(new_ball_velocity, 0.3f)); // TODO: this should be randomised
+						ball_entity, where_to_place_ball, deflection);
 					entity_ball_saved_by_goalie(ball_entity, entity_id, game_state);
 				}
 
