@@ -17,10 +17,16 @@ struct game_control_info game_control_infos[] = {
 	[GAME_CONTROL_LONG_PASS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = true},
 	[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
 	[GAME_CONTROL_STOP] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+
+	[GAME_CONTROL_MODIFIER_LEFT] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+	[GAME_CONTROL_MODIFIER_RIGHT] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+
 	[GAME_CONTROL_SWITCH_PLAYER] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+
 	[GAME_CONTROL_RECORDER_REWIND] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
 	[GAME_CONTROL_RECORDER_FORWARD] = {.type = GAME_CONTROL_TYPE_ANALOGIC, .chargeable = false},
 	[GAME_CONTROL_RECORDER_RESUME] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
+
 	[GAME_CONTROL_TEST_RESET] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
 	[GAME_CONTROL_TEST_CROSS] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
 	[GAME_CONTROL_TEST_CROSSBAR] = {.type = GAME_CONTROL_TYPE_DIGITAL, .chargeable = false},
@@ -65,6 +71,13 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 													 .to =
 														 PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
 							[GAME_CONTROL_STOP] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
+
+							[GAME_CONTROL_MODIFIER_LEFT] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_LEFT},
+							[GAME_CONTROL_MODIFIER_RIGHT] =
 								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
 
@@ -132,6 +145,13 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 													 .to =
 														 PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
 							[GAME_CONTROL_STOP] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
+
+							[GAME_CONTROL_MODIFIER_LEFT] =
+								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
+								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_LEFT},
+							[GAME_CONTROL_MODIFIER_RIGHT] =
 								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_SHOULDER_RIGHT},
 

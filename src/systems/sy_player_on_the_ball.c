@@ -14,6 +14,7 @@
 #include <math_ext.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <stdio.h>
 
 struct header_phase_window {
 	u8 low;
@@ -68,7 +69,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				return;
 			}
 
-			if (player_controls->shot > 0) {
+			if (player_controls->shot > 0 || player_controls->chip_shot > 0) {
+				// Normal shots or chip shots are processed here
+
 				// Shot
 				player->last_kick_time = game_state->time;
 
@@ -76,7 +79,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// - accuracy will decrease
 				// - shot power will decrease
 				// - shot height will rise
-				f32 power = player_controls->shot;
+				const b32 is_chip_shot = player_controls->chip_shot > 0;
+				f32 power = is_chip_shot ? player_controls->chip_shot : player_controls->shot;
 
 				f32 accuracy = game_state->vars.pitch.goal_width * 0.5f +
 							   (power > 0.8f ? GetRandomValue(11, 20) : GetRandomValue(0, 10));
@@ -133,15 +137,21 @@ void systems_player_on_the_ball(struct game_state *game_state)
 								  shot_direction,
 								  shot_height,
 								  power,
+								  is_chip_shot,
 								  game_state);
 				kicked_ball = true;
-			} else if (player_controls->pass > 0 && steering_magnitude > 0.1f) {
+			} else if (player_controls->pass > 0) {
+				v2 steering = player_controls->steering;
+				if (steering_magnitude < 0.1f) {
+					steering = ORIENTATION_VECTORS[player_entity->sprite.orientation];
+				}
+
 				// Pass
 				player->last_kick_time = game_state->time;
 				v3 pass_direction;
 				struct entity *teammate_entity;
 				b32 found = entity_player_find_pass_target(
-					player_entity, player_controls->steering, 45, 300, &teammate_entity, game_state);
+					player_entity, steering, 45, 300, &teammate_entity, game_state);
 				f32 power = player_controls->pass;
 				b32 automatic_pass = found && player_controls->automatic_pass;
 				if (automatic_pass) {
@@ -152,8 +162,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					ball->pass_target_entity_id = teammate_entity->header.id;
 					power = Clamp01(Vector2Length(to_teammate) / 300.0f);
 				} else {
-					pass_direction = Vector3Normalize(V2_TO_V3(
-						player_controls->steering, game_state->constants.ball_pass_height));
+					pass_direction = Vector3Normalize(
+						V2_TO_V3(steering, game_state->constants.ball_pass_height));
 				}
 				entity_ball_short_pass(ball_entity,
 									   player_on_the_ball_entity_id,
@@ -162,10 +172,15 @@ void systems_player_on_the_ball(struct game_state *game_state)
 									   automatic_pass,
 									   game_state);
 				kicked_ball = true;
-			} else if (player_controls->long_pass && steering_magnitude > 0.1f) {
-				v2 normalised_steering = Vector2Normalize(player_controls->steering);
+			} else if (player_controls->long_pass > 0 || player_controls->long_driven_pass > 0) {
+				v2 steering = player_controls->steering;
+				if (steering_magnitude < 0.1f) {
+					steering = ORIENTATION_VECTORS[player_entity->sprite.orientation];
+				}
+
+				v2 normalised_steering = Vector2Normalize(steering);
 				v2 long_pass_direction = normalised_steering;
-				b32 cross = false;
+				const b32 driven = player_controls->long_driven_pass > 0;
 
 				player->last_kick_time = game_state->time;
 				// Limit angle between requested shoot direction and current velocity
@@ -182,7 +197,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 									  player_on_the_ball_entity_id,
 									  long_pass_direction,
 									  player_controls->long_pass,
-									  cross,
+									  driven,
 									  game_state);
 				kicked_ball = true;
 			} else if (!kicked_ball) {

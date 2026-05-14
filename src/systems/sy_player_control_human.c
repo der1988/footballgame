@@ -157,7 +157,11 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 					switch (game_controller->charge_lock.control_id) {
 					case GAME_CONTROL_SHOOT: {
 						f32 power = SHOOT_POWER(time_holding_button);
-						player_controls->shot = power;
+						if (game_controller_state->current[GAME_CONTROL_MODIFIER_LEFT].digital.down) {
+							player_controls->chip_shot = power;
+						} else {
+							player_controls->shot = power;
+						}
 						break;
 					}
 					case GAME_CONTROL_PASS: {
@@ -170,7 +174,11 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 					}
 					case GAME_CONTROL_LONG_PASS: {
 						f32 power = LONG_PASS_POWER(time_holding_button);
-						player_controls->long_pass = power;
+						if (game_controller_state->current[GAME_CONTROL_MODIFIER_LEFT].digital.down) {
+							player_controls->long_driven_pass = power;
+						} else {
+							player_controls->long_pass = power;
+						}
 						break;
 					}
 					default:
