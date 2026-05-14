@@ -531,13 +531,17 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 
 					v3 deflection =
 						(v3){.x = 0, .y = 0, .z = ball_physics_3d->velocity.z > 0 ? -1 : 1};
-					deflection = Vector3RotateByAxisAngle(
-						deflection, (v3){.y = 1}, -deflection_factor_x * 90 * DEG2RAD);
+					deflection =
+						Vector3RotateByAxisAngle(deflection,
+												 (v3){.y = pitch_side == PSI_SOUTH ? 1 : -1},
+												 -deflection_factor_x * 90 * DEG2RAD);
 
 					// Deflection over the bar
 					if (ball_transform->virtual_height >= 25) {
-						deflection = Vector3RotateByAxisAngle(
-							deflection, (v3){.x = 1}, GetRandomValue(130, 170) * DEG2RAD);
+						deflection =
+							Vector3RotateByAxisAngle(deflection,
+													 (v3){.x = pitch_side == PSI_SOUTH ? 1 : -1},
+													 GetRandomValue(130, 170) * DEG2RAD);
 						// Deflections over the bar keep most of the original velocity
 						velocity_scale =
 							0.9f - (1 - deflection_factor_x * deflection_factor_x) * 0.2f;
