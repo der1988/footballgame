@@ -257,24 +257,18 @@ void entity_ball_shoot(struct entity *ball_entity,
 	struct component_transform *transform = &ball_entity->transform;
 
 	v3 shot_direction;
+	f32 shot_force;
 	if (chip) {
-		shot_direction =
-			Vector3Add(V2_TO_V3(direction, 0),
-					   (Vector3){.x = 0,
-								 .y = math_ext_split_lerp(
-									 game_state->constants.ball_shot_height * 2, 0.2f, height),
-								 .z = 0});
-
+		shot_direction = V2_TO_V3(
+			direction,
+			math_ext_split_lerp(game_state->constants.ball_chip_shot_height * 2, 0.2f, height));
+		shot_force = math_ext_split_lerp(game_state->constants.ball_chip_shot_force, 0.5f, power);
 	} else {
-		shot_direction =
-			Vector3Add(V2_TO_V3(direction, 0),
-					   (Vector3){.x = 0,
-								 .y = math_ext_split_lerp(
-									 game_state->constants.ball_shot_height, 0.2f, height),
-								 .z = 0});
+		shot_direction = V2_TO_V3(
+			direction, math_ext_split_lerp(game_state->constants.ball_shot_height, 0.2f, height));
+		shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.5f, power);
 	}
 
-	f32 shot_force = math_ext_split_lerp(game_state->constants.ball_shot_force, 0.5f, power);
 	f32 ball_radius = collider->colliders[0].props.circle.radius;
 	if (!ball->is_on_the_ground) {
 		if (transform->virtual_height > (ball_radius + 12)) {
@@ -346,29 +340,22 @@ void entity_ball_long_pass(struct entity *ball_entity,
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
 
-	// reset velocity to avoid existing inertia affecting the trajectory
-	// pysics3d->velocity = Vector3Zero();
-
 	v3 long_pass_direction;
+	f32 long_pass_force;
 	if (driven) {
 		long_pass_direction = Vector3Normalize(
 			V2_TO_V3(direction, game_state->constants.ball_long_driven_pass_height));
-		physics3d->accel = Vector3Add(
-			physics3d->accel,
-			Vector3Scale(long_pass_direction,
-						 math_ext_split_lerp(
-							 game_state->constants.ball_long_driven_pass_force, 0.5f, power) /
-							 game_state->dt));
+		long_pass_force =
+			math_ext_split_lerp(game_state->constants.ball_long_driven_pass_force, 0.5f, power);
 	} else {
 		long_pass_direction =
 			Vector3Normalize(V2_TO_V3(direction, game_state->constants.ball_long_pass_height));
-		physics3d->accel =
-			Vector3Add(physics3d->accel,
-					   Vector3Scale(long_pass_direction,
-									math_ext_split_lerp(
-										game_state->constants.ball_long_pass_force, 0.5f, power) /
-										game_state->dt));
+		long_pass_force =
+			math_ext_split_lerp(game_state->constants.ball_long_pass_force, 0.5f, power);
 	}
+
+	physics3d->accel = Vector3Add(
+		physics3d->accel, Vector3Scale(long_pass_direction, long_pass_force / game_state->dt));
 
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
