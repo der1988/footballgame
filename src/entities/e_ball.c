@@ -261,7 +261,7 @@ void entity_ball_shoot(struct entity *ball_entity,
 	if (chip) {
 		shot_direction = Vector3Normalize(V2_TO_V3(
 			direction,
-			math_ext_split_lerp(game_state->constants.ball_chip_shot_height * 2, 0.2f, height)));
+			math_ext_split_lerp(game_state->constants.ball_chip_shot_height, 0.2f, height)));
 		shot_force = math_ext_split_lerp(game_state->constants.ball_chip_shot_force, 0.5f, power);
 	} else {
 		shot_direction = Vector3Normalize(V2_TO_V3(
