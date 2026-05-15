@@ -57,10 +57,14 @@ struct game_constants {
 	f32 ball_control_force;
 	f32 ball_shot_force;
 	f32 ball_shot_height;
+	f32 ball_chip_shot_force;
+	f32 ball_chip_shot_height;
 	f32 ball_pass_force;
 	f32 ball_pass_height;
 	f32 ball_long_pass_force;
 	f32 ball_long_pass_height;
+	f32 ball_long_driven_pass_force;
+	f32 ball_long_driven_pass_height;
 	f32 ball_tackle_force;
 	f32 ball_header_force;
 	f32 ball_max_velocity;

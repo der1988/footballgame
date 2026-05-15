@@ -175,9 +175,9 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 					case GAME_CONTROL_LONG_PASS: {
 						f32 power = LONG_PASS_POWER(time_holding_button);
 						if (game_controller_state->current[GAME_CONTROL_MODIFIER_LEFT].digital.down) {
-							player_controls->long_driven_pass = power;
-						} else {
 							player_controls->long_pass = power;
+						} else {
+							player_controls->long_driven_pass = power;
 						}
 						break;
 					}

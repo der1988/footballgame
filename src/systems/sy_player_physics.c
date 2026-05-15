@@ -215,7 +215,9 @@ void systems_player_physics(struct game_state *game_state)
 			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4};
 			header_state_data->phase = animation_frames[new_frame_id];
 
-			v2 force_to_apply = Vector2Zero();
+			// Apply friction
+			v2 force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
+											 2000); // TODO: this should depend on type of pitch
 
 			// Handle max velocity
 			physics->max_velocity = game_state->constants.player_run_max_velocity;

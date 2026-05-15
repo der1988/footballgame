@@ -180,7 +180,9 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 				v2 normalised_steering = Vector2Normalize(steering);
 				v2 long_pass_direction = normalised_steering;
-				const b32 driven = player_controls->long_driven_pass > 0;
+				const b32 is_driven = player_controls->long_driven_pass > 0;
+				const f32 power = is_driven ? player_controls->long_driven_pass :
+											  player_controls->long_pass;
 
 				player->last_kick_time = game_state->time;
 				// Limit angle between requested shoot direction and current velocity
@@ -196,8 +198,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				entity_ball_long_pass(ball_entity,
 									  player_on_the_ball_entity_id,
 									  long_pass_direction,
-									  player_controls->long_pass,
-									  driven,
+									  power,
+									  is_driven,
 									  game_state);
 				kicked_ball = true;
 			} else if (!kicked_ball) {
