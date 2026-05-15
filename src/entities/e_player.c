@@ -173,10 +173,10 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 		game_state->constants.player_control_radius;
 
 	collider->colliders[PCT_TACKLE_1].shape = CS_CIRCLE;
-	collider->colliders[PCT_TACKLE_1].props.circle.radius = 5;
+	collider->colliders[PCT_TACKLE_1].props.circle.radius = 4;
 	collider->colliders[PCT_TACKLE_2].shape = CS_CIRCLE;
 	collider->colliders[PCT_TACKLE_2].props.circle.radius = 5;
-	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -5};
+	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -3};
 
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
 	collider->colliders[PCT_HEADER].props.circle.radius = 4;
@@ -420,9 +420,14 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 
 	switch (collider_type) {
 	case PCT_TACKLE_1:
-		collider->props.circle.offset =
-			ORIENTATION_TO_TACKLE_COLLIDER_OFFSET[entity->sprite.orientation];
 	case PCT_TACKLE_2:
+		struct tackle_colliders_config config =
+			ORIENTATION_TO_TACKLE_COLLIDERS_CONFIG[entity->sprite.orientation];
+		entity->collider.colliders[PCT_TACKLE_1].props.circle.offset = config.collider_1.offset;
+		entity->collider.colliders[PCT_TACKLE_1].props.circle.radius = config.collider_1.radius;
+		entity->collider.colliders[PCT_TACKLE_2].props.circle.offset = config.collider_2.offset;
+		entity->collider.colliders[PCT_TACKLE_2].props.circle.radius = config.collider_2.radius;
+
 		check_collision =
 			CheckCollisionCircles(ball_pos,
 								  ball_radius,
