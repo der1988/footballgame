@@ -126,7 +126,8 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				}
 				// Sliding tackle
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
-					if (last_entity_that_touched_ball->header.id != entity->header.id &&
+					if (last_entity_that_touched_ball &&
+						last_entity_that_touched_ball->header.id != entity->header.id &&
 						(last_entity_that_touched_ball->player.team_side !=
 							 entity->player.team_side ||
 						 football_pitch_is_position_inside_penalty_area(
