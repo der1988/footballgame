@@ -178,6 +178,9 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_TACKLE_2].props.circle.radius = 5;
 	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -3};
 
+	collider->colliders[PCT_TACKLE_SENSOR].shape = CS_CIRCLE;
+	collider->colliders[PCT_TACKLE_SENSOR].props.circle.radius = 3;
+
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
 	collider->colliders[PCT_HEADER].props.circle.radius = 4;
 
@@ -488,6 +491,7 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 		}
 		break;
 	case PCT_BODY:
+	case PCT_TACKLE_SENSOR:
 	case PCT_COUNT:
 		break;
 	}
@@ -767,7 +771,7 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 
 			const v2 opponent_collider_pos =
 				Vector2Add(opponent_entity->transform.position,
-						   opponent_entity->collider.colliders[PCT_PLAYER].props.circle.offset);
+						   opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.offset);
 			const v2 player_collider_pos =
 				Vector2Add(player_entity->transform.position,
 						   player_entity->collider.colliders[PCT_TACKLE_1].props.circle.offset);
@@ -776,7 +780,7 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 				player_collider_pos,
 				player_entity->collider.colliders[PCT_TACKLE_1].props.circle.radius,
 				opponent_collider_pos,
-				opponent_entity->collider.colliders[PCT_PLAYER].props.circle.radius);
+				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.radius);
 
 			if (is_tackled) {
 				LIST_ADD(tackled_players, opponent_entity)

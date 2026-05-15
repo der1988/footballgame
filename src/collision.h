@@ -18,7 +18,7 @@ struct tackle_colliders_config {
 
 const static struct tackle_colliders_config ORIENTATION_TO_TACKLE_COLLIDERS_CONFIG[] = {
 	{{{.x = 0, .y = -8}, 4}, {{.x = 0, .y = 2}, 5}},	// SO_UP
-	{{{.x = 0, .y = 5}, 4}, {{.x = 0, .y = -4}, 5}},	// SO_DOWN
+	{{{.x = -1, .y = 5}, 4}, {{.x = 0, .y = -4}, 5}},	// SO_DOWN
 	{{{.x = -8, .y = 0}, 4}, {{.x = 1, .y = -1}, 4}},	// SO_LEFT
 	{{{.x = 8, .y = 0}, 4}, {{.x = -1, .y = -1}, 4}},	// SO_RIGHT
 	{{{.x = -10, .y = -4}, 3}, {{.x = 0, .y = -3}, 5}}, // SO_UP_LEFT

@@ -119,6 +119,7 @@ enum player_collider_type {
 	PCT_PLAYER,
 	PCT_GOALIE,
 	PCT_DIVE,
+	PCT_TACKLE_SENSOR,
 	PCT_TACKLE_1,
 	PCT_TACKLE_2,
 	PCT_HEADER,
