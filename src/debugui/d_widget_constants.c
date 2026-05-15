@@ -119,8 +119,12 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  1000.0f,
 						  TextFormat("%.2f", game_state->constants.ball_pass_force),
 						  0);
-			igSliderInt(
-				"Lookaheads", (int *)&game_state->constants.ball_lookaheads, 1, 10, "%d", 0);
+			igSliderInt("Lookaheads",
+						(int *)&game_state->constants.ball_lookaheads,
+						1,
+						BALL_MAX_LOOKAHEADS,
+						"%d",
+						0);
 			igSliderInt(
 				"Lookahead dts", (int *)&game_state->constants.ball_lookahead_dts, 10, 200, "%d", 0);
 			igSliderFloat("After touch delay time",
