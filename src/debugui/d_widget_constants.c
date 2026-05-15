@@ -101,6 +101,18 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  1.0f,
 						  TextFormat("%.2f", game_state->constants.ball_shot_height),
 						  0);
+			igSliderFloat("Chip shot force",
+						  &game_state->constants.ball_chip_shot_force,
+						  0.0f,
+						  1000.0f,
+						  TextFormat("%.2f", game_state->constants.ball_chip_shot_force),
+						  0);
+			igSliderFloat("Chip shot height",
+						  &game_state->constants.ball_chip_shot_height,
+						  0.0f,
+						  1.0f,
+						  TextFormat("%.2f", game_state->constants.ball_chip_shot_height),
+						  0);
 			igSliderFloat("Long pass force",
 						  &game_state->constants.ball_long_pass_force,
 						  0.0f,
@@ -112,6 +124,18 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  0.0f,
 						  1.0f,
 						  TextFormat("%.2f", game_state->constants.ball_long_pass_height),
+						  0);
+			igSliderFloat("Long driven pass force",
+						  &game_state->constants.ball_long_driven_pass_force,
+						  0.0f,
+						  1000.0f,
+						  TextFormat("%.2f", game_state->constants.ball_long_driven_pass_force),
+						  0);
+			igSliderFloat("Long driven pass height",
+						  &game_state->constants.ball_long_driven_pass_height,
+						  0.0f,
+						  1.0f,
+						  TextFormat("%.2f", game_state->constants.ball_long_driven_pass_height),
 						  0);
 			igSliderFloat("Short pass force",
 						  &game_state->constants.ball_pass_force,

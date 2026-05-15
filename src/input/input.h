@@ -25,6 +25,10 @@ enum game_control {
 	GAME_CONTROL_TACKLE,
 	GAME_CONTROL_STOP,
 
+	/* Game control modifiers. */
+	GAME_CONTROL_MODIFIER_LEFT,
+	GAME_CONTROL_MODIFIER_RIGHT,
+
 	/* Player selection controls. */
 	GAME_CONTROL_SWITCH_PLAYER,
 

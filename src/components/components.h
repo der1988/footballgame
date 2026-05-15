@@ -141,9 +141,11 @@ struct component_player_controls {
 	struct component_header header;
 	v2 steering;
 	f32 shot;
+	f32 chip_shot;
 	f32 pass;
 	b32 automatic_pass;
 	f32 long_pass;
+	f32 long_driven_pass;
 	b32 header_shot;
 	b32 header_pass;
 	b32 sliding_tackle;

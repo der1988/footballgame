@@ -182,7 +182,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_TACKLE_SENSOR].props.circle.radius = 3;
 
 	collider->colliders[PCT_HEADER].shape = CS_CIRCLE;
-	collider->colliders[PCT_HEADER].props.circle.radius = 4;
+	collider->colliders[PCT_HEADER].props.circle.radius = 8;
 
 	collider->colliders[PCT_BODY].shape = CS_CIRCLE;
 	collider->colliders[PCT_BODY].props.circle.radius = 5;
