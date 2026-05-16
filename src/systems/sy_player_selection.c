@@ -135,9 +135,8 @@ void systems_player_selection(struct game_state *game_state)
 				&game_state->input_manager->game_controllers[human_player->game_controller_id];
 			struct game_controller_state *game_controller_state = &game_controller->state;
 
-			// Let's use released so that if we have second thoughts we can keep the button pressed and delay the switch.
 			const b32 is_human_required_player_switch =
-				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.released;
+				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.pressed;
 
 			const b32 is_currently_selected_player_manually_selected =
 				human_player->controlled_player.is_manually_selected;
