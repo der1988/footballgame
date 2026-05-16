@@ -373,7 +373,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 		}
 		case PS_HEADER: {
 			static struct header_phase_window header_phase_windows[] = {
-				{14, 19, 16}, {16, 21, 18}, {19, 24, 21}, {22, 27, 24}};
+				{17, 22, 20}, {21, 26, 23}, {24, 29, 26}, {26, 31, 28}};
 
 			if (player_entity->player.state_machine.state_data.header.phase == HP_GROUND) {
 				// Cannot hit if we are preparing the jump
@@ -439,7 +439,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// This will also affect the direction of the ball.
 				const f32 header_phase_size = hpw.high - hpw.low;
 
-				if (ball_height > hpw.high) {
+				if (ball_height > (hpw.high + ball_radius)) {
 					// Ball is too high, no hit!
 					GLOGF_DEBUG_CTX(LS_GAME,
 									player_entity->header.name,
