@@ -49,9 +49,11 @@ void systems_goal(struct game_state *game_state)
 		} else if (game_state->vars.match.state == MS_PLAY &&
 				   CheckCollisionCircleRec(ball_transform->position, ball_radius, goal_rectangle) &&
 				   ((i == PSI_NORTH &&
-					 ball_transform->position.y < game_state->vars.pitch.goal[i].center.y) ||
+					 ball_transform->position.y < game_state->vars.pitch.goal[i].center.y &&
+					 ball_physics_3d->velocity.z < 0) ||
 					(i == PSI_SOUTH &&
-					 ball_transform->position.y > game_state->vars.pitch.goal[i].center.y))) {
+					 ball_transform->position.y > game_state->vars.pitch.goal[i].center.y &&
+					 ball_physics_3d->velocity.z > 0))) {
 			// If the ball is within the goal rectangle and over the goal line then we can check whether we scored
 			// or we hit the posts. The check is in 3 dimensions, because the ball physics is in 3D.
 
