@@ -13,6 +13,7 @@
 #include "game_controller.h"
 #include <float.h>
 #include <raymath.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -291,7 +292,7 @@ void systems_player_selection(struct game_state *game_state)
 					new_controlled_player_id != human_player->controlled_player.entity_id) {
 					// Hysteresis: only switch if the new player is meaningfully closer
 					if (!is_human_required_player_switch && currently_selected_player_entity) {
-						f32 current_distance = Vector2DistanceSqr(
+						f32 current_distance = Vector2Distance(
 							epicenter, currently_selected_player_entity->transform.position);
 						if (nearest_player.distance > current_distance * 0.85f) {
 							continue;
