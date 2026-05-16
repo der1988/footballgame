@@ -113,7 +113,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		// 36m/s seems fair, that would be 129km/h
 		.ball_max_velocity = 36 * PIXELS_PER_METER,
 		.ball_max_velocity_to_gain_possession = 25 * PIXELS_PER_METER,
-		.ball_lookaheads = 10,
+		.ball_lookaheads = 15,
 		.ball_lookahead_dts = 48,
 
 		// After touch
