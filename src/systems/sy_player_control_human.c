@@ -114,18 +114,18 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 							   game_state->constants.player_max_reachable_height &&
 						   Vector2Length(player_controls->steering) < 0.1f &&
 						   game_state->vars.ball_entity->ball
-							   .future_positions[FUTURE_POSITION_REACHABLE_TO_PLAYER]
+							   .future_positions[FUTURE_POSITION_BOUNCE]
 							   .available) {
 					// Let's steer the player towards where the ball should be reachable again:
 					// this is going to help a lot with headers.
-					player_controls->steering = steering_arrive(
-						entity->transform.position,
-						entity->physics.velocity,
-						entity->physics.max_velocity,
-						V3_TO_V2(game_state->vars.ball_entity->ball
-									 .future_positions[FUTURE_POSITION_REACHABLE_TO_PLAYER]
-									 .position),
-						20);
+					player_controls->steering =
+						steering_arrive(entity->transform.position,
+										entity->physics.velocity,
+										entity->physics.max_velocity,
+										V3_TO_V2(game_state->vars.ball_entity->ball
+													 .future_positions[FUTURE_POSITION_BOUNCE]
+													 .position),
+										20);
 				}
 				// Sliding tackle
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
