@@ -23,16 +23,20 @@ static b32 should_player_jump_for_header(struct entity *player_entity,
 
 		v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
 
+		v2 player_future_position =
+			Vector2Add(player_entity->transform.position,
+					   Vector2Scale(player_entity->physics.velocity, time_elapsed));
+
 		f32 is_colliding = CheckCollisionCircles(
 			V3_TO_V2(pos_to_check),
 			game_state->vars.ball.entity->collider.colliders[0].props.circle.radius,
-			player_entity->transform.position,
-			50);
+			player_future_position,
+			15);
 		if (is_colliding && pos_to_check.y > game_state->constants.player_header_min_height) {
-			printf(
-				"******** ball will be high enough for an header in %zu * 48 dts after %.2fs!!\n",
-				i + 1,
-				time_elapsed);
+			// printf(
+			// 	"******** ball will be high enough for an header in %zu * 48 dts after %.2fs!!\n",
+			// 	i + 1,
+			// 	time_elapsed);
 			return true;
 		}
 	}
@@ -104,8 +108,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				// Header
 				if (game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
 					game_controller_state->current[GAME_CONTROL_PASS].digital.pressed) {
-					if (ball_transform->virtual_height >
-						game_state->constants.player_header_min_height) {
+					if (should_player_jump_for_header(entity, game_state)) {
 						player_controls->header_shot =
 							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
 						player_controls->header_pass = !player_controls->header_shot;
