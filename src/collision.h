@@ -21,8 +21,8 @@ const static struct tackle_colliders_config ORIENTATION_TO_TACKLE_COLLIDERS_CONF
 	{{{.x = -1, .y = 5}, 4}, {{.x = 0, .y = -4}, 5}},	// SO_DOWN
 	{{{.x = -8, .y = 0}, 4}, {{.x = 1, .y = -1}, 4}},	// SO_LEFT
 	{{{.x = 8, .y = 0}, 4}, {{.x = -1, .y = -1}, 4}},	// SO_RIGHT
-	{{{.x = -10, .y = -4}, 3}, {{.x = 0, .y = -3}, 5}}, // SO_UP_LEFT
-	{{{.x = 7, .y = -4}, 3}, {{.x = -2, .y = -2}, 5}},	// SO_UP_RIGHT
+	{{{.x = -10, .y = -7}, 3}, {{.x = 0, .y = -4}, 6}}, // SO_UP_LEFT
+	{{{.x = 10, .y = -7}, 3}, {{.x = 0, .y = -4}, 6}},	// SO_UP_RIGHT
 	{{{.x = -7, .y = 2}, 4}, {{.x = 2, .y = -3}, 5}},	// SO_DOWN_LEFT
 	{{{.x = 7, .y = 2}, 4}, {{.x = -2, .y = -3}, 5}},	// SO_DOWN_RIGHT
 };
