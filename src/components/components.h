@@ -170,7 +170,6 @@ struct component_ball {
 	struct state_machine_ball state_machine;
 
 	// Lookahead and bounces
-	v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
 	struct future_position future_positions[FUTURE_POSITION_COUNT];
 	fg_time_t last_bounce_time;
 	b32 is_on_the_ground;

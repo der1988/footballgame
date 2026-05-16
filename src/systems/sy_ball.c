@@ -23,7 +23,7 @@ static v3 calculate_after_touch_acceleration(v2 direction,
 
 void systems_ball(struct game_state *game_state, struct input *input)
 {
-	struct entity *ball_entity = game_state->vars.ball_entity;
+	struct entity *ball_entity = game_state->vars.ball.entity;
 
 	DECLARE_ENTITY_COMPONENT(ball_entity, transform);
 	DECLARE_ENTITY_COMPONENT(ball_entity, physics3d);
@@ -193,7 +193,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 					apply_future_position(future_reachable_to_goalie, lookahead_position, dts);
 				}
 			}
-			ball->lookahead_positions[i] = lookahead_position;
+			game_state->vars.ball.lookahead_positions[i] = lookahead_position;
 		}
 
 		// Project position to 2D

@@ -41,7 +41,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 {
 	enum player_ai_state ai_state;
 
-	struct entity *ball_entity = game_state->vars.ball_entity;
+	struct entity *ball_entity = game_state->vars.ball.entity;
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_collider);
 	UNUSED(ball_physics_3d);
@@ -232,7 +232,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				entity_player_can_reach_future_ball_position(
 					player_entity,
 					game_state->constants.player_run_max_velocity,
-					ball->lookahead_positions,
+					game_state->vars.ball.lookahead_positions,
 					NULL,
 					game_state);
 			v3 ball_future_pos;
@@ -304,7 +304,7 @@ static v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
 		entity_player_can_reach_future_ball_position(player_entity,
 													 game_state->constants.player_run_max_velocity *
 														 0.8f,
-													 ball_entity->ball.lookahead_positions,
+													 game_state->vars.ball.lookahead_positions,
 													 NULL,
 													 game_state);
 	v3 ball_future_pos;

@@ -21,11 +21,11 @@ static b32 should_player_jump_for_header(struct entity *player_entity,
 		fg_time_t time_elapsed =
 			(i + 1) * game_state->constants.ball_lookahead_dts * game_state->dt;
 
-		v3 pos_to_check = game_state->vars.ball_entity->ball.lookahead_positions[i];
+		v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
 
 		f32 is_colliding = CheckCollisionCircles(
 			V3_TO_V2(pos_to_check),
-			game_state->vars.ball_entity->collider.colliders[0].props.circle.radius,
+			game_state->vars.ball.entity->collider.colliders[0].props.circle.radius,
 			player_entity->transform.position,
 			50);
 		if (is_colliding && pos_to_check.y > game_state->constants.player_header_min_height) {
@@ -43,7 +43,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 {
 	UNUSED(input);
 
-	struct entity *ball_entity = game_state->vars.ball_entity;
+	struct entity *ball_entity = game_state->vars.ball.entity;
 
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_physics_3d);
@@ -113,7 +113,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				} else if (ball_transform->virtual_height >
 							   game_state->constants.player_max_reachable_height &&
 						   Vector2Length(player_controls->steering) < 0.1f &&
-						   game_state->vars.ball_entity->ball
+						   game_state->vars.ball.entity->ball
 							   .future_positions[FUTURE_POSITION_BOUNCE]
 							   .available) {
 					// Let's steer the player towards where the ball should be reachable again:
@@ -122,7 +122,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 						steering_arrive(entity->transform.position,
 										entity->physics.velocity,
 										entity->physics.max_velocity,
-										V3_TO_V2(game_state->vars.ball_entity->ball
+										V3_TO_V2(game_state->vars.ball.entity->ball
 													 .future_positions[FUTURE_POSITION_BOUNCE]
 													 .position),
 										20);

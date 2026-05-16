@@ -10,7 +10,7 @@
 
 void systems_goal(struct game_state *game_state)
 {
-	struct entity *ball_entity = game_state->vars.ball_entity;
+	struct entity *ball_entity = game_state->vars.ball.entity;
 
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 

@@ -258,7 +258,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 
 	struct component_player *player = &entity->player;
 	struct component_transform *player_transform = &entity->transform;
-	struct component_transform *ball_transform = &game_state->vars.ball_entity->transform;
+	struct component_transform *ball_transform = &game_state->vars.ball.entity->transform;
 	struct component_sprite *sprite = &entity->sprite;
 	struct state_machine_player *state_machine = &player->state_machine;
 
@@ -279,7 +279,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	case PS_FALL:
 		entity->player.state_machine.state_data.fall.animation_start_time = game_state->time;
 		game_controller_player_reset(entity->header.id, game_state);
-		struct entity *ball_entity = game_state->vars.ball_entity;
+		struct entity *ball_entity = game_state->vars.ball.entity;
 		if (ball_entity->ball.last_touch_entity_id == entity->header.id) {
 			// Falling player had the ball, so let's reset touch time to make it clear player is no longer in possession
 			ball_entity->ball.last_touch_time = 0;
@@ -565,7 +565,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	}
 
 	for (u16 i = 0; i < lookaheads; ++i) {
-		const v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
+		const v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
 
 		f32 time_to_unsaveable = (i + 1) * game_state->dt * steps_per_lookahead;
 

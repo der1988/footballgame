@@ -35,7 +35,7 @@ void football_match_change_state(struct game_state *game_state, enum match_state
 					   game_state->human_players[0].controlled_player.entity_id);
 		struct component_transform *transform = &entity->transform;
 		entity_ball_set_position_and_velocity(
-			game_state->vars.ball_entity, V2_TO_V3(transform->position, 30), Vector3Zero());
+			game_state->vars.ball.entity, V2_TO_V3(transform->position, 30), Vector3Zero());
 		game_state->vars.match.state = MS_PLAY;
 		break;
 	}

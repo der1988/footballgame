@@ -33,7 +33,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 {
 	UNUSED(input);
 
-	struct entity *ball_entity = game_state->vars.ball_entity;
+	struct entity *ball_entity = game_state->vars.ball.entity;
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
@@ -190,7 +190,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					const struct player_ball_reachability_prediction prediction =
 						entity_player_can_reach_future_ball_position(entity,
 																	 exit_max_speed,
-																	 ball->lookahead_positions,
+																	 game_state->vars.ball.lookahead_positions,
 																	 protect_goal_predicate,
 																	 game_state);
 
@@ -229,7 +229,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					goal_center, (v2){.x = max_side_movement, .y = 20 * (invert ? 1 : -1)});
 
 				for (u16 i = 0; i < game_state->constants.ball_lookaheads; ++i) {
-					const v3 pos_to_check = ball_entity->ball.lookahead_positions[i];
+					const v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
 
 					v2 prev_pos;
 					v2 new_pos;
@@ -237,7 +237,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 						prev_pos = ball_entity->transform.position;
 						new_pos = V3_TO_V2(pos_to_check);
 					} else {
-						prev_pos = V3_TO_V2(ball_entity->ball.lookahead_positions[i - 1]);
+						prev_pos = V3_TO_V2(game_state->vars.ball.lookahead_positions[i - 1]);
 						new_pos = V3_TO_V2(pos_to_check);
 					}
 

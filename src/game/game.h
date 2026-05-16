@@ -130,7 +130,10 @@ struct game_vars {
 		struct team_play_context play_context;
 	} teams[TS_COUNT];
 	struct entity *camera_entity;
-	struct entity *ball_entity;
+	struct {
+		struct entity *entity;
+		v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
+	} ball;
 	b32 is_debug_log_shown;
 };
 
