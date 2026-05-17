@@ -143,6 +143,18 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  1000.0f,
 						  TextFormat("%.2f", game_state->constants.ball_pass_force),
 						  0);
+			igSliderFloat("Header min force",
+						  &game_state->constants.ball_header_min_force,
+						  0.0f,
+						  500.0f,
+						  TextFormat("%.2f", game_state->constants.ball_header_min_force),
+						  0);
+			igSliderFloat("Header fumble force",
+						  &game_state->constants.ball_header_fumble_force,
+						  0.0f,
+						  200.0f,
+						  TextFormat("%.2f", game_state->constants.ball_header_fumble_force),
+						  0);
 			igSliderInt("Lookaheads",
 						(int *)&game_state->constants.ball_lookaheads,
 						1,

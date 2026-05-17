@@ -422,9 +422,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			f32 ball_height_impact = 0.0f;
 			f32 impact_vertical_angle = 0.0f;
 
-			f32 header_force = 0;
+			f32 header_force_mult = 0;
 
 			const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
+
+			b32 fumble = false;
 
 			// There are some conditions that will make the header look like shit
 			if (ball_height > game_state->constants.player_header_min_height) {
@@ -475,34 +477,48 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				// - collision force -> 1
 				// - fall down -> 1
 				// - ball height -> 1
-				header_force = (hit_direction_impact + player->collision_force + fall_down_impact +
-								ball_height_impact) /
-							   4.0f;
+				header_force_mult = (hit_direction_impact + player->collision_force +
+									 fall_down_impact + ball_height_impact) /
+									4.0f;
+
+				// Passes work just like shoots but 75% of the force.
+				if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
+					header_force_mult *= 0.75f;
 
 				if (ball_height < hpw.low) {
 					// Ball is too low, just fumble!
 					GLOGF_DEBUG_CTX(LS_GAME,
 									player_entity->header.name,
-									"fumbled header, ball too low: %.2f < %d\n",
+									"fumbled header, ball too low for header phase: %.2f < %d\n",
 									ball_height,
 									hpw.low);
-					header_force *= 0.1f;
+					fumble = true;
 				}
-
-				// Passes work just like shoots but 75% of the force.
-				if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
-					header_force *= 0.75f;
 			} else {
 				GLOGF_DEBUG_CTX(LS_GAME,
 								player_entity->header.name,
-								"ball is not high enough: %d\n",
+								"fumbled header, ball is not high enough to be hit: %d\n",
 								header_phase);
+				fumble = true;
 			}
 
-			// TODO: ball velocity has to be taken into consideration: the faster the ball, the highest force the hit will have
+			f32 header_force;
+			if (fumble) {
+				header_force = game_state->constants.ball_header_fumble_force;
+			} else {
+				// We take the max velocity between player and ball to determine the force we should apply to the ball
+				//
+				header_force =
+					MAX(header_force_mult * sqrt(MAX(Vector2LengthSqr(player_physics->velocity),
+													 Vector3LengthSqr(ball_physics_3d->velocity))),
+						game_state->constants.ball_header_min_force);
+			}
 
-			GLOGF_DEBUG_CTX(
-				LS_GAME, player_entity->header.name, "header force: %.2f\n", header_force);
+			GLOGF_DEBUG_CTX(LS_GAME,
+							player_entity->header.name,
+							"header [mult: %.2f, force:%.2f]\n",
+							header_force_mult,
+							header_force);
 
 			entity_ball_header(ball_entity,
 							   player_on_the_ball_entity_id,
