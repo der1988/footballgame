@@ -129,15 +129,16 @@ v refactor player selection to support multiple human players
 x use r1 to make the player stop the ball?
 v refactor the overlapping collision solver
 v fix bug when player slide tackles instead of shooting if goalkeeper saved the shot
-- when performing header and ball height is too low just fumble
+v when performing header and ball height is too low just fumble
 - press player should not be selected as human controlled until it gets the ball
-- goal is too small? proportional to ball instead of player?
+v goal is too small? proportional to ball instead of player?
 - use pass when you don't have the ball to chase the ball?
-- shot height should depend on starting height of the ball
+v shot height should depend on starting height of the ball
 - implement bounce animation + stunned state for goalie when shot is very fast
 - make the game platform agnostic
-- fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
+v fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
 - ball deviation has to happen just once per collision
 - header jump height should be proportional to player velocity
 - goalkeeper should go out when facing player alone to reduce the size of the available goal
 - fix bug where gk dives when the ball hits a post
+- we don't need a b32 for each game control, we just need a bit
