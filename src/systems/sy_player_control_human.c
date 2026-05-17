@@ -113,7 +113,10 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
 						player_controls->header_pass = !player_controls->header_shot;
 					}
-				} else if (ball_transform->virtual_height >
+				} else if (!game_controller_state->current[GAME_CONTROL_SHOOT].digital.down &&
+						   !game_controller_state->current[GAME_CONTROL_PASS].digital.down &&
+						   !game_controller_state->current[GAME_CONTROL_LONG_PASS].digital.down &&
+						   ball_transform->virtual_height >
 							   game_state->constants.player_max_reachable_height &&
 						   Vector2Length(player_controls->steering) < 0.1f &&
 						   game_state->vars.ball.entity->ball
