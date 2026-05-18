@@ -151,7 +151,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				v3 pass_direction;
 				struct entity *teammate_entity;
 				b32 found = entity_player_find_pass_target(
-					player_entity, steering, 45, 300, &teammate_entity, game_state);
+					player_entity, steering, 30, 300, &teammate_entity, game_state);
 				f32 power = player_controls->pass;
 				b32 automatic_pass = found && player_controls->automatic_pass;
 				if (automatic_pass) {
