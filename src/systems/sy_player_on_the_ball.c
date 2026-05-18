@@ -502,21 +502,22 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				fumble = true;
 			}
 
+			// Header will inherit force from either player or ball velocities
+			const f32 inherited_velocity = sqrt(MAX(Vector2LengthSqr(player_physics->velocity),
+													Vector3LengthSqr(ball_physics_3d->velocity)));
 			f32 header_force;
 			if (fumble) {
 				header_force = game_state->constants.ball_header_fumble_force;
 			} else {
 				// We take the max velocity between player and ball to determine the force we should apply to the ball
-				//
-				header_force =
-					MAX(header_force_mult * sqrt(MAX(Vector2LengthSqr(player_physics->velocity),
-													 Vector3LengthSqr(ball_physics_3d->velocity))),
-						game_state->constants.ball_header_min_force);
+				header_force = MAX(header_force_mult * inherited_velocity,
+								   game_state->constants.ball_header_min_force);
 			}
 
 			GLOGF_DEBUG_CTX(LS_GAME,
 							player_entity->header.name,
-							"header [mult: %.2f, force:%.2f]\n",
+							"header [inherited_vel: %.2f, mult: %.2f, force:%.2f]\n",
+							inherited_velocity,
 							header_force_mult,
 							header_force);
 
