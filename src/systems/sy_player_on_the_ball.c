@@ -375,8 +375,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			static struct header_phase_window header_phase_windows[] = {
 				{17, 22, 20}, {21, 26, 23}, {24, 29, 26}, {26, 31, 28}};
 
-			if (player_entity->player.state_machine.state_data.header.phase == HP_GROUND) {
-				// Cannot hit if we are preparing the jump
+			struct state_machine_player_header_data *header_data =
+				&player_entity->player.state_machine.state_data.header;
+
+			if (header_data->phase == HP_GROUND || header_data->hit_ball) {
+				// Cannot hit if we are preparing the jump or we already hit the ball
 				break;
 			}
 

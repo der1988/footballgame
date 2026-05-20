@@ -69,6 +69,7 @@ struct state_machine_player_header_data {
 	u16 max_elevation_frame_id;
 	enum header_phase phase;
 	enum header_type type;
+	b32 hit_ball;
 };
 
 union state_machine_player_state_data {

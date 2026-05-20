@@ -769,9 +769,9 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 			opponent_entity->player.state_machine.current_state == PS_NORMAL &&
 			opponent_entity->player.team_side != player_entity->player.team_side) {
 
-			const v2 opponent_collider_pos =
-				Vector2Add(opponent_entity->transform.position,
-						   opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.offset);
+			const v2 opponent_collider_pos = Vector2Add(
+				opponent_entity->transform.position,
+				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.offset);
 			const v2 player_collider_pos =
 				Vector2Add(player_entity->transform.position,
 						   player_entity->collider.colliders[PCT_TACKLE_1].props.circle.offset);
@@ -958,11 +958,13 @@ b32 entity_player_find_switch_target(v2 position,
 
 void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state)
 {
+	struct state_machine_player_header_data *header_data =
+		&player_entity->player.state_machine.state_data.header;
 	player_entity->player.last_header_time = game_state->time;
 	// Once we hit the ball we can stop elevation
-	player_entity->player.state_machine.state_data.header.elevation_completed = true;
-	player_entity->player.state_machine.state_data.header.elevation_completion_time =
-		game_state->time;
+	header_data->elevation_completed = true;
+	header_data->elevation_completion_time = game_state->time;
+	header_data->hit_ball = true;
 }
 
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
