@@ -185,25 +185,17 @@ void systems_player_selection(struct game_state *game_state)
 				}
 			}
 
-			b32 currently_selected_player_kicked_ball = false;
-
 			// Following logic makes sense even if player is requiring switch
 			if (ball_possession == BALL_POSSESSION_TEAM) {
 				if (human_player->controlled_player.entity_id ==
 					player_in_possession_entity->header.id) {
-					// Current human player is in possession of the ball
-					// Reset the manually selected flag
+					// Current human player is in possession of the ball.
+					// Note: entity_ball_player_in_possession requires last_touch_time > last_kick_time,
+					// so kicked_ball can never be true here — if the player kicked in this frame,
+					// last_touch_time == last_kick_time and possession is already NONE.
+					// The kicked_ball case is handled separately below.
 					human_player->controlled_player.is_manually_selected = false;
-
-					if (!player_in_possession_entity->player.kicked_ball) {
-						// If the currently controlled player is in possession of the ball (and they didn't kick it in this frame) we just select the same player again.
-						continue;
-					} else {
-						// If the currently controlled player was in possession of the ball but then they kicked it during this frame, we need to exclude current player and select a new one.
-						LIST_ADD(tmp_excluded_players_list,
-								 human_player->controlled_player.entity_id);
-						currently_selected_player_kicked_ball = true;
-					}
+					continue;
 				} else {
 					// If no human is controlling player in possession we assign it to the first human player
 					// But not if it's a goalie who isn't holding the ball (e.g. mid-dive save)
@@ -221,6 +213,17 @@ void systems_player_selection(struct game_state *game_state)
 						continue;
 					}
 				}
+			}
+
+			b32 currently_selected_player_kicked_ball = false;
+
+			// On the kick frame, last_touch_time == last_kick_time so ball_possession
+			// is BALL_POSSESSION_NONE and the block above is skipped. Detect the
+			// kick here so we deselect the kicker immediately.
+			if (currently_selected_player_entity &&
+				currently_selected_player_entity->player.kicked_ball) {
+				LIST_ADD(tmp_excluded_players_list, human_player->controlled_player.entity_id);
+				currently_selected_player_kicked_ball = true;
 			}
 
 			// If current player was manually selected and didn't kick the ball in this frame we can return early.
