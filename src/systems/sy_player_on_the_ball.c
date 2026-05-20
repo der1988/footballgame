@@ -373,7 +373,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 		}
 		case PS_HEADER: {
 			static struct header_phase_window header_phase_windows[] = {
-				{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 34, 31}};
+				{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 31, 28}};
 
 			struct state_machine_player_header_data *header_data =
 				&player_entity->player.state_machine.state_data.header;
