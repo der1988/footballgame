@@ -482,8 +482,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 									4.0f;
 
 				// Passes work just like shoots but 75% of the force.
-				if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
-					header_force_mult *= 0.75f;
+				// if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
+				// header_force_mult *= 0.75f;
 
 				if (ball_height < hpw.low) {
 					// Ball is too low, just fumble!
