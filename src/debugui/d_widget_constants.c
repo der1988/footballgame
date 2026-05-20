@@ -239,6 +239,12 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 						  40.0f,
 						  TextFormat("%.2f", game_state->constants.player_max_reachable_height),
 						  0);
+			igSliderFloat("Tackle friction force",
+						  &game_state->constants.player_tackle_friction_force,
+						  0.0f,
+						  100000.0f,
+						  TextFormat("%.2f", game_state->constants.player_tackle_friction_force),
+						  0);
 			igCheckbox("Pass target not selectable",
 					   (bool *)&game_state->constants.player_pass_target_not_selectable);
 			igEndTabItem();

@@ -241,8 +241,10 @@ void systems_player_physics(struct game_state *game_state)
 			v2 force_to_apply = Vector2Zero();
 			if (Vector2Length(physics->velocity) > 3) {
 				// Apply friction
-				force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
-											  7500); // TODO: this should depend on type of pitch
+				force_to_apply = Vector2Scale(
+					Vector2Negate(Vector2Normalize(physics->velocity)),
+					game_state->constants
+						.player_tackle_friction_force); // TODO: this should depend on type of pitch
 			} else if (HAS_TIME_PASSED(
 						   game_state->time, sliding_tackle_state_data->start_time, 0.5f)) {
 				entity_player_state_machine_change_state_to(

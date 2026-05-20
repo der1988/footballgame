@@ -137,6 +137,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_header_min_height = 17,
 		.player_header_max_height = 31,
 		.player_max_reachable_height = 33,
+		.player_tackle_friction_force = 7500,
 		.player_pass_target_not_selectable = true,
 
 		// Goalie
