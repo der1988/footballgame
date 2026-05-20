@@ -168,7 +168,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				entity_ball_short_pass(ball_entity,
 									   player_on_the_ball_entity_id,
 									   pass_direction,
-									   power,
+									   power * power,
 									   automatic_pass,
 									   game_state);
 				kicked_ball = true;
@@ -198,7 +198,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				entity_ball_long_pass(ball_entity,
 									  player_on_the_ball_entity_id,
 									  long_pass_direction,
-									  power,
+									  power * power,
 									  is_driven,
 									  game_state);
 				kicked_ball = true;
