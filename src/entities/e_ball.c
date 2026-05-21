@@ -322,7 +322,7 @@ void entity_ball_short_pass(struct entity *ball_entity,
 
 	// reset velocity to avoid existing inertia affecting the trajectory
 	physics3d->velocity = Vector3Zero();
-	power = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power);
+	power = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.3f, power);
 
 	physics3d->accel =
 		Vector3Add(physics3d->accel, Vector3Scale(direction, power / game_state->dt));
