@@ -590,6 +590,9 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 void entity_player_gained_possession(struct entity *player_entity, struct game_state *game_state)
 {
 	player_entity->player.last_possession_time = game_state->time;
+
+	entity_ball_set_last_touch(
+		&game_state->vars.ball.entity->ball, player_entity->header.id, game_state);
 }
 
 enum player_ball_possession entity_player_ball_possession(struct entity *player_entity,

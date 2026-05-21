@@ -235,7 +235,6 @@ void systems_player_collisions(struct game_state *game_state)
 	}
 
 	if (player_on_the_ball_entity) {
-		entity_ball_set_last_touch(ball, player_on_the_ball_entity->header.id, game_state);
 		entity_player_gained_possession(player_on_the_ball_entity, game_state);
 	}
 
