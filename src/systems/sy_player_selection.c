@@ -154,6 +154,12 @@ void systems_player_selection(struct game_state *game_state)
 			struct entity *currently_selected_player_entity = entity_get(
 				game_state->entity_repository, human_player->controlled_player.entity_id);
 
+			if (currently_selected_player_entity &&
+				currently_selected_player_entity->player.state_machine.current_state == PS_FALL) {
+				// Let's force a switch if we fell.
+				force_switch = true;
+			}
+
 			if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
 				ball->last_kicker_entity_id != EID_NOT_VALID &&
 				currently_selected_player_entity->header.id == ball->last_kicker_entity_id) {
