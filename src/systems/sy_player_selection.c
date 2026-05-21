@@ -137,6 +137,8 @@ void systems_player_selection(struct game_state *game_state)
 			struct human_player *human_player =
 				&game_state->human_players[ordered_list.array[i].human_player_idx];
 
+			b32 force_switch = false;
+
 			struct game_controller *game_controller =
 				&game_state->input_manager->game_controllers[human_player->game_controller_id];
 			struct game_controller_state *game_controller_state = &game_controller->state;
@@ -144,17 +146,26 @@ void systems_player_selection(struct game_state *game_state)
 			const b32 is_human_required_player_switch =
 				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.pressed;
 
+			force_switch = is_human_required_player_switch;
+
 			const b32 is_currently_selected_player_manually_selected =
 				human_player->controlled_player.is_manually_selected;
 
 			struct entity *currently_selected_player_entity = entity_get(
 				game_state->entity_repository, human_player->controlled_player.entity_id);
 
+			if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
+				ball->last_kicker_entity_id != EID_NOT_VALID &&
+				currently_selected_player_entity->header.id == ball->last_kicker_entity_id) {
+				// Let's force a switch if we kicked the ball
+				force_switch = true;
+			}
+
 			// Human required player switch so we OR the flag as we don't want to reset it when the player releases the switch control.
 			// It's going to be reset when the player gets the ball, or other cases still TBD.
 			human_player->controlled_player.is_manually_selected |= is_human_required_player_switch;
 
-			// Don't switch away from the kicker while after touch is active
+			// Don't switch away from the kicker while after touch is active unless the human requested the switch
 			if (ball->after_touch.active &&
 				human_player->controlled_player.entity_id == ball->last_kicker_entity_id &&
 				!HAS_TIME_PASSED(game_state->time,
@@ -164,12 +175,14 @@ void systems_player_selection(struct game_state *game_state)
 				continue;
 			}
 
-			// Don't switch away from a player performing a header
+			// Don't switch away from a player performing a header if he hasn't hit the ball yet
 			{
 				if (currently_selected_player_entity &&
-					currently_selected_player_entity->player.state_machine.current_state ==
-						PS_HEADER &&
-					!is_human_required_player_switch) {
+					(currently_selected_player_entity->player.state_machine.current_state ==
+						 PS_HEADER &&
+					 !currently_selected_player_entity->player.state_machine.state_data.header
+						  .hit_ball) &&
+					!force_switch) {
 					continue;
 				}
 			}
@@ -222,9 +235,8 @@ void systems_player_selection(struct game_state *game_state)
 			}
 
 			// If current player was manually selected and didn't kick the ball in this frame we can return early.
-			// If the human is requiring another switch though we have to comply.
-			if (is_currently_selected_player_manually_selected &&
-				!is_human_required_player_switch) {
+			// If we have to force a switch though we have to comply.
+			if (is_currently_selected_player_manually_selected && !force_switch) {
 				continue;
 			}
 
@@ -236,14 +248,7 @@ void systems_player_selection(struct game_state *game_state)
 				   sizeof(entity_id_t) * team_excluded_players_list.count);
 			tmp_excluded_players_list.count += team_excluded_players_list.count;
 
-			// Shift epicenter toward own goal when opponent has possession
-			if (ball_possession == BALL_POSSESSION_OPPO) {
-				enum pitch_side own_goal_side =
-					game_state->vars.teams[team_side_idx].play_context.pitch_side;
-				v2 own_goal = game_state->vars.pitch.goal[own_goal_side].center;
-				epicenter = Vector2Lerp(epicenter, own_goal, 0.15f);
-			}
-
+			// This logic applies only if human required player switch in this frame
 			if (is_human_required_player_switch) {
 				// First we look for a player in the opposite direction of current steering, as the human
 				// is probably pressing in the direction he wants his candidate player to move to.
@@ -288,7 +293,7 @@ void systems_player_selection(struct game_state *game_state)
 				if (new_controlled_player_id != EID_NOT_VALID &&
 					new_controlled_player_id != human_player->controlled_player.entity_id) {
 					// Hysteresis: only switch if the new player is meaningfully closer
-					if (!is_human_required_player_switch && currently_selected_player_entity) {
+					if (!force_switch && currently_selected_player_entity) {
 						f32 current_distance = Vector2Distance(
 							epicenter, currently_selected_player_entity->transform.position);
 						if (nearest_player.distance > current_distance * 0.85f) {
