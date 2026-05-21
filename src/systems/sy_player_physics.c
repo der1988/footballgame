@@ -74,15 +74,30 @@ void systems_player_physics(struct game_state *game_state)
 						v2 dir_to_ball = Vector2Scale(to_ball, 1.0f / dist_to_ball);
 						v2 steering_dir = Vector2Normalize(effective_steering);
 						f32 dot = Vector2DotProduct(steering_dir, dir_to_ball);
-						f32 max_angle_cos = 0.85f; // ~30 degrees
+
+						// Widen angle tolerance at close range (60° close, 30° far)
+						f32 t = dist_to_ball / magnet_radius;
+						f32 max_angle_cos = 0.5f + 0.35f * t;
 
 						if (dot > max_angle_cos) {
-							// Blend strength: stronger when closer to ball
+							// Use existing ball lookahead to find interception point
+							struct player_ball_reachability_prediction prediction =
+								entity_player_can_reach_future_ball_position(
+									entity, physics->max_velocity,
+									game_state->vars.ball.lookahead_positions,
+									NULL, game_state);
+							v2 target_pos = prediction.can_reach_it
+								? V3_TO_V2(prediction.future_pos)
+								: ball_transform->position;
+
+							v2 dir_to_target = Vector2Normalize(
+								Vector2Subtract(target_pos, transform->position));
+
+							// Blend: player input far away, interception direction close
 							f32 proximity = 1.0f - (dist_to_ball * dist_to_ball) /
 													   (magnet_radius * magnet_radius);
-							f32 blend = 1.0f * proximity;
 							effective_steering =
-								Vector2Normalize(Vector2Lerp(steering_dir, dir_to_ball, blend));
+								Vector2Normalize(Vector2Lerp(steering_dir, dir_to_target, proximity));
 						}
 					}
 				}
