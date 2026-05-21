@@ -21,6 +21,9 @@
 #include <string.h>
 #include <time.h>
 
+const struct header_phase_window header_phase_windows[] = {
+	{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 31, 28}};
+
 const char *state_machine_player_state_string[PS_COUNT] = {
 	"none", "normal", "throw_in", "header", "sliding_tackle", "fall", "goalie"};
 

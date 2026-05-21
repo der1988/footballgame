@@ -1,4 +1,5 @@
 #include "components.h"
+#include "e_player.h"
 #include "entities.h"
 #include "e_ball.h"
 #include "football.h"
@@ -147,7 +148,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		if (ball->is_on_the_ground) {
 			apply_future_position(future_bounce, position, 0);
 		}
-		if (position.y < game_state->constants.player_max_reachable_height) {
+		if (position.y < HEADER_MAX_HEIGHT) {
 			apply_future_position(future_reachable_to_player, position, 0);
 		}
 		if (position.y < game_state->constants.goalie_max_reachable_height) {
@@ -185,7 +186,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 					apply_future_position(future_bounce, lookahead_position, dts);
 				}
 				if (!future_reachable_to_player->available &&
-					lookahead_position.y < game_state->constants.player_max_reachable_height) {
+					lookahead_position.y < HEADER_MAX_HEIGHT) {
 					apply_future_position(future_reachable_to_player, lookahead_position, dts);
 				}
 				if (!future_reachable_to_goalie->available &&

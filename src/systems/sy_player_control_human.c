@@ -32,7 +32,7 @@ static b32 should_player_jump_for_header(struct entity *player_entity,
 			game_state->vars.ball.entity->collider.colliders[0].props.circle.radius,
 			player_future_position,
 			15);
-		if (is_colliding && pos_to_check.y > game_state->constants.player_header_min_height) {
+		if (is_colliding && pos_to_check.y > HEADER_MIN_HEIGHT) {
 			// printf(
 			// 	"******** ball will be high enough for an header in %zu * 48 dts after %.2fs!!\n",
 			// 	i + 1,
@@ -116,8 +116,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 				} else if (!game_controller_state->current[GAME_CONTROL_SHOOT].digital.down &&
 						   !game_controller_state->current[GAME_CONTROL_PASS].digital.down &&
 						   !game_controller_state->current[GAME_CONTROL_LONG_PASS].digital.down &&
-						   ball_transform->virtual_height >
-							   game_state->constants.player_max_reachable_height &&
+						   ball_transform->virtual_height > HEADER_MAX_HEIGHT &&
 						   Vector2Length(player_controls->steering) < 0.1f &&
 						   game_state->vars.ball.entity->ball
 							   .future_positions[FUTURE_POSITION_BOUNCE]

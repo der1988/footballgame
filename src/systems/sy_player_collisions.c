@@ -172,6 +172,31 @@ void systems_player_collisions(struct game_state *game_state)
 				break;
 			}
 
+			struct state_machine_player_header_data *header_data =
+				&player_entity->player.state_machine.state_data.header;
+
+			if (header_data->phase == HP_GROUND || header_data->hit_ball) {
+				// Cannot hit if we are preparing the jump or we already hit the ball
+				break;
+			}
+
+			const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
+
+			struct header_phase_window hpw = header_phase_windows[header_data->phase - 1];
+
+			const f32 ball_height = ball_transform->virtual_height;
+			if (ball_height < (hpw.low - ball_radius) || ball_height > (hpw.high + ball_radius)) {
+				// Ball is outside header phase height window
+				GLOGF_DEBUG_CTX(
+					LS_GAME,
+					player_entity->header.name,
+					"missed header, ball outside header phase window: %.2f not in [%.2f - %.2f]\n",
+					ball_height,
+					hpw.low - ball_radius,
+					hpw.high + ball_radius);
+				break;
+			}
+
 			// Check if we are colliding with the ball
 			struct collider *collider = &player_entity->collider.colliders[PCT_HEADER];
 			struct collision_information collision_with_ball_info =
@@ -181,7 +206,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_header_max_height);
+					HEADER_MAX_HEIGHT);
 
 			// If we have a hit set collision information
 			if (collision_with_ball_info.is_colliding) {

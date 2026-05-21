@@ -84,9 +84,6 @@ struct game_constants {
 	f32 player_run_max_velocity;
 	f32 player_control_radius;
 	f32 player_control_height;
-	f32 player_header_min_height;
-	f32 player_header_max_height;
-	f32 player_max_reachable_height;
 	f32 player_tackle_friction_force;
 	f32 player_pass_target_not_selectable;
 
@@ -241,6 +238,19 @@ INLINE struct human_player *game_human_player_by_id(struct game_state *game_stat
 		return &game_state->human_players[id];
 	}
 	return NULL;
+}
+
+INLINE usize game_human_players_count_by_team(struct game_state *game_state,
+											  enum team_side team_side)
+{
+	usize count = 0;
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		if (game_state->human_players[i].enabled &&
+			game_state->human_players[i].team_side == team_side) {
+			count++;
+		}
+	}
+	return count;
 }
 
 INLINE struct human_player *game_input_human_player_by_player_entity_id(

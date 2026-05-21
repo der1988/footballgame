@@ -7,10 +7,22 @@
 #include "types.h"
 #include "as_animation.h"
 
+#define HEADER_PHASE_WINDOWS_COUNT 4
+#define HEADER_MIN_HEIGHT		   header_phase_windows[0].low
+#define HEADER_MAX_HEIGHT		   header_phase_windows[HEADER_PHASE_WINDOWS_COUNT - 1].high
+
 // Forward declarations
 struct entity;
 struct list_entity_ids;
 enum sprite_orientation;
+
+struct header_phase_window {
+	u8 low;
+	u8 high;
+	u8 optimal;
+};
+
+extern const struct header_phase_window header_phase_windows[HEADER_PHASE_WINDOWS_COUNT];
 
 enum state_machine_player_state {
 	PS_NONE,

@@ -133,10 +133,6 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_run_max_velocity = 11.0f * PIXELS_PER_METER,
 		.player_control_radius = 6,
 		.player_control_height = 17,
-		// Ronaldo's record is 2.93m but average is just above crossbar
-		.player_header_min_height = 16,
-		.player_header_max_height = 34,
-		.player_max_reachable_height = 34,
 		.player_tackle_friction_force = 7500,
 		.player_pass_target_not_selectable = true,
 

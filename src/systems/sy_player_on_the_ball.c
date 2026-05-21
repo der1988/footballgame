@@ -16,12 +16,6 @@
 #include <raymath.h>
 #include <stdio.h>
 
-struct header_phase_window {
-	u8 low;
-	u8 high;
-	u8 optimal;
-};
-
 void systems_player_on_the_ball(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
@@ -372,16 +366,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			break;
 		}
 		case PS_HEADER: {
-			static struct header_phase_window header_phase_windows[] = {
-				{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 31, 28}};
-
-			struct state_machine_player_header_data *header_data =
-				&player_entity->player.state_machine.state_data.header;
-
-			if (header_data->phase == HP_GROUND || header_data->hit_ball) {
-				// Cannot hit if we are preparing the jump or we already hit the ball
-				break;
-			}
+			// If we are here collision system already determined the conditions for us to hit the ball are there
 
 			struct component_physics *player_physics = &player_entity->physics;
 
@@ -429,79 +414,54 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 			const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 
+			// There's no reason to check whether ball is high enough to be hit with an header here because we already
+			// checked in the collisions system.
+			struct header_phase_window hpw = header_phase_windows[header_phase - 1];
+
+			// We get the difference between max and min hittable ball height.
+			// This is the total height valid for a header, then we divide it by 4 header phases and we get how
+			// big is each phase height.
+			// At this point we can determine how well we hit the ball based on header phase and height of the ball.
+			// This will also affect the direction of the ball.
+			const f32 header_phase_size = hpw.high - hpw.low;
+
+			const f32 delta_from_optimal_height = ball_height - hpw.optimal;
+			const f32 impact_factor = Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
+			// We clamp the impact_vertical_angle factor (-0.5, 0.5) because we want to avoid very angled hits
+			// We also raise it to the power of two, so that it's more forgiving
+			impact_vertical_angle = impact_factor * impact_factor * 0.5f;
+
+			ball_height_impact = 1 - fabsf(impact_factor);
+
+			GLOGF_DEBUG_CTX(
+				LS_GAME,
+				player_entity->header.name,
+				"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - fall_down: %.2f - vertical_angle: %.2f\n",
+				ball_height,
+				header_phase,
+				ball_height_impact,
+				hit_direction_impact,
+				player->collision_force,
+				fall_down_impact,
+				impact_vertical_angle);
+
+			// Weight of different impacts:
+			// - steering -> 1
+			// - collision force -> 1
+			// - fall down -> 1
+			// - ball height -> 1
+			header_force_mult = (hit_direction_impact + player->collision_force + fall_down_impact +
+								 ball_height_impact) /
+								4.0f;
+
 			b32 fumble = false;
-
-			// There are some conditions that will make the header look like shit
-			if (ball_height > game_state->constants.player_header_min_height) {
-				// Ball is high enough to be hit with an header
-
-				struct header_phase_window hpw = header_phase_windows[header_phase - 1];
-
-				// We get the difference between max and min hittable ball height.
-				// This is the total height valid for a header, then we divide it by 4 header phases and we get how
-				// big is each phase height.
-				// At this point we can determine how well we hit the ball based on header phase and height of the ball.
-				// This will also affect the direction of the ball.
-				const f32 header_phase_size = hpw.high - hpw.low;
-
-				if (ball_height > (hpw.high + ball_radius)) {
-					// Ball is too high, no hit!
-					GLOGF_DEBUG_CTX(LS_GAME,
-									player_entity->header.name,
-									"missed header, ball too high: %.2f > %d\n",
-									ball_height,
-									hpw.high);
-					break;
-				}
-
-				const f32 delta_from_optimal_height = ball_height - hpw.optimal;
-				const f32 impact_factor =
-					Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
-				// We clamp the impact_vertical_angle factor (-0.5, 0.5) because we want to avoid very angled hits
-				// We also raise it to the power of two, so that it's more forgiving
-				impact_vertical_angle = impact_factor * impact_factor * 0.5f;
-
-				ball_height_impact = 1 - fabsf(impact_factor);
-
-				GLOGF_DEBUG_CTX(
-					LS_GAME,
-					player_entity->header.name,
-					"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - fall_down: %.2f - vertical_angle: %.2f\n",
-					ball_height,
-					header_phase,
-					ball_height_impact,
-					hit_direction_impact,
-					player->collision_force,
-					fall_down_impact,
-					impact_vertical_angle);
-
-				// Weight of different impacts:
-				// - steering -> 1
-				// - collision force -> 1
-				// - fall down -> 1
-				// - ball height -> 1
-				header_force_mult = (hit_direction_impact + player->collision_force +
-									 fall_down_impact + ball_height_impact) /
-									4.0f;
-
-				// Passes work just like shoots but 75% of the force.
-				// if (player->state_machine.state_data.header.type == HEADER_TYPE_PASS)
-				// header_force_mult *= 0.75f;
-
-				if (ball_height < hpw.low) {
-					// Ball is too low, just fumble!
-					GLOGF_DEBUG_CTX(LS_GAME,
-									player_entity->header.name,
-									"fumbled header, ball too low for header phase: %.2f < %d\n",
-									ball_height,
-									hpw.low);
-					fumble = true;
-				}
-			} else {
+			if (ball_height < (hpw.low - ball_radius)) {
+				// Ball is too low, just fumble!
 				GLOGF_DEBUG_CTX(LS_GAME,
 								player_entity->header.name,
-								"fumbled header, ball is not high enough to be hit: %d\n",
-								header_phase);
+								"fumbled header, ball too low for header phase: %.2f < %d\n",
+								ball_height,
+								hpw.low - ball_radius);
 				fumble = true;
 			}
 
