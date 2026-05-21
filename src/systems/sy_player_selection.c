@@ -73,6 +73,12 @@ void systems_player_selection(struct game_state *game_state)
 
 	// Process one team at a time
 	for (usize team_side_idx = 0; team_side_idx < TS_COUNT; ++team_side_idx) {
+		const usize team_human_players_count =
+			game_human_players_count_by_team(game_state, team_side_idx);
+		if (team_human_players_count == 0) {
+			// No point in running this logic for pure AI team
+			continue;
+		}
 
 		// Let's determine if this team is in possession of the ball
 		enum ball_possession ball_possession = BALL_POSSESSION_NONE;
@@ -215,26 +221,15 @@ void systems_player_selection(struct game_state *game_state)
 				}
 			}
 
-			b32 currently_selected_player_kicked_ball = false;
-
-			// On the kick frame, last_touch_time == last_kick_time so ball_possession
-			// is BALL_POSSESSION_NONE and the block above is skipped. Detect the
-			// kick here so we deselect the kicker immediately.
-			if (currently_selected_player_entity &&
-				currently_selected_player_entity->player.kicked_ball) {
-				LIST_ADD(tmp_excluded_players_list, human_player->controlled_player.entity_id);
-				currently_selected_player_kicked_ball = true;
-			}
-
 			// If current player was manually selected and didn't kick the ball in this frame we can return early.
 			// If the human is requiring another switch though we have to comply.
 			if (is_currently_selected_player_manually_selected &&
-				!is_human_required_player_switch && !currently_selected_player_kicked_ball) {
+				!is_human_required_player_switch) {
 				continue;
 			}
 
 			// Add team wide excluded players to the temporary list of this iteration
-			assert(tmp_excluded_players_list.size >
+			assert(tmp_excluded_players_list.size >=
 				   (tmp_excluded_players_list.count + team_excluded_players_list.count));
 			memcpy(&tmp_excluded_players_list.array[tmp_excluded_players_list.count],
 				   team_excluded_players_list.array,
@@ -261,7 +256,7 @@ void systems_player_selection(struct game_state *game_state)
 				const b32 switch_target_found = entity_player_find_switch_target(
 					ball_transform->position,
 					scan_direction,
-					30,
+					45,
 					300,
 					human_player->team_side,
 					currently_selected_player_entity ? currently_selected_player_entity->header.id :
