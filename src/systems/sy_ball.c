@@ -19,6 +19,7 @@ static void apply_future_position(struct future_position *future_position, v3 po
 
 static v3 calculate_after_touch_acceleration(v2 direction,
 											 struct component_ball *ball,
+											 v3 ball_velocity,
 											 fg_time_t time,
 											 struct game_state *game_state);
 
@@ -120,7 +121,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				&game_state->input_manager->game_controllers[human_player->game_controller_id];
 			after_touch_direction = calculate_movement_vector(game_controller);
 			after_touch_accel = calculate_after_touch_acceleration(
-				after_touch_direction, ball, game_state->time, game_state);
+				after_touch_direction, ball, physics3d->velocity, game_state->time, game_state);
 		}
 
 		b32 on_the_ground;
@@ -170,6 +171,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 				v3 after_touch_accel =
 					calculate_after_touch_acceleration(after_touch_direction,
 													   ball,
+													   lookahead_velocity,
 													   game_state->time + dts * game_state->dt,
 													   game_state);
 
@@ -274,6 +276,7 @@ static void apply_future_position(struct future_position *future_position, v3 po
 
 static v3 calculate_after_touch_acceleration(v2 direction,
 											 struct component_ball *ball,
+											 v3 ball_velocity,
 											 fg_time_t time,
 											 struct game_state *game_state)
 {
@@ -303,8 +306,15 @@ static v3 calculate_after_touch_acceleration(v2 direction,
 		}
 
 		if (apply_after_touch) {
-			// Make it 3D
-			v3 after_touch_direction = V2_TO_V3(after_touch_side, 0);
+			// Extract signed swerve amount from after_touch_side
+			f32 after_touch_amount = Vector2ProjectScalar(
+				ball->after_touch.activation_direction, after_touch_side);
+
+			// Apply force perpendicular to the ball's current velocity
+			v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
+			v2 force_dir_2d = Vector2Scale(
+				Vector2Perp(Vector2Normalize(ball_velocity_2d)), after_touch_amount);
+			v3 after_touch_direction = V2_TO_V3(force_dir_2d, 0);
 
 			// After touch force decays exponentially with time.
 			// Formula is:
