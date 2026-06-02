@@ -61,6 +61,7 @@ struct game_constants {
 	f32 ball_chip_shot_height;
 	f32 ball_pass_force;
 	f32 ball_pass_height;
+	f32 ball_pass_auto_max_distance;
 	f32 ball_long_pass_force;
 	f32 ball_long_pass_height;
 	f32 ball_long_driven_pass_force;

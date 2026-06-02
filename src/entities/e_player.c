@@ -647,12 +647,14 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   v2 scan_direction,
 								   f32 detection_angle,
+								   f32 target_distance,
 								   f32 max_distance,
 								   struct entity **out_pass_target,
 								   struct game_state *game_state)
 {
-	b32 is_player_human_controlled = game_input_human_player_by_player_entity_id(
-										 game_state, player_on_the_ball_entity->header.id) != NULL;
+	const b32 is_player_human_controlled =
+		game_input_human_player_by_player_entity_id(game_state,
+													player_on_the_ball_entity->header.id) != NULL;
 
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
@@ -674,7 +676,7 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 
 			v2 to_player =
 				Vector2Subtract(transform->position, player_on_the_ball_entity->transform.position);
-			f32 distance_from_player_sqr = Vector2LengthSqr(to_player);
+			f32 distance_from_player = Vector2Length(to_player);
 			f32 angle = fabs(Vector2Angle(scan_direction, to_player) * RAD2DEG);
 
 			if (angle > detection_angle)
@@ -697,15 +699,23 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 				game_state);
 
 			f32 score = 0;
+			// If a target distance is specified we use the difference with candidate player distance
+			// as a distance factor to rank players.
+			// Basically we want to target the player that is nearer to the target point identified by
+			// the target distance along the direction vector going from the player in possession to the
+			// candidate player.
+			const f32 distance_from_target = fabsf(distance_from_player - target_distance);
 			if (!is_player_human_controlled) {
-				score =
-					0.15f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
+				f32 distance_factor = Clamp01((distance_from_target * distance_from_target) /
+											  (max_distance * max_distance));
+				score = 0.15f * (1 - distance_factor);
 				score += 0.5f * Clamp01((game_state->time - last_time_selected_for_pass) / 1.f);
 				score += 0.15f * nearer_to_goal;
 				score += 0.2f * clear_trajectory;
 			} else {
-				score =
-					0.33f * (1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance)));
+				f32 distance_factor = Clamp01((distance_from_target * distance_from_target) /
+											  (max_distance * max_distance));
+				score = 0.33f * (1 - distance_factor);
 				score += 0.67f * clear_trajectory;
 			}
 

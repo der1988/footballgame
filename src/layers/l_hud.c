@@ -57,6 +57,7 @@ void layer_hud_draw(layer_hud_t *handle, struct game_state *game_state)
 			case GAME_CONTROL_SHOOT:
 				power = SHOOT_POWER(current_duration);
 				break;
+			case GAME_CONTROL_AUTOMATIC_PASS:
 			case GAME_CONTROL_PASS:
 				power = PASS_POWER(current_duration);
 				break;

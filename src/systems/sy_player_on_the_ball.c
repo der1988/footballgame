@@ -144,17 +144,30 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				player->last_kick_time = game_state->time;
 				v3 pass_direction;
 				struct entity *teammate_entity;
-				b32 found = entity_player_find_pass_target(
-					player_entity, steering, 30, 300, &teammate_entity, game_state);
 				f32 power = player_controls->pass;
-				b32 automatic_pass = found && player_controls->automatic_pass;
+				b32 automatic_pass = player_controls->automatic_pass;
 				if (automatic_pass) {
-					struct component_transform *teammate_transform = &teammate_entity->transform;
-					v2 to_teammate = Vector2Subtract(teammate_transform->position, player_position);
-					pass_direction = Vector3Normalize(
-						V2_TO_V3(to_teammate, game_state->constants.ball_pass_height));
-					ball->pass_target_entity_id = teammate_entity->header.id;
-					power = Clamp01(Vector2Length(to_teammate) / 300.0f);
+					f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
+					b32 found = entity_player_find_pass_target(player_entity,
+															   steering,
+															   30,
+															   power * max_distance,
+															   max_distance,
+															   &teammate_entity,
+															   game_state);
+					if (found) {
+						struct component_transform *teammate_transform =
+							&teammate_entity->transform;
+						v2 to_teammate =
+							Vector2Subtract(teammate_transform->position, player_position);
+						pass_direction = Vector3Normalize(
+							V2_TO_V3(to_teammate, game_state->constants.ball_pass_height));
+						ball->pass_target_entity_id = teammate_entity->header.id;
+						power = Clamp01(Vector2Length(to_teammate) / max_distance);
+					} else {
+						pass_direction = Vector3Normalize(
+							V2_TO_V3(steering, game_state->constants.ball_pass_height));
+					}
 				} else {
 					pass_direction = Vector3Normalize(
 						V2_TO_V3(steering, game_state->constants.ball_pass_height));

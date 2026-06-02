@@ -134,7 +134,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				player_entity,
 				ORIENTATION_VECTORS[player_entity->sprite.orientation],
 				90,
-				300,
+				0,
+				game_state->constants.ball_pass_auto_max_distance,
 				&teammate_entity,
 				game_state);
 			if (pass_target_found && nearest_facing_oppo_found) {

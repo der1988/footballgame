@@ -156,7 +156,8 @@ void systems_player_control_ai(struct game_state *game_state)
 						entity,
 						ORIENTATION_VECTORS[entity->sprite.orientation],
 						180,
-						300,
+						0,
+						game_state->constants.ball_pass_auto_max_distance,
 						&teammate,
 						game_state);
 					if (found && teammate->player.state_machine.current_state != PS_GOALIE) {

@@ -262,6 +262,7 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   v2 scan_direction,
 								   f32 detection_angle,
+								   f32 target_distance,
 								   f32 max_distance,
 								   struct entity **out_pass_target,
 								   struct game_state *game_state);
