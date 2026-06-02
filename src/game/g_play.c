@@ -70,6 +70,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	// Prepare GFX
 	gfx_player_prepare(game_state);
 	gfx_goalie_prepare(game_state);
+	gfx_hud_prepare(game_state);
 
 	// pitch in reality is 105m long
 	// pitch in game is 1080 pixels long

@@ -148,12 +148,15 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		}
 		if (ball->is_on_the_ground) {
 			apply_future_position(future_bounce, position, 0);
+			game_state->vars.hud.show_crosshair = false;
 		}
 		if (position.y < HEADER_MAX_HEIGHT) {
 			apply_future_position(future_reachable_to_player, position, 0);
 		}
 		if (position.y < game_state->constants.goalie_max_reachable_height) {
 			apply_future_position(future_reachable_to_goalie, position, 0);
+		} else {
+			game_state->vars.hud.show_crosshair = true;
 		}
 
 		// Calculate next 'ball_lookaheads' look ahead positions, ball_lookahead_dts dts apart from each other
@@ -307,13 +310,13 @@ static v3 calculate_after_touch_acceleration(v2 direction,
 
 		if (apply_after_touch) {
 			// Extract signed swerve amount from after_touch_side
-			f32 after_touch_amount = Vector2ProjectScalar(
-				ball->after_touch.activation_direction, after_touch_side);
+			f32 after_touch_amount =
+				Vector2ProjectScalar(ball->after_touch.activation_direction, after_touch_side);
 
 			// Apply force perpendicular to the ball's current velocity
 			v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
-			v2 force_dir_2d = Vector2Scale(
-				Vector2Perp(Vector2Normalize(ball_velocity_2d)), after_touch_amount);
+			v2 force_dir_2d =
+				Vector2Scale(Vector2Perp(Vector2Normalize(ball_velocity_2d)), after_touch_amount);
 			v3 after_touch_direction = V2_TO_V3(force_dir_2d, 0);
 
 			// After touch force decays exponentially with time.

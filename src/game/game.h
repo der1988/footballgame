@@ -129,6 +129,9 @@ struct game_vars {
 		struct team_info info;
 		struct team_play_context play_context;
 	} teams[TS_COUNT];
+	struct {
+		b32 show_crosshair;
+	} hud;
 	struct entity *camera_entity;
 	struct {
 		struct entity *entity;
@@ -160,6 +163,10 @@ struct game_gfx {
 	struct ball {
 		asset_sprite_frame_id_t roll_animations[SO_COUNT];
 	} ball;
+
+	struct {
+		asset_sprite_frame_id_t crosshair;
+	} hud;
 };
 
 //	"player", "goalie", "dive", "tackle_1", "tackle_2", "header", "body"};
