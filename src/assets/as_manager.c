@@ -20,31 +20,10 @@ struct assets asset_manager_load_everything(memory_arena_handle_t *memory_arena)
 	assert(texture);
 
 	// Player spritesheet
-	texture = asset_texture_load(texture_cache, "res/spritesheets/player.png");
+	texture = asset_texture_load(texture_cache, "res/spritesheets/sprites.png");
 	assert(texture);
 	i32 loaded = asset_sprite_frames_load_from_json(
-		sprite_frame_cache, texture->id, "res/spritesheets/player.json");
-	assert(loaded != -1);
-
-	// Goalkeeper spritesheet
-	texture = asset_texture_load(texture_cache, "res/spritesheets/goalkeeper.png");
-	assert(texture);
-	loaded = asset_sprite_frames_load_from_json(
-		sprite_frame_cache, texture->id, "res/spritesheets/goalkeeper.json");
-	assert(loaded != -1);
-
-	// Ball spritesheet
-	texture = asset_texture_load(texture_cache, "res/spritesheets/ball.png");
-	assert(texture);
-	loaded = asset_sprite_frames_load_from_json(
-		sprite_frame_cache, texture->id, "res/spritesheets/ball.json");
-	assert(loaded != -1);
-
-	// Other spritesheets
-	texture = asset_texture_load(texture_cache, "res/spritesheets/other.png");
-	assert(texture);
-	loaded = asset_sprite_frames_load_from_json(
-		sprite_frame_cache, texture->id, "res/spritesheets/other.json");
+		sprite_frame_cache, texture->id, "res/spritesheets/sprites.json");
 	assert(loaded != -1);
 
 	// Animations
