@@ -454,8 +454,9 @@ static void draw(struct game_state *game_state)
 		0,
 		WHITE);
 
+	systems_render_hud_back(game_state);
 	systems_render(game_state);
-	systems_render_hud(game_state);
+	systems_render_hud_front(game_state);
 	systems_render_debug(game_state);
 
 	EndMode2D();

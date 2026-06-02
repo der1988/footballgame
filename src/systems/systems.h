@@ -20,7 +20,8 @@ void systems_goalie(struct game_state *game_state);
 void systems_action(struct game_state *game_state);
 void systems_camera(struct game_state *game_state);
 void systems_render(struct game_state *game_state);
-void systems_render_hud(struct game_state *game_state);
+void systems_render_hud_front(struct game_state *game_state);
+void systems_render_hud_back(struct game_state *game_state);
 void systems_render_debug(struct game_state *game_state);
 void systems_time_machine(struct game_state *game_state);
 

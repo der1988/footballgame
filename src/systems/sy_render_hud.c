@@ -7,7 +7,7 @@
 
 static color_t g_player_colors[] = {RED, BLUE};
 
-void systems_render_hud(struct game_state *game_state)
+void systems_render_hud_front(struct game_state *game_state)
 {
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		if (!game_state->human_players[i].enabled)
@@ -22,7 +22,10 @@ void systems_render_hud(struct game_state *game_state)
 			DrawCircleV(Vector2Add(transform->position, (v2){.y = -25}), 2, g_player_colors[i]);
 		}
 	}
+}
 
+void systems_render_hud_back(struct game_state *game_state)
+{
 	// Next bounce crosshair
 	struct future_position *bounce_position =
 		&game_state->vars.ball.entity->ball.future_positions[FUTURE_POSITION_BOUNCE];
