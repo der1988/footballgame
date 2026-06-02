@@ -152,11 +152,11 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		}
 		if (position.y < HEADER_MAX_HEIGHT) {
 			apply_future_position(future_reachable_to_player, position, 0);
+		} else {
+			game_state->vars.hud.show_crosshair = true;
 		}
 		if (position.y < game_state->constants.goalie_max_reachable_height) {
 			apply_future_position(future_reachable_to_goalie, position, 0);
-		} else {
-			game_state->vars.hud.show_crosshair = true;
 		}
 
 		// Calculate next 'ball_lookaheads' look ahead positions, ball_lookahead_dts dts apart from each other
