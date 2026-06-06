@@ -394,20 +394,8 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				hit_direction = player_controls->steering;
 			} else {
 				// If steering is zero we use the orientation of player's sprite
-				hit_direction = ORIENTATION_VECTORS[player_entity->sprite.orientation];
-			}
-
-			// Here we determine how hit direction is compatible with ball direction.
-			// Logic is if the ball is moving in the same direction of the hit we will not be
-			// able to apply any force at all.
-			f32 hit_direction_impact = 1;
-			// Projection is positive if vectors are mostly aligned, negative is they are opposite
-			f32 hit_direction_projection_on_ball_velocity = Vector2ProjectScalar(
-				hit_direction, Vector2Normalize(V3_TO_V2(ball_physics_3d->velocity)));
-			if (hit_direction_projection_on_ball_velocity > 0.5f) {
-				// After 90 degrees of angle between hit and ball direction the hit is considered suboptimal
-				// because it becomes difficult to apply force
-				hit_direction_impact = 1 - (hit_direction_projection_on_ball_velocity - 0.5f) * 2;
+				hit_direction =
+					Vector2Normalize(ORIENTATION_VECTORS[player_entity->sprite.orientation]);
 			}
 
 			// If player is in the falling phase of the header we won't be able to apply any force.
@@ -439,33 +427,28 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			const f32 header_phase_size = hpw.high - hpw.low;
 
 			const f32 delta_from_optimal_height = ball_height - hpw.optimal;
-			const f32 impact_factor = Clamp(delta_from_optimal_height / header_phase_size, -1, 1);
+			const f32 impact_factor =
+				Clamp(delta_from_optimal_height / (header_phase_size * 0.5f), -1, 1);
 			// We clamp the impact_vertical_angle factor (-0.5, 0.5) because we want to avoid very angled hits
 			// We also raise it to the power of two, so that it's more forgiving
-			impact_vertical_angle = impact_factor * impact_factor * 0.5f;
+			impact_vertical_angle = impact_factor * fabsf(impact_factor) * 0.5f;
 
 			ball_height_impact = 1 - fabsf(impact_factor);
 
 			GLOGF_DEBUG_CTX(
 				LS_GAME,
 				player_entity->header.name,
-				"ball height: %.2f - HP: %d - ball_height: %.2f - hit_direction: %.2f - collision: %.2f - fall_down: %.2f - vertical_angle: %.2f\n",
+				"ball height: %.2f - HP: %d - ball_height: %.2f - fall_down: %.2f - vertical_angle: %.2f\n",
 				ball_height,
 				header_phase,
 				ball_height_impact,
-				hit_direction_impact,
-				player->collision_force,
 				fall_down_impact,
 				impact_vertical_angle);
 
 			// Weight of different impacts:
-			// - steering -> 1
-			// - collision force -> 1
 			// - fall down -> 1
 			// - ball height -> 1
-			header_force_mult = (hit_direction_impact + player->collision_force + fall_down_impact +
-								 ball_height_impact) /
-								4.0f;
+			header_force_mult = (fall_down_impact + ball_height_impact) / 2.0f;
 
 			b32 fumble = false;
 			if (ball_height < (hpw.low - ball_radius)) {
@@ -478,24 +461,27 @@ void systems_player_on_the_ball(struct game_state *game_state)
 				fumble = true;
 			}
 
-			// Header will inherit force from either player or ball velocities
-			const f32 inherited_velocity = sqrt(MAX(Vector2LengthSqr(player_physics->velocity),
-													Vector3LengthSqr(ball_physics_3d->velocity)));
+			// Header will inherit force from player + ball collision
+			const v3 collision_velocity =
+				Vector3Subtract(V2_TO_V3(player_physics->velocity, 0), ball_physics_3d->velocity);
+			const f32 inherited_force = Vector3Length(collision_velocity);
+
 			f32 header_force;
 			if (fumble) {
 				header_force = game_state->constants.ball_header_fumble_force;
 			} else {
-				// We take the max velocity between player and ball to determine the force we should apply to the ball
-				header_force = MAX(header_force_mult * inherited_velocity,
+				// We sum inherited force with a specific header force that depends on player's heading ability
+				// and then multiply by the multiplier we calculated above
+				header_force = MAX(header_force_mult * (inherited_force + 5 * PIXELS_PER_METER),
 								   game_state->constants.ball_header_min_force);
 			}
 
-			GLOGF_DEBUG_CTX(LS_GAME,
-							player_entity->header.name,
-							"header [inherited_vel: %.2f, mult: %.2f, force:%.2f]\n",
-							inherited_velocity,
-							header_force_mult,
-							header_force);
+			GLOGF_INFO_CTX(LS_GAME,
+						   player_entity->header.name,
+						   "header [inherited_vel: %.2f, mult: %.2f, force:%.2f]\n",
+						   inherited_force,
+						   header_force_mult,
+						   header_force);
 
 			entity_ball_header(ball_entity,
 							   player_on_the_ball_entity_id,

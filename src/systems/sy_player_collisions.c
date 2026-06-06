@@ -187,7 +187,7 @@ void systems_player_collisions(struct game_state *game_state)
 			const f32 ball_height = ball_transform->virtual_height;
 			if (ball_height < (hpw.low - ball_radius) || ball_height > (hpw.high + ball_radius)) {
 				// Ball is outside header phase height window
-				GLOGF_DEBUG_CTX(
+				GLOGF_TRACE_CTX(
 					LS_GAME,
 					player_entity->header.name,
 					"missed header, ball outside header phase window: %.2f not in [%.2f - %.2f]\n",

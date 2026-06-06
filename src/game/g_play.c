@@ -111,7 +111,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ball_long_driven_pass_force = 40 * PIXELS_PER_METER,
 		.ball_long_driven_pass_height = 0.3f,
 		.ball_tackle_force = 20 * PIXELS_PER_METER,
-		.ball_header_min_force = 12.5f * PIXELS_PER_METER,
+		.ball_header_min_force = 12.5 * PIXELS_PER_METER,
 		.ball_header_fumble_force = 4 * PIXELS_PER_METER,
 		// 36m/s seems fair, that would be 129km/h
 		.ball_max_velocity = 36 * PIXELS_PER_METER,
@@ -408,7 +408,9 @@ void game_play_draw_scene_to_texture(struct game_state *game_state,
 		0,
 		WHITE);
 
+	systems_render_hud_back(game_state);
 	systems_render(game_state);
+	systems_render_hud_front(game_state);
 
 	EndMode2D();
 
