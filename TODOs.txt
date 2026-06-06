@@ -142,3 +142,4 @@ v fix ball bounces on the back of the goalkeeper when hitting the post (at least
 - goalkeeper should go out when facing player alone to reduce the size of the available goal
 - fix bug where gk dives when the ball hits a post
 - we don't need a b32 for each game control, we just need a bit
+- implement game manager that governs the gameplay (what happens if the ball goes outside the pitch? etc)
