@@ -3,7 +3,7 @@
 #include "game.h"
 #include <assert.h>
 
-#define TARGET_FRAMERATE 60
+#define TARGET_FRAMERATE 100
 #define FRAME_TIME		 (1.0f / TARGET_FRAMERATE)
 
 #define SCENE_MEMORY_MBS 1614
