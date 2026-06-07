@@ -215,26 +215,4 @@ void systems_goal(struct game_state *game_state)
 			}
 		}
 	}
-
-	// TODO: move this thing in a proper location
-	if (game_state->vars.match.state == MS_PLAY &&
-		!CheckCollisionPointRec(ball_transform->position, game_state->vars.pitch.field)) {
-		// Ball is out of bounds
-		rect_t *pitch_rectangle = &game_state->vars.pitch.field;
-		if (ball_transform->position.x < pitch_rectangle->x - 50) {
-			// Throw in left
-			football_match_change_state(game_state, MS_THROW_IN);
-		} else if (ball_transform->position.x >
-				   (pitch_rectangle->x + pitch_rectangle->width + 50)) {
-			// Throw in right
-			football_match_change_state(game_state, MS_THROW_IN);
-		} else if (ball_transform->position.y < pitch_rectangle->y - 50) {
-			// Corner kick north
-			football_match_change_state(game_state, MS_CORNER_KICK);
-		} else if (ball_transform->position.y >
-				   (pitch_rectangle->y + pitch_rectangle->height + 50)) {
-			// Corner kick south
-			football_match_change_state(game_state, MS_CORNER_KICK);
-		}
-	}
 }

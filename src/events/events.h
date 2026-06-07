@@ -10,6 +10,10 @@ struct game_state;
 
 enum event_type {
 	EVT_GOAL_SCORED,
+	EVT_BALL_OOB_NORTH,
+	EVT_BALL_OOB_SOUTH,
+	EVT_BALL_OOB_EAST,
+	EVT_BALL_OOB_WEST,
 	EVT_COUNT
 };
 
@@ -21,8 +25,9 @@ struct events_router *events_router_create(memory_arena_handle_t *memory_arena_h
 void events_router_destroy(events_router_t *handle);
 
 void events_router_add_listener(events_router_t *handle,
-								enum event_type event_type,
-								void(listener)(enum event_type, void *));
+								void (*listener)(enum event_type, void *),
+								usize count,
+								...);
 void events_router_publish(events_router_t *handle, enum event_type event_type, void *context);
 
 #endif // !EVENTS_H

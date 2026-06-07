@@ -171,6 +171,10 @@ INLINE v2 football_pitch_position_abs_to_normalized(rect_t pitch, v2 pos)
 	return pos;
 }
 
-void football_setup(struct game_state *game_state);
+void football_pitch_setup(struct game_state *game_state);
+
+void football_match_setup(struct game_state *game_state);
+void football_training_setup(struct game_state *game_state);
+void football_test_setup(struct game_state *game_state);
 
 #endif // !FOOTBALL_H

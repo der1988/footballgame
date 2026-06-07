@@ -166,7 +166,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	// Initialise input manager
 	game_state->input_manager = input_manager_create(game_state->memory_by_lifetime[MAL_LEVEL]);
 
-	// Get pitch texture id
+	// Get pitch texture
 	game_state->pitch_texture =
 		asset_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
 	assert(game_state->pitch_texture);
@@ -182,8 +182,10 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
 												   (f32)game_state->config.virtual_screen_height);
 
+	football_pitch_setup(game_state);
+
 #ifndef RUNNING_TEST
-	football_setup(game_state);
+	football_match_setup(game_state);
 #endif
 
 	game_state->initialised = true;
@@ -380,6 +382,7 @@ static void update(struct game_state *game_state)
 	systems_player_selection(game_state);
 	systems_ball(game_state);
 	systems_goal(game_state);
+	systems_oob_checks(game_state);
 	systems_action(game_state);
 	systems_camera(game_state);
 #ifndef DISABLE_TIME_MACHINE

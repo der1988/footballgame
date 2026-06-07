@@ -34,7 +34,7 @@ void test_events()
 	memory_arena_handle_t *handle = memory_arena_create_default("test_arena", buffer, Megabytes(1));
 
 	struct events_router *events_router = events_router_create(handle);
-	events_router_add_listener(events_router, EVT_GOAL_SCORED, test_listener);
+	events_router_add_listener(events_router, test_listener, 1, EVT_GOAL_SCORED);
 
 	struct test_context test_context = {.value = 69};
 
@@ -42,7 +42,7 @@ void test_events()
 
 	assert(listener_called_times == 1);
 
-	events_router_add_listener(events_router, EVT_GOAL_SCORED, test_listener);
+	events_router_add_listener(events_router, test_listener, 1, EVT_GOAL_SCORED);
 	events_router_publish(events_router, EVT_GOAL_SCORED, &test_context);
 
 	assert(listener_called_times == 3);

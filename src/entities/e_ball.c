@@ -20,8 +20,6 @@ const char *state_machine_ball_state_string[BS_COUNT] = {
 forward_declare_state_machine_functions(ball);
 implement_state_machine_functions(ball);
 
-static void on_goal_scored(enum event_type event_type, void *context);
-
 static void set_after_touch(struct component_ball *ball);
 static void reset_after_touch(struct component_ball *ball);
 
@@ -90,8 +88,6 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	ball->last_touch_time = 0;
 
 	gfx_ball_prepare(game_state);
-
-	events_router_add_listener(game_state->events_router, EVT_GOAL_SCORED, on_goal_scored);
 
 	ball_state_machine_on_enter(entity, game_state);
 
@@ -488,16 +484,6 @@ entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 	} else {
 		return EID_NOT_VALID;
 	}
-}
-
-// Event listeners
-static void on_goal_scored(enum event_type event_type, void *context)
-{
-	UNUSED(event_type);
-
-	struct game_state *game_state = (struct game_state *)context;
-
-	football_match_change_state(game_state, MS_GOAL);
 }
 
 static void set_after_touch(struct component_ball *ball)
