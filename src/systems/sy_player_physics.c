@@ -83,21 +83,23 @@ void systems_player_physics(struct game_state *game_state)
 							// Use existing ball lookahead to find interception point
 							struct player_ball_reachability_prediction prediction =
 								entity_player_can_reach_future_ball_position(
-									entity, physics->max_velocity,
+									entity,
+									physics->max_velocity,
 									game_state->vars.ball.lookahead_positions,
-									NULL, game_state);
-							v2 target_pos = prediction.can_reach_it
-								? V3_TO_V2(prediction.future_pos)
-								: ball_transform->position;
+									NULL,
+									game_state);
+							v2 target_pos = prediction.can_reach_it ?
+												V3_TO_V2(prediction.future_pos) :
+												ball_transform->position;
 
-							v2 dir_to_target = Vector2Normalize(
-								Vector2Subtract(target_pos, transform->position));
+							v2 dir_to_target =
+								Vector2Normalize(Vector2Subtract(target_pos, transform->position));
 
 							// Blend: player input far away, interception direction close
 							f32 proximity = 1.0f - (dist_to_ball * dist_to_ball) /
 													   (magnet_radius * magnet_radius);
-							effective_steering =
-								Vector2Normalize(Vector2Lerp(steering_dir, dir_to_target, proximity));
+							effective_steering = Vector2Normalize(
+								Vector2Lerp(steering_dir, dir_to_target, proximity));
 						}
 					}
 				}
@@ -196,7 +198,7 @@ void systems_player_physics(struct game_state *game_state)
 			}
 			// Suspension
 			else if (!header_state_data->should_fall_down) {
-				static f32 delay_by_phase[] = {0, 0.05f, 0.10f, 0.15f, 0.2f};
+				static f32 delay_by_phase[] = {0, 0.04f, 0.08f, 0.12f, 0.16f, 0.2f};
 				if (HAS_TIME_PASSED(game_state->time,
 									header_state_data->elevation_completion_time,
 									delay_by_phase[header_state_data->phase])) {
@@ -226,8 +228,9 @@ void systems_player_physics(struct game_state *game_state)
 			// 1 -> HP_AIR_1
 			// 1 -> HP_AIR_2
 			// 1 -> HP_AIR_3
-			// 4 -> HP_MAX_ELEVATION
-			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4};
+			// 4 -> HP_AIR_4
+			// 5 -> HP_MAX_ELEVATION
+			static u16 animation_frames[] = {0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5};
 			header_state_data->phase = animation_frames[new_frame_id];
 
 			// Apply friction

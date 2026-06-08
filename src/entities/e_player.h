@@ -7,7 +7,7 @@
 #include "types.h"
 #include "as_animation.h"
 
-#define HEADER_PHASE_WINDOWS_COUNT 4
+#define HEADER_PHASE_WINDOWS_COUNT 5
 #define HEADER_MIN_HEIGHT		   header_phase_windows[0].low
 #define HEADER_MAX_HEIGHT		   header_phase_windows[HEADER_PHASE_WINDOWS_COUNT - 1].high
 
