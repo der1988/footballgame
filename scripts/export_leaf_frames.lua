@@ -64,11 +64,18 @@ end
 local exported = 0
 for _, layer in ipairs(wantedLeaves) do
   layer.isVisible = true
+  -- Skip frames the artist never drew on this layer (no cel). Renumber
+  -- surviving frames from 0 so output indices match animations.json's
+  -- compact per-animation indexing.
+  local outIdx = 0
   for f = 1, #sprite.frames do
-    local img = Image(sprite.spec)
-    img:drawSprite(sprite, f)
-    img:saveAs(string.format("%s/%s_%d.png", outdir, layer.name, f - 1))
-    exported = exported + 1
+    if layer:cel(f) ~= nil then
+      local img = Image(sprite.spec)
+      img:drawSprite(sprite, f)
+      img:saveAs(string.format("%s/%s_%d.png", outdir, layer.name, outIdx))
+      outIdx = outIdx + 1
+      exported = exported + 1
+    end
   end
   layer.isVisible = false
 end
