@@ -351,6 +351,9 @@ void entity_ball_long_pass(struct entity *ball_entity,
 			math_ext_split_lerp(game_state->constants.ball_long_pass_force, 0.5f, power);
 	}
 
+	// reset velocity to avoid existing inertia affecting the trajectory
+	physics3d->velocity = Vector3Zero();
+
 	physics3d->accel = Vector3Add(
 		physics3d->accel, Vector3Scale(long_pass_direction, long_pass_force / game_state->dt));
 
