@@ -92,8 +92,8 @@ union state_machine_player_state_data {
 	struct state_machine_default_empty_data goalie;
 };
 
-define_state_machine(player);
-define_state_machine_functions(player);
+define_state_machine(player, struct entity);
+define_state_machine_functions(player, struct entity);
 
 enum state_machine_goalie_state {
 	GS_NONE,
@@ -142,8 +142,8 @@ enum player_collider_type {
 
 extern const char *player_collider_type_to_string[PCT_COUNT];
 
-define_state_machine(goalie);
-define_state_machine_functions(goalie);
+define_state_machine(goalie, struct entity);
+define_state_machine_functions(goalie, struct entity);
 
 #define check_is_player_and_declare_components(entity)                                             \
 	struct component_transform *transform = &entity->transform;                                    \

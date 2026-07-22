@@ -245,7 +245,7 @@ void systems_player_physics(struct game_state *game_state)
 			entity_player_physics_apply_velocity(entity, game_state);
 
 			if (header_state_data->animation_completed) {
-				entity_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
@@ -265,7 +265,7 @@ void systems_player_physics(struct game_state *game_state)
 						.player_tackle_friction_force); // TODO: this should depend on type of pitch
 			} else if (HAS_TIME_PASSED(
 						   game_state->time, sliding_tackle_state_data->start_time, 0.5f)) {
-				entity_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
@@ -316,7 +316,7 @@ void systems_player_physics(struct game_state *game_state)
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
-				entity_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}

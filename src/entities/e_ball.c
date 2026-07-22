@@ -17,8 +17,8 @@
 const char *state_machine_ball_state_string[BS_COUNT] = {
 	"none", "in_play", "out_of_play", "gk_hands"};
 
-forward_declare_state_machine_functions(ball);
-implement_state_machine_functions(ball);
+forward_declare_state_machine_functions(ball, struct entity);
+implement_state_machine_functions(ball, struct entity);
 
 static void set_after_touch(struct component_ball *ball);
 static void reset_after_touch(struct component_ball *ball);
@@ -79,7 +79,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	struct component_ball *ball = &entity->ball;
 	ball->header.enabled = true;
 	struct state_machine_ball *state_machine = &entity->ball.state_machine;
-	state_machine->owner_entity = entity->header.id;
+	state_machine->ctx = entity;
 	state_machine->previous_state = BS_NONE;
 	state_machine->current_state = BS_IN_PLAY;
 	ball->last_touch_entity_id = EID_NOT_VALID;
@@ -437,7 +437,7 @@ void entity_ball_held_by_goalie(struct entity *ball_entity,
 
 	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
 
-	entity_ball_state_machine_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
+	ball_state_machine_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
 
 	reset_after_touch(&ball_entity->ball);
 }
@@ -457,7 +457,7 @@ void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *gam
 {
 	struct component_ball *ball = &ball_entity->ball;
 
-	entity_ball_state_machine_change_state_to(&ball->state_machine, BS_IN_PLAY, game_state);
+	ball_state_machine_change_state_to(&ball->state_machine, BS_IN_PLAY, game_state);
 }
 
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,

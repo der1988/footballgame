@@ -53,11 +53,11 @@ static f32 mass_from_weight(u8 weight) { return char_lerp(weight, 60.0f, 95.0f);
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
-forward_declare_state_machine_functions(player);
-forward_declare_state_machine_functions(goalie);
+forward_declare_state_machine_functions(player, struct entity);
+forward_declare_state_machine_functions(goalie, struct entity);
 
-implement_state_machine_functions(player);
-implement_state_machine_functions(goalie);
+implement_state_machine_functions(player, struct entity);
+implement_state_machine_functions(goalie, struct entity);
 
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
@@ -122,7 +122,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	// Sets initial max velocity to half of max run velocity
 	player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
 	struct state_machine_player *player_state_machine = &player->state_machine;
-	player_state_machine->owner_entity = entity->header.id;
+	player_state_machine->ctx = entity;
 	player_state_machine->previous_state = PS_NONE;
 
 	// Initialise action
@@ -138,7 +138,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 		struct component_goalie *goalie = &entity->goalie;
 		goalie->header.enabled = true;
 		struct state_machine_goalie *state_machine = &goalie->state_machine;
-		state_machine->owner_entity = entity->header.id;
+		state_machine->ctx = entity;
 		state_machine->previous_state = GS_NONE;
 		state_machine->current_state = GS_PROTECT_GOAL;
 		player_state_machine->current_state = PS_GOALIE;

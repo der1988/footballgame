@@ -45,14 +45,14 @@ void systems_players_off_the_ball(struct game_state *game_state)
 		case PS_NORMAL: {
 			// Header
 			if (player_controls->header_shot || player_controls->header_pass) {
-				entity_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					&player->state_machine, PS_HEADER, game_state);
 				player->state_machine.state_data.header.type =
 					player_controls->header_shot ? HEADER_TYPE_SHOOT : HEADER_TYPE_PASS;
 			}
 			// Sliding tackle
 			else if (player_controls->sliding_tackle) {
-				entity_player_state_machine_change_state_to(
+				player_state_machine_change_state_to(
 					&player->state_machine, PS_SLIDING_TACKLE, game_state);
 			}
 			break;
