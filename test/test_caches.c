@@ -29,15 +29,16 @@ void test_texture_cache()
 
 	asset_texture_cache_t *handle = asset_texture_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);
-	struct asset_texture *assets_texture = asset_texture_load(handle, "res/spritesheets/ball.png");
-	TEST_ASSERT_EQUAL_INT(0, strcmp(assets_texture->name, "res/spritesheets/ball.png"));
+	struct asset_texture *assets_texture =
+		asset_texture_load(handle, "res/spritesheets/sprites.png");
+	TEST_ASSERT_EQUAL_INT(0, strcmp(assets_texture->name, "res/spritesheets/sprites.png"));
 	TEST_ASSERT_GREATER_THAN(0, assets_texture->texture.id);
 
 	struct asset_texture *assets_texture_ptr = asset_texture_get_by_id(handle, assets_texture->id);
 	TEST_ASSERT_NOT_NULL(assets_texture_ptr);
 	TEST_ASSERT_EQUAL_UINT(assets_texture->id, assets_texture_ptr->id);
 
-	assets_texture_ptr = asset_texture_get_by_name(handle, "res/spritesheets/ball.png");
+	assets_texture_ptr = asset_texture_get_by_name(handle, "res/spritesheets/sprites.png");
 	assert(assets_texture_ptr != NULL);
 	assert(assets_texture_ptr->id == assets_texture->id);
 
@@ -56,8 +57,8 @@ void test_sprite_cache()
 
 	asset_sprite_frame_cache_t *handle = asset_sprite_frame_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);
-	i32 loaded = asset_sprite_frames_load_from_json(handle, 0, "res/spritesheets/ball.json");
-	TEST_ASSERT_EQUAL_INT32(24, loaded);
+	i32 loaded = asset_sprite_frames_load_from_json(handle, 0, "res/spritesheets/sprites.json");
+	TEST_ASSERT_EQUAL_INT32(310, loaded);
 
 	struct asset_sprite_frame *sprite_frame = asset_sprite_frame_get_by_name(handle, "ball_left_0");
 	TEST_ASSERT_NOT_NULL(sprite_frame);
@@ -85,8 +86,8 @@ void test_animation_cache()
 		asset_sprite_frame_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle_sprite_cache);
 	i32 loaded =
-		asset_sprite_frames_load_from_json(handle_sprite_cache, 0, "res/spritesheets/ball.json");
-	TEST_ASSERT_EQUAL_INT32(24, loaded);
+		asset_sprite_frames_load_from_json(handle_sprite_cache, 0, "res/spritesheets/sprites.json");
+	TEST_ASSERT_EQUAL_INT32(310, loaded);
 
 	asset_animation_cache_t *handle = asset_animation_cache_create(memory_arena_handle);
 	TEST_ASSERT(handle);
