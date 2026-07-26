@@ -11,6 +11,10 @@ struct game_state;
 
 struct debugui {
 	b32 initialised;
+	// Set when a constant is edited via the constants inspector; consumed (and an
+	// EVT_CONSTANTS_CHANGED published) once when leaving the debug UI back to the game, so we
+	// publish a single time per editing session rather than every drag frame.
+	b32 constants_dirty;
 	v2 window_size;
 	entity_id_t entity_inspector_selected_entity_id;
 	char entity_inspector_filter_buffer[ENTITY_INSPECTOR_FILTER_BUFFER_SIZE];

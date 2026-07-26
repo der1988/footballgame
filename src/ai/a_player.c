@@ -232,7 +232,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			struct player_ball_reachability_prediction prediction =
 				entity_player_can_reach_future_ball_position(
 					player_entity,
-					game_state->constants.player_run_max_velocity,
+					player_entity->player.constants.run_max_velocity,
 					game_state->vars.ball.lookahead_positions,
 					NULL,
 					game_state);
@@ -302,7 +302,7 @@ static v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
 	// Let's move towards the ball
 	struct player_ball_reachability_prediction prediction =
 		entity_player_can_reach_future_ball_position(player_entity,
-													 game_state->constants.player_run_max_velocity *
+													 player_entity->player.constants.run_max_velocity *
 														 0.8f,
 													 game_state->vars.ball.lookahead_positions,
 													 NULL,

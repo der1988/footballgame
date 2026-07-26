@@ -4,8 +4,12 @@
 #include <assert.h>
 #include <stdarg.h>
 
-const char *event_type_to_string[EVT_COUNT] = {
-	"goal_scored", "ball_oob_north", "ball_oob_south", "ball_oob_east", "ball_oob_west"};
+const char *event_type_to_string[EVT_COUNT] = {"goal_scored",
+												"ball_oob_north",
+												"ball_oob_south",
+												"ball_oob_east",
+												"ball_oob_west",
+												"constants_changed"};
 
 struct events_router *events_router_create(memory_arena_handle_t *memory_arena_handle)
 {

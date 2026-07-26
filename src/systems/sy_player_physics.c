@@ -41,11 +41,7 @@ void systems_player_physics(struct game_state *game_state)
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 
-		const struct player_derived_physics dp =
-			entity_player_derive_physics(&player->characteristics);
-
-		collider->colliders[PCT_PLAYER].props.circle.radius =
-			game_state->constants.player_control_radius;
+		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
@@ -110,32 +106,29 @@ void systems_player_physics(struct game_state *game_state)
 			f32 steering_magnitude = Vector2Length(effective_steering);
 			f32 current_velocity = Vector2Length(physics->velocity);
 
-			// Run force (scaled by body type)
-			force_to_apply = Vector2Scale(effective_steering,
-										  game_state->constants.player_movement_force *
-											  dp.movement_force_multiplier);
+			// Run force (per-player)
+			force_to_apply = Vector2Scale(effective_steering, player->constants.movement_force);
 
-			// Apply drag if no steering applied (scaled by body type)
+			// Apply drag if no steering applied (per-player)
 			if (steering_magnitude < 0.01f) {
 				if (current_velocity < 3) {
 					physics->velocity = Vector2Zero();
 				} else {
 					Vector2 drag = Vector2Scale(Vector2Negate(normalized_velocity),
-												game_state->constants.player_movement_drag *
-													dp.drag_multiplier);
+												player->constants.drag);
 					force_to_apply = Vector2Add(force_to_apply, drag);
 				}
 			}
 
-			// Handle max velocity (scaled by body type)
-			f32 player_run_max_velocity =
-				game_state->constants.player_run_max_velocity * dp.max_velocity_multiplier;
+			// Handle max velocity (per-player)
+			f32 player_run_max_velocity = player->constants.run_max_velocity;
 			f32 initial_max_velocity = player_run_max_velocity * 0.5f;
 			physics->max_velocity = initial_max_velocity;
 
 			// Stop: ramp down max velocity toward zero
 			if (player_controls->stop) {
-				player->current_max_velocity -= 0.75f * dp.decel_ramp_down * game_state->dt;
+				player->current_max_velocity -=
+					0.75f * player->constants.decel_ramp_down * game_state->dt;
 				player->current_max_velocity = fmaxf(0, player->current_max_velocity);
 			} else {
 				if (player->current_max_velocity < initial_max_velocity) {
@@ -145,11 +138,11 @@ void systems_player_physics(struct game_state *game_state)
 
 				f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
 				if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
-					player->current_max_velocity += dp.accel_ramp_up * game_state->dt;
+					player->current_max_velocity += player->constants.accel_ramp_up * game_state->dt;
 					player->current_max_velocity =
 						fminf(player->current_max_velocity, player_run_max_velocity);
 				} else if (current_velocity < player->current_max_velocity) {
-					player->current_max_velocity -= dp.decel_ramp_down * game_state->dt;
+					player->current_max_velocity -= player->constants.decel_ramp_down * game_state->dt;
 					player->current_max_velocity =
 						fmaxf(initial_max_velocity, player->current_max_velocity);
 				}
@@ -239,7 +232,7 @@ void systems_player_physics(struct game_state *game_state)
 				Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 2000);
 
 			// Handle max velocity
-			physics->max_velocity = game_state->constants.player_run_max_velocity;
+			physics->max_velocity = player->constants.run_max_velocity;
 
 			entity_player_physics_apply_force(entity, force_to_apply, game_state);
 			entity_player_physics_apply_velocity(entity, game_state);
@@ -271,7 +264,7 @@ void systems_player_physics(struct game_state *game_state)
 			}
 
 			// Handle max velocity
-			physics->max_velocity = game_state->constants.player_run_max_velocity;
+			physics->max_velocity = player->constants.run_max_velocity;
 
 			entity_player_physics_apply_force(entity, force_to_apply, game_state);
 			entity_player_physics_apply_velocity(entity, game_state);
@@ -309,7 +302,7 @@ void systems_player_physics(struct game_state *game_state)
 			}
 
 			// Handle max velocity
-			physics->max_velocity = game_state->constants.player_run_max_velocity;
+			physics->max_velocity = player->constants.run_max_velocity;
 
 			entity_player_physics_apply_force(entity, force_to_apply, game_state);
 			entity_player_physics_apply_velocity(entity, game_state);

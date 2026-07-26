@@ -89,8 +89,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_side :
 											TS_COUNT;
 
-		collider->colliders[PCT_PLAYER].props.circle.radius =
-			game_state->constants.player_control_radius;
+		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		// Player is human controlled
 		struct game_controller *game_controller =

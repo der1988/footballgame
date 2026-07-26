@@ -339,6 +339,10 @@ b32 game_play_update(struct game_state *game_state)
 			gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
 			time_machine_set_resume_position(game_state->time_machine, RP_CURRENT, game_state);
 			game_state->vars.mode = GM_TICK;
+			// Returning to the game: apply any constant edits made in the debug UI, once.
+			if (debugui_consume_constants_dirty(game_state->debugui)) {
+				events_router_publish(game_state->events_router, EVT_CONSTANTS_CHANGED, game_state);
+			}
 		}
 		break;
 	}

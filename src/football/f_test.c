@@ -94,5 +94,8 @@ void football_setup_training(struct game_state *game_state)
 	// 						  .team_side = TS_AWAY,
 	// 						  .game_controller_id = 1};
 
+	events_router_add_listener(
+		game_state->events_router, entity_player_on_constants_changed, 1, EVT_CONSTANTS_CHANGED);
+
 	football_match_change_state(game_state, MS_PLAY);
 }

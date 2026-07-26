@@ -9,6 +9,7 @@ debugui_t *debugui_create(memory_arena_handle_t *memory_arena_handle)
 	debugui_t *handle = memory_arena_push(memory_arena_handle, sizeof(struct debugui));
 	assert(handle);
 	handle->initialised = true;
+	handle->constants_dirty = false;
 
 	handle->window_size.x = 674;
 	handle->window_size.y = 426;
@@ -28,4 +29,12 @@ void debugui_destroy(debugui_t *handle)
 	assert(handle->initialised);
 	handle->initialised = false;
 	GLOG_INFO(LS_DEBUGUI, "debugui destroyed");
+}
+
+b32 debugui_consume_constants_dirty(debugui_t *handle)
+{
+	assert(handle->initialised);
+	b32 was_dirty = handle->constants_dirty;
+	handle->constants_dirty = false;
+	return was_dirty;
 }

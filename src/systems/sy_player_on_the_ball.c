@@ -212,7 +212,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 			} else if (!kicked_ball) {
 				// For ball control we use velocity directly because it's easier and produce
 				// better results
-				if (player_speed < game_state->constants.player_run_max_velocity * 0.8f) {
+				if (player_speed < player->constants.run_max_velocity * 0.8f) {
 					player->control_ball = true;
 					player->time_spent_in_run_control = 0;
 				}
@@ -244,7 +244,7 @@ void systems_player_on_the_ball(struct game_state *game_state)
 
 					// Every 250ms player does a longer control if he's running at > 70% top speed
 					if (player->time_spent_in_precision_control > 0.25f &&
-						player_speed > game_state->constants.player_run_max_velocity * 0.7f) {
+						player_speed > player->constants.run_max_velocity * 0.7f) {
 						player->control_ball = false;
 					}
 					/*
@@ -266,12 +266,12 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					// The faster the player is running the less control
 					f32 speed_mult =
 						Clamp01(powf(player_speed, 4) /
-								powf(game_state->constants.player_control_max_velocity, 4));
+								powf(player->constants.control_max_velocity, 4));
 
 					// The higher the ball is the less control the player has
 					f32 ball_height = ball_transform->virtual_height;
 					f32 ball_height_mult =
-						(ball_height - 2.5f) / (game_state->constants.player_control_height -
+						(ball_height - 2.5f) / (player->constants.control_height -
 												2.5f); // Ball center is 2.5f over pitch
 
 					// Let's give weight to each multiplier
@@ -336,11 +336,11 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					// The faster the player is running the less control
 					f32 speed_mult =
 						Clamp01(powf(player_speed, 4) /
-								powf(game_state->constants.player_run_max_velocity, 4));
+								powf(player->constants.run_max_velocity, 4));
 					// The higher the ball is the less control the player has
 					f32 ball_height = ball_transform->virtual_height;
 					f32 ball_height_mult =
-						(ball_height - 2.5f) / (game_state->constants.player_control_height -
+						(ball_height - 2.5f) / (player->constants.control_height -
 												2.5f); // Ball center is 2.5f over pitch
 
 					// Let's give weight to each multiplier

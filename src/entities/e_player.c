@@ -37,18 +37,44 @@ static inline f32 char_lerp(u8 value, f32 at_1, f32 at_5)
 	return at_1 + t * (at_5 - at_1);
 }
 
-struct player_derived_physics entity_player_derive_physics(const struct player_characteristics *c)
+struct player_constants entity_player_derive_constants(const struct player_characteristics *c,
+													   struct game_state *game_state)
 {
-	return (struct player_derived_physics){
-		.movement_force_multiplier = char_lerp(c->strength, 0.8f, 1.2f),
-		.max_velocity_multiplier = char_lerp(c->speed, 0.85f, 1.15f),
-		.drag_multiplier = char_lerp(c->strength, 1.2f, 0.8f),
+	const struct game_constants *k = &game_state->constants;
+	return (struct player_constants){
+		.movement_force = k->player_movement_force * char_lerp(c->strength, 0.8f, 1.2f),
+		.drag = k->player_movement_drag * char_lerp(c->strength, 1.2f, 0.8f),
+		.run_max_velocity = k->player_run_max_velocity * char_lerp(c->speed, 0.85f, 1.15f),
+		// Not characteristic-derived yet: pass the base through. This function is the single
+		// place to add per-characteristic scaling for these later.
+		.control_max_velocity = k->player_control_max_velocity,
+		.control_radius = k->player_control_radius,
+		.control_height = k->player_control_height,
+		.tackle_friction_force = k->player_tackle_friction_force,
 		.accel_ramp_up = char_lerp(c->acceleration, 30.0f, 70.0f),
 		.decel_ramp_down = char_lerp(c->acceleration, 60.0f, 140.0f),
+		.mass = char_lerp(c->weight, 60.0f, 95.0f),
 	};
 }
 
-static f32 mass_from_weight(u8 weight) { return char_lerp(weight, 60.0f, 95.0f); }
+void entity_player_recompute_constants(struct entity *player_entity, struct game_state *game_state)
+{
+	struct component_player *player = &player_entity->player;
+	player->constants = entity_player_derive_constants(&player->characteristics, game_state);
+	player_entity->physics.mass = player->constants.mass;
+}
+
+void entity_player_on_constants_changed(enum event_type type, void *context)
+{
+	UNUSED(type);
+	struct game_state *game_state = context;
+	FOR_EACH_ENTITY(entity, game_state->entity_repository)
+	{
+		if (entity->header.alive && entity->header.type == ET_PLAYER) {
+			entity_player_recompute_constants(entity, game_state);
+		}
+	}
+}
 
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
@@ -85,10 +111,10 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	// Initialise physics
 	struct component_physics *physics = &entity->physics;
 	physics->header.enabled = true;
-	physics->mass = mass_from_weight(config.characteristics.weight);
 	physics->velocity = (Vector2){0};
 	physics->accel = (Vector2){0};
-	physics->max_velocity = game_state->constants.player_control_max_velocity;
+	// physics->mass and max_velocity are set from the player's resolved constants below, once
+	// characteristics are known (see entity_player_recompute_constants).
 
 	// Initialise collider
 	struct component_collider *collider = &entity->collider;
@@ -119,8 +145,11 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	player->team_side = config.team_side;
 	player->team_formation_position_idx = config.team_formation_position_idx;
 	player->characteristics = config.characteristics;
+	// Resolve this player's constants from their characteristics (also sets physics->mass)
+	entity_player_recompute_constants(entity, game_state);
+	physics->max_velocity = player->constants.control_max_velocity;
 	// Sets initial max velocity to half of max run velocity
-	player->current_max_velocity = game_state->constants.player_run_max_velocity * 0.5f;
+	player->current_max_velocity = player->constants.run_max_velocity * 0.5f;
 	struct state_machine_player *player_state_machine = &player->state_machine;
 	player_state_machine->ctx = entity;
 	player_state_machine->previous_state = PS_NONE;
@@ -172,8 +201,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 					   (pitch_side == PSI_NORTH ? -1 : 1))};
 
 	collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
-	collider->colliders[PCT_PLAYER].props.circle.radius =
-		game_state->constants.player_control_radius;
+	collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 	collider->colliders[PCT_TACKLE_1].shape = CS_CIRCLE;
 	collider->colliders[PCT_TACKLE_1].props.circle.radius = 4;
@@ -239,7 +267,7 @@ void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 		struct asset_animation *animation = asset_animation_get_by_id(
 			game_state->assets.animation_cache, run_animations[sprite_orientation]);
 
-		f32 max_player_velocity = game_state->constants.player_run_max_velocity;
+		f32 max_player_velocity = player->constants.run_max_velocity;
 		f32 player_speed_ratio = player_speed / max_player_velocity;
 
 		if ((game_state->time - player->last_frame_update_time) >

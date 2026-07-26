@@ -129,6 +129,7 @@ struct component_player {
 	u8 team_formation_position_idx;
 	enum team_side team_side;
 	struct player_characteristics characteristics;
+	struct player_constants constants; // characteristics resolved against base tuning; cached
 	fg_time_low_prec_t last_body_collision_time;
 	f32 last_body_collision_impulse;
 	b32 is_colliding_with_ball;

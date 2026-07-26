@@ -67,8 +67,7 @@ void systems_player_collisions(struct game_state *game_state)
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
-		collider->colliders[PCT_PLAYER].props.circle.radius =
-			game_state->constants.player_control_radius;
+		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		// Reset variables
 		player->is_colliding_with_ball = false;
@@ -83,7 +82,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height);
+					player->constants.control_height);
 
 			const f32 distance_from_the_ball =
 				Vector2DistanceSqr(transform->position, ball_transform->position);
@@ -134,7 +133,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height * 0.25f);
+					player->constants.control_height * 0.25f);
 
 			// If no hit, check second tackle collider
 			if (!collision_with_ball_info.is_colliding) {
@@ -145,7 +144,7 @@ void systems_player_collisions(struct game_state *game_state)
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.player_control_height * 0.5f);
+					player->constants.control_height * 0.5f);
 			}
 
 			// If we have a hit set collision information

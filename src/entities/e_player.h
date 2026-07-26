@@ -6,6 +6,7 @@
 #include "state_machine.h"
 #include "types.h"
 #include "as_animation.h"
+#include "events.h"
 
 #define HEADER_PHASE_WINDOWS_COUNT 5
 #define HEADER_MIN_HEIGHT		   header_phase_windows[0].low
@@ -196,12 +197,21 @@ struct player_characteristics {
 	u8 weight;		 // 1-5, mass for collisions (light=1 to heavy=5)
 };
 
-struct player_derived_physics {
-	f32 movement_force_multiplier;
-	f32 max_velocity_multiplier;
-	f32 drag_multiplier;
+// The global tuning (game_constants) resolved for one specific player: base values scaled by
+// the player's characteristics. Fixed during gameplay; recomputed only on EVT_CONSTANTS_CHANGED.
+// Parallels game_state->constants — this is that, per player, with the redundant player_ prefix
+// dropped.
+struct player_constants {
+	f32 movement_force;
+	f32 drag;
+	f32 run_max_velocity;
+	f32 control_max_velocity;
+	f32 control_radius;
+	f32 control_height;
+	f32 tackle_friction_force;
 	f32 accel_ramp_up;
 	f32 decel_ramp_down;
+	f32 mass;
 };
 
 struct player_config {
@@ -285,7 +295,17 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 									  enum team_side opposing_team,
 									  struct game_state *game_state);
 
-struct player_derived_physics entity_player_derive_physics(const struct player_characteristics *c);
+// Resolve a player's constants from their characteristics + the global base tuning.
+struct player_constants entity_player_derive_constants(const struct player_characteristics *c,
+													   struct game_state *game_state);
+
+// Recompute and store player_entity's cached constants (also syncs physics->mass). Call at
+// creation and whenever the base tuning changes (EVT_CONSTANTS_CHANGED).
+void entity_player_recompute_constants(struct entity *player_entity, struct game_state *game_state);
+
+// EVT_CONSTANTS_CHANGED listener: recompute every player's cached constants. Register once per
+// game mode (context must be the struct game_state *).
+void entity_player_on_constants_changed(enum event_type type, void *context);
 
 void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state);
 

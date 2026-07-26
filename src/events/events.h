@@ -14,6 +14,9 @@ enum event_type {
 	EVT_BALL_OOB_SOUTH,
 	EVT_BALL_OOB_EAST,
 	EVT_BALL_OOB_WEST,
+	// Debug tuning changed (a game_constants field was edited). Interested parties (e.g. players
+	// recomputing their resolved constants) subscribe to refresh cached derived values.
+	EVT_CONSTANTS_CHANGED,
 	EVT_COUNT
 };
 

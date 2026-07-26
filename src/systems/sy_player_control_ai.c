@@ -55,8 +55,7 @@ void systems_player_control_ai(struct game_state *game_state)
 		struct component_player_controls *player_controls = &entity->player_controls;
 		RESET_COMPONENT(player_controls);
 
-		collider->colliders[PCT_PLAYER].props.circle.radius =
-			game_state->constants.player_control_radius;
+		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		switch (state_machine->current_state) {
 		case PS_NONE:

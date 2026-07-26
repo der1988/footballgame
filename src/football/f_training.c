@@ -32,6 +32,7 @@ static void on_event(enum event_type event_type, void *context)
 	case EVT_BALL_OOB_WEST:
 		football_match_change_state(game_state, MS_THROW_IN);
 		break;
+	case EVT_CONSTANTS_CHANGED:
 	case EVT_COUNT:
 		break;
 	}
@@ -122,6 +123,9 @@ void football_training_setup(struct game_state *game_state)
 							   EVT_BALL_OOB_SOUTH,
 							   EVT_BALL_OOB_EAST,
 							   EVT_BALL_OOB_WEST);
+
+	events_router_add_listener(
+		game_state->events_router, entity_player_on_constants_changed, 1, EVT_CONSTANTS_CHANGED);
 
 	football_match_change_state(game_state, MS_PLAY);
 }

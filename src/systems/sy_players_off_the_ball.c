@@ -36,8 +36,7 @@ void systems_players_off_the_ball(struct game_state *game_state)
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 
-		collider->colliders[PCT_PLAYER].props.circle.radius =
-			game_state->constants.player_control_radius;
+		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		switch (state_machine->current_state) {
 		case PS_NONE:
