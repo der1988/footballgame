@@ -64,9 +64,9 @@ void systems_player_control_ai(struct game_state *game_state)
 
 			// Player is AI controlled
 			if (game_state->constants.ai_enabled) {
-				v2 target_pos;
-				f32 power;
-				enum player_ai_action_decision action_decision;
+				v2 target_pos = transform->position;
+				f32 power = 0.0f;
+				enum player_ai_action_decision action_decision = PAAD_NO_ACTION;
 				enum player_ai_state ai_state =
 					ai_player_think(entity, &target_pos, &action_decision, &power, game_state);
 

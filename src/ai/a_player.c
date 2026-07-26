@@ -48,6 +48,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	DECLARE_ENTITY_COMPONENT(player_entity, transform);
 
+	// Initialise all out-params before any early return: several code paths
+	// (e.g. the MS_PLAY / keeper-hands guard below) return without deciding an
+	// action, and the caller reads action_decision unconditionally. Leaving it
+	// uninitialised is UB that surfaces under -O2 as spurious headers.
+	*action_decision = PAAD_NO_ACTION;
+	*power = 0.0f;
+	*target_position = transform->position;
+
 	b32 ball_in_keeper_hands = ball->state_machine.current_state == BS_GK_HANDS;
 
 	entity_id_t player_on_the_ball_entity_id =
