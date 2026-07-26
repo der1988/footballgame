@@ -264,15 +264,14 @@ void systems_player_on_the_ball(struct game_state *game_state)
 													precision_control_max_seconds);
 
 					// The faster the player is running the less control
-					f32 speed_mult =
-						Clamp01(powf(player_speed, 4) /
-								powf(player->constants.control_max_velocity, 4));
+					f32 speed_mult = Clamp01(powf(player_speed, 4) /
+											 powf(player->constants.control_max_velocity, 4));
 
 					// The higher the ball is the less control the player has
 					f32 ball_height = ball_transform->virtual_height;
 					f32 ball_height_mult =
-						(ball_height - 2.5f) / (player->constants.control_height -
-												2.5f); // Ball center is 2.5f over pitch
+						(ball_height - 2.5f) /
+						(player->constants.control_height - 2.5f); // Ball center is 2.5f over pitch
 
 					// Let's give weight to each multiplier
 					f32 control_difficulty =
@@ -334,14 +333,13 @@ void systems_player_on_the_ball(struct game_state *game_state)
 					f32 player_quality_mult = 1 - 1.0f;
 
 					// The faster the player is running the less control
-					f32 speed_mult =
-						Clamp01(powf(player_speed, 4) /
-								powf(player->constants.run_max_velocity, 4));
+					f32 speed_mult = Clamp01(powf(player_speed, 4) /
+											 powf(player->constants.run_max_velocity, 4));
 					// The higher the ball is the less control the player has
 					f32 ball_height = ball_transform->virtual_height;
 					f32 ball_height_mult =
-						(ball_height - 2.5f) / (player->constants.control_height -
-												2.5f); // Ball center is 2.5f over pitch
+						(ball_height - 2.5f) /
+						(player->constants.control_height - 2.5f); // Ball center is 2.5f over pitch
 
 					// Let's give weight to each multiplier
 					f32 control_difficulty =

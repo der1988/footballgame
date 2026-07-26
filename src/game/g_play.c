@@ -128,7 +128,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.crossbar_height = 31,
 
 		// Player
-		.player_movement_force = 28285,
+		.player_movement_force = 35000,
 		.player_movement_drag = 4364,
 		.player_control_max_velocity = 6.6f * PIXELS_PER_METER,
 		// Fastest player should reach ~11m/s, slowest 7.8m/s
