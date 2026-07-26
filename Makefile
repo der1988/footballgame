@@ -4,8 +4,17 @@ CXX := clang
 # Main executable
 TARGET_EXEC := thegame
 
-BUILD_DIR := ./build
 SRC_DIRS := ./src
+
+# Build configuration: `make` for debug (default), `make release` for an
+# optimised build with debugging disabled. Release artifacts live in a
+# separate directory so debug/release objects never collide.
+RELEASE ?= 0
+ifeq ($(RELEASE),1)
+  BUILD_DIR := ./build/release
+else
+  BUILD_DIR := ./build/debug
+endif
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
@@ -26,7 +35,11 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 LDFLAGS := -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lstdc++
 
-CFLAGS := -ggdb -std=c99 -Wall -Wextra -O0
+ifeq ($(RELEASE),1)
+  CFLAGS := -std=c99 -Wall -Wextra -O2 -DNDEBUG
+else
+  CFLAGS := -ggdb -std=c99 -Wall -Wextra -O0
+endif
 
 # Optional video export support (requires ffmpeg-dev)
 ENABLE_VIDEO_EXPORT ?= 1
@@ -42,6 +55,11 @@ CPPFLAGS := $(INC_FLAGS) -MMD -MP
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+
+# Optimised build with debugging disabled -> ./build/release/thegame
+.PHONY: release
+release:
+	$(MAKE) RELEASE=1 ./build/release/$(TARGET_EXEC)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -138,7 +156,7 @@ $(BUILD_DIR)/test_events: $(TEST_OBJS) $(TEST_SRC_OBJS)
 
 .PHONY: clean
 clean:
-	rm -r $(BUILD_DIR)
+	rm -rf ./build
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

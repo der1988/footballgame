@@ -3,7 +3,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifdef NDEBUG
+#define LOG_LEVEL LT_WARN
+#else
 #define LOG_LEVEL LT_DEBUG
+#endif
 
 const char *utils_log_systems_desc[LS_COUNT] = {
 	"GAME",

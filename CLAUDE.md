@@ -5,11 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build Commands
 
 ```bash
-# Build the game
+# Build the game (debug)
 make
 
 # Run the game
-./build/thegame
+./build/debug/thegame
+
+# Build an optimised release (no debug symbols, asserts stripped)
+make release
+./build/release/thegame
 
 # Run all tests
 make test
