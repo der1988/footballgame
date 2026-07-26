@@ -14,12 +14,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Build game
         run: |
-          make -f Makefile.w64
+          make -f Makefile.w64 release
           echo "Game built"
       - name: Create release
         run: |
           mkdir release
-          cp build/thegame.exe release
+          cp build/release/thegame.exe release
           cp -R res release
           cd release
           zip -r release.zip *
