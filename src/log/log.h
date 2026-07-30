@@ -67,6 +67,7 @@ enum log_system {
 	LS_TIME_MACHINE,
 	LS_DEBUGUI,
 	LS_VIDEO_EXPORT,
+	LS_STATE_MACHINE,
 	LS_COUNT,
 };
 

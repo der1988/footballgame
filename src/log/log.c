@@ -25,6 +25,7 @@ const char *utils_log_systems_desc[LS_COUNT] = {
 	"TIME_MACHINE",
 	"DEBUGUI",
 	"VIDEO_EXPORT",
+	"STATE_MACHINE",
 };
 
 void log_line(char *file,
