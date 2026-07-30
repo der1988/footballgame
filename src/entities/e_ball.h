@@ -1,7 +1,7 @@
 #ifndef ENTITY_BALL_H
 #define ENTITY_BALL_H
 
-#include "entities/state_machine.h"
+#include "state_machine.h"
 #include "game.h"
 #include "types.h"
 

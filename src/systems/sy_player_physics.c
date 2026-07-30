@@ -114,8 +114,8 @@ void systems_player_physics(struct game_state *game_state)
 				if (current_velocity < 3) {
 					physics->velocity = Vector2Zero();
 				} else {
-					Vector2 drag = Vector2Scale(Vector2Negate(normalized_velocity),
-												player->constants.drag);
+					Vector2 drag =
+						Vector2Scale(Vector2Negate(normalized_velocity), player->constants.drag);
 					force_to_apply = Vector2Add(force_to_apply, drag);
 				}
 			}
@@ -138,11 +138,13 @@ void systems_player_physics(struct game_state *game_state)
 
 				f32 projection = Vector2ProjectScalar(physics->velocity, effective_steering);
 				if (projection > 0 && player->current_max_velocity < player_run_max_velocity) {
-					player->current_max_velocity += player->constants.accel_ramp_up * game_state->dt;
+					player->current_max_velocity +=
+						player->constants.accel_ramp_up * game_state->dt;
 					player->current_max_velocity =
 						fminf(player->current_max_velocity, player_run_max_velocity);
 				} else if (current_velocity < player->current_max_velocity) {
-					player->current_max_velocity -= player->constants.decel_ramp_down * game_state->dt;
+					player->current_max_velocity -=
+						player->constants.decel_ramp_down * game_state->dt;
 					player->current_max_velocity =
 						fmaxf(initial_max_velocity, player->current_max_velocity);
 				}
@@ -238,8 +240,7 @@ void systems_player_physics(struct game_state *game_state)
 			entity_player_physics_apply_velocity(entity, game_state);
 
 			if (header_state_data->animation_completed) {
-				player_state_machine_change_state_to(
-					&player->state_machine, PS_NORMAL, game_state);
+				player_state_machine_change_state_to(&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
@@ -257,9 +258,8 @@ void systems_player_physics(struct game_state *game_state)
 					game_state->constants
 						.player_tackle_friction_force); // TODO: this should depend on type of pitch
 			} else if (HAS_TIME_PASSED(
-						   game_state->time, sliding_tackle_state_data->start_time, 0.5f)) {
-				player_state_machine_change_state_to(
-					&player->state_machine, PS_NORMAL, game_state);
+						   game_state->time, sliding_tackle_state_data->start_time, 0.25f)) {
+				player_state_machine_change_state_to(&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
@@ -309,8 +309,7 @@ void systems_player_physics(struct game_state *game_state)
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
-				player_state_machine_change_state_to(
-					&player->state_machine, PS_NORMAL, game_state);
+				player_state_machine_change_state_to(&player->state_machine, PS_NORMAL, game_state);
 				break;
 			}
 
