@@ -1,4 +1,4 @@
-#include "debugui/debugui_internal.h"
+#include "debugui/internal/debugui.h"
 #include "debugui/debugui.h"
 #include "log/log.h"
 #include <assert.h>

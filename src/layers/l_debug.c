@@ -1,5 +1,5 @@
 #include "football/football.h"
-#include "layers/layers_internal.h"
+#include "layers/internal/layers.h"
 #include "log/log.h"
 #include "game/game.h"
 #include "entities/e_ball.h"

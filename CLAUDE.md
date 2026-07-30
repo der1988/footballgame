@@ -47,6 +47,13 @@ silently shadow a library header of the same name.
 - **`<raymath.h>` must come after `"types.h"`**: raymath defines its own
   `Vector2` when raylib.h has not been seen yet, which collides with raylib's.
 
+Module-private headers go in an `internal/` subdirectory of their module —
+`memory/internal/memory.h`, `events/internal/events.h`,
+`assets/internal/as_texture_cache.h` — with a `<MODULE>_INTERNAL_H` guard. Never
+`*_internal.h` alongside the public header: the subdirectory makes the privacy
+boundary visible in every include line, so `grep -r 'internal/'` finds every
+reach-in. Only the owning module (and white-box tests) should include one.
+
 Every header is self-contained — it compiles standalone, so it includes or
 forward-declares everything it needs. Keep it that way when adding headers.
 

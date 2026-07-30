@@ -1,4 +1,4 @@
-#include "memory/memory_internal.h"
+#include "memory/internal/memory.h"
 #include "memory/memory.h"
 #include "types.h"
 #include "log/log.h"

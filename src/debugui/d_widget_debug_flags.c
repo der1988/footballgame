@@ -1,5 +1,5 @@
 #include "debugui/debugui.h"
-#include "debugui/debugui_internal.h"
+#include "debugui/internal/debugui.h"
 #include "game/game.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>

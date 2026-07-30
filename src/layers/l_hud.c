@@ -4,7 +4,7 @@
 #include "math_ext/math_ext.h"
 #include "macro.h"
 #include "entities/entities.h"
-#include "layers/layers_internal.h"
+#include "layers/internal/layers.h"
 #include "layers/layers.h"
 
 layer_hud_t *layer_hud_create(struct game_state *game_state)

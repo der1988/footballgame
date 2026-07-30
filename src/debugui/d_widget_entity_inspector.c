@@ -1,5 +1,5 @@
 #include "debugui/debugui.h"
-#include "debugui/debugui_internal.h"
+#include "debugui/internal/debugui.h"
 #include "entities/entities.h"
 #include "football/football.h"
 #include "render/render.h"

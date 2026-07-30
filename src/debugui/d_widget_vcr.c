@@ -2,7 +2,7 @@
 #include "time_machine/time_machine.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
-#include "debugui/debugui_internal.h"
+#include "debugui/internal/debugui.h"
 #include "debugui/debugui.h"
 #include <assert.h>
 
