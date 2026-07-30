@@ -98,9 +98,9 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ball_rolling_resistance_mult = 5,
 		.ball_run_force = 32,
 		.ball_control_force = 30,
-		// This will translate to instant velocity, so 144km/h
-		.ball_shot_force = 40 * PIXELS_PER_METER,
-		.ball_shot_height = 0.29f,
+		// This will translate to instant velocity, so 162km/h
+		.ball_shot_force = 45 * PIXELS_PER_METER,
+		.ball_shot_height = 0.20f,
 		.ball_chip_shot_force = 25 * PIXELS_PER_METER,
 		.ball_chip_shot_height = 0.60f,
 		.ball_pass_force = 40 * PIXELS_PER_METER,
@@ -113,8 +113,8 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ball_tackle_force = 20 * PIXELS_PER_METER,
 		.ball_header_min_force = 12.5 * PIXELS_PER_METER,
 		.ball_header_fumble_force = 4 * PIXELS_PER_METER,
-		// 36m/s seems fair, that would be 129km/h
-		.ball_max_velocity = 36 * PIXELS_PER_METER,
+		// 61m/s, that would be 220km/h
+		.ball_max_velocity = 61 * PIXELS_PER_METER,
 		.ball_max_velocity_to_gain_possession = 25 * PIXELS_PER_METER,
 		.ball_lookaheads = 15,
 		.ball_lookahead_dts = 48,
