@@ -1,8 +1,8 @@
 #ifndef ACTION_TWEEN_FLOAT_FROM_TO_H
 #define ACTION_TWEEN_FLOAT_FROM_TO_H
 
-#include "action.h"
-#include "memory.h"
+#include "actions/action.h"
+#include "memory/memory.h"
 
 // Tween a float from one value to another
 struct action_tween_float_from_to {

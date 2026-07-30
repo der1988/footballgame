@@ -1,8 +1,8 @@
 #include "debugui/debugui.h"
 #include "debugui/debugui_internal.h"
-#include "game.h"
+#include "game/game.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "cimgui/cimgui.h"
+#include <cimgui/cimgui.h>
 #include <assert.h>
 
 void debugui_debug_flags_draw(debugui_t *handle, struct game_state *game_state)

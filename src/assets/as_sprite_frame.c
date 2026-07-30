@@ -1,9 +1,9 @@
-#include "internal/as_sprite_frame_cache.h"
-#include "as_sprite_frame.h"
-#include "memory.h"
+#include "assets/internal/as_sprite_frame_cache.h"
+#include "assets/as_sprite_frame.h"
+#include "memory/memory.h"
 #include "types.h"
-#include "log.h"
-#include "texture_packer_loader.h"
+#include "log/log.h"
+#include "assets/texture_packer_loader.h"
 #include <assert.h>
 #include <string.h>
 

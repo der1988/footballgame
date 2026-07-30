@@ -1,7 +1,7 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
-#include "memory.h"
+#include "memory/memory.h"
 
 #define MAX_LISTENERS_PER_EVENT_TYPE 10
 

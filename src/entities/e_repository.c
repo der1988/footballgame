@@ -1,5 +1,5 @@
-#include "entities.h"
-#include "log.h"
+#include "entities/entities.h"
+#include "log/log.h"
 #include <assert.h>
 #include <stdio.h>
 

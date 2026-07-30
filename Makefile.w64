@@ -31,8 +31,13 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 # As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
 DEPS := $(OBJS:.o=.d)
 
-# Every folder in ./src will need to be passed to GCC so that it can find header files
-INC_DIRS := $(shell $(W64DEVKIT)/find $(SRC_DIRS) -type d)
+# Our own headers are included path-qualified from ./src (e.g. "football/football.h"),
+# so ./src is the only include dir project code needs. Vendored libraries under
+# ./src/libs include each other by bare name, so they still get their own dirs;
+# project code reaches them with angle brackets (e.g. <cimgui/cimgui.h>).
+# Do not add more directories here: a flat include path lets a new file silently
+# shadow a library header of the same name.
+INC_DIRS := $(SRC_DIRS) $(shell $(W64DEVKIT)/find $(SRC_DIRS)/libs -type d)
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 

@@ -1,10 +1,10 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#include "as_animation.h"
-#include "as_shader.h"
-#include "as_sprite_frame.h"
-#include "as_texture.h"
+#include "assets/as_animation.h"
+#include "assets/as_shader.h"
+#include "assets/as_sprite_frame.h"
+#include "assets/as_texture.h"
 
 struct assets {
 	asset_texture_cache_t *texture_cache;

@@ -1,7 +1,7 @@
 #ifndef DEBUGUI_H
 #define DEBUGUI_H
 
-#include "memory.h"
+#include "memory/memory.h"
 
 // Forward declaration
 struct game_state;

@@ -1,7 +1,7 @@
-#include "ac_change_color.h"
-#include "entities.h"
-#include "gfx.h"
-#include "game.h"
+#include "actions/ac_change_color.h"
+#include "entities/entities.h"
+#include "gfx/gfx.h"
+#include "game/game.h"
 #include <assert.h>
 
 void action_change_color_from_to_update(struct action_runner *action_runner,

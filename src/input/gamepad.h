@@ -1,7 +1,7 @@
 #ifndef GAMEPAD_H
 #define GAMEPAD_H
 
-#include "input.h"
+#include "input/input.h"
 
 void gamepad_update(u32 gamepad_index,
 					struct gamepad_binding *bindings,

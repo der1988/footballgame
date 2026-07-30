@@ -1,5 +1,5 @@
-#include "components.h"
-#include "game.h"
+#include "components/components.h"
+#include "game/game.h"
 #include "types.h"
 #include <raymath.h>
 

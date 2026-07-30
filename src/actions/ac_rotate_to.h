@@ -1,8 +1,8 @@
 #ifndef ACTION_ROTATE_TO_H
 #define ACTION_ROTATE_TO_H
 
-#include "action.h"
-#include "memory.h"
+#include "actions/action.h"
+#include "memory/memory.h"
 
 // Rotate a float to an angle
 struct action_rotate_to {

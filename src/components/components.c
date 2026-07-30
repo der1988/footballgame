@@ -1,9 +1,9 @@
-#include "components.h"
-#include "entities.h"
+#include "components/components.h"
+#include "entities/entities.h"
 #include "types.h"
-#include "log.h"
+#include "log/log.h"
 #include <assert.h>
-#include "game.h"
+#include "game/game.h"
 #include <raymath.h>
 
 const char *camera_type_to_string[CAM_COUNT] = {"main"};

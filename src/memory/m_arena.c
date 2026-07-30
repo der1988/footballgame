@@ -1,7 +1,7 @@
-#include "memory_internal.h"
-#include "memory.h"
+#include "memory/memory_internal.h"
+#include "memory/memory.h"
 #include "types.h"
-#include "log.h"
+#include "log/log.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

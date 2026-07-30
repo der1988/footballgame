@@ -1,6 +1,6 @@
-#include "memory.h"
+#include "memory/memory.h"
 #include "types.h"
-#include "game.h"
+#include "game/game.h"
 #include <assert.h>
 
 #define TARGET_FRAMERATE 100

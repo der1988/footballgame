@@ -1,9 +1,9 @@
-#include "game.h"
-#include "time_machine.h"
+#include "game/game.h"
+#include "time_machine/time_machine.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "cimgui/cimgui.h"
-#include "debugui_internal.h"
-#include "debugui.h"
+#include <cimgui/cimgui.h>
+#include "debugui/debugui_internal.h"
+#include "debugui/debugui.h"
 #include <assert.h>
 
 #ifdef HAS_FFMPEG

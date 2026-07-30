@@ -1,10 +1,10 @@
 #ifndef GAME_CONTROLLER_H
 #define GAME_CONTROLLER_H
 
-#include "raymath.h"
 #include "types.h"
 #include "macro.h"
-#include "input.h"
+#include "input/input.h"
+#include <raymath.h>
 #include <stdio.h>
 
 INLINE struct input_state get_digital_input_state(b32 is_down_now,

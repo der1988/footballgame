@@ -2,7 +2,7 @@
 #define ASSET_SPRITE_FRAME_H
 
 #include "types.h"
-#include "memory.h"
+#include "memory/memory.h"
 
 #define SPRITE_FRAME_NAME_MAX_SIZE 50
 

@@ -1,11 +1,11 @@
-#include "entities.h"
-#include "e_ball.h"
-#include "events.h"
-#include "football.h"
-#include "math_ext.h"
-#include "log.h"
-#include "game.h"
-#include "e_camera.h"
+#include "entities/entities.h"
+#include "entities/e_ball.h"
+#include "events/events.h"
+#include "football/football.h"
+#include "math_ext/math_ext.h"
+#include "log/log.h"
+#include "game/game.h"
+#include "entities/e_camera.h"
 #include <stdio.h>
 
 const char *pitch_side_to_string[PSI_COUNT] = {"north", "south"};

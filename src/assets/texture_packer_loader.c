@@ -1,8 +1,8 @@
-#include "as_sprite_frame.h"
-#include "libs/cJSON/cJSON.h"
+#include "assets/as_sprite_frame.h"
+#include <cJSON/cJSON.h>
 #include "macro.h"
 #include <string.h>
-#include "log.h"
+#include "log/log.h"
 
 size texture_packer_load_from_json(const char *filename,
 								  const u32 texture_id,

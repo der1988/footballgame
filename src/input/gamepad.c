@@ -1,7 +1,7 @@
-#include "input.h"
+#include "input/input.h"
 #include "platform/platform.h"
-#include "game_controller.h"
-#include "log.h"
+#include "input/game_controller.h"
+#include "log/log.h"
 #include "types.h"
 #include <raymath.h>
 

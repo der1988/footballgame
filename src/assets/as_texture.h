@@ -2,7 +2,7 @@
 #define ASSET_TEXTURE_H
 
 #include "types.h"
-#include "memory.h"
+#include "memory/memory.h"
 
 #define TEXTURE_NAME_MAX_SIZE 50
 

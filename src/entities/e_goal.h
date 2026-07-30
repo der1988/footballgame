@@ -1,7 +1,7 @@
 #ifndef ENTITY_GOAL_H
 #define ENTITY_GOAL_H
 
-#include "football.h"
+#include "football/football.h"
 
 struct goal_config {
 	enum pitch_side side;

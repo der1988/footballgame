@@ -1,4 +1,4 @@
-#include "game.h"
+#include "game/game.h"
 
 void gfx_ball_prepare(struct game_state *game_state)
 {

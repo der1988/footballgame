@@ -2,7 +2,7 @@
 #define ASSET_SPRITE_FRAME_CACHE_INTERNAL_H
 
 #include "types.h"
-#include "memory.h"
+#include "memory/memory.h"
 
 struct asset_sprite_frame_cache {
 	b32 initialised;

@@ -2,7 +2,7 @@
 #define ASSET_SHADER_CACHE_INTERNAL_H
 
 #include "types.h"
-#include "memory.h"
+#include "memory/memory.h"
 
 struct asset_shader_cache {
 	b32 initialised;

@@ -1,5 +1,5 @@
-#include "entities.h"
-#include "memory.h"
+#include "entities/entities.h"
+#include "memory/memory.h"
 
 // we record 30 time capsules every second for 30 seconds
 #define TIME_MACHINE_MAX_REWIND_TIME 30

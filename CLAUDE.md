@@ -31,6 +31,25 @@ make clean
 
 Cross-platform builds: `Makefile.osx` for macOS, `Makefile.w64` for Windows.
 
+## Include Conventions
+
+Only `./src` and the vendored-library dirs under `./src/libs` are on the include
+path. Do not add more `-I` directories — a flat include path lets a new file
+silently shadow a library header of the same name.
+
+- **Project headers**: quoted and path-qualified from `src/` —
+  `#include "football/football.h"`, `#include "entities/e_player.h"`.
+  Headers living directly in `src/` are just `#include "types.h"`.
+  Never use `"../"` escapes or bare basenames for headers in another directory.
+- **Third-party**: angle brackets, always — `<raylib.h>`, `<raymath.h>`,
+  `<cimgui/cimgui.h>`, `<cJSON/cJSON.h>` (vendored libs resolve relative to
+  `src/libs`).
+- **`<raymath.h>` must come after `"types.h"`**: raymath defines its own
+  `Vector2` when raylib.h has not been seen yet, which collides with raylib's.
+
+Every header is self-contained — it compiles standalone, so it includes or
+forward-declares everything it needs. Keep it that way when adding headers.
+
 ## Architecture Overview
 
 This is a 2D football/soccer game written in C99 using raylib for rendering. The codebase follows an Entity-Component-System (ECS) pattern with custom memory management.

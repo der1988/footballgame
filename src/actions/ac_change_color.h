@@ -1,8 +1,8 @@
 #ifndef ACTION_CHANGE_COLOR_H
 #define ACTION_CHANGE_COLOR_H
 
-#include "action.h"
-#include "memory.h"
+#include "actions/action.h"
+#include "memory/memory.h"
 
 // Changes the sprite color from one color to another
 struct action_change_color_from_to {

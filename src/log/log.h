@@ -1,7 +1,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "../types.h"
+#include "types.h"
 
 #define GLOG(TYPE, SYSTEM, TEXT) log_line(__FILE__, __LINE__, TYPE, SYSTEM, NULL, TEXT)
 #define GLOG_INFO(SYSTEM, TEXT)	 log_line(__FILE__, __LINE__, LT_INFO, SYSTEM, NULL, TEXT)

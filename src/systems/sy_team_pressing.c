@@ -1,14 +1,14 @@
-#include "components.h"
-#include "e_ball.h"
-#include "e_player.h"
-#include "entities.h"
-#include "football.h"
-#include "game.h"
-#include "input.h"
-#include "log.h"
-#include <math_ext.h>
+#include "components/components.h"
+#include "entities/e_ball.h"
+#include "entities/e_player.h"
+#include "entities/entities.h"
+#include "football/football.h"
+#include "game/game.h"
+#include "input/input.h"
+#include "log/log.h"
+#include "math_ext/math_ext.h"
 #include <raymath.h>
-#include "ai.h"
+#include "ai/ai.h"
 #include "types.h"
 
 struct entity *entities_player_select_press_player(struct entity *ball_entity,

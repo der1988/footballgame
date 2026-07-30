@@ -2,8 +2,8 @@
 #define COLLISION_H
 
 #include "macro.h"
-#include "raymath.h"
 #include "types.h"
+#include <raymath.h>
 
 struct tackle_colliders_config {
 	struct {

@@ -1,9 +1,9 @@
-#include "entities.h"
-#include "e_player.h"
-#include "e_ball.h"
-#include "e_camera.h"
-#include "football.h"
-#include "game.h"
+#include "entities/entities.h"
+#include "entities/e_player.h"
+#include "entities/e_ball.h"
+#include "entities/e_camera.h"
+#include "football/football.h"
+#include "game/game.h"
 
 static struct player_characteristics characteristics_for_position(u8 idx)
 {

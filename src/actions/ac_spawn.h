@@ -1,8 +1,8 @@
 #ifndef ACTION_SPAWN_H
 #define ACTION_SPAWN_H
 
-#include "action.h"
-#include "memory.h"
+#include "actions/action.h"
+#include "memory/memory.h"
 
 // Spawn multiple actions to run them in parallel
 struct action_spawn {

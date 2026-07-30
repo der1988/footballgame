@@ -1,7 +1,7 @@
-#include "entities.h"
-#include "game.h"
+#include "entities/entities.h"
+#include "game/game.h"
 #include "constants.h"
-#include "math_ext.h"
+#include "math_ext/math_ext.h"
 #include "types.h"
 #include <raymath.h>
 

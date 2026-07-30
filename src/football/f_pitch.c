@@ -1,6 +1,6 @@
-#include "football.h"
-#include "e_goal.h"
-#include "game.h"
+#include "football/football.h"
+#include "entities/e_goal.h"
+#include "game/game.h"
 #include <raylib.h>
 
 static struct goal setup_goal(struct entity *entity,

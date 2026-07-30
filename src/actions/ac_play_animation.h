@@ -1,8 +1,8 @@
 #ifndef ACTION_PLAY_ANIMATION_H
 #define ACTION_PLAY_ANIMATION_H
 
-#include "action.h"
-#include "as_animation.h"
+#include "actions/action.h"
+#include "assets/as_animation.h"
 
 // Plays an animation at a specific speed
 struct action_play_animation {

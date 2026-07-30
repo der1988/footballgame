@@ -1,10 +1,10 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "components.h"
+#include "components/components.h"
 #include "macro.h"
 #include "types.h"
-#include "math_ext.h"
+#include "math_ext/math_ext.h"
 
 const static v2 ORIENTATION_VECTORS[] = {{.x = 0, .y = -1},
 										 {.x = 0, .y = 1},

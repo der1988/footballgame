@@ -1,5 +1,5 @@
-#include "input.h"
-#include "game.h"
+#include "input/input.h"
+#include "game/game.h"
 
 void game_controller_reset(struct game_controller *game_controller)
 {

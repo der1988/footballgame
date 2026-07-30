@@ -1,16 +1,16 @@
-#include "components.h"
-#include "entities.h"
-#include "e_ball.h"
-#include "e_player.h"
-#include "football.h"
-#include "game.h"
-#include "game_controller.h"
-#include "input.h"
+#include "components/components.h"
+#include "entities/entities.h"
+#include "entities/e_ball.h"
+#include "entities/e_player.h"
+#include "football/football.h"
+#include "game/game.h"
+#include "input/game_controller.h"
+#include "input/input.h"
 #include "macro.h"
-#include "ai.h"
+#include "ai/ai.h"
 #include "constants.h"
-#include "steering.h"
-#include <math_ext.h>
+#include "steering/steering.h"
+#include "math_ext/math_ext.h"
 #include <raymath.h>
 #include <string.h>
 

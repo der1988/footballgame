@@ -1,7 +1,7 @@
 #ifndef LAYERS_INTERNAL_H
 #define LAYERS_INTERNAL_H
 
-#include "memory.h"
+#include "memory/memory.h"
 #include "types.h"
 
 #define MAX_QUEUED_DRAW_REQUESTS 50

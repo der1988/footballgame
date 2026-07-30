@@ -1,8 +1,8 @@
-#include "input.h"
+#include "input/input.h"
 #include "macro.h"
-#include "game_controller.h"
+#include "input/game_controller.h"
 #include "platform/platform.h"
-#include "log.h"
+#include "log/log.h"
 #include <raymath.h>
 
 static INLINE f32 get_analogic_value_from_binding(struct keyboard_binding binding)

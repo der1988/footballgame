@@ -1,6 +1,6 @@
-#include "action.h"
-#include "game.h"
-#include "entities.h"
+#include "actions/action.h"
+#include "game/game.h"
+#include "entities/entities.h"
 
 const char *ActionTypeToString[AT_COUNT] = {"change_color_from_to",
 											"play_animation",

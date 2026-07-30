@@ -2,7 +2,7 @@
 #define ASSET_SHADER_H
 
 #include "types.h"
-#include "memory.h"
+#include "memory/memory.h"
 
 #define SHADER_NAME_MAX_SIZE	 50
 #define SHADER_FILENAME_MAX_SIZE 50

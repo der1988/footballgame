@@ -1,8 +1,8 @@
-#include "internal/as_shader_cache.h"
-#include "as_shader.h"
-#include "memory.h"
+#include "assets/internal/as_shader_cache.h"
+#include "assets/as_shader.h"
+#include "memory/memory.h"
 #include "types.h"
-#include "log.h"
+#include "log/log.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

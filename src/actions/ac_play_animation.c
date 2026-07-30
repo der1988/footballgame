@@ -1,6 +1,6 @@
-#include "ac_play_animation.h"
-#include "entities.h"
-#include "game.h"
+#include "actions/ac_play_animation.h"
+#include "entities/entities.h"
+#include "game/game.h"
 #include <assert.h>
 #include <math.h>
 

@@ -1,8 +1,8 @@
 #ifndef ACTION_TOGGLE_BOOLEAN_H
 #define ACTION_TOGGLE_BOOLEAN_H
 
-#include "action.h"
-#include "memory.h"
+#include "actions/action.h"
+#include "memory/memory.h"
 
 // Toggle boolean
 struct action_toggle_boolean {

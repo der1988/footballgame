@@ -1,6 +1,6 @@
-#include "ac_rotate_to.h"
-#include "game.h"
-#include "entities.h"
+#include "actions/ac_rotate_to.h"
+#include "game/game.h"
+#include "entities/entities.h"
 #include <assert.h>
 #include <math.h>
 

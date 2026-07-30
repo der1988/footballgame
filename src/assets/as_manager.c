@@ -1,5 +1,5 @@
-#include "assets.h"
-#include "memory.h"
+#include "assets/assets.h"
+#include "memory/memory.h"
 #include <assert.h>
 
 struct assets asset_manager_load_everything(memory_arena_handle_t *memory_arena)

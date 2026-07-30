@@ -1,8 +1,8 @@
-#include "internal/as_texture_cache.h"
-#include "as_texture.h"
-#include "memory.h"
+#include "assets/internal/as_texture_cache.h"
+#include "assets/as_texture.h"
+#include "memory/memory.h"
 #include "types.h"
-#include "log.h"
+#include "log/log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <stdio.h>

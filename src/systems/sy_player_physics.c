@@ -1,15 +1,15 @@
-#include "components.h"
-#include "entities.h"
-#include "e_ball.h"
-#include "e_player.h"
-#include "football.h"
-#include "game.h"
-#include "input.h"
+#include "components/components.h"
+#include "entities/entities.h"
+#include "entities/e_ball.h"
+#include "entities/e_player.h"
+#include "football/football.h"
+#include "game/game.h"
+#include "input/input.h"
 #include "macro.h"
-#include <math_ext.h>
+#include "math_ext/math_ext.h"
 #include <raymath.h>
 #include <stdio.h>
-#include "ai.h"
+#include "ai/ai.h"
 #include "types.h"
 
 void systems_player_physics(struct game_state *game_state)

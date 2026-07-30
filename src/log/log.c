@@ -1,5 +1,5 @@
 #include "types.h"
-#include "log.h"
+#include "log/log.h"
 #include <stdarg.h>
 #include <stdio.h>
 

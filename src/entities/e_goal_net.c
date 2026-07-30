@@ -1,9 +1,9 @@
-#include "entities.h"
-#include "football.h"
-#include "log.h"
-#include "e_goal.h"
+#include "entities/entities.h"
+#include "football/football.h"
+#include "log/log.h"
+#include "entities/e_goal.h"
 #include <assert.h>
-#include "game.h"
+#include "game/game.h"
 
 struct entity *entity_goal_net_create(struct goal_config config, struct game_state *game_state)
 {

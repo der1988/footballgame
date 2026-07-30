@@ -1,14 +1,14 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
-#include "action.h"
-#include "as_sprite_frame.h"
-#include "football.h"
-#include "render.h"
+#include "actions/action.h"
+#include "assets/as_sprite_frame.h"
+#include "football/football.h"
+#include "render/render.h"
 #include "constants.h"
 #include "types.h"
-#include "e_player.h"
-#include "e_ball.h"
+#include "entities/e_player.h"
+#include "entities/e_ball.h"
 
 #define MAX_CONCURRENT_ACTIONS 5
 

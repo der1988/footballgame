@@ -2,7 +2,7 @@
 #define ENTITY_BALL_H
 
 #include "state_machine.h"
-#include "game.h"
+#include "game/game.h"
 #include "types.h"
 
 #define DECLARE_BALL_ENTITY_COMPONENTS(entity)                                                     \

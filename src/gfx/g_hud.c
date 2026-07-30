@@ -1,5 +1,5 @@
-#include "as_sprite_frame.h"
-#include "game.h"
+#include "assets/as_sprite_frame.h"
+#include "game/game.h"
 
 void gfx_hud_prepare(struct game_state *game_state)
 {

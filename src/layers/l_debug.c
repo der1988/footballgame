@@ -1,8 +1,8 @@
-#include "football.h"
-#include "layers_internal.h"
-#include "log.h"
-#include "game.h"
-#include "e_ball.h"
+#include "football/football.h"
+#include "layers/layers_internal.h"
+#include "log/log.h"
+#include "game/game.h"
+#include "entities/e_ball.h"
 #include <assert.h>
 #include <raylib.h>
 #include <string.h>

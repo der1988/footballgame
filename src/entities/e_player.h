@@ -1,12 +1,12 @@
 #ifndef ENTITY_PLAYER_H
 #define ENTITY_PLAYER_H
 
-#include "football.h"
-#include "render.h"
+#include "football/football.h"
+#include "render/render.h"
 #include "state_machine.h"
 #include "types.h"
-#include "as_animation.h"
-#include "events.h"
+#include "assets/as_animation.h"
+#include "events/events.h"
 
 #define HEADER_PHASE_WINDOWS_COUNT 5
 #define HEADER_MIN_HEIGHT		   header_phase_windows[0].low

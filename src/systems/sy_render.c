@@ -1,5 +1,5 @@
-#include "entities.h"
-#include "game.h"
+#include "entities/entities.h"
+#include "game/game.h"
 #include <assert.h>
 #include <raymath.h>
 #include <stdlib.h>

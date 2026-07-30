@@ -4,9 +4,9 @@
 #include "video_export/video_export.h"
 #include <stdio.h>
 #include <sys/stat.h>
-#include "game.h"
-#include "log.h"
-#include "memory.h"
+#include "game/game.h"
+#include "log/log.h"
+#include "memory/memory.h"
 #include "time_machine/time_machine.h"
 #include <assert.h>
 #include <raylib.h>

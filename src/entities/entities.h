@@ -1,8 +1,8 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "components.h"
-#include "memory.h"
+#include "components/components.h"
+#include "memory/memory.h"
 #include "types.h"
 
 #define MAX_ENTITIES		 100

@@ -1,7 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include "memory.h"
+#include "memory/memory.h"
 #include "types.h"
 #include <assert.h>
 

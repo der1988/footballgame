@@ -1,10 +1,10 @@
-#include "entities.h"
-#include "e_ball.h"
+#include "entities/entities.h"
+#include "entities/e_ball.h"
 #include "events/events.h"
-#include "game.h"
-#include "log.h"
+#include "game/game.h"
+#include "log/log.h"
 #include "macro.h"
-#include "math_ext.h"
+#include "math_ext/math_ext.h"
 #include "collision.h"
 #include <raymath.h>
 

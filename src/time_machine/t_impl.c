@@ -1,9 +1,9 @@
-#include "entities.h"
-#include "game.h"
-#include "log.h"
-#include "math_ext.h"
-#include "memory.h"
-#include "time_machine.h"
+#include "entities/entities.h"
+#include "game/game.h"
+#include "log/log.h"
+#include "math_ext/math_ext.h"
+#include "memory/memory.h"
+#include "time_machine/time_machine.h"
 #include <assert.h>
 #include <raymath.h>
 #include <stdio.h>

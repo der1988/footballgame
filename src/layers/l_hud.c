@@ -1,11 +1,11 @@
-#include "game.h"
-#include "input.h"
-#include "log.h"
-#include "math_ext.h"
+#include "game/game.h"
+#include "input/input.h"
+#include "log/log.h"
+#include "math_ext/math_ext.h"
 #include "macro.h"
-#include "entities.h"
-#include "layers_internal.h"
-#include "layers.h"
+#include "entities/entities.h"
+#include "layers/layers_internal.h"
+#include "layers/layers.h"
 
 layer_hud_t *layer_hud_create(struct game_state *game_state)
 {

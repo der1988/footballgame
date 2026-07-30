@@ -1,9 +1,9 @@
 #ifndef EVENTS_INTERNAL_H
 #define EVENTS_INTERNAL_H
 
-#include "memory.h"
+#include "memory/memory.h"
 #include "types.h"
-#include "../events.h"
+#include "events/events.h"
 
 struct list_listeners {
 	void (**array)(enum event_type, void *);

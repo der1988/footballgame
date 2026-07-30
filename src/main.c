@@ -1,5 +1,5 @@
-#include "game.h"
-#include "as_manager.h"
+#include "game/game.h"
+#include "assets/as_manager.h"
 #include <stdlib.h>
 
 #define TOTAL_MEMORY_MBS 2000

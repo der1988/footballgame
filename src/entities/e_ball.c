@@ -1,18 +1,18 @@
-#include "components.h"
-#include "entities.h"
-#include "e_ball.h"
+#include "components/components.h"
+#include "entities/entities.h"
+#include "entities/e_ball.h"
 #include "events/events.h"
 #include "state_machine.h"
 #include "types.h"
-#include "math_ext.h"
-#include "log.h"
+#include "math_ext/math_ext.h"
+#include "log/log.h"
 #include "macro.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <string.h>
-#include "game.h"
-#include "gfx.h"
+#include "game/game.h"
+#include "gfx/gfx.h"
 
 const char *state_machine_ball_state_string[BS_COUNT] = {
 	"none", "in_play", "out_of_play", "gk_hands"};

@@ -1,8 +1,8 @@
 #ifndef ACTION_SEQUENCE_H
 #define ACTION_SEQUENCE_H
 
-#include "action.h"
-#include "memory.h"
+#include "actions/action.h"
+#include "memory/memory.h"
 
 // Concatenates multiple actions to run them in series
 struct action_sequence {

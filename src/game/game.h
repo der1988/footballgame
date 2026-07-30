@@ -1,15 +1,15 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "assets.h"
-#include "e_player.h"
+#include "assets/assets.h"
+#include "entities/e_player.h"
 #include "events/events.h"
-#include "football.h"
-#include "input.h"
-#include "memory.h"
-#include "render.h"
+#include "football/football.h"
+#include "input/input.h"
+#include "memory/memory.h"
+#include "render/render.h"
 #include "types.h"
-#include "layers.h"
+#include "layers/layers.h"
 #include "constants.h"
 
 // Forward declarations
