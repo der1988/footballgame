@@ -1,5 +1,5 @@
 #include "events/internal/events.h"
-#include "log/log.h"
+#include "log.h"
 #include "macro.h"
 #include <assert.h>
 #include <stdarg.h>

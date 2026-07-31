@@ -1,7 +1,7 @@
 #include "components/components.h"
 #include "entities/entities.h"
 #include "types.h"
-#include "log/log.h"
+#include "log.h"
 #include <assert.h>
 #include "game/game.h"
 #include <raymath.h>

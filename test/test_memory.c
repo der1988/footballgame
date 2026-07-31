@@ -3,7 +3,7 @@
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
-#include "log/log.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <stdio.h>

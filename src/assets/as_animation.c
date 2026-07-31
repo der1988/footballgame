@@ -4,7 +4,7 @@
 #include "memory/memory.h"
 #include "types.h"
 #include "macro.h"
-#include "log/log.h"
+#include "log.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

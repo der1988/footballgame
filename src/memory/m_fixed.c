@@ -1,7 +1,7 @@
 #include "memory/internal/memory.h"
 #include "memory/memory.h"
 #include "types.h"
-#include "log/log.h"
+#include "log.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

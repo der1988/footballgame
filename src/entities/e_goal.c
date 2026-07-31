@@ -2,7 +2,7 @@
 #include "entities/e_goal.h"
 #include "entities/e_goal_net.h"
 #include "football/football.h"
-#include "log/log.h"
+#include "log.h"
 #include <assert.h>
 #include <raymath.h>
 #include "game/game.h"

@@ -1,6 +1,6 @@
 #include "game/game.h"
 #include "input/input.h"
-#include "log/log.h"
+#include "log.h"
 #include "math_ext/math_ext.h"
 #include "macro.h"
 #include "entities/entities.h"

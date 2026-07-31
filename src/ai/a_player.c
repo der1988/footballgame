@@ -6,7 +6,7 @@
 #include "football/football.h"
 #include "math_ext/math_ext.h"
 #include "sprite.h"
-#include "steering/steering.h"
+#include "steering.h"
 #include "types.h"
 #include "game/game.h"
 #include <math.h>

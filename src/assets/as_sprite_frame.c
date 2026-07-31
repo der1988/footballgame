@@ -2,7 +2,7 @@
 #include "assets/as_sprite_frame.h"
 #include "memory/memory.h"
 #include "types.h"
-#include "log/log.h"
+#include "log.h"
 #include "assets/texture_packer_loader.h"
 #include <assert.h>
 #include <string.h>

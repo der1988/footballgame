@@ -1,5 +1,5 @@
 #include "game/game.h"
-#include "time_machine/time_machine.h"
+#include "time_machine.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
 #include "debugui/internal/debugui.h"
@@ -7,7 +7,7 @@
 #include <assert.h>
 
 #ifdef HAS_FFMPEG
-#include "video_export/video_export.h"
+#include "video_export.h"
 #endif
 
 static void draw_marker_on_slider(ImDrawList *draw_list,

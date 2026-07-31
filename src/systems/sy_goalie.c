@@ -5,10 +5,10 @@
 #include "football/football.h"
 #include "game/game.h"
 #include "macro.h"
-#include "steering/steering.h"
+#include "steering.h"
 #include "math_ext/math_ext.h"
 #include "constants.h"
-#include "physics/physics.h"
+#include "physics.h"
 #include "types.h"
 #include <raylib.h>
 #include <raymath.h>

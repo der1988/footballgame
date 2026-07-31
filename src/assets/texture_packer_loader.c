@@ -2,7 +2,7 @@
 #include <cJSON/cJSON.h>
 #include "macro.h"
 #include <string.h>
-#include "log/log.h"
+#include "log.h"
 
 size texture_packer_load_from_json(const char *filename,
 								  const u32 texture_id,

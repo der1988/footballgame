@@ -2,7 +2,7 @@
 #include "entities/e_ball.h"
 #include "events/events.h"
 #include "game/game.h"
-#include "log/log.h"
+#include "log.h"
 #include "macro.h"
 #include "math_ext/math_ext.h"
 #include "collision.h"

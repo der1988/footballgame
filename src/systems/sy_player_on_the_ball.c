@@ -7,7 +7,7 @@
 #include "layers/layers.h"
 #include "ai/ai.h"
 #include "input/input.h"
-#include "log/log.h"
+#include "log.h"
 #include "sprite.h"
 #include "types.h"
 #include <math.h>

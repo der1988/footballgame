@@ -1,6 +1,6 @@
 #include "debugui/internal/debugui.h"
 #include "debugui/debugui.h"
-#include "log/log.h"
+#include "log.h"
 #include <assert.h>
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-#include "steering/steering.h"
+#include "steering.h"
 #include <raymath.h>
 
 v2 steering_seek(v2 position, v2 velocity, f32 max_velocity, v2 target)

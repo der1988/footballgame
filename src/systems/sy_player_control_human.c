@@ -9,7 +9,7 @@
 #include "macro.h"
 #include "ai/ai.h"
 #include "constants.h"
-#include "steering/steering.h"
+#include "steering.h"
 #include "math_ext/math_ext.h"
 #include <raymath.h>
 #include <string.h>

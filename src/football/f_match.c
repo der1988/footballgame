@@ -3,7 +3,7 @@
 #include "events/events.h"
 #include "football/football.h"
 #include "math_ext/math_ext.h"
-#include "log/log.h"
+#include "log.h"
 #include "game/game.h"
 #include "entities/e_camera.h"
 #include <stdio.h>

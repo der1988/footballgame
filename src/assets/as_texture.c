@@ -2,7 +2,7 @@
 #include "assets/as_texture.h"
 #include "memory/memory.h"
 #include "types.h"
-#include "log/log.h"
+#include "log.h"
 #include <assert.h>
 #include <raylib.h>
 #include <stdio.h>

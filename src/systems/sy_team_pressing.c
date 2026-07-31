@@ -5,7 +5,7 @@
 #include "football/football.h"
 #include "game/game.h"
 #include "input/input.h"
-#include "log/log.h"
+#include "log.h"
 #include "math_ext/math_ext.h"
 #include <raymath.h>
 #include "ai/ai.h"

@@ -1,13 +1,13 @@
 #ifdef HAS_FFMPEG
 
 #include "types.h"
-#include "video_export/video_export.h"
+#include "video_export.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include "game/game.h"
-#include "log/log.h"
+#include "log.h"
 #include "memory/memory.h"
-#include "time_machine/time_machine.h"
+#include "time_machine.h"
 #include <assert.h>
 #include <raylib.h>
 

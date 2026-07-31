@@ -2,7 +2,7 @@
 #include "game/game.h"
 #include "input/gamepad.h"
 #include "input/keyboard.h"
-#include "log/log.h"
+#include "log.h"
 #include "platform/platform.h"
 #include <string.h>
 #include <raymath.h>

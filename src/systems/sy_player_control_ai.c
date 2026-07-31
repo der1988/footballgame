@@ -7,7 +7,7 @@
 #include "input/input.h"
 #include "macro.h"
 #include "sprite.h"
-#include "steering/steering.h"
+#include "steering.h"
 #include "math_ext/math_ext.h"
 #include <raymath.h>
 #include <string.h>

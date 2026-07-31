@@ -1,13 +1,13 @@
 #include "entities/entities.h"
 #include "events/events.h"
 #include "football/football.h"
-#include "log/log.h"
+#include "log.h"
 #include "memory/memory.h"
 #include "systems/systems.h"
 #include "input/input.h"
 #include "game/game.h"
 #include "gfx/gfx.h"
-#include "time_machine/time_machine.h"
+#include "time_machine.h"
 #include <rlimgui/rlImGui.h>
 #include <assert.h>
 #include <raylib.h>

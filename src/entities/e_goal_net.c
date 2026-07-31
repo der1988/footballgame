@@ -1,6 +1,6 @@
 #include "entities/entities.h"
 #include "football/football.h"
-#include "log/log.h"
+#include "log.h"
 #include "entities/e_goal.h"
 #include <assert.h>
 #include "game/game.h"

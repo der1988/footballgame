@@ -2,7 +2,7 @@
 #include "macro.h"
 #include "input/game_controller.h"
 #include "platform/platform.h"
-#include "log/log.h"
+#include "log.h"
 #include <raymath.h>
 
 static INLINE f32 get_analogic_value_from_binding(struct keyboard_binding binding)

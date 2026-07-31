@@ -7,7 +7,7 @@
 #include "football/football.h"
 #include "input/input.h"
 #include "memory/memory.h"
-#include "render/render.h"
+#include "render.h"
 #include "types.h"
 #include "layers/layers.h"
 #include "constants.h"

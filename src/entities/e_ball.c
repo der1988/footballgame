@@ -5,7 +5,7 @@
 #include "state_machine.h"
 #include "types.h"
 #include "math_ext/math_ext.h"
-#include "log/log.h"
+#include "log.h"
 #include "macro.h"
 #include <assert.h>
 #include <raylib.h>
