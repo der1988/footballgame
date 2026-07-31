@@ -1,9 +1,11 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include "macro.h"
 #include "memory.h"
 #include "types.h"
 #include <assert.h>
+#include <raymath.h>
 
 #define MAX_GAME_CONTROLLERS 4
 
@@ -138,8 +140,37 @@ void input_manager_destroy(struct input_manager *input_manager);
 
 void input_manager_update(struct input_manager *input_manager, struct game_state *game_state);
 
-void game_controller_reset(struct game_controller *game_controller);
+void input_reset(struct game_controller *game_controller);
 
-void game_controller_player_reset(entity_id_t player_entity_id, struct game_state *game_state);
+void input_reset_player(entity_id_t player_entity_id, struct game_state *game_state);
+
+INLINE struct input_state input_digital_state(b32 is_down_now, struct input_state *previous_state)
+{
+	return (struct input_state){.digital.down = is_down_now,
+								.digital.pressed = !previous_state->digital.down && is_down_now,
+								.digital.released = previous_state->digital.down && !is_down_now};
+}
+
+INLINE v2 input_movement_vector(struct game_controller *game_controller)
+{
+	struct game_controller_state *state = &game_controller->state;
+
+	f32 up = state->current[GAME_CONTROL_MOVE_UP].analogic.value;
+	f32 down = state->current[GAME_CONTROL_MOVE_DOWN].analogic.value;
+	f32 left = state->current[GAME_CONTROL_MOVE_LEFT].analogic.value;
+	f32 right = state->current[GAME_CONTROL_MOVE_RIGHT].analogic.value;
+
+	v2 movement = {.x = -left + right, .y = -up + down};
+
+	/* Keyboard movement vector needs to be normalised because it's the sum of multiple digital inputs:
+	 * the key is either down or not, so you can end up with a (-1, 1) unit vector that makes no sense.
+	 * Gamepad movement vector on the other hand is already normalised.
+	 */
+	if (game_controller->type == GAME_CONTROLLER_TYPE_KEYBOARD) {
+		movement = Vector2Normalize(movement);
+	}
+
+	return movement;
+}
 
 #endif // !INPUT_H

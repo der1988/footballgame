@@ -1,7 +1,7 @@
 #include "input.h"
 #include "game.h"
-#include "gamepad.h"
-#include "keyboard.h"
+#include "input_gamepad.h"
+#include "input_keyboard.h"
 #include "log.h"
 #include "platform.h"
 #include <string.h>
@@ -220,11 +220,11 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 			gc->state = (struct game_controller_state){0};
 			continue;
 		case GAME_CONTROLLER_TYPE_GAMEPAD: {
-			gamepad_update(gc->gamepad.device_id, gc->gamepad.bindings, &gc->state);
+			input_gamepad_update(gc->gamepad.device_id, gc->gamepad.bindings, &gc->state);
 			break;
 		}
 		case GAME_CONTROLLER_TYPE_KEYBOARD: {
-			keyboard_update(gc->keyboard.bindings, &gc->state);
+			input_keyboard_update(gc->keyboard.bindings, &gc->state);
 			break;
 		}
 		}

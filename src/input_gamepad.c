@@ -1,6 +1,5 @@
 #include "input.h"
 #include "platform.h"
-#include "game_controller.h"
 #include "log.h"
 #include "types.h"
 #include <raymath.h>
@@ -36,7 +35,7 @@ static void update_input_state(platform_gamepad_device_id_t gamepad_index,
 		b32 down =
 			platform_input_device_gamepad_is_button_down(gamepad_index, bindings[game_control].to);
 		state->current[game_control] =
-			game_controller_digital_input_state(down, &state->previous[game_control]);
+			input_digital_state(down, &state->previous[game_control]);
 		break;
 	}
 	case GAME_CONTROL_TYPE_ANALOGIC:
@@ -49,7 +48,7 @@ static void update_input_state(platform_gamepad_device_id_t gamepad_index,
 	}
 }
 
-void gamepad_update(u32 gamepad_index,
+void input_gamepad_update(u32 gamepad_index,
 					struct gamepad_binding *bindings,
 					struct game_controller_state *state)
 {

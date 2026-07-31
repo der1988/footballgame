@@ -10,7 +10,6 @@
 #include "types.h"
 #include <assert.h>
 #include "ai.h"
-#include "game_controller.h"
 #include <float.h>
 #include <raymath.h>
 #include <stdio.h>
@@ -261,7 +260,7 @@ void system_player_selection(struct game_state *game_state)
 				struct game_controller *game_controller =
 					&game_state->input_manager->game_controllers[human_player->game_controller_id];
 
-				v2 scan_direction = Vector2Negate(game_controller_movement_vector(game_controller));
+				v2 scan_direction = Vector2Negate(input_movement_vector(game_controller));
 
 				struct entity *switch_target;
 				const b32 switch_target_found = entity_player_find_switch_target(
@@ -376,7 +375,7 @@ static void switch_to_player(entity_id_t switch_to,
 							 struct human_player *human_player,
 							 struct game_state *game_state)
 {
-	game_controller_reset(
+	input_reset(
 		&game_state->input_manager->game_controllers[human_player->game_controller_id]);
 	human_player->controlled_player.entity_id = switch_to;
 }

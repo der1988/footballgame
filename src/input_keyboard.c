@@ -1,6 +1,5 @@
 #include "input.h"
 #include "macro.h"
-#include "game_controller.h"
 #include "platform.h"
 #include "log.h"
 #include <raymath.h>
@@ -22,7 +21,7 @@ static void update_input_state(enum game_control game_control,
 	case GAME_CONTROL_TYPE_DIGITAL: {
 		b32 down = platform_input_device_keyboard_is_key_down(bindings[game_control].to);
 		state->current[game_control] =
-			game_controller_digital_input_state(down, &state->previous[game_control]);
+			input_digital_state(down, &state->previous[game_control]);
 		break;
 	}
 	case GAME_CONTROL_TYPE_ANALOGIC:
@@ -35,7 +34,7 @@ static void update_input_state(enum game_control game_control,
 	}
 }
 
-void keyboard_update(struct keyboard_binding *bindings, struct game_controller_state *state)
+void input_keyboard_update(struct keyboard_binding *bindings, struct game_controller_state *state)
 {
 	for (usize i = 0; i < GAME_CONTROL_COUNT; i++) {
 		update_input_state(i, state, bindings);

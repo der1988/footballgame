@@ -4,7 +4,6 @@
 #include "entity_player.h"
 #include "football.h"
 #include "game.h"
-#include "game_controller.h"
 #include "input.h"
 #include "macro.h"
 #include "ai.h"
@@ -96,7 +95,7 @@ void system_player_control_human(struct game_state *game_state, struct input *in
 			&game_state->input_manager->game_controllers[human_player->game_controller_id];
 		struct game_controller_state *game_controller_state = &game_controller->state;
 
-		player_controls->steering = game_controller_movement_vector(game_controller);
+		player_controls->steering = input_movement_vector(game_controller);
 
 		switch (state_machine->current_state) {
 		case PS_NONE:

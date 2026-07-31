@@ -1,7 +1,7 @@
 #include "input.h"
 #include "game.h"
 
-void game_controller_reset(struct game_controller *game_controller)
+void input_reset(struct game_controller *game_controller)
 {
 	/*  If we are in the middle of a charge, force the user to let go
 	  before they can do anything else with this new player.*/
@@ -13,12 +13,12 @@ void game_controller_reset(struct game_controller *game_controller)
 	}
 }
 
-void game_controller_player_reset(entity_id_t player_entity_id, struct game_state *game_state)
+void input_reset_player(entity_id_t player_entity_id, struct game_state *game_state)
 {
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
 		if (game_state->human_players[i].enabled &&
 			game_state->human_players[i].controlled_player.entity_id == player_entity_id) {
-			game_controller_reset(
+			input_reset(
 				&game_state->input_manager
 					 ->game_controllers[game_state->human_players[i].game_controller_id]);
 			break;
