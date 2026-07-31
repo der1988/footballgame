@@ -6,7 +6,7 @@
 #include "state_machine.h"
 #include "types.h"
 #include "assets/as_animation.h"
-#include "events/events.h"
+#include "events_router.h"
 
 #define HEADER_PHASE_WINDOWS_COUNT 5
 #define HEADER_MIN_HEIGHT		   header_phase_windows[0].low

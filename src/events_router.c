@@ -1,8 +1,24 @@
-#include "events/internal/events.h"
+#include "events_router.h"
+#include "memory/memory.h"
+#include "types.h"
 #include "log.h"
 #include "macro.h"
 #include <assert.h>
 #include <stdarg.h>
+
+// struct events_router is opaque to callers: events.h declares it as an
+// incomplete type and only this file needs the layout.
+struct list_listeners {
+	void (**array)(enum event_type, void *);
+	usize count;
+	usize size;
+};
+
+struct events_router {
+	memory_arena_handle_t *memory_arena_handle;
+	struct list_listeners listeners[EVT_COUNT];
+	b32 initialised;
+};
 
 const char *event_type_to_string[EVT_COUNT] = {"goal_scored",
 												"ball_oob_north",

@@ -1,5 +1,5 @@
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef EVENTS_ROUTER_H
+#define EVENTS_ROUTER_H
 
 #include "memory/memory.h"
 
@@ -33,4 +33,4 @@ void events_router_add_listener(events_router_t *handle,
 								...);
 void events_router_publish(events_router_t *handle, enum event_type event_type, void *context);
 
-#endif // !EVENTS_H
+#endif // !EVENTS_ROUTER_H
