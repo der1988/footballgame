@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
-#include "platform/platform.h"
+#include "platform.h"
 #include "debugui/debugui.h"
 
 #ifdef RUNNING_TEST

@@ -1,5 +1,5 @@
 #include "input/input.h"
-#include "platform/platform.h"
+#include "platform.h"
 #include "input/game_controller.h"
 #include "log.h"
 #include "types.h"

@@ -1,4 +1,4 @@
-#include "platform/platform.h"
+#include "platform.h"
 #include "types.h"
 #include <raylib.h>
 

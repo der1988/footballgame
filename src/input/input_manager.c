@@ -3,7 +3,7 @@
 #include "input/gamepad.h"
 #include "input/keyboard.h"
 #include "log.h"
-#include "platform/platform.h"
+#include "platform.h"
 #include <string.h>
 #include <raymath.h>
 
