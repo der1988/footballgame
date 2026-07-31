@@ -1,7 +1,7 @@
 #ifndef EVENTS_ROUTER_H
 #define EVENTS_ROUTER_H
 
-#include "memory/memory.h"
+#include "memory.h"
 
 #define MAX_LISTENERS_PER_EVENT_TYPE 10
 

@@ -1,5 +1,5 @@
 #include "events_router.h"
-#include "memory/memory.h"
+#include "memory.h"
 #include "types.h"
 #include "log.h"
 #include "macro.h"

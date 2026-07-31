@@ -1,8 +1,8 @@
-#include "assets/as_sprite_frame.h"
-#include "assets/as_texture.h"
+#include "asset_sprite_frame.h"
+#include "asset_texture.h"
 #include "render.h"
 #include <raymath.h>
-#include "math_ext/math_ext.h"
+#include "math_ext.h"
 
 const char *sprite_orientation_to_string[SO_COUNT] = {
 	"up", "down", "left", "right", "up_left", "up_right", "down_left", "down_right"};

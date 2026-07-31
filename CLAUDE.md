@@ -31,28 +31,35 @@ make clean
 
 Cross-platform builds: `Makefile.osx` for macOS, `Makefile.w64` for Windows.
 
-## Include Conventions
+## File and Include Conventions
 
-Only `./src` and the vendored-library dirs under `./src/libs` are on the include
-path. Do not add more `-I` directories — a flat include path lets a new file
-silently shadow a library header of the same name.
+All project sources live flat in `./src` — no subdirectories except `./src/libs`
+for vendored code. Only `./src` and the dirs under `./src/libs` are on the
+include path; do not add more `-I` directories.
 
-- **Project headers**: quoted and path-qualified from `src/` —
-  `#include "football/football.h"`, `#include "entities/e_player.h"`.
-  Headers living directly in `src/` are just `#include "types.h"`.
-  Never use `"../"` escapes or bare basenames for headers in another directory.
+**A file is named after the symbols it defines.** `entity_player.c` defines
+`entity_player_*`, `asset_texture.c` defines `asset_texture_*`, `system_ball.c`
+defines `system_ball`. The module prefix is spelled out in full — never
+abbreviated (`e_`, `sy_`, `as_` are gone: `g_` used to mean both `game` and
+`gfx`, `m_` both `memory` and `math_ext`). Prefixes are singular: `entity_`,
+`asset_`, `layer_`, `system_`. A new file's name and its symbols' prefix must
+agree; if they can't, one of the two is named wrong.
+
+- **Project headers**: quoted, bare basename — `#include "football.h"`,
+  `#include "entity_player.h"`. Resolution is unambiguous because every file
+  lives in one directory.
 - **Third-party**: angle brackets, always — `<raylib.h>`, `<raymath.h>`,
   `<cimgui/cimgui.h>`, `<cJSON/cJSON.h>` (vendored libs resolve relative to
   `src/libs`).
 - **`<raymath.h>` must come after `"types.h"`**: raymath defines its own
   `Vector2` when raylib.h has not been seen yet, which collides with raylib's.
 
-Module-private headers go in an `internal/` subdirectory of their module —
-`memory/internal/memory.h`, `events/internal/events.h`,
-`assets/internal/as_texture_cache.h` — with a `<MODULE>_INTERNAL_H` guard. Never
-`*_internal.h` alongside the public header: the subdirectory makes the privacy
-boundary visible in every include line, so `grep -r 'internal/'` finds every
-reach-in. Only the owning module (and white-box tests) should include one.
+Module-private headers are `<module>_internal.h` (`memory_internal.h`,
+`layer_internal.h`, `debugui_internal.h`) with a `<MODULE>_INTERNAL_H` guard.
+Only add one when several `.c` files in the same module need to share a
+definition — that is the only thing it provides. With a single consumer, put the
+definition at the top of that `.c` instead: hiding comes from the incomplete type
+in the public header, not from the file split.
 
 Every header is self-contained — it compiles standalone, so it includes or
 forward-declares everything it needs. Keep it that way when adding headers.

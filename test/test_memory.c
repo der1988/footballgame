@@ -1,5 +1,5 @@
-#include "memory/internal/memory.h"
-#include "memory/memory.h"
+#include "memory_internal.h"
+#include "memory.h"
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"

@@ -1,21 +1,21 @@
-#include "memory/memory.h"
-#include "assets/as_manager.h"
-#include "actions/ac_sequence.h"
-#include "actions/ac_spawn.h"
-#include "actions/ac_change_color.h"
-#include "actions/ac_play_animation.h"
-#include "actions/ac_rotate_to.h"
-#include "actions/ac_toggle_boolean.h"
-#include "actions/ac_tween_float_from_to.h"
-#include "entities/e_components.h"
-#include "entities/entities.h"
-#include "entities/e_player.h"
-#include "game/game.h"
-#include "systems/systems.h"
+#include "memory.h"
+#include "asset_manager.h"
+#include "action_sequence.h"
+#include "action_spawn.h"
+#include "action_change_color.h"
+#include "action_play_animation.h"
+#include "action_rotate_to.h"
+#include "action_toggle_boolean.h"
+#include "action_tween_float_from_to.h"
+#include "entity_components.h"
+#include "entity.h"
+#include "entity_player.h"
+#include "game.h"
+#include "system.h"
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
-#include "math_ext/math_ext.h"
+#include "math_ext.h"
 #include <assert.h>
 #include <math.h>
 #include <raylib.h>
@@ -83,7 +83,7 @@ void test_action_change_color_from_to()
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 
@@ -120,7 +120,7 @@ void test_action_animation()
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = 0;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 		if (component_action->running_actions[running_idx].completed && i != (iterations - 1)) {
 			TEST_FAIL();
@@ -142,7 +142,7 @@ void test_action_animation()
 	iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = 0;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 		if (component_action->running_actions[running_idx].completed && i != (iterations - 1)) {
 			TEST_FAIL();
@@ -164,7 +164,7 @@ void test_action_animation()
 	iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = 0;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 		if (component_action->running_actions[running_idx].completed && i != (iterations - 1)) {
 			TEST_FAIL();
@@ -204,7 +204,7 @@ void test_action_sequence()
 	usize iterations = ceilf(action_sequence->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 		if (component_action->running_actions[running_idx].completed && i != (iterations - 1)) {
 			TEST_FAIL();
@@ -250,7 +250,7 @@ void test_action_spawn()
 	usize iterations = ceilf(action_spawn->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 		if (component_action->running_actions[action_spawn_idx].completed &&
 			i != (iterations - 1)) {
@@ -301,7 +301,7 @@ void test_multiple_parallel_actions()
 	usize iterations = ceilf(action_1->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 		if (component_action->running_actions[animation_idx].completed && i != (iterations - 1)) {
 			TEST_FAIL();
@@ -348,12 +348,12 @@ void test_action_pause()
 	g_game_state->time = g_game_state->dt;
 	usize first_batch = iterations / 2;
 	for (usize i = 0; i < first_batch; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 	component_action->running_actions[running_idx].paused = true;
 	for (usize i = 0; i < 100; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 	TEST_ASSERT(!component_action->running_actions[running_idx].completed);
@@ -365,7 +365,7 @@ void test_action_pause()
 	component_action->running_actions[running_idx].paused = false;
 	usize second_batch = iterations - first_batch;
 	for (usize i = 0; i < second_batch; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 
@@ -399,7 +399,7 @@ void test_action_tween_float_from_to()
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 
@@ -430,7 +430,7 @@ void test_action_rotate_to()
 	usize iterations = ceilf(action->base.duration / g_game_state->dt) + 1;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < iterations; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 
@@ -459,7 +459,7 @@ void test_action_toggle_boolean()
 	g_game_state->dt = DT;
 	g_game_state->time = g_game_state->dt;
 	for (usize i = 0; i < 1; ++i) {
-		systems_action(g_game_state);
+		system_action(g_game_state);
 		g_game_state->time += g_game_state->dt;
 	}
 
