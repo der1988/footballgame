@@ -1,7 +1,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "memory/memory.h"
 #include "types.h"
 

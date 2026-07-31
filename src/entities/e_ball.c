@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/entities.h"
 #include "entities/e_ball.h"
 #include "events_router.h"

@@ -1,5 +1,5 @@
 #include "ai/ai.h"
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/e_ball.h"
 #include "entities/e_player.h"
 #include "entities/entities.h"

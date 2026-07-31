@@ -7,7 +7,7 @@
 #include "actions/ac_rotate_to.h"
 #include "actions/ac_toggle_boolean.h"
 #include "actions/ac_tween_float_from_to.h"
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/entities.h"
 #include "entities/e_player.h"
 #include "game/game.h"

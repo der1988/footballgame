@@ -28,7 +28,7 @@ void systems_goal(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, collider);
 
 		const rect_t goal_rectangle =
-			calculate_collision_rectangle(transform->position,
+			collision_calculate_rectangle(transform->position,
 										  collider->colliders[0].props.rectangle.size,
 										  collider->colliders[0].props.rectangle.offset);
 

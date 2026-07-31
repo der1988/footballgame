@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/e_player.h"
 #include "entities/entities.h"
 #include "entities/e_ball.h"
@@ -119,7 +119,7 @@ void systems_ball(struct game_state *game_state, struct input *input)
 		if (human_player && ball->after_touch.active) {
 			struct game_controller *game_controller =
 				&game_state->input_manager->game_controllers[human_player->game_controller_id];
-			after_touch_direction = calculate_movement_vector(game_controller);
+			after_touch_direction = game_controller_movement_vector(game_controller);
 			after_touch_accel = calculate_after_touch_acceleration(
 				after_touch_direction, ball, physics3d->velocity, game_state->time, game_state);
 		}

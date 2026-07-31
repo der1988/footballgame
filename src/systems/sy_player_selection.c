@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/e_ball.h"
 #include "entities/e_player.h"
 #include "entities/entities.h"
@@ -261,7 +261,7 @@ void systems_player_selection(struct game_state *game_state)
 				struct game_controller *game_controller =
 					&game_state->input_manager->game_controllers[human_player->game_controller_id];
 
-				v2 scan_direction = Vector2Negate(calculate_movement_vector(game_controller));
+				v2 scan_direction = Vector2Negate(game_controller_movement_vector(game_controller));
 
 				struct entity *switch_target;
 				const b32 switch_target_found = entity_player_find_switch_target(

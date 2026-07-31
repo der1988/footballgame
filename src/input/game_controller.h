@@ -7,7 +7,7 @@
 #include <raymath.h>
 #include <stdio.h>
 
-INLINE struct input_state get_digital_input_state(b32 is_down_now,
+INLINE struct input_state game_controller_digital_input_state(b32 is_down_now,
 												  struct input_state *previous_state)
 {
 	return (struct input_state){.digital.down = is_down_now,
@@ -15,7 +15,7 @@ INLINE struct input_state get_digital_input_state(b32 is_down_now,
 								.digital.released = previous_state->digital.down && !is_down_now};
 }
 
-INLINE v2 calculate_movement_vector(struct game_controller *game_controller)
+INLINE v2 game_controller_movement_vector(struct game_controller *game_controller)
 {
 	struct game_controller_state *state = &game_controller->state;
 

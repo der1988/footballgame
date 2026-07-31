@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/e_ball.h"
 #include "entities/e_player.h"
 #include "entities/entities.h"
@@ -242,7 +242,7 @@ void systems_goalie(struct game_state *game_state, struct input *input)
 					}
 
 					v2 intersection_point;
-					if (is_line_intersecting_line(
+					if (collision_is_line_intersecting_line(
 							prev_pos, new_pos, left_pos, right_pos, &intersection_point)) {
 						physics->max_velocity =
 							game_state->constants.player_run_max_velocity * 0.5f;

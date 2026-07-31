@@ -27,7 +27,7 @@ const static struct tackle_colliders_config ORIENTATION_TO_TACKLE_COLLIDERS_CONF
 	{{{.x = 7, .y = 2}, 4}, {{.x = -2, .y = -3}, 5}},	// SO_DOWN_RIGHT
 };
 
-INLINE rect_t calculate_collision_rectangle(v2 pos, v2 size, v2 offset)
+INLINE rect_t collision_calculate_rectangle(v2 pos, v2 size, v2 offset)
 {
 	return (rect_t){.x = pos.x - size.x * 0.5f + offset.x * 0.5f,
 					.y = pos.y - size.y * 0.5f + offset.y * 0.5f,
@@ -36,7 +36,7 @@ INLINE rect_t calculate_collision_rectangle(v2 pos, v2 size, v2 offset)
 }
 
 // This function determines whether a moving circle with a velocity is going to intercept another still circle
-INLINE b32 is_moving_circle_going_to_intersect_still_circle(v2 moving_circle_pos,
+INLINE b32 collision_is_moving_circle_hitting_still_circle(v2 moving_circle_pos,
 															v2 still_circle_pos,
 															f32 moving_circle_radius,
 															f32 still_circle_radius,
@@ -55,7 +55,7 @@ INLINE b32 is_moving_circle_going_to_intersect_still_circle(v2 moving_circle_pos
 	return false;
 }
 
-INLINE b32 is_line_intersecting_line(v2 line_1_point_1,
+INLINE b32 collision_is_line_intersecting_line(v2 line_1_point_1,
 									 v2 line_1_point_2,
 									 v2 line_2_point_1,
 									 v2 line_2_point_2,

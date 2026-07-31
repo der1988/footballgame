@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/entities.h"
 #include "game/game.h"
 #include "math_ext/math_ext.h"

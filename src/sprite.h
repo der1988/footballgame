@@ -1,7 +1,7 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "components/components.h"
+#include "render.h"
 #include "macro.h"
 #include "types.h"
 #include "math_ext/math_ext.h"

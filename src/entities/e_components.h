@@ -1,11 +1,10 @@
-#ifndef COMPONENTS_H
-#define COMPONENTS_H
+#ifndef ENTITY_COMPONENTS_H
+#define ENTITY_COMPONENTS_H
 
 #include "actions/action.h"
 #include "assets/as_sprite_frame.h"
 #include "football/football.h"
 #include "render.h"
-#include "constants.h"
 #include "types.h"
 #include "entities/e_player.h"
 #include "entities/e_ball.h"
@@ -234,4 +233,4 @@ void component_transform_local_to_world(struct component_transform *transform,
 										f32 *rotation,
 										v2 *scale);
 
-#endif // !COMPONENTS
+#endif // !ENTITY_COMPONENTS_H

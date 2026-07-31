@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/entities.h"
 #include "entities/e_ball.h"
 #include "entities/e_player.h"
@@ -96,7 +96,7 @@ void systems_player_control_human(struct game_state *game_state, struct input *i
 			&game_state->input_manager->game_controllers[human_player->game_controller_id];
 		struct game_controller_state *game_controller_state = &game_controller->state;
 
-		player_controls->steering = calculate_movement_vector(game_controller);
+		player_controls->steering = game_controller_movement_vector(game_controller);
 
 		switch (state_machine->current_state) {
 		case PS_NONE:

@@ -6,7 +6,11 @@
 #define UNUSED(x)	 (void)(x)
 #define UNUSED_PARAM __attribute__((unused))
 
-#define INLINE inline __attribute__((always_inline))
+// `static` matters: these are defined in headers and included by many
+// translation units. Without it they would have external linkage, which makes
+// referencing a file-static from one of them a compiler extension, and taking
+// its address a link error.
+#define INLINE static inline __attribute__((always_inline))
 
 #define ARRAY_LEN(A) sizeof(A) / sizeof(A[0])
 

@@ -1,4 +1,4 @@
-#include "components/components.h"
+#include "entities/e_components.h"
 #include "entities/entities.h"
 #include "entities/e_player.h"
 #include "football/football.h"
@@ -488,7 +488,7 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 		check_collision = CheckCollisionCircleRec(
 			ball_pos,
 			ball_radius,
-			calculate_collision_rectangle(
+			collision_calculate_rectangle(
 				player_position, collider->props.rectangle.size, collider->props.rectangle.offset));
 		break;
 	case PCT_PLAYER:
@@ -558,7 +558,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 		PSI_NORTH;
 
 	// Check whether the ball is coming directly at us
-	if (is_moving_circle_going_to_intersect_still_circle(
+	if (collision_is_moving_circle_hitting_still_circle(
 			ball_entity->transform.position,
 			goalie_entity->transform.position,
 			ball_radius,

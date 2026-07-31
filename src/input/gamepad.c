@@ -36,7 +36,7 @@ static void update_input_state(platform_gamepad_device_id_t gamepad_index,
 		b32 down =
 			platform_input_device_gamepad_is_button_down(gamepad_index, bindings[game_control].to);
 		state->current[game_control] =
-			get_digital_input_state(down, &state->previous[game_control]);
+			game_controller_digital_input_state(down, &state->previous[game_control]);
 		break;
 	}
 	case GAME_CONTROL_TYPE_ANALOGIC:
