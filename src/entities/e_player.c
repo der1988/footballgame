@@ -79,11 +79,11 @@ void entity_player_on_constants_changed(enum event_type type, void *context)
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
-forward_declare_state_machine_functions(player, struct entity);
-forward_declare_state_machine_functions(goalie, struct entity);
+STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(player, struct entity);
+STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(goalie, struct entity);
 
-implement_state_machine_functions(player, struct entity);
-implement_state_machine_functions(goalie, struct entity);
+STATE_MACHINE_IMPLEMENT_FUNCTIONS(player, struct entity);
+STATE_MACHINE_IMPLEMENT_FUNCTIONS(goalie, struct entity);
 
 void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
@@ -172,7 +172,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 		state_machine->current_state = GS_PROTECT_GOAL;
 		player_state_machine->current_state = PS_GOALIE;
 
-		goalie_state_machine_on_enter(entity, game_state);
+		state_machine_goalie_on_enter(entity, game_state);
 	} else {
 		player_state_machine->current_state = PS_NORMAL;
 
@@ -218,7 +218,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_BODY].shape = CS_CIRCLE;
 	collider->colliders[PCT_BODY].props.circle.radius = 5;
 
-	player_state_machine_on_enter(entity, game_state);
+	state_machine_player_on_enter(entity, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "player created");
 
@@ -283,7 +283,7 @@ void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 	}
 }
 
-static void player_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+static void state_machine_player_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -337,7 +337,7 @@ static void player_state_machine_on_enter(struct entity *entity, struct game_sta
 	}
 }
 
-static void player_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+static void state_machine_player_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -361,7 +361,7 @@ static void player_state_machine_on_exit(struct entity *entity, struct game_stat
 	}
 }
 
-static void goalie_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+static void state_machine_goalie_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	struct state_machine_goalie *state_machine = &entity->goalie.state_machine;
 
@@ -406,7 +406,7 @@ static void goalie_state_machine_on_enter(struct entity *entity, struct game_sta
 	}
 }
 
-static void goalie_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+static void state_machine_goalie_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	struct state_machine_goalie *state_machine = &entity->goalie.state_machine;
 

@@ -35,8 +35,8 @@ union state_machine_ball_state_data {
 	struct state_machine_default_empty_data gk_hands;
 };
 
-define_state_machine(ball, struct entity);
-define_state_machine_functions(ball, struct entity);
+STATE_MACHINE_DEFINE(ball, struct entity);
+STATE_MACHINE_DECLARE_FUNCTIONS(ball, struct entity);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state);
 void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity);

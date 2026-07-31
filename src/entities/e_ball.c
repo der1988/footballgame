@@ -17,8 +17,8 @@
 const char *state_machine_ball_state_string[BS_COUNT] = {
 	"none", "in_play", "out_of_play", "gk_hands"};
 
-forward_declare_state_machine_functions(ball, struct entity);
-implement_state_machine_functions(ball, struct entity);
+STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(ball, struct entity);
+STATE_MACHINE_IMPLEMENT_FUNCTIONS(ball, struct entity);
 
 static void set_after_touch(struct component_ball *ball);
 static void reset_after_touch(struct component_ball *ball);
@@ -89,14 +89,14 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 
 	gfx_ball_prepare(game_state);
 
-	ball_state_machine_on_enter(entity, game_state);
+	state_machine_ball_on_enter(entity, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "ball created");
 
 	return entity;
 }
 
-static void ball_state_machine_on_enter(struct entity *entity, struct game_state *game_state)
+static void state_machine_ball_on_enter(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -129,7 +129,7 @@ static void ball_state_machine_on_enter(struct entity *entity, struct game_state
 	}
 }
 
-static void ball_state_machine_on_exit(struct entity *entity, struct game_state *game_state)
+static void state_machine_ball_on_exit(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(game_state);
 
@@ -437,7 +437,7 @@ void entity_ball_held_by_goalie(struct entity *ball_entity,
 
 	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
 
-	ball_state_machine_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
+	state_machine_ball_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
 
 	reset_after_touch(&ball_entity->ball);
 }
@@ -457,7 +457,7 @@ void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *gam
 {
 	struct component_ball *ball = &ball_entity->ball;
 
-	ball_state_machine_change_state_to(&ball->state_machine, BS_IN_PLAY, game_state);
+	state_machine_ball_change_state_to(&ball->state_machine, BS_IN_PLAY, game_state);
 }
 
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
