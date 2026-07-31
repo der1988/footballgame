@@ -1,4 +1,3 @@
-#include "assets/internal/as_texture_cache.h"
 #include "assets/as_texture.h"
 #include "memory/memory.h"
 #include "types.h"
@@ -8,6 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+struct asset_texture_cache {
+	b32 initialised;
+	struct asset_texture *cache;
+	u32 count;
+};
 
 static u32 const MAX_TEXTURES = 10;
 

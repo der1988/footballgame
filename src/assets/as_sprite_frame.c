@@ -1,4 +1,3 @@
-#include "assets/internal/as_sprite_frame_cache.h"
 #include "assets/as_sprite_frame.h"
 #include "memory/memory.h"
 #include "types.h"
@@ -6,6 +5,13 @@
 #include "assets/texture_packer_loader.h"
 #include <assert.h>
 #include <string.h>
+
+struct asset_sprite_frame_cache {
+	b32 initialised;
+	memory_arena_handle_t *memory_arena_handle;
+	struct asset_sprite_frame *cache;
+	u32 count;
+};
 
 static u32 const MAX_SPRITE_FRAMES = 2000;
 

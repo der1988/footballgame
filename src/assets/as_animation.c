@@ -1,4 +1,3 @@
-#include "assets/internal/as_animation_cache.h"
 #include "assets/as_animation.h"
 #include <cJSON/cJSON.h>
 #include "memory/memory.h"
@@ -9,6 +8,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+struct asset_animation_cache {
+	b32 initialised;
+	memory_arena_handle_t *memory_arena_handle;
+	struct asset_animation *cache;
+	u32 count;
+};
 
 static u16 const MAX_ANIMATIONS = 100;
 static u16 const MAX_FRAMES_PER_ANIMATION = 100;

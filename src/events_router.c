@@ -6,8 +6,6 @@
 #include <assert.h>
 #include <stdarg.h>
 
-// struct events_router is opaque to callers: events.h declares it as an
-// incomplete type and only this file needs the layout.
 struct list_listeners {
 	void (**array)(enum event_type, void *);
 	usize count;

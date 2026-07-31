@@ -1,4 +1,3 @@
-#include "assets/internal/as_shader_cache.h"
 #include "assets/as_shader.h"
 #include "memory/memory.h"
 #include "types.h"
@@ -7,6 +6,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+struct asset_shader_cache {
+	b32 initialised;
+	memory_arena_handle_t *memory_arena_handle;
+	struct asset_shader *cache;
+	u32 count;
+};
 
 static u32 const MAX_SHADERS = 10;
 
