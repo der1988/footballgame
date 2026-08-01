@@ -1141,6 +1141,7 @@ struct entity *entity_player_select_press_player(struct entity *ball_entity,
 	v3 *ball_future_positions = game_state->vars.ball.lookahead_positions;
 
 	const b32 team_has_humans = game_human_players_count_by_team(game_state, team_side) > 0;
+	const u32 lookaheads = game_state->constants.ball_lookaheads;
 
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
 		entity = entity_get(game_state->entity_repository, entity_id);
@@ -1172,7 +1173,7 @@ struct entity *entity_player_select_press_player(struct entity *ball_entity,
 
 		// Calculate future positions score
 		f32 best_future_position_score = 0;
-		for (int i = 0; i < BALL_MAX_LOOKAHEADS; i++) {
+		for (u32 i = 0; i < lookaheads; i++) {
 			v2 future_ball_pos = V3_TO_V2(ball_future_positions[i]);
 			f32 future_distance_sqr = Vector2DistanceSqr(transform->position, future_ball_pos);
 			f32 future_score = 1 - Clamp01(future_distance_sqr / (max_distance * max_distance));
