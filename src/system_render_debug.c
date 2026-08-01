@@ -79,6 +79,7 @@ void system_render_debug(struct game_state *game_state)
 					}
 					break;
 				default:
+					break;
 				}
 			}
 

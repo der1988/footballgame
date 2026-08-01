@@ -454,7 +454,7 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 
 	switch (collider_type) {
 	case PCT_TACKLE_1:
-	case PCT_TACKLE_2:
+	case PCT_TACKLE_2: {
 		struct tackle_colliders_config config =
 			ORIENTATION_TO_TACKLE_COLLIDERS_CONFIG[entity->sprite.orientation];
 		entity->collider.colliders[PCT_TACKLE_1].props.circle.offset = config.collider_1.offset;
@@ -484,6 +484,7 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 			}
 		}
 		break;
+	}
 	case PCT_DIVE:
 		check_collision = CheckCollisionCircleRec(
 			ball_pos,
