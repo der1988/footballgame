@@ -396,7 +396,8 @@ static void update(struct game_state *game_state)
 
 void game_play_draw_scene_to_texture(struct game_state *game_state,
 									 render_texture_t target,
-									 camera2d_t cam)
+									 camera2d_t cam,
+									 b32 draw_debug)
 {
 	texture_t pitch_texture = game_state->pitch_texture->texture;
 
@@ -405,19 +406,15 @@ void game_play_draw_scene_to_texture(struct game_state *game_state,
 
 	BeginMode2D(cam);
 
-	f32 stretched_width = pitch_texture.width * 1.0f;
-	f32 stretched_height = pitch_texture.height * 1.0f;
-	DrawTexturePro(
-		pitch_texture,
-		(rect_t){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
-		(rect_t){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
-		Vector2Zero(),
-		0,
-		WHITE);
+	DrawTexture(pitch_texture, 0, 0, WHITE);
 
 	system_render_hud_back(game_state);
 	system_render(game_state);
 	system_render_hud_front(game_state);
+
+	if (draw_debug) {
+		system_render_debug(game_state);
+	}
 
 	EndMode2D();
 
@@ -446,31 +443,8 @@ static void draw(struct game_state *game_state)
 		camera_transform->position.y - game_state->virtual_camera.target.y;
 	game_state->camera.target.y *= virtual_ratio;
 
-	texture_t pitch_texture = game_state->pitch_texture->texture;
-
-	BeginTextureMode(game_state->render_texture);
-	ClearBackground((Color){.r = 42, .g = 99, .b = 1, .a = 255});
-
-	BeginMode2D(game_state->virtual_camera);
-
-	f32 stretched_width = pitch_texture.width * 1.0f;
-	f32 stretched_height = pitch_texture.height * 1.0f;
-	DrawTexturePro(
-		pitch_texture,
-		(rect_t){.x = 0, .y = 0, .width = pitch_texture.width, .height = pitch_texture.height},
-		(rect_t){.x = 0, .y = 0, .width = stretched_width, .height = stretched_height},
-		Vector2Zero(),
-		0,
-		WHITE);
-
-	system_render_hud_back(game_state);
-	system_render(game_state);
-	system_render_hud_front(game_state);
-	system_render_debug(game_state);
-
-	EndMode2D();
-
-	EndTextureMode();
+	game_play_draw_scene_to_texture(
+		game_state, game_state->render_texture, game_state->virtual_camera, true);
 
 	BeginDrawing();
 	ClearBackground(BLACK);

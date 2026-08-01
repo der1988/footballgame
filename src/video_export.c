@@ -103,7 +103,7 @@ b32 video_export_range(usize start_frame,
 		export_cam.target.x = (i64)camera_transform->position.x;
 		export_cam.target.y = (i64)camera_transform->position.y;
 
-		game_play_draw_scene_to_texture(game_state, export_rt, export_cam);
+		game_play_draw_scene_to_texture(game_state, export_rt, export_cam, false);
 
 		// Read pixels from GPU
 		Image img = LoadImageFromTexture(export_rt.texture);
