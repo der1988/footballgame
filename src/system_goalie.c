@@ -1,3 +1,4 @@
+#include "system.h"
 #include "entity_components.h"
 #include "entity_ball.h"
 #include "entity_player.h"
@@ -29,10 +30,8 @@ static b32 protect_goal_predicate(v3 pos_to_check,
 		pos_to_check.y < (game_state->constants.crossbar_height - 7));
 }
 
-void system_goalie(struct game_state *game_state, struct input *input)
+void system_goalie(struct game_state *game_state)
 {
-	UNUSED(input);
-
 	struct entity *ball_entity = game_state->vars.ball.entity;
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 
@@ -70,8 +69,6 @@ void system_goalie(struct game_state *game_state, struct input *input)
 
 		entity_id_t player_in_possession_entity_id =
 			entity_ball_player_in_possession(ball_entity, game_state);
-		struct entity *player_in_possession_entity =
-			entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
 		switch (state_machine->current_state) {
 		case GS_NONE:

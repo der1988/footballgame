@@ -1,3 +1,4 @@
+#include "system.h"
 #include "entity_components.h"
 #include "entity.h"
 #include "game.h"

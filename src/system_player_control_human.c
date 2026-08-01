@@ -1,3 +1,4 @@
+#include "system.h"
 #include "entity_components.h"
 #include "entity.h"
 #include "entity_ball.h"
@@ -42,10 +43,8 @@ static b32 should_player_jump_for_header(struct entity *player_entity,
 	return false;
 }
 
-void system_player_control_human(struct game_state *game_state, struct input *input)
+void system_player_control_human(struct game_state *game_state)
 {
-	UNUSED(input);
-
 	struct entity *ball_entity = game_state->vars.ball.entity;
 
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
@@ -83,10 +82,6 @@ void system_player_control_human(struct game_state *game_state, struct input *in
 
 		struct entity *last_entity_that_touched_ball =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
-
-		enum team_side team_idx_last_ball_possession =
-			last_entity_that_touched_ball ? last_entity_that_touched_ball->player.team_side :
-											TS_COUNT;
 
 		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 

@@ -299,4 +299,9 @@ b32 entity_player_find_switch_target(v2 position,
 									 struct entity **out_switch_target,
 									 struct game_state *game_state);
 
+struct entity *entity_player_select_press_player(struct entity *ball_entity,
+												 enum team_side team_side,
+												 f32 max_distance,
+												 struct game_state *game_state);
+
 #endif // !ENTITY_PLAYER_H

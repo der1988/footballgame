@@ -5,7 +5,6 @@
 struct game_state;
 struct input;
 
-void system_controls(struct game_state *game_state);
 void system_ball(struct game_state *game_state);
 void system_player_collisions(struct game_state *game_state);
 void system_player_selection(struct game_state *game_state);

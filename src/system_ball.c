@@ -1,3 +1,4 @@
+#include "system.h"
 #include "entity_components.h"
 #include "entity_player.h"
 #include "entity.h"
@@ -22,7 +23,7 @@ static v3 calculate_after_touch_acceleration(v2 direction,
 											 fg_time_t time,
 											 struct game_state *game_state);
 
-void system_ball(struct game_state *game_state, struct input *input)
+void system_ball(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
 
