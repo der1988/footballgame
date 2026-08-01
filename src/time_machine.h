@@ -1,3 +1,6 @@
+#ifndef TIME_MACHINE_H
+#define TIME_MACHINE_H
+
 #include "entity.h"
 #include "game.h"
 #include "memory.h"
@@ -51,3 +54,5 @@ usize time_machine_current_pos(struct time_machine *handle);
 void time_machine_set_resume_position(struct time_machine *handle,
 									  enum resume_position resume_position,
 									  struct game_state *game_state);
+
+#endif // !TIME_MACHINE_H

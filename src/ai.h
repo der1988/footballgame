@@ -1,3 +1,6 @@
+#ifndef AI_H
+#define AI_H
+
 #include "types.h"
 
 // Forward declaration
@@ -35,3 +38,5 @@ enum player_ai_state ai_player_think(struct entity *entity,
 
 enum goalie_ai_state ai_goalie_think(enum player_ai_action_decision *action_decision,
 									 struct game_state *game_state);
+
+#endif // !AI_H

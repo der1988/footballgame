@@ -1,5 +1,5 @@
-#ifndef SPRITES_H
-#define SPRITES_H
+#ifndef RENDER_H
+#define RENDER_H
 
 #include "asset_sprite_frame.h"
 #include "asset_texture.h"
@@ -44,4 +44,4 @@ void render_sprite_draw_debug_frame(struct asset_sprite_frame *sprite_frame,
 									v2 scale,
 									v2 pivot_override);
 
-#endif // !SPRITES_H
+#endif // !RENDER_H
