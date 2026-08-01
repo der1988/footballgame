@@ -3,12 +3,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifdef NDEBUG
-#define LOG_LEVEL LT_WARN
-#else
-#define LOG_LEVEL LT_DEBUG
-#endif
-
 const char *utils_log_systems_desc[LS_COUNT] = {
 	"GAME",
 	"INPUT",
@@ -44,30 +38,30 @@ void log_line(char *file,
 		"TRACE",
 	};
 
-	if (type <= LOG_LEVEL) {
-		double run_time = GetTime();
-		if (ctx != NULL) {
-			printf("%f %s: %s: [%s] %s:%d -> ",
-				   run_time,
-				   log_type_prefixes[(usize)type],
-				   utils_log_systems_desc[(usize)system],
-				   ctx,
-				   file,
-				   line);
-		} else {
-			printf("%f %s: %s: %s:%d -> ",
-				   run_time,
-				   log_type_prefixes[(usize)type],
-				   utils_log_systems_desc[(usize)system],
-				   file,
-				   line);
-		}
-
-		va_list arg_list;
-		va_start(arg_list, format);
-		vprintf(format, arg_list);
-		va_end(arg_list);
-
-		printf("\n");
+	// Callers reach this through the GLOG* macros, which have already tested
+	// the level against LOG_LEVEL -- there is deliberately no filtering here.
+	double run_time = GetTime();
+	if (ctx != NULL) {
+		printf("%f %s: %s: [%s] %s:%d -> ",
+			   run_time,
+			   log_type_prefixes[(usize)type],
+			   utils_log_systems_desc[(usize)system],
+			   ctx,
+			   file,
+			   line);
+	} else {
+		printf("%f %s: %s: %s:%d -> ",
+			   run_time,
+			   log_type_prefixes[(usize)type],
+			   utils_log_systems_desc[(usize)system],
+			   file,
+			   line);
 	}
+
+	va_list arg_list;
+	va_start(arg_list, format);
+	vprintf(format, arg_list);
+	va_end(arg_list);
+
+	printf("\n");
 }
