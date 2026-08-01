@@ -1,3 +1,6 @@
+#ifndef PLATFORM_H
+#define PLATFORM_H
+
 #include "types.h"
 
 enum platform_input_device_gamepad_axis {
@@ -74,7 +77,9 @@ struct platform_input_device_gamepad_state {
 b32 platform_input_device_keyboard_is_key_down(enum platform_input_device_keyboard_key key);
 
 // Gamepad
-b32 platform_input_device_gamepad_is_button_down(u32 gamepad_index,
+b32 platform_input_device_gamepad_is_button_down(platform_gamepad_device_id_t gamepad_id,
 												 enum platform_input_device_gamepad_button button);
-f32 platform_input_device_gamepad_get_axis_state(u32 gamepad_index,
+f32 platform_input_device_gamepad_get_axis_state(platform_gamepad_device_id_t gamepad_id,
 												 enum platform_input_device_gamepad_axis axis);
+
+#endif // !PLATFORM_H

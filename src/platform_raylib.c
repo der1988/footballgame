@@ -49,23 +49,23 @@ platform_gamepad_input_axis_id_t platform_gamepad_axis_mapping[] = {
 	GAMEPAD_AXIS_RIGHT_TRIGGER, // PLATFORM_INPUT_DEVICE_GAMEPAD_AXIS_RIGHT_TRIGGER
 };
 
-b32 platform_input_device_keyboard_is_key_down(const platform_keyboard_input_id_t input_id)
+b32 platform_input_device_keyboard_is_key_down(const enum platform_input_device_keyboard_key key)
 {
-	platform_keyboard_input_id_t raylib_key_id = platform_keyboard_key_mapping[input_id];
+	platform_keyboard_input_id_t raylib_key_id = platform_keyboard_key_mapping[key];
 
 	return IsKeyDown(raylib_key_id);
 }
 
 b32 platform_input_device_gamepad_is_button_down(const platform_gamepad_device_id_t gamepad_id,
-												 const platform_gamepad_input_button_id_t input_id)
+												 const enum platform_input_device_gamepad_button button)
 {
-	platform_gamepad_input_button_id_t raylib_button_id = platform_gamepad_button_mapping[input_id];
+	platform_gamepad_input_button_id_t raylib_button_id = platform_gamepad_button_mapping[button];
 
 	return IsGamepadButtonDown(gamepad_id, raylib_button_id);
 }
 
 f32 platform_input_device_gamepad_get_axis_state(const platform_gamepad_device_id_t gamepad_id,
-												 enum platform_input_device_gamepad_axis axis)
+												 const enum platform_input_device_gamepad_axis axis)
 {
 	platform_gamepad_input_axis_id_t raylib_axis_id = platform_gamepad_axis_mapping[axis];
 

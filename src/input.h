@@ -3,6 +3,7 @@
 
 #include "macro.h"
 #include "memory.h"
+#include "platform.h"
 #include "types.h"
 #include <assert.h>
 #include <raymath.h>
