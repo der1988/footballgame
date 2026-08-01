@@ -44,17 +44,20 @@ void memory_fixed_destroy(memory_fixed_handle_t *handle)
 		free(handle->base);
 		GLOG_INFO_CTX(LS_MEMORY, handle->name, "fixed size linear allocator destroyed");
 		free(handle);
-		handle = NULL;
 	} else {
 		GLOG_ERROR(LS_MEMORY, "attempt to free an invalid fixed size linear allocator");
 	}
 }
 
-void memory_fixed_reset(memory_arena_handle_t *handle)
+void memory_fixed_reset(memory_fixed_handle_t *handle)
 {
 	if (handle) {
 		GLOG_TRACE_CTX(LS_MEMORY, handle->name, "fixed size linear allocator reset");
+		// Zeroing the whole buffer clears every allocation's `used` flag, which is what
+		// memory_fixed_alloc scans. Restores the same state as memory_fixed_create.
+		memset(handle->base, 0, handle->fixed_allocation_size * handle->allocations);
 		handle->current = handle->base;
+		handle->allocated = 0;
 	} else {
 		GLOG_ERROR(LS_MEMORY, "attempt to reset an invalid fixed size linear allocator");
 	}

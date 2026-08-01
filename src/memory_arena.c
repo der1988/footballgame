@@ -37,7 +37,6 @@ void memory_arena_destroy(memory_arena_handle_t *handle)
 	if (handle) {
 		GLOG_INFO_CTX(LS_MEMORY, handle->name, "memory arena destroyed");
 		free(handle);
-		handle = NULL;
 	} else {
 		GLOG_ERROR(LS_MEMORY, "attempt to free an invalid memory arena");
 	}

@@ -27,6 +27,7 @@ memory_fixed_handle_t *memory_fixed_create(char *name, usize size, usize allocat
 void memory_fixed_destroy(memory_fixed_handle_t *handle);
 void *memory_fixed_alloc(memory_fixed_handle_t *handle);
 void memory_fixed_free(memory_fixed_handle_t *handle, void *buffer);
+void memory_fixed_reset(memory_fixed_handle_t *handle);
 
 usize memory_utils_align(usize to_align, u16 alignment);
 
