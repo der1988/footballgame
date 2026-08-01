@@ -281,7 +281,7 @@ void system_player_selection(struct game_state *game_state)
 						new_controlled_player_id != human_player->controlled_player.entity_id) {
 						// human is controlling a new player compared to previous frame
 						switch_to_player(new_controlled_player_id, human_player, game_state);
-						return;
+						continue;
 					}
 				}
 			}
