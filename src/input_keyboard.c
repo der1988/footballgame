@@ -1,3 +1,4 @@
+#include "input_keyboard.h"
 #include "input.h"
 #include "macro.h"
 #include "platform.h"

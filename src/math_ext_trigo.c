@@ -1,3 +1,4 @@
+#include "math_ext.h"
 #include "types.h"
 #include <math.h>
 #include <raymath.h>

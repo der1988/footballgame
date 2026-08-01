@@ -1,3 +1,4 @@
+#include "gfx.h"
 #include "asset_sprite_frame.h"
 #include "game.h"
 

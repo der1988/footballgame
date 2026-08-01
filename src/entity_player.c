@@ -85,9 +85,9 @@ STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(goalie, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(player, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(goalie, struct entity);
 
-void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
-void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
-b32 check_whether_goalie_should_dive(v3 pos_to_check,
+static void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
+static void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
+static b32 check_whether_goalie_should_dive(v3 pos_to_check,
 									 b32 attacking_south,
 									 f32 time_to_unsaveable,
 									 struct entity *goalie_entity,
@@ -1012,7 +1012,7 @@ void entity_player_header_hit(struct entity *player_entity, struct game_state *g
 	header_data->hit_ball = true;
 }
 
-void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
+static void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
 	u32 *palette =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 4 * 10);
@@ -1081,7 +1081,7 @@ void player_custom_begin_draw(struct entity *entity, struct game_state *game_sta
 	BeginShaderMode(assets_shader->shader);
 }
 
-void player_custom_after_draw(struct entity *entity, struct game_state *game_state)
+static void player_custom_after_draw(struct entity *entity, struct game_state *game_state)
 {
 	UNUSED(entity);
 	UNUSED(game_state);
@@ -1089,7 +1089,7 @@ void player_custom_after_draw(struct entity *entity, struct game_state *game_sta
 	EndShaderMode();
 }
 
-b32 check_whether_goalie_should_dive(v3 pos_to_check,
+static b32 check_whether_goalie_should_dive(v3 pos_to_check,
 									 b32 attacking_south,
 									 f32 time_to_unsaveable,
 									 struct entity *goalie_entity,

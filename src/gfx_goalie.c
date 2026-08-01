@@ -1,3 +1,4 @@
+#include "gfx.h"
 #include "game.h"
 
 void gfx_goalie_prepare(struct game_state *game_state)

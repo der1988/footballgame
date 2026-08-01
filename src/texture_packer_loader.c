@@ -1,3 +1,4 @@
+#include "texture_packer_loader.h"
 #include "asset_sprite_frame.h"
 #include <cJSON/cJSON.h>
 #include "macro.h"

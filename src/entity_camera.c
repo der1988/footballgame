@@ -1,3 +1,4 @@
+#include "entity_camera.h"
 #include "entity.h"
 #include "log.h"
 #include <raymath.h>

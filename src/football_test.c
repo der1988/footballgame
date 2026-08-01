@@ -17,7 +17,7 @@ static struct player_characteristics characteristics_for_position(u8 idx)
 		.speed = 4, .acceleration = 4, .strength = 2, .weight = 2}; // Forwards
 }
 
-void football_setup_training(struct game_state *game_state)
+void football_test_setup(struct game_state *game_state)
 {
 	game_state->vars.teams[0] =
 		(struct team){(struct team_info){.name = "New Team"},

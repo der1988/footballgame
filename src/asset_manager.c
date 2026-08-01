@@ -1,3 +1,4 @@
+#include "asset_manager.h"
 #include "asset.h"
 #include "memory.h"
 #include <assert.h>

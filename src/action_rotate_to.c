@@ -21,7 +21,7 @@ void action_rotate_to_update(struct action_runner *action_runner,
 	entity->transform.rotation = action->from + action->diff * h;
 }
 
-void action_rotate_to_start(struct action_runner *action_runner,
+static void action_rotate_to_start(struct action_runner *action_runner,
 							entity_id_t id,
 							struct game_state *game_state)
 {

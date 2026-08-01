@@ -1,3 +1,4 @@
+#include "layer.h"
 #include "football.h"
 #include "layer_internal.h"
 #include "log.h"

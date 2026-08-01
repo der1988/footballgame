@@ -4,7 +4,7 @@
 #include "steering.h"
 #include <raymath.h>
 
-void apply_force(Vector2 force_to_apply, struct component_physics *physics, delta_time_t dt)
+static void apply_force(Vector2 force_to_apply, struct component_physics *physics, delta_time_t dt)
 {
 	physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
 
@@ -12,7 +12,7 @@ void apply_force(Vector2 force_to_apply, struct component_physics *physics, delt
 	physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
 }
 
-void apply_velocity(struct component_transform *transform,
+static void apply_velocity(struct component_transform *transform,
 					struct component_physics *physics,
 					delta_time_t dt)
 {

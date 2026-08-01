@@ -1,3 +1,4 @@
+#include "input_gamepad.h"
 #include "input.h"
 #include "platform.h"
 #include "log.h"

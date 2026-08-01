@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdarg.h>
 
-void action_spawn_start(struct action_runner *action_runner,
+static void action_spawn_start(struct action_runner *action_runner,
 						entity_id_t id,
 						struct game_state *game_state)
 {

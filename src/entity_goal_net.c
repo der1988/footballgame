@@ -1,3 +1,4 @@
+#include "entity_goal_net.h"
 #include "entity.h"
 #include "football.h"
 #include "log.h"
