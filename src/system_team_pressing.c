@@ -16,11 +16,15 @@ void system_team_pressing(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
 
+	for (usize i = 0; i < TS_COUNT; ++i) {
+		game_state->vars.teams[i].play_context.player_in_charge_of_pressing = EID_NOT_VALID;
+	}
+
 	entity_id_t player_in_possession_entity_id =
 		entity_ball_player_in_possession(ball_entity, game_state);
-	struct entity *player_in_possession_entity =
-		entity_get(game_state->entity_repository, player_in_possession_entity_id);
-	if (player_in_possession_entity) {
+	if (player_in_possession_entity_id != EID_NOT_VALID) {
+		struct entity *player_in_possession_entity =
+			entity_get(game_state->entity_repository, player_in_possession_entity_id);
 		enum team_side team_in_possession = player_in_possession_entity->player.team_side;
 		entity_player_select_press_player(ball_entity, 1 - team_in_possession, 250.f, game_state);
 	} else {
