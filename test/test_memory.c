@@ -99,6 +99,24 @@ void test_memory_fixed()
 	buffer_4 = memory_fixed_alloc(handle);
 	TEST_ASSERT_NOT_NULL(buffer_4);
 
+	// all three slots are taken again
+	TEST_ASSERT_EQUAL_UINT64(3, handle->allocated);
+	TEST_ASSERT_NULL(memory_fixed_alloc(handle));
+
+	// reset must clear every allocation's used flag, not just rewind the cursor
+	memory_fixed_reset(handle);
+	TEST_ASSERT_EQUAL_UINT64(0, handle->allocated);
+	TEST_ASSERT_EQUAL_PTR(handle->base, handle->current);
+
+	// the whole allocator is usable again
+	void *buffer_after_reset_1 = memory_fixed_alloc(handle);
+	TEST_ASSERT_NOT_NULL(buffer_after_reset_1);
+	void *buffer_after_reset_2 = memory_fixed_alloc(handle);
+	TEST_ASSERT_NOT_NULL(buffer_after_reset_2);
+	void *buffer_after_reset_3 = memory_fixed_alloc(handle);
+	TEST_ASSERT_NOT_NULL(buffer_after_reset_3);
+	TEST_ASSERT_NULL(memory_fixed_alloc(handle));
+
 	// valid destruction
 	memory_fixed_destroy(handle);
 	handle = NULL;
