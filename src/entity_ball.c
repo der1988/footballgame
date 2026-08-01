@@ -478,6 +478,21 @@ entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
 	}
 }
 
+// Team possession is total: whoever touched the ball last still owns it, for the whole
+// flight of a pass or a shot, until someone from the other team touches it.
+enum team_side entity_ball_team_in_possession(struct entity *ball_entity,
+											  struct game_state *game_state)
+{
+	struct entity *last_touch_entity =
+		entity_get(game_state->entity_repository, ball_entity->ball.last_touch_entity_id);
+	if (!last_touch_entity) {
+		// TODO: no last touch means a set piece is pending, ask the game manager which
+		// team is taking it instead of defaulting.
+		return TS_HOME;
+	}
+	return last_touch_entity->player.team_side;
+}
+
 entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 										   struct game_state *game_state)
 {

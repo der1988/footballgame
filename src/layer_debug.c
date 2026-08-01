@@ -18,7 +18,7 @@ layer_debug_t *layer_debug_create(struct game_state *game_state)
 	assert(handle);
 	handle->initialised = true;
 
-	handle->log_position = (v2){.x = 10, .y = 950};
+	handle->log_position = (v2){.x = 10, .y = 850};
 
 	handle->frame_memory_arena = game_state->memory_by_lifetime[MAL_UPDATE];
 	handle->color = WHITE;

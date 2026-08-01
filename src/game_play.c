@@ -342,6 +342,11 @@ b32 game_play_update(struct game_state *game_state)
 								TextFormat("Match State: %s",
 										   match_state_to_string[game_state->vars.match.state]));
 
+	layer_debug_queue_draw_text(game_state->layer_debug,
+								TextFormat("Possession: %s",
+										   team_side_to_string[entity_ball_team_in_possession(
+											   game_state->vars.ball.entity, game_state)]));
+
 	// Draw game
 	draw(game_state);
 

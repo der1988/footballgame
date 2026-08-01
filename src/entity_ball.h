@@ -1,6 +1,7 @@
 #ifndef ENTITY_BALL_H
 #define ENTITY_BALL_H
 
+#include "football.h"
 #include "state_machine.h"
 #include "types.h"
 
@@ -97,5 +98,7 @@ entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
 											 struct game_state *game_state);
 entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 										   struct game_state *game_state);
+enum team_side entity_ball_team_in_possession(struct entity *ball_entity,
+											  struct game_state *game_state);
 
 #endif // !ENTITY_BALL_H
