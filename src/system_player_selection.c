@@ -285,6 +285,15 @@ void system_player_selection(struct game_state *game_state)
 					}
 				}
 			}
+			// The player in charge of pressing runs at the ball by design, so he would win the
+			// nearest to the epicenter test almost every time. He stays reachable through a
+			// manual switch above, but auto selection must not grab him.
+			entity_id_t presser =
+				game_state->vars.teams[team_side_idx].play_context.player_in_charge_of_pressing;
+			if (presser != EID_NOT_VALID) {
+				LIST_ADD(tmp_excluded_players_list, presser);
+			}
+
 			// Find player nearest to the epicenter
 			struct nearest_player nearest_player = {0};
 			const b32 found = entity_player_find_nearest(epicenter,

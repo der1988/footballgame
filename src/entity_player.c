@@ -1140,14 +1140,19 @@ struct entity *entity_player_select_press_player(struct entity *ball_entity,
 
 	v3 *ball_future_positions = game_state->vars.ball.lookahead_positions;
 
+	const b32 team_has_humans = game_human_players_count_by_team(game_state, team_side) > 0;
+
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
 		entity = entity_get(game_state->entity_repository, entity_id);
 
+		// A pure AI team fields a second chaser alongside the one nearest to the ball. A team
+		// with humans gets a single chaser, so the presser is free to be the nearest one.
 		if (!entity->header.alive || entity->header.type != ET_PLAYER ||
 			entity->player.state_machine.current_state != PS_NORMAL ||
 			entity->player.team_side != team_side ||
-			entity_id ==
-				game_state->vars.teams[team_side].play_context.player_nearest_to_the_ball) {
+			(!team_has_humans &&
+			 entity_id ==
+				 game_state->vars.teams[team_side].play_context.player_nearest_to_the_ball)) {
 			continue;
 		}
 
