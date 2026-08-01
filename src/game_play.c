@@ -307,10 +307,7 @@ b32 game_play_update(struct game_state *game_state)
 								.state.current[GAME_CONTROL_RECORDER_FORWARD]
 								.analogic.value;
 
-		static fg_time_t last_interaction_time = 0;
-
 		if (left_trigger > 0.01f) {
-			last_interaction_time = GetTime();
 			left_trigger = 1 - left_trigger;
 			left_trigger *= 15;
 			left_trigger += 1;
@@ -319,7 +316,6 @@ b32 game_play_update(struct game_state *game_state)
 				time_machine_travel(game_state->time_machine, -5, game_state);
 			}
 		} else if (right_trigger > 0.1f) {
-			last_interaction_time = GetTime();
 			right_trigger = 1 - right_trigger;
 			right_trigger *= 15;
 			right_trigger += 1;
@@ -329,11 +325,6 @@ b32 game_play_update(struct game_state *game_state)
 			}
 		}
 
-		// if (HAS_TIME_PASSED(GetTime(), last_interaction_time, 3.0f)) {
-		// 	time_machine_set_resume_position(
-		// 		game_state->time_machine, RP_LAST_RECORDED, game_state);
-		// 	game_state->vars.mode = GM_TICK;
-		// } else
 		struct game_controller *gc = &game_state->input_manager->game_controllers[0];
 		if (IsKeyReleased(KEY_F1) ||
 			gc->state.current[GAME_CONTROL_RECORDER_RESUME].digital.pressed) {
