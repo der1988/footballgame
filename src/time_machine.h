@@ -48,6 +48,6 @@ void time_machine_restore_capsule(struct time_machine *handle,
 								  struct game_state *game_state);
 void time_machine_travel(struct time_machine *handle, size delta, struct game_state *game_state);
 usize time_machine_current_pos(struct time_machine *handle);
-usize time_machine_set_resume_position(struct time_machine *handle,
-									   enum resume_position resume_position,
-									   struct game_state *game_state);
+void time_machine_set_resume_position(struct time_machine *handle,
+									  enum resume_position resume_position,
+									  struct game_state *game_state);

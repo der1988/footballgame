@@ -157,7 +157,7 @@ void system_goalie(struct game_state *game_state, struct input *input)
 					 game_state)) &&
 				player_in_possession_entity_id == EID_NOT_VALID &&
 				ball_velocity < (15 * PIXELS_PER_METER) &&
-				nearest_opponent_to_the_ball.distance > 10) {
+				(!found || nearest_opponent_to_the_ball.distance > 10)) {
 				// We will chase the ball if all the following conditions are true:
 				// - nearest opponent is reasonably far from the ball
 				// - no player in possession of the ball
