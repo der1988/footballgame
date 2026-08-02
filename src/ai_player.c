@@ -27,10 +27,6 @@ enum whos_on_the_ball {
 static enum whos_on_the_ball identify_whos_in_possession(
 	struct entity *player_entity, struct entity *player_in_possession_entity);
 
-static v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
-												   struct entity *ball_entity,
-												   struct game_state *game_state);
-
 static b32 team_has_human_players(enum team_side team_side, struct game_state *game_state);
 
 enum player_ai_state ai_player_think(struct entity *player_entity,
@@ -167,8 +163,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		if (ball->pass_target_entity_id == player_entity->header.id) {
 			// This player is the target of an automatic pass
 			// Let's move towards the ball
-			*target_position =
-				calculate_position_to_seek_to_reach_ball(player_entity, ball_entity, game_state);
+			*target_position = entity_player_position_to_seek_to_reach_ball(
+				player_entity, ball_entity, game_state);
 			ai_state = PAS_SEEK_POSITION;
 		} else {
 			ai_state = PAS_KEEP_POSITION;
@@ -227,8 +223,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		if (ball->pass_target_entity_id == player_entity->header.id) {
 			// This player is the target of an automatic pass
 			// Let's move towards the ball
-			*target_position =
-				calculate_position_to_seek_to_reach_ball(player_entity, ball_entity, game_state);
+			*target_position = entity_player_position_to_seek_to_reach_ball(
+				player_entity, ball_entity, game_state);
 			ai_state = PAS_ARRIVE_TO_POSITION;
 		} else if (ball_future_reachable_position->available &&
 				   Vector2Distance(transform->position,
@@ -301,27 +297,6 @@ static enum whos_on_the_ball identify_whos_in_possession(struct entity *player_e
 			return WOTB_OPPONENT;
 		}
 	}
-}
-
-static v2 calculate_position_to_seek_to_reach_ball(struct entity *player_entity,
-												   struct entity *ball_entity,
-												   struct game_state *game_state)
-{
-	// Let's move towards the ball
-	struct player_ball_reachability_prediction prediction =
-		entity_player_can_reach_future_ball_position(player_entity,
-													 player_entity->player.constants.run_max_velocity *
-														 0.8f,
-													 game_state->vars.ball.lookahead_positions,
-													 NULL,
-													 game_state);
-	v3 ball_future_pos;
-	if (prediction.can_reach_it)
-		ball_future_pos = prediction.future_pos;
-	else
-		ball_future_pos =
-			V2_TO_V3(ball_entity->transform.position, ball_entity->transform.virtual_height);
-	return V3_TO_V2(ball_future_pos);
 }
 
 static b32 team_has_human_players(enum team_side team_side, struct game_state *game_state)

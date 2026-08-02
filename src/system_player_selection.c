@@ -47,6 +47,8 @@ static void switch_to_player(entity_id_t switch_to,
 							 struct human_player *human_player,
 							 struct game_state *game_state);
 
+static b32 is_entity_in_list(entity_id_t entity_id, struct list_entity_ids list);
+
 void system_player_selection(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
@@ -70,6 +72,9 @@ void system_player_selection(struct game_state *game_state)
 		entity_ball_player_in_possession(ball_entity, game_state);
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
+
+	struct entity *pass_target_entity =
+		entity_get(game_state->entity_repository, ball->pass_target_entity_id);
 
 	// Process one team at a time
 	for (usize team_side_idx = 0; team_side_idx < TS_COUNT; ++team_side_idx) {
@@ -116,12 +121,6 @@ void system_player_selection(struct game_state *game_state)
 		if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
 			ball->last_kicker_entity_id != EID_NOT_VALID) {
 			LIST_ADD(team_excluded_players_list, ball->last_kicker_entity_id);
-		}
-
-		if (game_state->constants.player_pass_target_not_selectable &&
-			ball->pass_target_entity_id != EID_NOT_VALID) {
-			// We don't want to select the target of an automatic pass until he gets the ball
-			LIST_ADD(team_excluded_players_list, ball->pass_target_entity_id);
 		}
 
 		struct list_human_players ordered_list =
@@ -285,6 +284,23 @@ void system_player_selection(struct game_state *game_state)
 					}
 				}
 			}
+
+			// The target of an automatic pass is the player the human is going to need next, so
+			// he wins over whoever happens to be nearest to the epicenter: a bystander teammate
+			// can be closer to it for a few frames while the intended receiver is still running.
+			if (pass_target_entity &&
+				!is_entity_in_list(pass_target_entity->header.id, tmp_excluded_players_list)) {
+				if (pass_target_entity->header.alive &&
+					pass_target_entity->player.team_side == team_side_idx &&
+					pass_target_entity->player.state_machine.current_state == PS_NORMAL) {
+					if (pass_target_entity->header.id !=
+						human_player->controlled_player.entity_id) {
+						switch_to_player(pass_target_entity->header.id, human_player, game_state);
+					}
+					continue;
+				}
+			}
+
 			// The player in charge of pressing runs at the ball by design, so he would win the
 			// nearest to the epicenter test almost every time. He stays reachable through a
 			// manual switch above, but auto selection must not grab him.
@@ -381,11 +397,20 @@ order_humans_by_distance_from_ball(struct human_player *human_players,
 	return sorted_human_players;
 }
 
+static b32 is_entity_in_list(entity_id_t entity_id, struct list_entity_ids list)
+{
+	for (usize i = 0; i < list.count; ++i) {
+		if (list.array[i] == entity_id) {
+			return true;
+		}
+	}
+	return false;
+}
+
 static void switch_to_player(entity_id_t switch_to,
 							 struct human_player *human_player,
 							 struct game_state *game_state)
 {
-	input_reset(
-		&game_state->input_manager->game_controllers[human_player->game_controller_id]);
+	input_reset(&game_state->input_manager->game_controllers[human_player->game_controller_id]);
 	human_player->controlled_player.entity_id = switch_to;
 }

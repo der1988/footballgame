@@ -136,7 +136,6 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_control_radius = 6,
 		.player_control_height = 17,
 		.player_tackle_friction_force = 7500,
-		.player_pass_target_not_selectable = true,
 
 		// Goalie
 		// Elite goalie has 150ms reaction time

@@ -107,25 +107,6 @@ void system_player_control_human(struct game_state *game_state)
 							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
 						player_controls->header_pass = !player_controls->header_shot;
 					}
-				} else if (!game_controller_state->current[GAME_CONTROL_SHOOT].digital.down &&
-						   !game_controller_state->current[GAME_CONTROL_AUTOMATIC_PASS].digital.down &&
-						   !game_controller_state->current[GAME_CONTROL_PASS].digital.down &&
-						   !game_controller_state->current[GAME_CONTROL_LONG_PASS].digital.down &&
-						   ball_transform->virtual_height > HEADER_MAX_HEIGHT &&
-						   Vector2Length(player_controls->steering) < 0.1f &&
-						   game_state->vars.ball.entity->ball
-							   .future_positions[FUTURE_POSITION_BOUNCE]
-							   .available) {
-					// Let's steer the player towards where the ball should be reachable again:
-					// this is going to help a lot with headers.
-					player_controls->steering =
-						steering_arrive(entity->transform.position,
-										entity->physics.velocity,
-										entity->physics.max_velocity,
-										V3_TO_V2(game_state->vars.ball.entity->ball
-													 .future_positions[FUTURE_POSITION_BOUNCE]
-													 .position),
-										20);
 				}
 				// Sliding tackle
 				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
@@ -143,6 +124,35 @@ void system_player_control_human(struct game_state *game_state)
 						// - we are running to get a pass from our teammate and we want to cross immediately
 						// - our gk just rebounded a shot and we want to do a sliding tackle to clear the ball
 						player_controls->sliding_tackle = true;
+					}
+				} else if (Vector2Length(player_controls->steering) < 0.1f) {
+					// This section only triggers if the player is not giving meaningful directional input
+					if (ball->pass_target_entity_id == entity->header.id) {
+						// the target of an automatic pass runs to meet the ball on his own, so that
+						// selecting him doesn't force the human to steer him there by hand. the stick
+						// takes the run over as soon as it leaves the dead zone and gives it back as soon
+						// as it recenters; buttons keep working throughout.
+						player_controls->steering =
+							steering_arrive(entity->transform.position,
+											entity->physics.velocity,
+											entity->physics.max_velocity,
+											entity_player_position_to_seek_to_reach_ball(
+												entity, ball_entity, game_state),
+											20);
+					} else if (ball_transform->virtual_height > HEADER_MAX_HEIGHT &&
+							   game_state->vars.ball.entity->ball
+								   .future_positions[FUTURE_POSITION_BOUNCE]
+								   .available) {
+						// let's steer the player towards where the ball should be reachable again:
+						// this is going to help a lot with headers.
+						player_controls->steering =
+							steering_arrive(entity->transform.position,
+											entity->physics.velocity,
+											entity->physics.max_velocity,
+											V3_TO_V2(game_state->vars.ball.entity->ball
+														 .future_positions[FUTURE_POSITION_BOUNCE]
+														 .position),
+											20);
 					}
 				}
 			}

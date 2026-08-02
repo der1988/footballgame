@@ -673,6 +673,26 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 	return prediction;
 }
 
+v2 entity_player_position_to_seek_to_reach_ball(struct entity *player_entity,
+												struct entity *ball_entity,
+												struct game_state *game_state)
+{
+	struct player_ball_reachability_prediction prediction =
+		entity_player_can_reach_future_ball_position(player_entity,
+													player_entity->player.constants.run_max_velocity *
+														0.8f,
+													game_state->vars.ball.lookahead_positions,
+													NULL,
+													game_state);
+	v3 ball_future_pos;
+	if (prediction.can_reach_it)
+		ball_future_pos = prediction.future_pos;
+	else
+		ball_future_pos =
+			V2_TO_V3(ball_entity->transform.position, ball_entity->transform.virtual_height);
+	return V3_TO_V2(ball_future_pos);
+}
+
 b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   v2 scan_direction,
 								   f32 detection_angle,
