@@ -7,7 +7,6 @@
 #include "game.h"
 #include "input.h"
 #include "macro.h"
-#include "ai.h"
 #include "constants.h"
 #include "steering.h"
 #include "math_ext.h"

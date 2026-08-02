@@ -10,7 +10,6 @@
 #include "math_ext.h"
 #include "types.h"
 #include <assert.h>
-#include "ai.h"
 #include <float.h>
 #include <raymath.h>
 #include <stdio.h>
