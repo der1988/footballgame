@@ -1294,9 +1294,10 @@ static b32 is_player_selectable(struct entity *player_entity)
 	const struct component_player *player = &player_entity->player;
 	const struct component_goalie *goalie = &player_entity->goalie;
 
-	return player->state_machine.current_state == PS_NORMAL ||
-		   (player->state_machine.current_state == PS_GOALIE &&
-			goalie->state_machine.current_state == GS_HOLD_BALL);
+	return (player->state_machine.current_state == PS_NORMAL ||
+			player->state_machine.current_state == PS_GOALIE) &&
+		   !(goalie->header.enabled &&
+			 goalie->state_machine.current_state != GS_HOLD_BALL);
 }
 
 // The speed is the conservative one the AI seek uses, so both agree on what is reachable.
