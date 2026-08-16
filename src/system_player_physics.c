@@ -238,7 +238,7 @@ void system_player_physics(struct game_state *game_state)
 			entity_player_physics_apply_velocity(entity, game_state);
 
 			if (header_state_data->animation_completed) {
-				state_machine_player_change_state_to(&player->state_machine, PS_NORMAL, game_state);
+				state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
 				break;
 			}
 
@@ -252,8 +252,7 @@ void system_player_physics(struct game_state *game_state)
 			if (physics_set_at_rest_if_needed(physics, 3)) {
 				if (HAS_TIME_PASSED(
 						game_state->time, sliding_tackle_state_data->start_time, 0.25f)) {
-					state_machine_player_change_state_to(
-						&player->state_machine, PS_NORMAL, game_state);
+					state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
 					break;
 				}
 			} else {
@@ -311,7 +310,7 @@ void system_player_physics(struct game_state *game_state)
 
 			if (fall_state_data->animation_completed &&
 				HAS_TIME_PASSED(game_state->time, fall_state_data->animation_end_time, 1.f)) {
-				state_machine_player_change_state_to(&player->state_machine, PS_NORMAL, game_state);
+				state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
 				break;
 			}
 

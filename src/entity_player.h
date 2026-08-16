@@ -38,6 +38,18 @@ enum state_machine_player_state {
 
 extern const char *state_machine_player_state_string[PS_COUNT];
 
+// Active verbs for what the player does, past participles for what is done to him.
+enum state_machine_player_trigger {
+	PT_NONE,
+	PT_HEAD,
+	PT_TACKLE,
+	PT_TACKLED,
+	PT_RECOVER,
+	PT_COUNT
+};
+
+extern const char *state_machine_player_trigger_string[PT_COUNT];
+
 struct state_machine_player_normal_data {
 	enum sprite_orientation running_action_orientation;
 };
@@ -93,7 +105,7 @@ union state_machine_player_state_data {
 	struct state_machine_default_empty_data goalie;
 };
 
-STATE_MACHINE_DEFINE(player, struct entity);
+STATE_MACHINE_DEFINE(player, struct entity, PT_COUNT);
 STATE_MACHINE_DECLARE_FUNCTIONS(player, struct entity);
 
 enum state_machine_goalie_state {
@@ -106,6 +118,18 @@ enum state_machine_goalie_state {
 };
 
 extern const char *state_machine_goalie_state_string[GS_COUNT];
+
+enum state_machine_goalie_trigger {
+	GT_NONE,
+	GT_DIVE,
+	GT_JUMP,
+	GT_CATCH,
+	GT_RECOVER,
+	GT_RELEASE,
+	GT_COUNT
+};
+
+extern const char *state_machine_goalie_trigger_string[GT_COUNT];
 
 struct state_machine_goalie_hold_ball_data {
 	fg_time_t hold_start_time;
@@ -143,7 +167,7 @@ enum player_collider_type {
 
 extern const char *player_collider_type_to_string[PCT_COUNT];
 
-STATE_MACHINE_DEFINE(goalie, struct entity);
+STATE_MACHINE_DEFINE(goalie, struct entity, GT_COUNT);
 STATE_MACHINE_DECLARE_FUNCTIONS(goalie, struct entity);
 
 struct player_ball_reachability_prediction {
@@ -314,6 +338,10 @@ void entity_player_recompute_constants(struct entity *player_entity, struct game
 // EVT_CONSTANTS_CHANGED listener: recompute every player's cached constants. Register once per
 // game mode (context must be the struct game_state *).
 void entity_player_on_constants_changed(enum event_type type, void *context);
+
+void entity_player_header_start(struct entity *player_entity,
+								enum header_type type,
+								struct game_state *game_state);
 
 void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state);
 

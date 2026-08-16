@@ -30,13 +30,23 @@ enum state_machine_ball_state {
 
 extern const char *state_machine_ball_state_string[BS_COUNT];
 
+// The ball is never the actor, so its triggers read as things done to it.
+enum state_machine_ball_trigger {
+	BT_NONE,
+	BT_CAUGHT,
+	BT_RELEASED,
+	BT_COUNT
+};
+
+extern const char *state_machine_ball_trigger_string[BT_COUNT];
+
 union state_machine_ball_state_data {
 	struct state_machine_default_empty_data in_play;
 	struct state_machine_default_empty_data out_of_play;
 	struct state_machine_default_empty_data gk_hands;
 };
 
-STATE_MACHINE_DEFINE(ball, struct entity);
+STATE_MACHINE_DEFINE(ball, struct entity, BT_COUNT);
 STATE_MACHINE_DECLARE_FUNCTIONS(ball, struct entity);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state);

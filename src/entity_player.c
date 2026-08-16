@@ -80,6 +80,30 @@ void entity_player_on_constants_changed(enum event_type type, void *context)
 const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
+const char *state_machine_player_trigger_string[PT_COUNT] = {
+	"none", "head", "tackle", "tackled", "recover"};
+
+const char *state_machine_goalie_trigger_string[GT_COUNT] = {
+	"none", "dive", "jump", "catch", "recover", "release"};
+
+// PS_GOALIE responds to nothing yet: a keeper stays one for the whole match.
+// Stepping out to play as an outfielder arrives with the back-pass rework.
+static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COUNT] = {
+	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER,
+				   [PT_TACKLE] = PS_SLIDING_TACKLE,
+				   [PT_TACKLED] = PS_FALL},
+	[PS_HEADER] = {[PT_RECOVER] = PS_NORMAL},
+	[PS_SLIDING_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
+	[PS_FALL] = {[PT_RECOVER] = PS_NORMAL},
+};
+
+static const enum state_machine_goalie_state goalie_transitions[GS_COUNT][GT_COUNT] = {
+	[GS_PROTECT_GOAL] = {[GT_DIVE] = GS_DIVE, [GT_JUMP] = GS_JUMP, [GT_CATCH] = GS_HOLD_BALL},
+	[GS_DIVE] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
+	[GS_JUMP] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
+	[GS_HOLD_BALL] = {[GT_RELEASE] = GS_PROTECT_GOAL},
+};
+
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(player, struct entity);
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(goalie, struct entity);
 
@@ -167,9 +191,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	physics->max_velocity = player->constants.control_max_velocity;
 	// Sets initial max velocity to half of max run velocity
 	player->current_max_velocity = player->constants.run_max_velocity * 0.5f;
-	struct state_machine_player *player_state_machine = &player->state_machine;
-	player_state_machine->ctx = entity;
-	player_state_machine->previous_state = PS_NONE;
+	enum state_machine_player_state initial_player_state = PS_NORMAL;
 
 	// Initialise action
 	struct component_action *action = &entity->action;
@@ -183,16 +205,11 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 		// Initialise goalie
 		struct component_goalie *goalie = &entity->goalie;
 		goalie->header.enabled = true;
-		struct state_machine_goalie *state_machine = &goalie->state_machine;
-		state_machine->ctx = entity;
-		state_machine->previous_state = GS_NONE;
-		state_machine->current_state = GS_PROTECT_GOAL;
-		player_state_machine->current_state = PS_GOALIE;
+		initial_player_state = PS_GOALIE;
 
-		state_machine_goalie_on_enter(entity, game_state);
+		state_machine_goalie_init(
+			&goalie->state_machine, entity, goalie_transitions, GS_PROTECT_GOAL, game_state);
 	} else {
-		player_state_machine->current_state = PS_NORMAL;
-
 		sprite->before_draw = &player_custom_begin_draw;
 		sprite->after_draw = &player_custom_after_draw;
 	}
@@ -235,7 +252,8 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_BODY].shape = CS_CIRCLE;
 	collider->colliders[PCT_BODY].props.circle.radius = 5;
 
-	state_machine_player_on_enter(entity, game_state);
+	state_machine_player_init(
+		&player->state_machine, entity, player_transitions, initial_player_state, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "player created");
 
@@ -289,9 +307,15 @@ void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 	}
 }
 
-static void state_machine_player_on_enter(struct entity *entity, struct game_state *game_state)
+static void state_machine_player_on_enter(struct entity *entity,
+										  enum state_machine_player_state from,
+										  enum state_machine_player_trigger trigger,
+										  enum state_machine_player_state to,
+										  struct game_state *game_state)
 {
 	UNUSED(game_state);
+	UNUSED(from);
+	UNUSED(trigger);
 
 	struct component_player *player = &entity->player;
 	struct component_transform *player_transform = &entity->transform;
@@ -302,12 +326,12 @@ static void state_machine_player_on_enter(struct entity *entity, struct game_sta
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
 				   "entering state: %s",
-				   state_machine_player_state_string[state_machine->current_state]);
+				   state_machine_player_state_string[to]);
 
 	// Reset state data
 	memset(&state_machine->state_data, 0, sizeof(union state_machine_player_state_data));
 
-	switch (state_machine->current_state) {
+	switch (to) {
 	case PS_SLIDING_TACKLE:
 		input_reset_player(entity->header.id, game_state);
 		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
@@ -343,18 +367,22 @@ static void state_machine_player_on_enter(struct entity *entity, struct game_sta
 	}
 }
 
-static void state_machine_player_on_exit(struct entity *entity, struct game_state *game_state)
+static void state_machine_player_on_exit(struct entity *entity,
+										 enum state_machine_player_state from,
+										 enum state_machine_player_trigger trigger,
+										 enum state_machine_player_state to,
+										 struct game_state *game_state)
 {
 	UNUSED(game_state);
-
-	struct state_machine_player *state_machine = &entity->player.state_machine;
+	UNUSED(trigger);
+	UNUSED(to);
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
 				   "exiting state: %s",
-				   state_machine_player_state_string[state_machine->previous_state]);
+				   state_machine_player_state_string[from]);
 
-	switch (state_machine->previous_state) {
+	switch (from) {
 	case PS_NONE:
 	case PS_NORMAL:
 	case PS_GOALIE:
@@ -367,19 +395,26 @@ static void state_machine_player_on_exit(struct entity *entity, struct game_stat
 	}
 }
 
-static void state_machine_goalie_on_enter(struct entity *entity, struct game_state *game_state)
+static void state_machine_goalie_on_enter(struct entity *entity,
+										  enum state_machine_goalie_state from,
+										  enum state_machine_goalie_trigger trigger,
+										  enum state_machine_goalie_state to,
+										  struct game_state *game_state)
 {
+	UNUSED(from);
+	UNUSED(trigger);
+
 	struct state_machine_goalie *state_machine = &entity->goalie.state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
 				   "entering state: %s",
-				   state_machine_goalie_state_string[state_machine->current_state]);
+				   state_machine_goalie_state_string[to]);
 
 	// Reset state data
 	memset(&state_machine->state_data, 0, sizeof(union state_machine_goalie_state_data));
 
-	switch (state_machine->current_state) {
+	switch (to) {
 	case GS_NONE:
 		break;
 	case GS_PROTECT_GOAL: {
@@ -412,16 +447,21 @@ static void state_machine_goalie_on_enter(struct entity *entity, struct game_sta
 	}
 }
 
-static void state_machine_goalie_on_exit(struct entity *entity, struct game_state *game_state)
+static void state_machine_goalie_on_exit(struct entity *entity,
+										 enum state_machine_goalie_state from,
+										 enum state_machine_goalie_trigger trigger,
+										 enum state_machine_goalie_state to,
+										 struct game_state *game_state)
 {
-	struct state_machine_goalie *state_machine = &entity->goalie.state_machine;
+	UNUSED(trigger);
+	UNUSED(to);
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
 				   "exiting state: %s",
-				   state_machine_goalie_state_string[state_machine->previous_state]);
+				   state_machine_goalie_state_string[from]);
 
-	switch (state_machine->previous_state) {
+	switch (from) {
 	case GS_NONE:
 		break;
 	case GS_PROTECT_GOAL: {
@@ -1190,6 +1230,15 @@ b32 entity_player_find_switch_target(struct entity *ball_entity,
 		*out_switch_target = selected_entity;
 	}
 	return selected_entity != NULL;
+}
+
+void entity_player_header_start(struct entity *player_entity,
+								enum header_type type,
+								struct game_state *game_state)
+{
+	state_machine_player_fire(&player_entity->player.state_machine, PT_HEAD, game_state);
+	// Set after the transition because on_enter resets the state data
+	player_entity->player.state_machine.state_data.header.type = type;
 }
 
 void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state)

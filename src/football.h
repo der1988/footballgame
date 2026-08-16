@@ -33,10 +33,10 @@ struct match {
 	} score;
 };
 
-enum pitch_type {
-	PT_NORMAL,
-	PT_MUDDY,
-	PT_SNOWY
+enum pitch_condition {
+	PC_NORMAL,
+	PC_MUDDY,
+	PC_SNOWY
 };
 
 enum pitch_side {
@@ -61,7 +61,7 @@ struct pitch {
 	u16 penalty_box_width;
 	u16 penalty_box_height;
 	struct goal goal[PSI_COUNT];
-	enum pitch_type type;
+	enum pitch_condition condition;
 };
 
 void football_match_change_state(struct game_state *game_state, enum match_state new_state);

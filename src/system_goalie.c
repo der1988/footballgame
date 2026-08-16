@@ -78,8 +78,7 @@ void system_goalie(struct game_state *game_state)
 				if (hold) {
 					// Hold ball in hands
 					entity_ball_held_by_goalie(ball_entity, entity_id, game_state);
-					state_machine_goalie_change_state_to(
-						&goalie->state_machine, GS_HOLD_BALL, game_state);
+					state_machine_goalie_fire(&goalie->state_machine, GT_CATCH, game_state);
 
 				} else {
 					// Bounce ball
@@ -117,7 +116,7 @@ void system_goalie(struct game_state *game_state)
 				future_reachable_position->available && future_reachable_position->dts < 20 &&
 				Vector2Distance(V3_TO_V2(future_reachable_position->position),
 								transform->position) < 5) {
-				state_machine_goalie_change_state_to(state_machine, GS_JUMP, game_state);
+				state_machine_goalie_fire(state_machine, GT_JUMP, game_state);
 				break;
 			}
 
@@ -272,7 +271,7 @@ void system_goalie(struct game_state *game_state)
 												 &goalie->dive_distance,
 												 game_state)) {
 				// Only dive if ball velocity is higher than 36km/h
-				state_machine_goalie_change_state_to(&goalie->state_machine, GS_DIVE, game_state);
+				state_machine_goalie_fire(&goalie->state_machine, GT_DIVE, game_state);
 			}
 
 			break;
@@ -366,13 +365,9 @@ void system_goalie(struct game_state *game_state)
 				goalie->last_save_time = game_state->time;
 				jump_state_data->ball_saved = true;
 			} else if (jump_state_data->animation_completed) {
-				if (jump_state_data->ball_held) {
-					state_machine_goalie_change_state_to(
-						&goalie->state_machine, GS_HOLD_BALL, game_state);
-				} else {
-					state_machine_goalie_change_state_to(
-						&goalie->state_machine, GS_PROTECT_GOAL, game_state);
-				}
+				state_machine_goalie_fire(&goalie->state_machine,
+										  jump_state_data->ball_held ? GT_CATCH : GT_RECOVER,
+										  game_state);
 			}
 			break;
 		}
@@ -393,8 +388,7 @@ void system_goalie(struct game_state *game_state)
 				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
 			entity_ball_long_pass(
 				ball_entity, entity_id, (v2){.y = direction}, 0.7f, false, game_state);
-			state_machine_goalie_change_state_to(
-				&goalie->state_machine, GS_PROTECT_GOAL, game_state);
+			state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
 			break;
 		}
 		case GS_DIVE: {
@@ -557,13 +551,9 @@ void system_goalie(struct game_state *game_state)
 					   HAS_TIME_PASSED(game_state->time,
 									   dive_state_data->animation_end_time,
 									   game_state->constants.goalie_dive_recover_time)) {
-				if (dive_state_data->ball_held) {
-					state_machine_goalie_change_state_to(
-						&goalie->state_machine, GS_HOLD_BALL, game_state);
-				} else {
-					state_machine_goalie_change_state_to(
-						&goalie->state_machine, GS_PROTECT_GOAL, game_state);
-				}
+				state_machine_goalie_fire(&goalie->state_machine,
+										  dive_state_data->ball_held ? GT_CATCH : GT_RECOVER,
+										  game_state);
 			}
 			break;
 		}

@@ -21,6 +21,13 @@
 const char *state_machine_ball_state_string[BS_COUNT] = {
 	"none", "in_play", "out_of_play", "gk_hands"};
 
+const char *state_machine_ball_trigger_string[BT_COUNT] = {"none", "caught", "released"};
+
+static const enum state_machine_ball_state ball_transitions[BS_COUNT][BT_COUNT] = {
+	[BS_IN_PLAY] = {[BT_CAUGHT] = BS_GK_HANDS},
+	[BS_GK_HANDS] = {[BT_RELEASED] = BS_IN_PLAY},
+};
+
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(ball, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(ball, struct entity);
 
@@ -83,10 +90,6 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	// Initialise ball
 	struct component_ball *ball = &entity->ball;
 	ball->header.enabled = true;
-	struct state_machine_ball *state_machine = &entity->ball.state_machine;
-	state_machine->ctx = entity;
-	state_machine->previous_state = BS_NONE;
-	state_machine->current_state = BS_IN_PLAY;
 	ball->last_touch_entity_id = EID_NOT_VALID;
 	ball->last_kicker_entity_id = EID_NOT_VALID;
 	ball->pass_target_entity_id = EID_NOT_VALID;
@@ -94,16 +97,23 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 
 	gfx_ball_prepare(game_state);
 
-	state_machine_ball_on_enter(entity, game_state);
+	state_machine_ball_init(
+		&ball->state_machine, entity, ball_transitions, BS_IN_PLAY, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "ball created");
 
 	return entity;
 }
 
-static void state_machine_ball_on_enter(struct entity *entity, struct game_state *game_state)
+static void state_machine_ball_on_enter(struct entity *entity,
+										enum state_machine_ball_state from,
+										enum state_machine_ball_trigger trigger,
+										enum state_machine_ball_state to,
+										struct game_state *game_state)
 {
 	UNUSED(game_state);
+	UNUSED(from);
+	UNUSED(trigger);
 
 	struct component_ball *ball = &entity->ball;
 	struct state_machine_ball *state_machine = &ball->state_machine;
@@ -111,12 +121,12 @@ static void state_machine_ball_on_enter(struct entity *entity, struct game_state
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
 				   "entering state: %s",
-				   state_machine_ball_state_string[state_machine->current_state]);
+				   state_machine_ball_state_string[to]);
 
 	// Reset state data
 	memset(&state_machine->state_data, 0, sizeof(union state_machine_ball_state_data));
 
-	switch (state_machine->current_state) {
+	switch (to) {
 	case BS_NONE:
 		break;
 	case BS_IN_PLAY: {
@@ -128,26 +138,31 @@ static void state_machine_ball_on_enter(struct entity *entity, struct game_state
 	case BS_GK_HANDS: {
 		struct component_sprite *sprite = &entity->sprite;
 		sprite->header.enabled = false;
+		break;
 	}
 	case BS_COUNT:
 		break;
 	}
 }
 
-static void state_machine_ball_on_exit(struct entity *entity, struct game_state *game_state)
+static void state_machine_ball_on_exit(struct entity *entity,
+									   enum state_machine_ball_state from,
+									   enum state_machine_ball_trigger trigger,
+									   enum state_machine_ball_state to,
+									   struct game_state *game_state)
 {
 	UNUSED(game_state);
+	UNUSED(trigger);
+	UNUSED(to);
 
 	struct component_sprite *sprite = &entity->sprite;
-	struct component_ball *ball = &entity->ball;
-	struct state_machine_ball *state_machine = &ball->state_machine;
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
 				   "exiting state: %s",
-				   state_machine_ball_state_string[state_machine->previous_state]);
+				   state_machine_ball_state_string[from]);
 
-	switch (state_machine->previous_state) {
+	switch (from) {
 	case BS_NONE:
 		break;
 	case BS_IN_PLAY: {
@@ -467,7 +482,7 @@ void entity_ball_held_by_goalie(struct entity *ball_entity,
 
 	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
 
-	state_machine_ball_change_state_to(&ball->state_machine, BS_GK_HANDS, game_state);
+	state_machine_ball_fire(&ball->state_machine, BT_CAUGHT, game_state);
 
 	reset_after_touch(&ball_entity->ball);
 }
@@ -487,7 +502,7 @@ void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *gam
 {
 	struct component_ball *ball = &ball_entity->ball;
 
-	state_machine_ball_change_state_to(&ball->state_machine, BS_IN_PLAY, game_state);
+	state_machine_ball_fire(&ball->state_machine, BT_RELEASED, game_state);
 }
 
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,

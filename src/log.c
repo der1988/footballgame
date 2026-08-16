@@ -31,6 +31,7 @@ void log_line(char *file,
 			  ...)
 {
 	static const char *log_type_prefixes[LT_COUNT] = {
+		"FATAL",
 		"ERROR",
 		"WARN",
 		"INFO",

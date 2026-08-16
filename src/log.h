@@ -2,8 +2,10 @@
 #define LOG_H
 
 #include "types.h"
+#include <stdlib.h>
 
 enum log_type {
+	LT_FATAL,
 	LT_ERROR,
 	LT_WARN,
 	LT_INFO,
@@ -57,6 +59,20 @@ void log_line(char *file,
 			log_line(__FILE__, __LINE__, TYPE, SYSTEM, CTX, __VA_ARGS__);                          \
 		}                                                                                          \
 	} while (0)
+
+// Prints and aborts in every build, release included: unlike assert it is never
+// compiled away, and unlike the levels below it is never filtered.
+#define GLOG_PANIC_AT(SYSTEM, CTX, ...)                                                            \
+	do {                                                                                           \
+		log_line(__FILE__, __LINE__, LT_FATAL, SYSTEM, CTX, __VA_ARGS__);                          \
+		abort();                                                                                   \
+	} while (0)
+
+#define GLOG_PANIC(SYSTEM, TEXT)		  GLOG_PANIC_AT(SYSTEM, NULL, TEXT)
+#define GLOG_PANIC_CTX(SYSTEM, CTX, TEXT) GLOG_PANIC_AT(SYSTEM, CTX, TEXT)
+#define GLOGF_PANIC(SYSTEM, FORMAT, ...)  GLOG_PANIC_AT(SYSTEM, NULL, FORMAT, __VA_ARGS__)
+#define GLOGF_PANIC_CTX(SYSTEM, CTX, FORMAT, ...)                                                  \
+	GLOG_PANIC_AT(SYSTEM, CTX, FORMAT, __VA_ARGS__)
 
 #define GLOG(TYPE, SYSTEM, TEXT) GLOG_IF(TYPE, SYSTEM, NULL, TEXT)
 #define GLOG_INFO(SYSTEM, TEXT)	 GLOG_IF(LT_INFO, SYSTEM, NULL, TEXT)
