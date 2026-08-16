@@ -2,6 +2,16 @@
 #define MACRO_H
 
 #include "constants.h"
+#include "log.h"
+
+// Replaces <assert.h>: the condition is evaluated in every build and a failure
+// aborts rather than being compiled away by NDEBUG.
+#define ASSERT(COND)                                                                               \
+	do {                                                                                           \
+		if (!(COND)) {                                                                             \
+			GLOGF_PANIC(LS_ASSERT, "%s", #COND);                                                   \
+		}                                                                                          \
+	} while (0)
 
 #define UNUSED(x)	 (void)(x)
 #define UNUSED_PARAM __attribute__((unused))
@@ -38,10 +48,10 @@
 #define LIST_CREATE(list_type, list_name, list_size, arena)                                        \
 	list_type list_name = {.array = NULL, .count = 0, .size = list_size};                          \
 	list_name.array = memory_arena_push(arena, sizeof(*list_name.array) * list_size);              \
-	assert(list_name.array);
+	ASSERT(list_name.array);
 
 #define LIST_ADD(list, item)                                                                       \
-	assert(list.count < list.size);                                                                \
+	ASSERT(list.count < list.size);                                                                \
 	list.array[list.count++] = item;
 
 #define LIST_RESET(list) list.count = 0;

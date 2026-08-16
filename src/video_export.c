@@ -1,5 +1,6 @@
 #ifdef HAS_FFMPEG
 
+#include "macro.h"
 #include "types.h"
 #include "video_export.h"
 #include <stdio.h>
@@ -8,7 +9,6 @@
 #include "log.h"
 #include "memory.h"
 #include "time_machine.h"
-#include <assert.h>
 #include <raylib.h>
 
 #include <libavcodec/avcodec.h>
@@ -41,9 +41,9 @@ b32 video_export_range(usize start_frame,
 					   const char *base_output_path,
 					   struct game_state *game_state)
 {
-	assert(game_state);
-	assert(start_frame <= end_frame);
-	assert(base_output_path);
+	ASSERT(game_state);
+	ASSERT(start_frame <= end_frame);
+	ASSERT(base_output_path);
 
 	char output_path[128];
 	build_path(base_output_path, output_path, sizeof(output_path));
@@ -322,7 +322,7 @@ static b32 encode_and_write(video_export_t *handle, AVFrame *frame)
 
 static b32 write_frame(video_export_t *handle, const u8 *rgba_data)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	int ret = av_frame_make_writable(handle->frame);
 	if (ret < 0)

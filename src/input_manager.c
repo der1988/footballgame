@@ -1,3 +1,4 @@
+#include "macro.h"
 #include "input.h"
 #include "entity_ball.h"
 #include "game.h"
@@ -38,10 +39,10 @@ struct game_control_info game_control_infos[] = {
 
 struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 {
-	assert(memory_arena);
+	ASSERT(memory_arena);
 
 	struct input_manager *handle = memory_arena_push(memory_arena, sizeof(*handle));
-	assert(handle);
+	ASSERT(handle);
 
 	handle->game_controllers[0] =
 		(struct game_controller){
@@ -200,14 +201,14 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 
 void input_manager_destroy(struct input_manager *input_manager)
 {
-	assert(input_manager);
+	ASSERT(input_manager);
 
 	// TODO: Clean stuff
 }
 
 void input_manager_update(struct input_manager *input_manager, struct game_state *game_state)
 {
-	assert(input_manager);
+	ASSERT(input_manager);
 
 	for (usize i = 0; i < MAX_GAME_CONTROLLERS; ++i) {
 		struct game_controller *gc = &input_manager->game_controllers[i];

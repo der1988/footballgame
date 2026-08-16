@@ -1,8 +1,8 @@
+#include "macro.h"
 #include "asset_shader.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +20,7 @@ asset_shader_cache_t *asset_shader_cache_create(memory_arena_handle_t *memory_ar
 {
 	asset_shader_cache_t *handle =
 		memory_arena_push(memory_arena_handle, sizeof(asset_shader_cache_t));
-	assert(handle);
+	ASSERT(handle);
 
 	handle->cache =
 		memory_arena_push(memory_arena_handle, sizeof(struct asset_shader) * MAX_SHADERS);
@@ -38,11 +38,11 @@ struct asset_shader *asset_shader_load(asset_shader_cache_t *handle,
 									   const char *vs_filename,
 									   const char *fs_filename)
 {
-	assert(handle->initialised);
-	assert(name);
+	ASSERT(handle->initialised);
+	ASSERT(name);
 
 	struct asset_shader *assets_shader = NULL;
-	assert(handle->initialised && handle->count < MAX_SHADERS);
+	ASSERT(handle->initialised && handle->count < MAX_SHADERS);
 	shader_t shader = {0};
 	if ((shader = LoadShader(vs_filename, fs_filename)).id == 0) {
 		GLOG_ERROR(LS_ASSETS, "error loading shader");
@@ -71,7 +71,7 @@ struct asset_shader *asset_shader_load(asset_shader_cache_t *handle,
 
 void asset_shader_cache_destroy(asset_shader_cache_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	struct asset_shader *assets_shader = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
@@ -87,7 +87,7 @@ void asset_shader_cache_destroy(asset_shader_cache_t *handle)
 
 struct asset_shader *asset_shader_get_by_id(asset_shader_cache_t *handle, u32 id)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	struct asset_shader *assets_shader = &handle->cache[id];
 	GLOGF_TRACE_CTX(
 		LS_ASSETS, assets_shader->name, "retrieved shader by id = %d", assets_shader->id);
@@ -96,7 +96,7 @@ struct asset_shader *asset_shader_get_by_id(asset_shader_cache_t *handle, u32 id
 
 struct asset_shader *asset_shader_get_by_name(asset_shader_cache_t *handle, const char *name)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	struct asset_shader *assets_shader = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
 		assets_shader = &handle->cache[i];

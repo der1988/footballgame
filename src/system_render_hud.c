@@ -1,3 +1,4 @@
+#include "macro.h"
 #include "system.h"
 #include "entity.h"
 #include "game.h"
@@ -33,11 +34,11 @@ void system_render_hud_back(struct game_state *game_state)
 	if (game_state->vars.hud.show_crosshair && bounce_position->available) {
 		struct asset_sprite_frame *sprite_frame = asset_sprite_frame_get_by_id(
 			game_state->assets.sprite_frame_cache, game_state->gfx.hud.crosshair);
-		assert(sprite_frame);
+		ASSERT(sprite_frame);
 
 		struct asset_texture *texture =
 			asset_texture_get_by_id(game_state->assets.texture_cache, sprite_frame->texture_id);
-		assert(texture);
+		ASSERT(texture);
 
 		render_sprite_draw(sprite_frame,
 						   V3_TO_V2(bounce_position->position),

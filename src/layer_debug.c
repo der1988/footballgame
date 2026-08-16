@@ -1,10 +1,10 @@
+#include "macro.h"
 #include "layer.h"
 #include "football.h"
 #include "layer_internal.h"
 #include "log.h"
 #include "game.h"
 #include "entity_ball.h"
-#include <assert.h>
 #include <raylib.h>
 #include <string.h>
 #include <raymath.h>
@@ -15,7 +15,7 @@ layer_debug_t *layer_debug_create(struct game_state *game_state)
 {
 	layer_debug_t *handle =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(layer_debug_t));
-	assert(handle);
+	ASSERT(handle);
 	handle->initialised = true;
 
 	handle->log_position = (v2){.x = 10, .y = 850};
@@ -34,7 +34,7 @@ layer_debug_t *layer_debug_create(struct game_state *game_state)
 
 void layer_debug_destroy(layer_debug_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	UnloadFont(handle->font);
 
@@ -45,7 +45,7 @@ void layer_debug_destroy(layer_debug_t *handle)
 
 void layer_debug_reset(layer_debug_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	handle->queued_requests = 0;
 	GLOG_TRACE(LS_LAYERS, "layer debug reset");
 }
@@ -55,7 +55,7 @@ void layer_debug_queue_draw_text(layer_debug_t *handle, const char *text)
 	if (handle->queued_requests < MAX_QUEUED_DRAW_REQUESTS) {
 		struct draw_text_request *dtr =
 			memory_arena_push(handle->frame_memory_arena, sizeof(struct draw_text_request));
-		assert(dtr);
+		ASSERT(dtr);
 		strncpy(dtr->text, text, ARRAY_LEN(dtr->text));
 		handle->draw_text_requests[handle->queued_requests++] = dtr;
 	} else {

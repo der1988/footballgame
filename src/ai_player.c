@@ -1,3 +1,4 @@
+#include "macro.h"
 #include "ai.h"
 #include "entity_components.h"
 #include "entity_ball.h"
@@ -13,7 +14,6 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
-#include <assert.h>
 
 #define STAY_THERE_RADIUS 30.0f
 
@@ -292,7 +292,7 @@ static enum whos_on_the_ball identify_whos_in_possession(struct entity *player_e
 	if (player_entity->header.id == player_in_possession_entity->header.id) {
 		return WOTB_PLAYER;
 	} else {
-		assert(player_in_possession_entity);
+		ASSERT(player_in_possession_entity);
 
 		enum team_side player_team_side = player_entity->player.team_side;
 		if (player_in_possession_entity->player.team_side == player_team_side) {

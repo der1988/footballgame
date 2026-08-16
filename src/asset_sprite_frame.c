@@ -1,9 +1,9 @@
+#include "macro.h"
 #include "asset_sprite_frame.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"
 #include "texture_packer_loader.h"
-#include <assert.h>
 #include <string.h>
 
 struct asset_sprite_frame_cache {
@@ -20,7 +20,7 @@ asset_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
 {
 	asset_sprite_frame_cache_t *handle =
 		memory_arena_push(memory_arena_handle, sizeof(asset_sprite_frame_cache_t));
-	assert(handle);
+	ASSERT(handle);
 
 	handle->memory_arena_handle = memory_arena_handle;
 	handle->cache = memory_arena_push(memory_arena_handle,
@@ -39,7 +39,7 @@ asset_sprite_frame_cache_create(memory_arena_handle_t *memory_arena_handle)
 
 void asset_sprite_frame_cache_destroy(asset_sprite_frame_cache_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	handle->cache = NULL;
 	handle->count = 0;
 	handle->initialised = false;
@@ -50,7 +50,7 @@ size asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
 									   const u32 texture_id,
 									   const char *filename)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	size loaded = texture_packer_load_from_json(filename,
 											   texture_id,
@@ -75,7 +75,7 @@ size asset_sprite_frames_load_from_json(asset_sprite_frame_cache_t *handle,
 struct asset_sprite_frame *asset_sprite_frame_get_by_name(asset_sprite_frame_cache_t *handle,
 														  const char *name)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	struct asset_sprite_frame *sprite_frame = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
@@ -90,6 +90,6 @@ struct asset_sprite_frame *asset_sprite_frame_get_by_name(asset_sprite_frame_cac
 struct asset_sprite_frame *asset_sprite_frame_get_by_id(asset_sprite_frame_cache_t *handle,
 														const asset_sprite_frame_id_t id)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	return &handle->cache[id];
 }

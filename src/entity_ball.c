@@ -8,7 +8,6 @@
 #include "log.h"
 #include "macro.h"
 #include "physics.h"
-#include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <string.h>
@@ -60,7 +59,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	char *ball_frame_name = "ball_left_0";
 	struct asset_sprite_frame *sprite_frame =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, ball_frame_name);
-	assert(sprite_frame != NULL);
+	ASSERT(sprite_frame != NULL);
 	sprite->header.enabled = true;
 	sprite->frame_id = sprite_frame->id;
 	sprite->color = WHITE;
@@ -79,7 +78,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	collider->header.enabled = true;
 	collider->colliders =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
-	assert(collider->colliders);
+	ASSERT(collider->colliders);
 	collider->num_colliders = 1;
 	collider->colliders[0].shape = CS_CIRCLE;
 	collider->colliders[0].props.circle.radius = 2.5f;

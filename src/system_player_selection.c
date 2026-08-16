@@ -9,7 +9,6 @@
 #include "macro.h"
 #include "math_ext.h"
 #include "types.h"
-#include <assert.h>
 #include <float.h>
 #include <raymath.h>
 #include <stdio.h>
@@ -255,7 +254,7 @@ void system_player_selection(struct game_state *game_state)
 			}
 
 			// Add team wide excluded players to the temporary list of this iteration
-			assert(tmp_excluded_players_list.size >=
+			ASSERT(tmp_excluded_players_list.size >=
 				   (tmp_excluded_players_list.count + team_excluded_players_list.count));
 			memcpy(&tmp_excluded_players_list.array[tmp_excluded_players_list.count],
 				   team_excluded_players_list.array,

@@ -2,6 +2,7 @@
 #define STATE_MACHINE_H
 
 #include "log.h"
+#include "macro.h"
 
 // A machine is driven by triggers, never by naming a destination state: a
 // caller reports what happened and the table decides where that leads.
@@ -57,13 +58,8 @@
 									 struct game_state *game_state)                                \
 	{                                                                                              \
 		const enum state_machine_##TYPE##_state none = 0;                                          \
-		if (!transitions || initial_state == none) {                                               \
-			GLOGF_PANIC_CTX(LS_STATE_MACHINE,                                                      \
-							#TYPE,                                                                 \
-							"bad init: table %s, initial state %s",                                \
-							transitions ? "ok" : "missing",                                        \
-							state_machine_##TYPE##_state_string[initial_state]);                   \
-		}                                                                                          \
+		ASSERT(transitions);                                                                       \
+		ASSERT(initial_state != none);                                                             \
 		state_machine->ctx = ctx;                                                                  \
 		state_machine->transitions = transitions;                                                  \
 		state_machine->previous_state = none;                                                      \

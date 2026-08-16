@@ -1,3 +1,4 @@
+#include "macro.h"
 #include "entity.h"
 #include "events_router.h"
 #include "football.h"
@@ -9,7 +10,6 @@
 #include "gfx.h"
 #include "time_machine.h"
 #include <rlimgui/rlImGui.h>
-#include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include "platform.h"
@@ -42,7 +42,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	// Push game state onto main memory arena
 	struct game_state *game_state = memory_arena_push(memory_arena, sizeof(struct game_state));
-	assert(game_state);
+	ASSERT(game_state);
 	game_state->current_time = GetTime();
 	game_state->accumulator = 0.0;
 	game_state->dt = fixed_timestep;
@@ -52,7 +52,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	// Push some memory for our own arenas onto main memory arena
 	void *game_memory = memory_arena_push(memory_arena, Megabytes(GAMEPLAY_SCENE_MEMORY_MBS));
-	assert(game_memory);
+	ASSERT(game_memory);
 	game_state->memory_by_lifetime[MAL_LEVEL] =
 		memory_arena_create_default("level", game_memory, Megabytes(1));
 	game_state->memory_by_lifetime[MAL_UPDATE] =
@@ -174,7 +174,7 @@ struct game_state *game_play_init(struct game_config game_config,
 	// Get pitch texture
 	game_state->pitch_texture =
 		asset_texture_get_by_name(game_state->assets.texture_cache, "res/pitch.png");
-	assert(game_state->pitch_texture);
+	ASSERT(game_state->pitch_texture);
 
 	// UIs
 	game_state->debugui = debugui_create(game_state->memory_by_lifetime[MAL_LEVEL]);
@@ -201,7 +201,7 @@ struct game_state *game_play_init(struct game_config game_config,
 
 void game_play_destroy(struct game_state *game_state)
 {
-	assert(game_state->initialised);
+	ASSERT(game_state->initialised);
 
 	UnloadRenderTexture(game_state->render_texture);
 
@@ -236,7 +236,7 @@ void game_play_destroy(struct game_state *game_state)
 
 b32 game_play_update(struct game_state *game_state)
 {
-	assert(game_state->initialised);
+	ASSERT(game_state->initialised);
 
 	b32 quit = false;
 
@@ -424,7 +424,7 @@ void game_play_draw_scene_to_texture(struct game_state *game_state,
 
 static void draw(struct game_state *game_state)
 {
-	assert(game_state->initialised);
+	ASSERT(game_state->initialised);
 
 	memory_arena_reset(game_state->memory_by_lifetime[MAL_DRAW]);
 

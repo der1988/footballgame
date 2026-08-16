@@ -1,8 +1,8 @@
+#include "macro.h"
 #include "memory_internal.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,7 +116,7 @@ void *memory_arena_pop(memory_arena_handle_t *handle, usize size)
 void *memory_arena_push_string(memory_arena_handle_t *handle, char *string)
 {
 	char *new_string = memory_arena_push(handle, strlen(string) + 1);
-	assert(new_string);
+	ASSERT(new_string);
 	strcpy(new_string, string);
 	return new_string;
 }

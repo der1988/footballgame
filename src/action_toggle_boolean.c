@@ -1,6 +1,5 @@
 #include "action_toggle_boolean.h"
 #include "macro.h"
-#include <assert.h>
 
 void action_toggle_boolean_update(struct action_runner *action_runner,
 								  entity_id_t id,
@@ -19,7 +18,7 @@ struct action_toggle_boolean *action_toggle_boolean_create(
 	f32 duration, b32 loop, b32 *value, memory_arena_handle_t *memory_arena_handle)
 {
 	struct action_toggle_boolean *action = memory_arena_push(memory_arena_handle, sizeof(*action));
-	assert(action);
+	ASSERT(action);
 	*action = (struct action_toggle_boolean){
 		.base = (struct action){.type = AT_TOGGLE_BOOLEAN,
 								.duration = duration,

@@ -1,7 +1,7 @@
+#include "macro.h"
 #include "asset_manager.h"
 #include "asset.h"
 #include "memory.h"
-#include <assert.h>
 
 struct assets asset_manager_load_everything(memory_arena_handle_t *memory_arena)
 {
@@ -18,14 +18,14 @@ struct assets asset_manager_load_everything(memory_arena_handle_t *memory_arena)
 
 	// Load pitch texture
 	struct asset_texture *texture = asset_texture_load(texture_cache, "res/pitch.png");
-	assert(texture);
+	ASSERT(texture);
 
 	// Player spritesheet
 	texture = asset_texture_load(texture_cache, "res/spritesheets/sprites.png");
-	assert(texture);
+	ASSERT(texture);
 	i32 loaded = asset_sprite_frames_load_from_json(
 		sprite_frame_cache, texture->id, "res/spritesheets/sprites.json");
-	assert(loaded != -1);
+	ASSERT(loaded != -1);
 
 	// Animations
 	asset_animations_load_from_json(

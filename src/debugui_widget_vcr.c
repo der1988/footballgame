@@ -1,10 +1,10 @@
+#include "macro.h"
 #include "game.h"
 #include "time_machine.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
 #include "debugui_internal.h"
 #include "debugui.h"
-#include <assert.h>
 
 #ifdef HAS_FFMPEG
 #include "video_export.h"
@@ -30,7 +30,7 @@ static void draw_marker_on_slider(ImDrawList *draw_list,
 
 void debugui_vcr_draw(debugui_t *handle, struct game_state *game_state)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	igSetNextWindowSize((ImVec2){handle->window_size.x, handle->window_size.y},
 						ImGuiCond_FirstUseEver);

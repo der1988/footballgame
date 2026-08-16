@@ -1,3 +1,4 @@
+#include "macro.h"
 #include "entity_components.h"
 #include "entity.h"
 #include "entity_ball.h"
@@ -14,7 +15,6 @@
 #include "physics.h"
 #include "collision.h"
 #include "gfx.h"
-#include <assert.h>
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -165,7 +165,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	char *player_frame_name = "player_front_0";
 	struct asset_sprite_frame *sprite_frame =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, player_frame_name);
-	assert(sprite_frame != NULL);
+	ASSERT(sprite_frame != NULL);
 	struct component_sprite *sprite = &entity->sprite;
 	sprite->header.enabled = true;
 	sprite->frame_id = sprite_frame->id;
@@ -219,7 +219,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->num_colliders = PCT_COUNT;
 	collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
 											sizeof(struct collider) * collider->num_colliders);
-	assert(collider->colliders);
+	ASSERT(collider->colliders);
 	collider->colliders[PCT_GOALIE].shape = CS_CIRCLE;
 	collider->colliders[PCT_GOALIE].props.circle.radius = 4;
 	collider->colliders[PCT_GOALIE].props.circle.offset =
@@ -1256,7 +1256,7 @@ static void player_custom_begin_draw(struct entity *entity, struct game_state *g
 {
 	u32 *palette =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 4 * 10);
-	assert(palette);
+	ASSERT(palette);
 
 	color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
 

@@ -1,9 +1,9 @@
+#include "macro.h"
 #include "entity_goal_net.h"
 #include "entity.h"
 #include "football.h"
 #include "log.h"
 #include "entity_goal.h"
-#include <assert.h>
 #include "game.h"
 
 struct entity *entity_goal_net_create(struct goal_config config, struct game_state *game_state)
@@ -24,7 +24,7 @@ struct entity *entity_goal_net_create(struct goal_config config, struct game_sta
 	char *posts_frame_name = config.side == PSI_NORTH ? "net_up_0" : "net_down_0";
 	struct asset_sprite_frame *sprite_frame =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, posts_frame_name);
-	assert(sprite_frame != NULL);
+	ASSERT(sprite_frame != NULL);
 	sprite->frame_id = sprite_frame->id;
 	sprite->color = WHITE;
 	sprite->flipX = false;

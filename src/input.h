@@ -4,7 +4,6 @@
 #include "macro.h"
 #include "memory.h"
 #include "types.h"
-#include <assert.h>
 #include <raymath.h>
 
 #define MAX_GAME_CONTROLLERS 4

@@ -11,7 +11,7 @@ layer_hud_t *layer_hud_create(struct game_state *game_state)
 {
 	layer_hud_t *handle =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(layer_hud_t));
-	assert(handle);
+	ASSERT(handle);
 	handle->initialised = true;
 
 	handle->radar_position = (v2){.x = 10, .y = 10};
@@ -23,7 +23,7 @@ layer_hud_t *layer_hud_create(struct game_state *game_state)
 
 void layer_hud_destroy(layer_hud_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	handle->initialised = false;
 

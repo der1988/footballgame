@@ -1,7 +1,7 @@
+#include "macro.h"
 #include "memory.h"
 #include "types.h"
 #include "game.h"
-#include <assert.h>
 
 #define TARGET_FRAMERATE 100
 #define FRAME_TIME		 (1.0f / TARGET_FRAMERATE)
@@ -22,7 +22,7 @@ void game_loop(struct game_config config,
 {
 	void *memory_for_current_scene =
 		memory_arena_push(main_memory_arena_handle, Megabytes(SCENE_MEMORY_MBS));
-	assert(memory_for_current_scene);
+	ASSERT(memory_for_current_scene);
 
 	memory_arena_handle_t *current_scene_memory_arena =
 		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(SCENE_MEMORY_MBS));

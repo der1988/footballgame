@@ -1,8 +1,8 @@
+#include "macro.h"
 #include "entity_components.h"
 #include "entity.h"
 #include "types.h"
 #include "log.h"
-#include <assert.h>
 #include "game.h"
 #include <raymath.h>
 
@@ -12,11 +12,11 @@ running_action_idx_t component_action_run(entity_id_t id,
 										  struct action *action,
 										  struct game_state *game_state)
 {
-	assert(action);
+	ASSERT(action);
 
 	struct entity *entity = entity_get(game_state->entity_repository, id);
 
-	assert(entity->action.header.enabled);
+	ASSERT(entity->action.header.enabled);
 	struct action_runner *action_runner = NULL;
 
 	running_action_idx_t idx = 0;

@@ -2,6 +2,7 @@
 #define LOG_H
 
 #include "types.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 enum log_type {
@@ -31,6 +32,7 @@ enum log_system {
 	LS_DEBUGUI,
 	LS_VIDEO_EXPORT,
 	LS_STATE_MACHINE,
+	LS_ASSERT,
 	LS_COUNT,
 };
 
@@ -65,6 +67,8 @@ void log_line(char *file,
 #define GLOG_PANIC_AT(SYSTEM, CTX, ...)                                                            \
 	do {                                                                                           \
 		log_line(__FILE__, __LINE__, LT_FATAL, SYSTEM, CTX, __VA_ARGS__);                          \
+		/* abort() does not flush stdio, and a lost panic message is no panic */                   \
+		fflush(NULL);                                                                              \
 		abort();                                                                                   \
 	} while (0)
 

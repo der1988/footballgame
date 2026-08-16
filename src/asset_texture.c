@@ -1,8 +1,8 @@
+#include "macro.h"
 #include "asset_texture.h"
 #include "memory.h"
 #include "types.h"
 #include "log.h"
-#include <assert.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +20,7 @@ asset_texture_cache_t *asset_texture_cache_create(memory_arena_handle_t *memory_
 {
 	asset_texture_cache_t *handle =
 		memory_arena_push(memory_arena_handle, sizeof(asset_texture_cache_t));
-	assert(handle);
+	ASSERT(handle);
 
 	handle->cache =
 		memory_arena_push(memory_arena_handle, sizeof(struct asset_texture) * MAX_TEXTURES);
@@ -36,7 +36,7 @@ asset_texture_cache_t *asset_texture_cache_create(memory_arena_handle_t *memory_
 struct asset_texture *asset_texture_load(asset_texture_cache_t *handle, const char *filename)
 {
 	struct asset_texture *assets_texture = NULL;
-	assert(handle->initialised && handle->count < MAX_TEXTURES);
+	ASSERT(handle->initialised && handle->count < MAX_TEXTURES);
 	Texture texture = {0};
 	if ((texture = LoadTexture(filename)).id == 0) {
 		GLOG_ERROR(LS_ASSETS, "error loading texture");
@@ -57,7 +57,7 @@ struct asset_texture *asset_texture_load(asset_texture_cache_t *handle, const ch
 
 void asset_texture_cache_destroy(asset_texture_cache_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	struct asset_texture *assets_texture = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
@@ -73,7 +73,7 @@ void asset_texture_cache_destroy(asset_texture_cache_t *handle)
 
 struct asset_texture *asset_texture_get_by_id(asset_texture_cache_t *handle, u32 id)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	struct asset_texture *assets_texture = &handle->cache[id];
 	GLOGF_TRACE_CTX(LS_ASSETS,
 					assets_texture->name,
@@ -85,7 +85,7 @@ struct asset_texture *asset_texture_get_by_id(asset_texture_cache_t *handle, u32
 
 struct asset_texture *asset_texture_get_by_name(asset_texture_cache_t *handle, const char *filename)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	struct asset_texture *assets_texture = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
 		assets_texture = &handle->cache[i];

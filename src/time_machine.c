@@ -1,10 +1,10 @@
+#include "macro.h"
 #include "entity.h"
 #include "game.h"
 #include "log.h"
 #include "math_ext.h"
 #include "memory.h"
 #include "time_machine.h"
-#include <assert.h>
 #include <raymath.h>
 #include <stdio.h>
 
@@ -15,16 +15,16 @@ struct time_distance {
 
 struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena)
 {
-	assert(memory_arena);
+	ASSERT(memory_arena);
 
 	struct time_machine *handle = memory_arena_push(memory_arena, sizeof(struct time_machine));
-	assert(handle);
+	ASSERT(handle);
 	handle->arena_handle = memory_arena;
 	// Allocate space for 60 time capsules per second for 30 seconds
 	// It's basically a ring buffer
 	handle->time_capsules =
 		memory_arena_push(memory_arena, sizeof(struct time_capsule) * TIME_CAPSULES_MAX);
-	assert(handle->time_capsules);
+	ASSERT(handle->time_capsules);
 	handle->last_recorded_pos = 0;
 	handle->current_pos = 0;
 	handle->initialised = true;
@@ -36,7 +36,7 @@ struct time_machine *time_machine_create(memory_arena_handle_t *memory_arena)
 
 void time_machine_destroy(struct time_machine *handle)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	if (handle->initialised) {
 		handle->initialised = false;
@@ -63,7 +63,7 @@ static struct time_distance get_time_distance(usize last_recorded_pos,
 
 void time_machine_save_capsule(struct time_machine *handle, struct game_state *game_state)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	if (++handle->last_recorded_pos == TIME_CAPSULES_MAX) {
 		handle->last_recorded_pos = 0;
@@ -98,7 +98,7 @@ void time_machine_restore_capsule(struct time_machine *handle,
 								  usize pos,
 								  struct game_state *game_state)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	// printf("recorded: %lu - last recorded pos %lu - current pos %lu - restoring %lu\n",
 	// 	   handle->recorded,
@@ -134,7 +134,7 @@ void time_machine_restore_capsule(struct time_machine *handle,
 
 void time_machine_travel(struct time_machine *handle, size delta, struct game_state *game_state)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	if (delta == 0)
 		return;
@@ -171,7 +171,7 @@ void time_machine_travel(struct time_machine *handle, size delta, struct game_st
 
 usize time_machine_current_pos(struct time_machine *handle)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	struct time_distance time_distance =
 		get_time_distance(handle->last_recorded_pos, handle->current_pos, handle->recorded);
@@ -183,7 +183,7 @@ void time_machine_set_resume_position(struct time_machine *handle,
 									  enum resume_position resume_position,
 									  struct game_state *game_state)
 {
-	assert(handle);
+	ASSERT(handle);
 
 	switch (resume_position) {
 	case RP_CURRENT: {

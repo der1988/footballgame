@@ -1,6 +1,6 @@
+#include "macro.h"
 #include "entity.h"
 #include "log.h"
-#include <assert.h>
 #include <stdio.h>
 
 const char *entity_type_to_string[ET_COUNT] = {
@@ -46,12 +46,12 @@ struct entity_repository *entity_repository_init(memory_arena_handle_t *memory_a
 {
 	struct entity_repository *handle =
 		memory_arena_push(memory_arena_handle, sizeof(struct entity_repository));
-	assert(handle);
+	ASSERT(handle);
 
 	handle->arena_handle = memory_arena_handle;
 	handle->entities =
 		memory_arena_push(handle->arena_handle, sizeof(struct entity) * MAX_ENTITIES);
-	assert(handle->entities);
+	ASSERT(handle->entities);
 	handle->max_slots = handle->available_slots = MAX_ENTITIES;
 	handle->last_used_slot = 0;
 	handle->initialised = true;
@@ -61,7 +61,7 @@ struct entity_repository *entity_repository_init(memory_arena_handle_t *memory_a
 
 void entity_repository_destroy(struct entity_repository *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	handle->initialised = false;
 	GLOG_INFO(LS_ENTITIES, "entities repository destroyed");
 }
@@ -70,7 +70,7 @@ struct entity *entity_init(struct entity_repository *handle,
 						   enum entity_type type,
 						   char *name_format)
 {
-	assert(handle->initialised && handle->available_slots > 0);
+	ASSERT(handle->initialised && handle->available_slots > 0);
 
 	entity_id_t id = find_empty_slot(handle);
 	if (id == EID_NOT_VALID) {
@@ -97,7 +97,7 @@ void entity_destroy(struct entity_repository *handle, entity_id_t id)
 
 struct entity *entity_get(struct entity_repository *handle, entity_id_t id)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	return id >= 0 && id < handle->max_slots ? &handle->entities[id] : NULL;
 }
 

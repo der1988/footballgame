@@ -20,6 +20,7 @@ const char *utils_log_systems_desc[LS_COUNT] = {
 	"DEBUGUI",
 	"VIDEO_EXPORT",
 	"STATE_MACHINE",
+	"ASSERT",
 };
 
 void log_line(char *file,

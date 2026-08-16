@@ -1,3 +1,4 @@
+#include "macro.h"
 #include "debugui.h"
 #include "debugui_internal.h"
 #include "entity.h"
@@ -10,7 +11,6 @@
 #include "entity_ball.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
-#include <assert.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -294,7 +294,7 @@ static void draw_component_goalie(struct component_goalie *c)
 
 void debugui_entity_inspector_draw(debugui_t *handle, struct game_state *game_state)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	igSetNextWindowSize((ImVec2){handle->window_size.x, handle->window_size.y},
 						ImGuiCond_FirstUseEver);

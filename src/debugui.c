@@ -1,13 +1,13 @@
+#include "macro.h"
 #include "debugui_internal.h"
 #include "debugui.h"
 #include "log.h"
-#include <assert.h>
 #include <stdio.h>
 
 debugui_t *debugui_create(memory_arena_handle_t *memory_arena_handle)
 {
 	debugui_t *handle = memory_arena_push(memory_arena_handle, sizeof(struct debugui));
-	assert(handle);
+	ASSERT(handle);
 	handle->initialised = true;
 	handle->constants_dirty = false;
 
@@ -26,14 +26,14 @@ debugui_t *debugui_create(memory_arena_handle_t *memory_arena_handle)
 
 void debugui_destroy(debugui_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	handle->initialised = false;
 	GLOG_INFO(LS_DEBUGUI, "debugui destroyed");
 }
 
 b32 debugui_consume_constants_dirty(debugui_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	b32 was_dirty = handle->constants_dirty;
 	handle->constants_dirty = false;
 	return was_dirty;

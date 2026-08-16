@@ -1,7 +1,7 @@
+#include "macro.h"
 #include "system.h"
 #include "entity.h"
 #include "game.h"
-#include <assert.h>
 #include <raymath.h>
 #include <stdlib.h>
 
@@ -55,7 +55,7 @@ void system_render(struct game_state *game_state)
 	struct sprite_to_draw *ordered_sprites_to_draw =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW],
 						  sizeof(struct sprite_to_draw) * entity_repository->max_slots);
-	assert(ordered_sprites_to_draw);
+	ASSERT(ordered_sprites_to_draw);
 
 	// Collect information about sprites to draw
 	struct sprite_to_draw *current_idx = ordered_sprites_to_draw;
@@ -71,7 +71,7 @@ void system_render(struct game_state *game_state)
 
 		struct asset_sprite_frame *sprite_frame =
 			asset_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache, sprite->frame_id);
-		assert(sprite_frame);
+		ASSERT(sprite_frame);
 
 		Vector2 position = transform->position;
 		f32 rotation = transform->rotation;
@@ -79,7 +79,7 @@ void system_render(struct game_state *game_state)
 		component_transform_local_to_world(transform, &position, &rotation, &scale);
 		struct asset_texture *texture =
 			asset_texture_get_by_id(game_state->assets.texture_cache, sprite_frame->texture_id);
-		assert(texture);
+		ASSERT(texture);
 
 		// Shadow
 		b32 draw_shadow = sprite->draw_shadow;

@@ -1,8 +1,8 @@
+#include "macro.h"
 #include "action_change_color.h"
 #include "entity.h"
 #include "gfx.h"
 #include "game.h"
-#include <assert.h>
 
 void action_change_color_from_to_update(struct action_runner *action_runner,
 										entity_id_t id,
@@ -24,7 +24,7 @@ struct action_change_color_from_to *action_change_color_from_to_create(
 {
 	struct action_change_color_from_to *action =
 		memory_arena_push(memory_arena_handle, sizeof(*action));
-	assert(action);
+	ASSERT(action);
 	*action = (struct action_change_color_from_to){
 		.base = (struct action){.type = AT_CHANGE_COLOR_FROM_TO,
 								.duration = duration,

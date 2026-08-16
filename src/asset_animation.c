@@ -4,7 +4,6 @@
 #include "types.h"
 #include "macro.h"
 #include "log.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +22,7 @@ asset_animation_cache_t *asset_animation_cache_create(memory_arena_handle_t *mem
 {
 	asset_animation_cache_t *handle =
 		memory_arena_push(memory_arena_handle, sizeof(asset_animation_cache_t));
-	assert(handle);
+	ASSERT(handle);
 
 	handle->memory_arena_handle = memory_arena_handle;
 	handle->cache =
@@ -42,7 +41,7 @@ asset_animation_cache_t *asset_animation_cache_create(memory_arena_handle_t *mem
 
 void asset_animation_cache_destroy(asset_animation_cache_t *handle)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	handle->cache = NULL;
 	handle->count = 0;
 	handle->initialised = false;
@@ -108,7 +107,7 @@ static struct asset_animation *load_from_json(const char *filename,
 								   "%s_%s",
 								   entity->string,
 								   animation->string);
-			assert(written < (int)sizeof(assets_animation->name) && "animation name too long");
+			ASSERT(written < (int)sizeof(assets_animation->name) && "animation name too long");
 
 			usize frames_count = 0;
 			char *frames = NULL;
@@ -128,7 +127,7 @@ static struct asset_animation *load_from_json(const char *filename,
 									   entity->string,
 									   animation_prefix,
 									   frame_as_number);
-				assert(written < (int)sizeof(frame_name) && "frame name too long");
+				ASSERT(written < (int)sizeof(frame_name) && "frame name too long");
 
 				struct asset_sprite_frame *sprite_frame =
 					asset_sprite_frame_get_by_name(sprite_frame_cache, frame_name);
@@ -149,13 +148,13 @@ static struct asset_animation *load_from_json(const char *filename,
 								sprite_frame->id);
 
 				frames_count++;
-				assert(frames_count < MAX_FRAMES_PER_ANIMATION);
+				ASSERT(frames_count < MAX_FRAMES_PER_ANIMATION);
 			}
 			assets_animation->frames_count = frames_count;
 			usize size_to_allocate_for_frames_list = sizeof(asset_sprite_frame_id_t) * frames_count;
 			assets_animation->frames =
 				memory_arena_push(memory_arena_handle, size_to_allocate_for_frames_list);
-			assert(assets_animation->frames);
+			ASSERT(assets_animation->frames);
 			memcpy(
 				assets_animation->frames, sprite_frames_buffer, size_to_allocate_for_frames_list);
 
@@ -176,12 +175,12 @@ i32 asset_animations_load_from_json(asset_animation_cache_t *handle,
 									asset_sprite_frame_cache_t *sprite_frame_cache,
 									const char *filename)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	usize loaded = 0;
 	struct asset_animation *animations = load_from_json(
 		filename, handle->count, &loaded, sprite_frame_cache, handle->memory_arena_handle);
-	assert(loaded <= (MAX_ANIMATIONS - handle->count));
+	ASSERT(loaded <= (MAX_ANIMATIONS - handle->count));
 
 	if (animations) {
 		memcpy(&handle->cache[handle->count], animations, sizeof(struct asset_animation) * loaded);
@@ -199,7 +198,7 @@ i32 asset_animations_load_from_json(asset_animation_cache_t *handle,
 struct asset_animation *asset_animation_get_by_name(asset_animation_cache_t *handle,
 													const char *name)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	struct asset_animation *animation = NULL;
 	for (usize i = 0; i < handle->count; ++i) {
@@ -214,7 +213,7 @@ struct asset_animation *asset_animation_get_by_name(asset_animation_cache_t *han
 struct asset_animation *asset_animation_get_by_id(asset_animation_cache_t *handle,
 												  const asset_animation_id_t id)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 	return &handle->cache[id];
 }
 
@@ -225,11 +224,11 @@ asset_animation_id_t asset_animation_id_from_name(asset_animation_cache_t *handl
 {
 	// Scratch buffer
 	char *final_animation = memory_arena_push(memory_arena_handle, ANIMATION_NAME_MAX_SIZE);
-	assert(final_animation);
+	ASSERT(final_animation);
 
 	snprintf(final_animation, ANIMATION_NAME_MAX_SIZE, "%s_%s", name, animation_name);
 	struct asset_animation *animation = asset_animation_get_by_name(handle, final_animation);
-	assert(animation);
+	ASSERT(animation);
 
 	return animation->id;
 }

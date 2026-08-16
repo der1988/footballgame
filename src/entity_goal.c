@@ -7,7 +7,6 @@
 #include "collision.h"
 #include "macro.h"
 #include "math_ext.h"
-#include <assert.h>
 #include <raymath.h>
 #include "game.h"
 
@@ -49,7 +48,7 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	char *posts_frame_name = "posts_0";
 	struct asset_sprite_frame *sprite_frame =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, posts_frame_name);
-	assert(sprite_frame != NULL);
+	ASSERT(sprite_frame != NULL);
 	sprite->frame_id = sprite_frame->id;
 	sprite->color = WHITE;
 	sprite->flipX = false;
@@ -67,7 +66,7 @@ struct entity *entity_goal_create(struct goal_config config, struct game_state *
 	collider->header.enabled = true;
 	collider->colliders =
 		memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL], sizeof(struct collider));
-	assert(collider->colliders);
+	ASSERT(collider->colliders);
 	collider->num_colliders = 1;
 	collider->colliders[0].shape = CS_RECTANGLE;
 	collider->colliders[0].props.rectangle.size =

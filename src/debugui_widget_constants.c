@@ -1,13 +1,13 @@
+#include "macro.h"
 #include "debugui.h"
 #include "debugui_internal.h"
 #include "game.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
-#include <assert.h>
 
 void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game_state)
 {
-	assert(handle->initialised);
+	ASSERT(handle->initialised);
 
 	igShowDemoWindow(NULL);
 
