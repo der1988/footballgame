@@ -172,10 +172,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		break;
 	}
 	case WOTB_OPPONENT: {
+		// Closing down an opponent who has the ball is the presser's job. A pure AI team sends the
+		// player nearest to the ball along with him; a team with humans doesn't, so that when the
+		// human isn't asking to press (no presser elected) nobody chases.
 		if (game_state->vars.teams[player_entity->player.team_side]
-					.play_context.player_nearest_to_the_ball == player_entity->header.id ||
-			game_state->vars.teams[player_entity->player.team_side]
-					.play_context.player_in_charge_of_pressing == player_entity->header.id) {
+					.play_context.player_in_charge_of_pressing == player_entity->header.id ||
+			(!team_has_humans &&
+			 game_state->vars.teams[player_entity->player.team_side]
+					 .play_context.player_nearest_to_the_ball == player_entity->header.id)) {
 			// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
 			ai_state = PAS_SET_STEERING;
 			*target_position = steering_pursuit(player_entity->transform.position,
