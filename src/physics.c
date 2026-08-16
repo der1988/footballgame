@@ -1,7 +1,89 @@
 #include "physics.h"
+#include "entity_components.h"
 #include "game.h"
 #include "types.h"
 #include <raymath.h>
+
+void physics_apply_force(struct component_physics *physics, v2 force, delta_time_t dt)
+{
+	physics->accel = Vector2Scale(force, 1 / physics->mass);
+	physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, dt));
+}
+
+void physics_clamp_velocity_to_max(struct component_physics *physics)
+{
+	if (Vector2Length(physics->velocity) > physics->max_velocity) {
+		physics->velocity =
+			Vector2Scale(Vector2Normalize(physics->velocity), physics->max_velocity);
+	}
+}
+
+void physics_apply_velocity(struct component_transform *transform,
+							struct component_physics *physics,
+							delta_time_t dt)
+{
+	transform->position = Vector2Add(transform->position, Vector2Scale(physics->velocity, dt));
+}
+
+v2 physics_drag_force(v2 velocity, f32 magnitude)
+{
+	return Vector2Scale(Vector2Negate(Vector2Normalize(velocity)), magnitude);
+}
+
+b32 physics_set_at_rest_if_needed(struct component_physics *physics, f32 stop_speed)
+{
+	if (!physics_is_at_rest(physics->velocity, stop_speed)) {
+		return false;
+	}
+
+	physics->velocity = Vector2Zero();
+	return true;
+}
+
+f32 physics_resolve_body_collision(struct component_transform *transform_a,
+								   struct component_physics *physics_a,
+								   f32 radius_a,
+								   struct component_transform *transform_b,
+								   struct component_physics *physics_b,
+								   f32 radius_b,
+								   f32 bounce_factor)
+{
+	v2 delta = Vector2Subtract(transform_b->position, transform_a->position);
+	f32 dist = Vector2Length(delta);
+	f32 min_dist = radius_a + radius_b;
+
+	if (dist >= min_dist || dist < 0.001f) {
+		return 0;
+	}
+
+	v2 normal = Vector2Scale(delta, 1.0f / dist);
+	f32 overlap = min_dist - dist;
+
+	// Separation weighted by inverse mass
+	f32 total_mass = physics_a->mass + physics_b->mass;
+	f32 ratio_a = physics_b->mass / total_mass;
+	f32 ratio_b = physics_a->mass / total_mass;
+
+	transform_a->position =
+		Vector2Subtract(transform_a->position, Vector2Scale(normal, overlap * ratio_a));
+	transform_b->position =
+		Vector2Add(transform_b->position, Vector2Scale(normal, overlap * ratio_b));
+
+	// Velocity impulse when the bodies approach each other
+	f32 relative_vel =
+		Vector2DotProduct(Vector2Subtract(physics_a->velocity, physics_b->velocity), normal);
+	if (relative_vel <= 0) {
+		return 0;
+	}
+
+	f32 impulse = relative_vel * (1.0f + bounce_factor) / total_mass;
+	physics_a->velocity =
+		Vector2Subtract(physics_a->velocity, Vector2Scale(normal, impulse * physics_b->mass));
+	physics_b->velocity =
+		Vector2Add(physics_b->velocity, Vector2Scale(normal, impulse * physics_a->mass));
+
+	return impulse * total_mass;
+}
 
 void physics_ball_simulation(v3 *out_position,
 							 v3 *out_velocity,

@@ -185,11 +185,12 @@ void system_goalie(struct game_state *game_state)
 					// Calculate whether goalie can reach the ball using predicted positions
 					// At this point we already know no one is in possession
 					const struct player_ball_reachability_prediction prediction =
-						entity_player_can_reach_future_ball_position(entity,
-																	 exit_max_speed,
-																	 game_state->vars.ball.lookahead_positions,
-																	 protect_goal_predicate,
-																	 game_state);
+						entity_player_can_reach_future_ball_position(
+							entity,
+							exit_max_speed,
+							game_state->vars.ball.lookahead_positions,
+							protect_goal_predicate,
+							game_state);
 
 					if (prediction.can_reach_it) {
 						physics->max_velocity = exit_max_speed;
@@ -285,8 +286,7 @@ void system_goalie(struct game_state *game_state)
 												 &goalie->dive_distance,
 												 game_state)) {
 				// Only dive if ball velocity is higher than 36km/h
-				state_machine_goalie_change_state_to(
-					&goalie->state_machine, GS_DIVE, game_state);
+				state_machine_goalie_change_state_to(&goalie->state_machine, GS_DIVE, game_state);
 			}
 
 			break;
@@ -466,11 +466,12 @@ void system_goalie(struct game_state *game_state)
 
 			v2 force_to_apply = Vector2Zero();
 			if (dive_state_data->animation_completed) {
-				// Apply friction
-				force_to_apply = Vector2Scale(
-					Vector2Negate(Vector2Normalize(physics->velocity)),
-					game_state->constants
-						.goalie_dive_friction_force); // TODO: this should depend on type of pitch
+				if (!physics_set_at_rest_if_needed(physics, 5)) {
+					// Apply friction
+					// TODO: this should depend on type of pitch
+					force_to_apply = physics_drag_force(
+						physics->velocity, game_state->constants.goalie_dive_friction_force);
+				}
 			} else {
 				v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
 				force_to_apply = Vector2Scale(steering, game_state->constants.goalie_dive_force);

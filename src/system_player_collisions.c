@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "football.h"
 #include "game.h"
+#include "physics.h"
 #include "input.h"
 #include "log.h"
 #include "macro.h"
@@ -249,7 +250,6 @@ void system_player_collisions(struct game_state *game_state)
 			player_entity_a->player.state_machine.current_state == PS_SLIDING_TACKLE)
 			continue;
 
-		f32 mass_a = player_entity_a->physics.mass;
 		f32 radius_a = player_entity_a->collider.colliders[PCT_BODY].props.circle.radius;
 
 		for (usize j = i + 1; j < repo->max_slots; ++j) {
@@ -260,42 +260,16 @@ void system_player_collisions(struct game_state *game_state)
 				player_entity_b->player.state_machine.current_state == PS_SLIDING_TACKLE)
 				continue;
 
-			f32 mass_b = player_entity_b->physics.mass;
 			f32 radius_b = player_entity_b->collider.colliders[PCT_BODY].props.circle.radius;
 
-			v2 delta = Vector2Subtract(player_entity_b->transform.position,
-									   player_entity_a->transform.position);
-			f32 dist = Vector2Length(delta);
-			f32 min_dist = radius_a + radius_b;
-
-			if (dist >= min_dist || dist < 0.001f)
-				continue;
-
-			v2 normal = Vector2Scale(delta, 1.0f / dist);
-			f32 overlap = min_dist - dist;
-
-			// Separation weighted by inverse mass
-			f32 total_mass = mass_a + mass_b;
-			f32 ratio_a = mass_b / total_mass;
-			f32 ratio_b = mass_a / total_mass;
-
-			player_entity_a->transform.position = Vector2Subtract(
-				player_entity_a->transform.position, Vector2Scale(normal, overlap * ratio_a));
-			player_entity_b->transform.position = Vector2Add(
-				player_entity_b->transform.position, Vector2Scale(normal, overlap * ratio_b));
-
-			// Velocity impulse when players approach each other
-			f32 relative_vel = Vector2DotProduct(Vector2Subtract(player_entity_a->physics.velocity,
-																 player_entity_b->physics.velocity),
-												 normal);
-			if (relative_vel > 0) {
-				f32 impulse = relative_vel * (1.0f + bounce_factor) / total_mass;
-				player_entity_a->physics.velocity = Vector2Subtract(
-					player_entity_a->physics.velocity, Vector2Scale(normal, impulse * mass_b));
-				player_entity_b->physics.velocity = Vector2Add(
-					player_entity_b->physics.velocity, Vector2Scale(normal, impulse * mass_a));
-
-				f32 impulse_magnitude = impulse * total_mass;
+			f32 impulse_magnitude = physics_resolve_body_collision(&player_entity_a->transform,
+																   &player_entity_a->physics,
+																   radius_a,
+																   &player_entity_b->transform,
+																   &player_entity_b->physics,
+																   radius_b,
+																   bounce_factor);
+			if (impulse_magnitude > 0) {
 				player_entity_a->player.last_body_collision_time = game_state->time;
 				player_entity_a->player.last_body_collision_impulse = impulse_magnitude;
 				player_entity_b->player.last_body_collision_time = game_state->time;

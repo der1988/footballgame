@@ -8,6 +8,7 @@
 #include "input.h"
 #include "macro.h"
 #include "math_ext.h"
+#include "physics.h"
 #include <raymath.h>
 #include <stdio.h>
 #include "ai.h"
@@ -103,7 +104,6 @@ void system_player_physics(struct game_state *game_state)
 			}
 
 			v2 force_to_apply = Vector2Zero();
-			v2 normalized_velocity = Vector2Normalize(physics->velocity);
 			f32 steering_magnitude = Vector2Length(effective_steering);
 			f32 current_velocity = Vector2Length(physics->velocity);
 
@@ -111,14 +111,9 @@ void system_player_physics(struct game_state *game_state)
 			force_to_apply = Vector2Scale(effective_steering, player->constants.movement_force);
 
 			// Apply drag if no steering applied (per-player)
-			if (steering_magnitude < 0.01f) {
-				if (current_velocity < 3) {
-					physics->velocity = Vector2Zero();
-				} else {
-					Vector2 drag =
-						Vector2Scale(Vector2Negate(normalized_velocity), player->constants.drag);
-					force_to_apply = Vector2Add(force_to_apply, drag);
-				}
+			if (steering_magnitude < 0.01f && !physics_set_at_rest_if_needed(physics, 3)) {
+				force_to_apply = Vector2Add(
+					force_to_apply, physics_drag_force(physics->velocity, player->constants.drag));
 			}
 
 			// Handle max velocity (per-player)
@@ -231,8 +226,10 @@ void system_player_physics(struct game_state *game_state)
 
 			// Apply friction
 			// TODO: this needs to be tweaked
-			v2 force_to_apply =
-				Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)), 2000);
+			v2 force_to_apply = Vector2Zero();
+			if (!physics_set_at_rest_if_needed(physics, 1)) {
+				force_to_apply = physics_drag_force(physics->velocity, 2000);
+			}
 
 			// Handle max velocity
 			physics->max_velocity = player->constants.run_max_velocity;
@@ -252,16 +249,18 @@ void system_player_physics(struct game_state *game_state)
 				&player->state_machine.state_data.sliding_tackle;
 
 			v2 force_to_apply = Vector2Zero();
-			if (Vector2Length(physics->velocity) > 3) {
+			if (physics_set_at_rest_if_needed(physics, 3)) {
+				if (HAS_TIME_PASSED(
+						game_state->time, sliding_tackle_state_data->start_time, 0.25f)) {
+					state_machine_player_change_state_to(
+						&player->state_machine, PS_NORMAL, game_state);
+					break;
+				}
+			} else {
 				// Apply friction
-				force_to_apply = Vector2Scale(
-					Vector2Negate(Vector2Normalize(physics->velocity)),
-					game_state->constants
-						.player_tackle_friction_force); // TODO: this should depend on type of pitch
-			} else if (HAS_TIME_PASSED(
-						   game_state->time, sliding_tackle_state_data->start_time, 0.25f)) {
-				state_machine_player_change_state_to(&player->state_machine, PS_NORMAL, game_state);
-				break;
+				// TODO: this should depend on type of pitch
+				force_to_apply = physics_drag_force(
+					physics->velocity, game_state->constants.player_tackle_friction_force);
 			}
 
 			// Handle max velocity
@@ -297,9 +296,11 @@ void system_player_physics(struct game_state *game_state)
 
 			v2 force_to_apply = Vector2Zero();
 			if (fall_state_data->animation_completed) {
-				// Apply friction
-				force_to_apply = Vector2Scale(Vector2Negate(Vector2Normalize(physics->velocity)),
-											  30000); // TODO: this should depend on type of pitch
+				if (!physics_set_at_rest_if_needed(physics, 3)) {
+					// Apply friction
+					// TODO: this should depend on type of pitch
+					force_to_apply = physics_drag_force(physics->velocity, 30000);
+				}
 			}
 
 			// Handle max velocity

@@ -246,25 +246,14 @@ void entity_player_physics_apply_force(struct entity *player_entity,
 									   Vector2 force_to_apply,
 									   struct game_state *game_state)
 {
-	struct component_physics *physics = &player_entity->physics;
-
-	physics->accel = Vector2Scale(force_to_apply, 1 / physics->mass);
-
-	// Calculate velocity
-	physics->velocity = Vector2Add(physics->velocity, Vector2Scale(physics->accel, game_state->dt));
-	if (Vector2Length(physics->velocity) > physics->max_velocity) {
-		physics->velocity =
-			Vector2Scale(Vector2Normalize(physics->velocity), physics->max_velocity);
-	}
+	physics_apply_force(&player_entity->physics, force_to_apply, game_state->dt);
+	physics_clamp_velocity_to_max(&player_entity->physics);
 }
 
 void entity_player_physics_apply_velocity(struct entity *player_entity,
 										  struct game_state *game_state)
 {
-	struct component_physics *physics = &player_entity->physics;
-	struct component_transform *transform = &player_entity->transform;
-	transform->position =
-		Vector2Add(transform->position, Vector2Scale(physics->velocity, game_state->dt));
+	physics_apply_velocity(&player_entity->transform, &player_entity->physics, game_state->dt);
 }
 
 void entity_player_anim_calculate_running_frame(struct entity *player_entity,
@@ -823,8 +812,7 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 		f32 distance = Vector2Length(to_aim);
 		f32 power = Clamp01(distance / max_distance);
 		v3 direction = Vector3Normalize(V2_TO_V3(to_aim, pass_height));
-		f32 speed =
-			math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power * power);
+		f32 speed = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power * power);
 
 		fg_time_t travel_time = entity_ball_time_to_cover_distance(
 			ball_entity, Vector3Scale(direction, speed), distance, game_state);
@@ -839,8 +827,8 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 		v2 to_aim_led = Vector2Subtract(aim_point, passer_position);
 		f32 led_distance = Vector2Length(to_aim_led);
 		if (led_distance > max_distance) {
-			aim_point = Vector2Add(passer_position,
-								   Vector2Scale(to_aim_led, max_distance / led_distance));
+			aim_point =
+				Vector2Add(passer_position, Vector2Scale(to_aim_led, max_distance / led_distance));
 		}
 
 		// Leading a player running at the touchline must not put the ball out
@@ -1296,8 +1284,7 @@ static b32 is_player_selectable(struct entity *player_entity)
 
 	return (player->state_machine.current_state == PS_NORMAL ||
 			player->state_machine.current_state == PS_GOALIE) &&
-		   !(goalie->header.enabled &&
-			 goalie->state_machine.current_state != GS_HOLD_BALL);
+		   !(goalie->header.enabled && goalie->state_machine.current_state != GS_HOLD_BALL);
 }
 
 // The speed is the conservative one the AI seek uses, so both agree on what is reachable.
