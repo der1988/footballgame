@@ -15,6 +15,9 @@
 #include "game.h"
 #include "gfx.h"
 
+#define BALL_IN_NET_DAMPING		   0.8f
+#define BALL_IN_NET_RISING_DAMPING 0.9f
+
 const char *state_machine_ball_state_string[BS_COUNT] = {
 	"none", "in_play", "out_of_play", "gk_hands"};
 
@@ -197,6 +200,31 @@ void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v
 	}
 
 	reset_after_touch(&ball_entity->ball);
+}
+
+void entity_ball_settle_in_net(struct entity *ball_entity,
+							   rect_t goal_rectangle,
+							   enum pitch_side side)
+{
+	struct component_transform *transform = &ball_entity->transform;
+	struct component_physics3d *physics_3d = &ball_entity->physics3d;
+
+	// Only damp while the ball is still short of the net or outside the posts: once it is in
+	// the netting the normal physics settles it.
+	b32 short_of_the_net =
+		side == PSI_NORTH ? transform->position.y < goal_rectangle.y - 3 :
+							transform->position.y >
+								(goal_rectangle.y + goal_rectangle.height * 2 + 3);
+	if (!short_of_the_net && transform->position.x >= goal_rectangle.x &&
+		transform->position.x <= (goal_rectangle.x + goal_rectangle.width)) {
+		return;
+	}
+
+	physics_3d->velocity.x *= BALL_IN_NET_DAMPING;
+	physics_3d->velocity.z *= BALL_IN_NET_DAMPING;
+	if (transform->virtual_height > goal_rectangle.height && physics_3d->velocity.y > 0) {
+		physics_3d->velocity.y *= BALL_IN_NET_RISING_DAMPING;
+	}
 }
 
 void entity_ball_control_precision(struct entity *ball_entity,

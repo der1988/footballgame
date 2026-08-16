@@ -41,6 +41,9 @@ STATE_MACHINE_DECLARE_FUNCTIONS(ball, struct entity);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state);
 void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v3 velocity);
+void entity_ball_settle_in_net(struct entity *ball_entity,
+							   rect_t goal_rectangle,
+							   enum pitch_side side);
 void entity_ball_control_precision(struct entity *ball_entity,
 								   v2 player_velocity,
 								   v2 position_to_seek,
