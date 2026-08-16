@@ -7,6 +7,7 @@
 #include "math_ext.h"
 #include "log.h"
 #include "macro.h"
+#include "physics.h"
 #include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -502,6 +503,47 @@ entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 	} else {
 		return EID_NOT_VALID;
 	}
+}
+
+// The ball model has no closed form for travel time: quadratic drag, a regime switch
+// between gravity and rolling resistance at ground level, and bouncing. So step the real
+// integrator on a throwaway copy of the ball state.
+fg_time_t entity_ball_time_to_cover_distance(struct entity *ball_entity,
+											 v3 kick_velocity,
+											 f32 distance,
+											 struct game_state *game_state)
+{
+	struct component_transform *transform = &ball_entity->transform;
+	const v2 start_position = transform->position;
+	const f32 mass = ball_entity->physics3d.mass;
+	const f32 radius = ball_entity->collider.colliders[0].props.circle.radius;
+	const u32 max_steps = (u32)(BALL_PASS_MAX_TRAVEL_TIME / game_state->dt);
+
+	v3 position = V2_TO_V3(start_position, transform->virtual_height);
+	v3 velocity = kick_velocity;
+	b32 on_the_ground;
+	b32 bounced;
+	for (u32 step = 1; step <= max_steps; ++step) {
+		physics_ball_simulation(&position,
+								&velocity,
+								Vector3Zero(),
+								mass,
+								radius,
+								Vector3Zero(),
+								&on_the_ground,
+								&bounced,
+								game_state);
+
+		if (Vector2Distance(V3_TO_V2(position), start_position) >= distance) {
+			return step * game_state->dt;
+		}
+		// Ball came to rest short of the distance
+		if (Vector2Length(V3_TO_V2(velocity)) < 1.0f) {
+			return step * game_state->dt;
+		}
+	}
+
+	return BALL_PASS_MAX_TRAVEL_TIME;
 }
 
 static void set_after_touch(struct component_ball *ball)

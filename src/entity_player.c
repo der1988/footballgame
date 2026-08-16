@@ -802,6 +802,55 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 	return selected_entity != NULL;
 }
 
+// Aim point and ball travel time depend on each other: leading further makes the pass
+// longer, which makes it both faster and slower to arrive. Solved by fixed point iteration.
+v2 entity_player_pass_aim_point(struct entity *player_entity,
+								struct entity *ball_entity,
+								struct entity *target_entity,
+								f32 max_distance,
+								struct game_state *game_state)
+{
+	const v2 passer_position = player_entity->transform.position;
+	const v2 target_position = target_entity->transform.position;
+	const v2 target_velocity = target_entity->physics.velocity;
+	const rect_t field = game_state->vars.pitch.field;
+	const f32 pass_height = game_state->constants.ball_pass_height;
+	const f32 lead_amount = game_state->constants.ball_pass_auto_lead_amount;
+
+	v2 aim_point = target_position;
+	for (u8 i = 0; i < PASS_AIM_ITERATIONS; ++i) {
+		v2 to_aim = Vector2Subtract(aim_point, passer_position);
+		f32 distance = Vector2Length(to_aim);
+		f32 power = Clamp01(distance / max_distance);
+		v3 direction = Vector3Normalize(V2_TO_V3(to_aim, pass_height));
+		f32 speed =
+			math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power * power);
+
+		fg_time_t travel_time = entity_ball_time_to_cover_distance(
+			ball_entity, Vector3Scale(direction, speed), distance, game_state);
+
+		v2 lead = Vector2Scale(target_velocity, travel_time * lead_amount);
+		v2 next_aim_point = Vector2Add(target_position, lead);
+		aim_point = i == 0 ? next_aim_point :
+							 Vector2Lerp(aim_point, next_aim_point, PASS_AIM_RELAXATION);
+
+		// Beyond the auto pass range the power saturates and the ball falls short, so pull
+		// the lead back in rather than aiming somewhere we cannot reach
+		v2 to_aim_led = Vector2Subtract(aim_point, passer_position);
+		f32 led_distance = Vector2Length(to_aim_led);
+		if (led_distance > max_distance) {
+			aim_point = Vector2Add(passer_position,
+								   Vector2Scale(to_aim_led, max_distance / led_distance));
+		}
+
+		// Leading a player running at the touchline must not put the ball out
+		aim_point.x = Clamp(aim_point.x, field.x, field.x + field.width);
+		aim_point.y = Clamp(aim_point.y, field.y, field.y + field.height);
+	}
+
+	return aim_point;
+}
+
 b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 											   struct nearest_player *out_nearest_facing_oppo,
 											   struct game_state *game_state)

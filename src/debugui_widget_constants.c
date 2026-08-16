@@ -160,6 +160,13 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  600.0f,
 							  TextFormat("%.0f", game_state->constants.ball_pass_auto_max_distance),
 							  0);
+			changed |=
+				igSliderFloat("Auto pass lead amount",
+							  &game_state->constants.ball_pass_auto_lead_amount,
+							  0.0f,
+							  1.5f,
+							  TextFormat("%.2f", game_state->constants.ball_pass_auto_lead_amount),
+							  0);
 			changed |= igSliderFloat("Header min force",
 									 &game_state->constants.ball_header_min_force,
 									 0.0f,

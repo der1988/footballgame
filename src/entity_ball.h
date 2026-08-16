@@ -100,5 +100,9 @@ entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 										   struct game_state *game_state);
 enum team_side entity_ball_team_in_possession(struct entity *ball_entity,
 											  struct game_state *game_state);
+fg_time_t entity_ball_time_to_cover_distance(struct entity *ball_entity,
+											 v3 kick_velocity,
+											 f32 distance,
+											 struct game_state *game_state);
 
 #endif // !ENTITY_BALL_H

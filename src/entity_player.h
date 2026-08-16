@@ -260,6 +260,11 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   f32 max_distance,
 								   struct entity **out_pass_target,
 								   struct game_state *game_state);
+v2 entity_player_pass_aim_point(struct entity *player_entity,
+								struct entity *ball_entity,
+								struct entity *target_entity,
+								f32 max_distance,
+								struct game_state *game_state);
 
 b32 entity_player_find_nearest(v2 position,
 							   enum team_side team_side,
