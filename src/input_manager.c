@@ -1,4 +1,5 @@
 #include "input.h"
+#include "entity_ball.h"
 #include "game.h"
 #include "input_gamepad.h"
 #include "input_keyboard.h"
@@ -229,12 +230,30 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 		}
 		}
 
+		/* Charging is for doing something with the ball. While the other team has it those same
+		   buttons mean other things — shoot is how a human asks his team to press — so nothing
+		   charges. */
+		b32 can_charge = true;
+		struct human_player *human_player = game_human_player_by_game_controller_id(game_state, i);
+		if (human_player && game_state->vars.ball.entity) {
+			can_charge = entity_ball_team_in_possession(game_state->vars.ball.entity, game_state) ==
+						 human_player->team_side;
+		}
+
 		switch (gc->charge_lock.state) {
 		case INPUT_CHARGE_LOCK_FREE: {
 			for (usize j = 0; j < GAME_CONTROL_COUNT; j++) {
 				struct game_control_info *game_control_info = &game_control_infos[j];
 				if (game_control_info->type == GAME_CONTROL_TYPE_DIGITAL &&
 					game_control_info->chargeable && gc->state.current[j].digital.down) {
+					if (!can_charge) {
+						/* Wait for the release rather than just skipping, so that winning the ball
+						   back while the button is still held doesn't start a charge behind his
+						   back: he has to press again. */
+						gc->charge_lock.control_id = j;
+						gc->charge_lock.state = INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE;
+						break;
+					}
 					/* Found control to charge. */
 					gc->charge_lock.control_id = j;
 					gc->charge_lock.state = INPUT_CHARGE_LOCK_CHARGING;
@@ -250,6 +269,15 @@ void input_manager_update(struct input_manager *input_manager, struct game_state
 			break;
 		}
 		case INPUT_CHARGE_LOCK_CHARGING: {
+			if (!can_charge) {
+				/* Lost the ball mid charge: drop it instead of keeping it alive on a button that
+				   now means pressing. */
+				gc->charge_lock.state = INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE;
+				GLOGF_DEBUG(LS_GAME,
+							"control %u charge dropped, possession lost\n",
+							gc->charge_lock.control_id);
+				break;
+			}
 			struct game_control_info *game_control_info =
 				&game_control_infos[gc->charge_lock.control_id];
 			gc->charge_lock.end_time = game_state->time;
