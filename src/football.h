@@ -6,6 +6,7 @@
 
 // Forward declaration
 struct game_state;
+struct entity;
 
 enum match_state {
 	MS_KICKOFF,
@@ -151,6 +152,9 @@ struct team_formation_position *football_tactics_get_team_formation(enum team_fo
 
 struct team_formation_position *
 football_tactics_get_team_formation_position(enum team_formation formation, u32 position_idx);
+v2 football_tactics_get_target_position(struct entity *player_entity,
+										struct entity *ball_entity,
+										struct game_state *game_state);
 
 b32 football_pitch_is_position_inside_penalty_area(v2 pos,
 												   enum pitch_side side,
