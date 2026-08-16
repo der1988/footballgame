@@ -2,3 +2,4 @@ target
 build
 .cache/clangd/index
 .DS_Store
+.grepai/
