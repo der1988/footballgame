@@ -90,6 +90,8 @@ TEST_FLAGS := -DRUNNING_TEST
 # Source objects recompiled for tests (with TEST_FLAGS)
 TEST_SRC_OBJS := $(SRCS:%=$(TEST_BUILD_DIR)/%.o)
 
+TEST_DEPS := $(TEST_OBJS:.o=.d) $(TEST_SRC_OBJS:.o=.d)
+
 # Build step for C source (test build)
 $(TEST_BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
@@ -166,4 +168,4 @@ clean:
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
 # errors to show up.
--include $(DEPS)
+-include $(DEPS) $(TEST_DEPS)
