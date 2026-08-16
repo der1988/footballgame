@@ -278,6 +278,13 @@ struct player_shot entity_player_aim_shot(struct entity *player_entity,
 										  f32 charge,
 										  struct game_state *game_state);
 
+b32 entity_player_should_jump_for_header(struct entity *player_entity,
+										 struct game_state *game_state);
+
+b32 entity_player_goalie_can_claim_ball_at(v3 pos_to_check,
+										   struct entity *seeker_entity,
+										   struct game_state *game_state);
+
 b32 entity_player_find_nearest(v2 position,
 							   enum team_side team_side,
 							   struct list_entity_ids exclusion_list,

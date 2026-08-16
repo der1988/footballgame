@@ -16,20 +16,6 @@
 #include <stdio.h>
 #include "collision.h"
 
-static b32 protect_goal_predicate(v3 pos_to_check,
-								  struct entity *seeker_entity,
-								  struct game_state *game_state)
-{
-	enum pitch_side side =
-		game_state->vars.teams[seeker_entity->player.team_side].play_context.pitch_side;
-	f32 ball_distance_from_goal =
-		Vector3Distance(pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[side].center, 0));
-	return (
-		football_pitch_is_position_inside_penalty_area(V3_TO_V2(pos_to_check), side, game_state) &&
-		ball_distance_from_goal < 125 &&
-		pos_to_check.y < (game_state->constants.crossbar_height - 7));
-}
-
 void system_goalie(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
@@ -189,7 +175,7 @@ void system_goalie(struct game_state *game_state)
 							entity,
 							exit_max_speed,
 							game_state->vars.ball.lookahead_positions,
-							protect_goal_predicate,
+							entity_player_goalie_can_claim_ball_at,
 							game_state);
 
 					if (prediction.can_reach_it) {

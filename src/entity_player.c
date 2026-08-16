@@ -909,6 +909,50 @@ struct player_shot entity_player_aim_shot(struct entity *player_entity,
 	};
 }
 
+// Whether the ball will be high enough, and close enough to where the player is heading, that
+// jumping for a header is worth it.
+b32 entity_player_should_jump_for_header(struct entity *player_entity,
+										 struct game_state *game_state)
+{
+	for (usize i = 0; i < game_state->constants.ball_lookaheads; ++i) {
+		fg_time_t time_elapsed =
+			(i + 1) * game_state->constants.ball_lookahead_dts * game_state->dt;
+
+		v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
+
+		v2 player_future_position =
+			Vector2Add(player_entity->transform.position,
+					   Vector2Scale(player_entity->physics.velocity, time_elapsed));
+
+		f32 is_colliding = CheckCollisionCircles(
+			V3_TO_V2(pos_to_check),
+			game_state->vars.ball.entity->collider.colliders[0].props.circle.radius,
+			player_future_position,
+			15);
+		if (is_colliding && pos_to_check.y > HEADER_MIN_HEIGHT) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// A ball position the keeper should come off his line for: inside his own penalty area, near
+// enough to the goal, and low enough to get to. Shaped as a predicate for
+// entity_player_can_reach_future_ball_position.
+b32 entity_player_goalie_can_claim_ball_at(v3 pos_to_check,
+										   struct entity *seeker_entity,
+										   struct game_state *game_state)
+{
+	enum pitch_side side =
+		game_state->vars.teams[seeker_entity->player.team_side].play_context.pitch_side;
+	f32 ball_distance_from_goal =
+		Vector3Distance(pos_to_check, V2_TO_V3(game_state->vars.pitch.goal[side].center, 0));
+	return (
+		football_pitch_is_position_inside_penalty_area(V3_TO_V2(pos_to_check), side, game_state) &&
+		ball_distance_from_goal < 125 &&
+		pos_to_check.y < (game_state->constants.crossbar_height - 7));
+}
+
 b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 											   struct nearest_player *out_nearest_facing_oppo,
 											   struct game_state *game_state)
