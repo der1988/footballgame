@@ -136,6 +136,11 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_control_radius = 6,
 		.player_control_height = 17,
 		.player_tackle_friction_force = 7500,
+		// Fraction a defender's time to the ball is cut by for standing right between it and his
+		// own goal, when picking who presses and who a human is handed on a switch
+		.player_goal_side_bonus = 0.35f,
+		// How long after being handed a player a human has to wait before he can ask for another
+		.player_switch_grace_time = 0.5f,
 
 		// Goalie
 		// Elite goalie has 150ms reaction time

@@ -85,6 +85,8 @@ struct game_constants {
 	f32 player_control_radius;
 	f32 player_control_height;
 	f32 player_tackle_friction_force;
+	f32 player_goal_side_bonus;
+	f32 player_switch_grace_time;
 
 	f32 goalie_dive_reaction_time;
 	f32 goalie_dive_force;
@@ -104,6 +106,7 @@ struct human_player {
 	struct {
 		entity_id_t entity_id;
 		b32 is_manually_selected;
+		fg_time_t last_switch_time;
 	} controlled_player;
 };
 

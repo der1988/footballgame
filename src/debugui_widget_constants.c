@@ -254,6 +254,20 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  100000.0f,
 							  TextFormat("%.2f", game_state->constants.player_tackle_friction_force),
 							  0);
+			changed |=
+				igSliderFloat("Goal side bonus",
+							  &game_state->constants.player_goal_side_bonus,
+							  0.0f,
+							  1.0f,
+							  TextFormat("%.2f", game_state->constants.player_goal_side_bonus),
+							  0);
+			changed |=
+				igSliderFloat("Switch grace time",
+							  &game_state->constants.player_switch_grace_time,
+							  0.0f,
+							  2.0f,
+							  TextFormat("%.2f", game_state->constants.player_switch_grace_time),
+							  0);
 			igEndTabItem();
 		}
 

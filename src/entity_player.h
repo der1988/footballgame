@@ -293,10 +293,10 @@ void entity_player_on_constants_changed(enum event_type type, void *context);
 
 void entity_player_header_hit(struct entity *player_entity, struct game_state *game_state);
 
-b32 entity_player_find_switch_target(v2 position,
-									 v2 scan_direction,
-									 f32 detection_angle,
-									 f32 max_distance,
+// Find the player to hand over when a human asks for a switch: the team mate who would take the
+// least time to meet the ball, wherever he stands. The player currently controlled is expected to
+// be excluded, so pressing switch again hands over the next best one.
+b32 entity_player_find_switch_target(struct entity *ball_entity,
 									 enum team_side team_side,
 									 entity_id_t current_player_entity_id,
 									 struct list_entity_ids exclusion_list,

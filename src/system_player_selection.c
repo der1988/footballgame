@@ -141,8 +141,14 @@ void system_player_selection(struct game_state *game_state)
 				&game_state->input_manager->game_controllers[human_player->game_controller_id];
 			struct game_controller_state *game_controller_state = &game_controller->state;
 
+			// A switch he didn't ask for may have just happened under him, so give him a moment to
+			// take in who he is on before another request goes through. Without it a press meant
+			// for the player he had a moment ago hands him a third one.
 			const b32 is_human_required_player_switch =
-				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.pressed;
+				game_controller_state->current[GAME_CONTROL_SWITCH_PLAYER].digital.pressed &&
+				HAS_TIME_PASSED(game_state->time,
+								human_player->controlled_player.last_switch_time,
+								game_state->constants.player_switch_grace_time);
 
 			force_switch = is_human_required_player_switch;
 
@@ -231,7 +237,11 @@ void system_player_selection(struct game_state *game_state)
 						human_player->team_side == team_side_idx &&
 						!player_in_possession_entity->player.kicked_ball &&
 						!is_goalie_but_not_holding_ball) {
+						// Not switch_to_player: being handed the team mate who just won the ball
+						// must not reset the controller, or a shoot button still held down from
+						// pressing would start charging right here.
 						human_player->controlled_player.entity_id = player_in_possession_entity_id;
+						human_player->controlled_player.last_switch_time = game_state->time;
 						is_player_in_possession_controlled_by_human = true;
 						continue;
 					}
@@ -254,19 +264,12 @@ void system_player_selection(struct game_state *game_state)
 
 			// This logic applies only if human required player switch in this frame
 			if (is_human_required_player_switch) {
-				// First we look for a player in the opposite direction of current steering, as the human
-				// is probably pressing in the direction he wants his candidate player to move to.
-				struct game_controller *game_controller =
-					&game_state->input_manager->game_controllers[human_player->game_controller_id];
-
-				v2 scan_direction = Vector2Negate(input_movement_vector(game_controller));
-
+				// Hand over whoever is best placed to deal with the ball where it is going. The
+				// player being controlled is in the exclusion list, so pressing switch again hands
+				// over the next best one.
 				struct entity *switch_target;
 				const b32 switch_target_found = entity_player_find_switch_target(
-					ball_transform->position,
-					scan_direction,
-					45,
-					300,
+					ball_entity,
 					human_player->team_side,
 					currently_selected_player_entity ? currently_selected_player_entity->header.id :
 													   EID_NOT_VALID,
@@ -412,4 +415,5 @@ static void switch_to_player(entity_id_t switch_to,
 {
 	input_reset(&game_state->input_manager->game_controllers[human_player->game_controller_id]);
 	human_player->controlled_player.entity_id = switch_to;
+	human_player->controlled_player.last_switch_time = game_state->time;
 }

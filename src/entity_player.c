@@ -1,5 +1,6 @@
 #include "entity_components.h"
 #include "entity.h"
+#include "entity_ball.h"
 #include "entity_player.h"
 #include "football.h"
 #include "input.h"
@@ -85,17 +86,33 @@ STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(goalie, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(player, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(goalie, struct entity);
 
+// How a player would come to meet the ball: the earliest predicted position he gets to before the
+// ball does, or, when the ball outruns him everywhere, his quickest chase of it.
+struct player_ball_meeting {
+	b32 can_intercept;
+	fg_time_t time_to_ball;
+	f32 distance_to_ball_path;
+};
+
 static void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 static void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
+static b32 is_player_selectable(struct entity *player_entity);
+static struct player_ball_meeting player_meeting_with_the_ball(struct entity *player_entity,
+															   struct entity *ball_entity,
+															   struct game_state *game_state);
+static f32 goal_side_discount(v2 player_position,
+							  v2 ball_position,
+							  enum team_side team_side,
+							  struct game_state *game_state);
 static b32 check_whether_goalie_should_dive(v3 pos_to_check,
-									 b32 attacking_south,
-									 f32 time_to_unsaveable,
-									 struct entity *goalie_entity,
-									 enum save_direction *dive_direction,
-									 enum save_height *dive_height,
-									 f32 *dive_speed,
-									 f32 *dive_distance,
-									 struct game_state *game_state);
+											b32 attacking_south,
+											f32 time_to_unsaveable,
+											struct entity *goalie_entity,
+											enum save_direction *dive_direction,
+											enum save_height *dive_height,
+											f32 *dive_speed,
+											f32 *dive_distance,
+											struct game_state *game_state);
 
 struct entity *entity_player_create(struct player_config config, struct game_state *game_state)
 {
@@ -678,12 +695,12 @@ v2 entity_player_position_to_seek_to_reach_ball(struct entity *player_entity,
 												struct game_state *game_state)
 {
 	struct player_ball_reachability_prediction prediction =
-		entity_player_can_reach_future_ball_position(player_entity,
-													player_entity->player.constants.run_max_velocity *
-														0.8f,
-													game_state->vars.ball.lookahead_positions,
-													NULL,
-													game_state);
+		entity_player_can_reach_future_ball_position(
+			player_entity,
+			player_entity->player.constants.run_max_velocity * 0.8f,
+			game_state->vars.ball.lookahead_positions,
+			NULL,
+			game_state);
 	v3 ball_future_pos;
 	if (prediction.can_reach_it)
 		ball_future_pos = prediction.future_pos;
@@ -872,8 +889,6 @@ b32 entity_player_find_nearest(v2 position,
 		entity = entity_get(game_state->entity_repository, entity_id);
 		if (entity->header.alive && entity->header.type == ET_PLAYER) {
 			struct component_transform *transform = &entity->transform;
-			struct component_player *player = &entity->player;
-			struct component_goalie *goalie = &entity->goalie;
 
 			b32 should_be_excluded = false;
 			LIST_ITERATE(excluded_entity_id, exclusion_list)
@@ -884,15 +899,11 @@ b32 entity_player_find_nearest(v2 position,
 				}
 			}
 
-			if (entity->player.team_side != team_side ||
-				(player->state_machine.current_state != PS_NORMAL &&
-				 player->state_machine.current_state != PS_GOALIE) ||
-				(goalie->header.enabled && goalie->state_machine.current_state != GS_HOLD_BALL) ||
+			if (entity->player.team_side != team_side || !is_player_selectable(entity) ||
 				should_be_excluded) {
 				// If player is either:
 				// - an opponent
-				// - not in normal state (tackling, heading, etc...)
-				// - a goalie that isn't holding the ball
+				// - not in a state where he can be handed over
 				// - is in exclusion list
 				// let's skip it
 				continue;
@@ -957,10 +968,7 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 	return true; // Pass trajectory is clear
 };
 
-b32 entity_player_find_switch_target(v2 position,
-									 v2 scan_direction,
-									 f32 detection_angle,
-									 f32 max_distance,
+b32 entity_player_find_switch_target(struct entity *ball_entity,
 									 enum team_side team_side,
 									 entity_id_t current_player_entity_id,
 									 struct list_entity_ids exclusion_list,
@@ -968,8 +976,12 @@ b32 entity_player_find_switch_target(v2 position,
 									 struct game_state *game_state)
 {
 	struct entity_repository *entity_repository = game_state->entity_repository;
+	const v2 ball_position = ball_entity->transform.position;
+	const b32 is_defending = entity_ball_team_in_possession(ball_entity, game_state) != team_side;
+
 	struct entity *selected_entity = NULL;
-	f32 selected_score = 0;
+	b32 selected_can_intercept = false;
+	fg_time_t selected_time_to_ball = 0;
 	struct entity *potential_switch_target_entity;
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
 		potential_switch_target_entity = entity_get(game_state->entity_repository, entity_id);
@@ -977,8 +989,9 @@ b32 entity_player_find_switch_target(v2 position,
 			potential_switch_target_entity->header.type == ET_PLAYER) {
 
 			if (current_player_entity_id == entity_id ||
-				team_side != potential_switch_target_entity->player.team_side) {
-				// We don't want to pass to ourselves nor to the other team, right?
+				team_side != potential_switch_target_entity->player.team_side ||
+				!is_player_selectable(potential_switch_target_entity)) {
+				// We don't want to hand over ourselves, an opponent, nor somebody who is busy
 				continue;
 			}
 
@@ -996,26 +1009,31 @@ b32 entity_player_find_switch_target(v2 position,
 				continue;
 			}
 
-			v2 to_player = Vector2Subtract(transform->position, position);
-			f32 distance_from_player_sqr = Vector2LengthSqr(to_player);
-			f32 angle = fabs(Vector2Angle(scan_direction, to_player) * RAD2DEG);
+			// A candidate the ball outruns everywhere ranks behind anyone who can intercept it
+			const struct player_ball_meeting meeting = player_meeting_with_the_ball(
+				potential_switch_target_entity, ball_entity, game_state);
 
-			if (angle > detection_angle)
-				continue;
+			fg_time_t time_to_ball = meeting.time_to_ball;
+			if (is_defending) {
+				time_to_ball *=
+					goal_side_discount(transform->position, ball_position, team_side, game_state);
+			}
 
-			f32 score = 1 - Clamp01(distance_from_player_sqr / (max_distance * max_distance));
-
-			if (score > selected_score) {
+			if (!selected_entity || (meeting.can_intercept && !selected_can_intercept) ||
+				(meeting.can_intercept == selected_can_intercept &&
+				 time_to_ball < selected_time_to_ball)) {
 				selected_entity = potential_switch_target_entity;
-				selected_score = score;
+				selected_can_intercept = meeting.can_intercept;
+				selected_time_to_ball = time_to_ball;
 			}
 		}
 	}
 	if (selected_entity) {
 		GLOGF_TRACE(LS_GAME,
-					"selected switch target %zu with score %.2f",
+					"selected switch target %zu, %.2fs from the ball%s",
 					selected_entity->header.id,
-					selected_score);
+					selected_time_to_ball,
+					selected_can_intercept ? "" : " (cannot intercept)");
 		*out_switch_target = selected_entity;
 	}
 	return selected_entity != NULL;
@@ -1110,14 +1128,14 @@ static void player_custom_after_draw(struct entity *entity, struct game_state *g
 }
 
 static b32 check_whether_goalie_should_dive(v3 pos_to_check,
-									 b32 attacking_south,
-									 f32 time_to_unsaveable,
-									 struct entity *goalie_entity,
-									 enum save_direction *dive_direction,
-									 enum save_height *dive_height,
-									 f32 *dive_speed,
-									 f32 *dive_distance,
-									 struct game_state *game_state)
+											b32 attacking_south,
+											f32 time_to_unsaveable,
+											struct entity *goalie_entity,
+											enum save_direction *dive_direction,
+											enum save_height *dive_height,
+											f32 *dive_speed,
+											f32 *dive_distance,
+											struct game_state *game_state)
 {
 	b32 should_dive = false;
 	f32 x_diff = pos_to_check.x - goalie_entity->transform.position.x;
@@ -1147,21 +1165,17 @@ static b32 check_whether_goalie_should_dive(v3 pos_to_check,
 }
 
 struct entity *entity_player_select_press_player(struct entity *ball_entity,
-												   enum team_side team_side,
-												   f32 max_distance,
-												   struct game_state *game_state)
+												 enum team_side team_side,
+												 f32 max_distance,
+												 struct game_state *game_state)
 {
-	UNUSED(ball_entity);
-
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
-	f32 selected_score = 0;
+	b32 selected_can_intercept = false;
+	fg_time_t selected_time_to_ball = 0;
 	struct entity *entity;
 
-	v3 *ball_future_positions = game_state->vars.ball.lookahead_positions;
-
 	const b32 team_has_humans = game_human_players_count_by_team(game_state, team_side) > 0;
-	const u32 lookaheads = game_state->constants.ball_lookaheads;
 
 	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
 		entity = entity_get(game_state->entity_repository, entity_id);
@@ -1189,36 +1203,112 @@ struct entity *entity_player_select_press_player(struct entity *ball_entity,
 			continue;
 		}
 
-		struct component_transform *transform = &entity->transform;
+		const struct player_ball_meeting meeting =
+			player_meeting_with_the_ball(entity, ball_entity, game_state);
 
-		// Calculate future positions score
-		f32 best_future_position_score = 0;
-		for (u32 i = 0; i < lookaheads; i++) {
-			v2 future_ball_pos = V3_TO_V2(ball_future_positions[i]);
-			f32 future_distance_sqr = Vector2DistanceSqr(transform->position, future_ball_pos);
-			f32 future_score = 1 - Clamp01(future_distance_sqr / (max_distance * max_distance));
-
-			// Weight earlier predictions more heavily
-			f32 time_weight = 1.0f - ((f32)i / BALL_MAX_LOOKAHEADS);
-			future_score *= time_weight;
-
-			if (future_score > best_future_position_score) {
-				best_future_position_score = future_score;
-			}
+		// Nobody sets off after a ball that never comes near him
+		if (meeting.distance_to_ball_path > max_distance) {
+			continue;
 		}
 
-		if (best_future_position_score > selected_score) {
+		// The pressing team is the one without the ball, so the goal side discount always applies:
+		// of two players equally quick to the ball we want the one also covering our goal.
+		const fg_time_t time_to_ball =
+			meeting.time_to_ball *
+			goal_side_discount(
+				entity->transform.position, ball_entity->transform.position, team_side, game_state);
+
+		if (!selected_entity || (meeting.can_intercept && !selected_can_intercept) ||
+			(meeting.can_intercept == selected_can_intercept &&
+			 time_to_ball < selected_time_to_ball)) {
 			selected_entity = entity;
-			selected_score = best_future_position_score;
+			selected_can_intercept = meeting.can_intercept;
+			selected_time_to_ball = time_to_ball;
 		}
 	}
 	if (selected_entity != NULL) {
 		game_state->vars.teams[team_side].play_context.player_in_charge_of_pressing =
 			selected_entity->header.id;
 		GLOGF_TRACE(LS_GAME,
-					"selected press player %zu with score %.2f",
+					"selected press player %zu, %.2fs from the ball%s",
 					selected_entity->header.id,
-					selected_score);
+					selected_time_to_ball,
+					selected_can_intercept ? "" : " (cannot intercept)");
 	}
 	return selected_entity;
+}
+
+// Whether a player can be handed over to a human: nobody busy doing something else (tackling,
+// heading, falling), and no goalie unless he is holding the ball.
+static b32 is_player_selectable(struct entity *player_entity)
+{
+	const struct component_player *player = &player_entity->player;
+	const struct component_goalie *goalie = &player_entity->goalie;
+
+	return player->state_machine.current_state == PS_NORMAL ||
+		   (player->state_machine.current_state == PS_GOALIE &&
+			goalie->state_machine.current_state == GS_HOLD_BALL);
+}
+
+// The speed is the conservative one the AI seek uses, so both agree on what is reachable.
+static struct player_ball_meeting player_meeting_with_the_ball(struct entity *player_entity,
+															   struct entity *ball_entity,
+															   struct game_state *game_state)
+{
+	const v3 *ball_future_positions = game_state->vars.ball.lookahead_positions;
+	const u32 lookaheads = game_state->constants.ball_lookaheads;
+	const u32 steps_per_lookahead = game_state->constants.ball_lookahead_dts;
+
+	const v2 player_position = player_entity->transform.position;
+	const f32 max_speed = player_entity->player.constants.run_max_velocity * 0.8f;
+
+	// Lookahead positions are only predicted while the ball is in play. Anywhere else (throw in,
+	// keeper holding it) the ball stands still, so every predicted position is the one it is on
+	// now and the whole window comes down to how long he takes to run there.
+	if (ball_entity->ball.state_machine.current_state != BS_IN_PLAY) {
+		const f32 distance = Vector2Distance(player_position, ball_entity->transform.position);
+		const fg_time_t time_to_reach = distance / max_speed;
+		const fg_time_t last_arrival_time = lookaheads * game_state->dt * steps_per_lookahead;
+
+		return (struct player_ball_meeting){.can_intercept = time_to_reach <= last_arrival_time,
+											.time_to_ball = time_to_reach,
+											.distance_to_ball_path = distance};
+	}
+
+	struct player_ball_meeting meeting = {
+		.can_intercept = false, .time_to_ball = FLT_MAX, .distance_to_ball_path = FLT_MAX};
+
+	for (u32 i = 0; i < lookaheads; ++i) {
+		const v2 future_position = V3_TO_V2(ball_future_positions[i]);
+		const f32 distance = Vector2Distance(player_position, future_position);
+		const fg_time_t time_to_reach = distance / max_speed;
+		const fg_time_t ball_arrival_time = (i + 1) * game_state->dt * steps_per_lookahead;
+
+		meeting.distance_to_ball_path = MIN(meeting.distance_to_ball_path, distance);
+
+		if (time_to_reach <= ball_arrival_time) {
+			meeting.can_intercept = true;
+			meeting.time_to_ball = time_to_reach;
+			break;
+		}
+		meeting.time_to_ball = MIN(meeting.time_to_ball, time_to_reach);
+	}
+	return meeting;
+}
+
+// Defending, the team mates standing between the ball and our goal are the ones worth having, so
+// their time to the ball is discounted. A discount rather than a filter: being goal side wins a
+// close call, it doesn't rule out whoever is plainly quicker to the ball.
+static f32 goal_side_discount(v2 player_position,
+							  v2 ball_position,
+							  enum team_side team_side,
+							  struct game_state *game_state)
+{
+	const enum pitch_side defended_side = game_state->vars.teams[team_side].play_context.pitch_side;
+	const v2 ball_to_own_goal = Vector2Normalize(
+		Vector2Subtract(game_state->vars.pitch.goal[defended_side].center, ball_position));
+	const f32 goal_side = Vector2DotProduct(
+		ball_to_own_goal, Vector2Normalize(Vector2Subtract(player_position, ball_position)));
+
+	return 1 - Clamp01(goal_side) * game_state->constants.player_goal_side_bonus;
 }
