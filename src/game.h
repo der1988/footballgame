@@ -260,6 +260,18 @@ INLINE usize game_human_players_count_by_team(struct game_state *game_state,
 	return count;
 }
 
+INLINE struct human_player *game_human_player_by_game_controller_id(
+	struct game_state *game_state, game_controller_id_t game_controller_id)
+{
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		if (game_state->human_players[i].enabled &&
+			game_state->human_players[i].game_controller_id == game_controller_id) {
+			return &game_state->human_players[i];
+		}
+	}
+	return NULL;
+}
+
 INLINE struct human_player *game_input_human_player_by_player_entity_id(
 	struct game_state *game_state, entity_id_t player_entity_id)
 {
