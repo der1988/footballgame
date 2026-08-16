@@ -13,15 +13,7 @@
 #include "types.h"
 #include <raymath.h>
 
-static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side);
-
 static void apply_future_position(struct future_position *future_position, v3 position, u32 dts);
-
-static v3 calculate_after_touch_acceleration(v2 direction,
-											 struct component_ball *ball,
-											 v3 ball_velocity,
-											 fg_time_t time,
-											 struct game_state *game_state);
 
 void system_ball(struct game_state *game_state)
 {
@@ -120,8 +112,8 @@ void system_ball(struct game_state *game_state)
 			struct game_controller *game_controller =
 				&game_state->input_manager->game_controllers[human_player->game_controller_id];
 			after_touch_direction = input_movement_vector(game_controller);
-			after_touch_accel = calculate_after_touch_acceleration(
-				after_touch_direction, ball, physics3d->velocity, game_state->time, game_state);
+			after_touch_accel = entity_ball_after_touch_acceleration(
+				ball, after_touch_direction, physics3d->velocity, game_state->time, game_state);
 		}
 
 		b32 on_the_ground;
@@ -172,11 +164,11 @@ void system_ball(struct game_state *game_state)
 
 				// We calculate after touch acceleration at this future point in time
 				v3 after_touch_accel =
-					calculate_after_touch_acceleration(after_touch_direction,
-													   ball,
-													   lookahead_velocity,
-													   game_state->time + dts * game_state->dt,
-													   game_state);
+					entity_ball_after_touch_acceleration(ball,
+														 after_touch_direction,
+														 lookahead_velocity,
+														 game_state->time + dts * game_state->dt,
+														 game_state);
 
 				physics_ball_simulation(&lookahead_position,
 										&lookahead_velocity,
@@ -260,88 +252,9 @@ void system_ball(struct game_state *game_state)
 	}
 }
 
-static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
-{
-	f32 projection = Vector2ProjectScalar(stored_side, selected_side);
-	if (projection > 0) {
-		return true;
-	}
-
-	return false;
-}
-
 static void apply_future_position(struct future_position *future_position, v3 position, u32 dts)
 {
 	future_position->available = true;
 	future_position->position = position;
 	future_position->dts = dts;
-}
-
-static v3 calculate_after_touch_acceleration(v2 direction,
-											 struct component_ball *ball,
-											 v3 ball_velocity,
-											 fg_time_t time,
-											 struct game_state *game_state)
-{
-	// TODO: we'd like CPU controlled players to also be able to control after touch in some way.
-	v3 after_touch_accel = Vector3Zero();
-	f32 after_touch_time = (time - ball->last_kick_time);
-	if (after_touch_time > game_state->constants.ball_after_touch_delay_time) {
-		v2 after_touch_side = Vector2Zero();
-		b32 apply_after_touch = true;
-
-		f32 after_touch_pressure =
-			Vector2ProjectExt(ball->after_touch.activation_direction, direction, &after_touch_side);
-
-		if (ball->after_touch.selected_side.x == 0 && ball->after_touch.selected_side.y == 0) {
-			if (fabsf(after_touch_pressure) > 0.25f) {
-				// After touch side not selected yet
-				// We need some after touch to be actually applied
-				ball->after_touch.selected_side = after_touch_side;
-			} else {
-				apply_after_touch = false;
-			}
-		} else if (!is_applied_after_touch_same_side(ball->after_touch.selected_side,
-													 after_touch_side)) {
-			// If player changed side of after touch we keep applying the first one
-			// we've seen
-			after_touch_side = ball->after_touch.selected_side;
-		}
-
-		if (apply_after_touch) {
-			// Extract signed swerve amount from after_touch_side
-			f32 after_touch_amount =
-				Vector2ProjectScalar(ball->after_touch.activation_direction, after_touch_side);
-
-			// Apply force perpendicular to the ball's current velocity
-			v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
-			v2 force_dir_2d =
-				Vector2Scale(Vector2Perp(Vector2Normalize(ball_velocity_2d)), after_touch_amount);
-			v3 after_touch_direction = V2_TO_V3(force_dir_2d, 0);
-
-			// After touch force decays exponentially with time.
-			// Formula is:
-			// 1 - clamp((time_since_ball_kicked - after_touch_delay)^2 /
-			// (max_after_touch_time - after_touch_delay)^2, 0, 1)
-			f32 force =
-				1 -
-				Clamp(powf((after_touch_time - game_state->constants.ball_after_touch_delay_time),
-						   2) /
-						  powf((game_state->constants.ball_after_touch_max_time -
-								game_state->constants.ball_after_touch_delay_time),
-							   2),
-					  0,
-					  1);
-
-			// Apply it
-			after_touch_accel = Vector3Scale(after_touch_direction,
-											 game_state->constants.ball_after_touch_force * force);
-		}
-	} else {
-		if (ball->after_touch.activation_direction.x == 0 &&
-			ball->after_touch.activation_direction.y == 0) {
-			ball->after_touch.activation_direction = Vector2Perp(direction);
-		}
-	}
-	return after_touch_accel;
 }

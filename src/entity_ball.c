@@ -22,6 +22,7 @@ STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(ball, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(ball, struct entity);
 
 static void set_after_touch(struct component_ball *ball);
+static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side);
 static void reset_after_touch(struct component_ball *ball);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state)
@@ -544,6 +545,85 @@ fg_time_t entity_ball_time_to_cover_distance(struct entity *ball_entity,
 	}
 
 	return BALL_PASS_MAX_TRAVEL_TIME;
+}
+
+static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side)
+{
+	f32 projection = Vector2ProjectScalar(stored_side, selected_side);
+	if (projection > 0) {
+		return true;
+	}
+
+	return false;
+}
+
+v3 entity_ball_after_touch_acceleration(struct component_ball *ball,
+										v2 direction,
+										v3 ball_velocity,
+										fg_time_t time,
+										struct game_state *game_state)
+{
+	// TODO: we'd like CPU controlled players to also be able to control after touch in some way.
+	v3 after_touch_accel = Vector3Zero();
+	f32 after_touch_time = (time - ball->last_kick_time);
+	if (after_touch_time > game_state->constants.ball_after_touch_delay_time) {
+		v2 after_touch_side = Vector2Zero();
+		b32 apply_after_touch = true;
+
+		f32 after_touch_pressure =
+			Vector2ProjectExt(ball->after_touch.activation_direction, direction, &after_touch_side);
+
+		if (ball->after_touch.selected_side.x == 0 && ball->after_touch.selected_side.y == 0) {
+			if (fabsf(after_touch_pressure) > 0.25f) {
+				// After touch side not selected yet
+				// We need some after touch to be actually applied
+				ball->after_touch.selected_side = after_touch_side;
+			} else {
+				apply_after_touch = false;
+			}
+		} else if (!is_applied_after_touch_same_side(ball->after_touch.selected_side,
+													 after_touch_side)) {
+			// If player changed side of after touch we keep applying the first one
+			// we've seen
+			after_touch_side = ball->after_touch.selected_side;
+		}
+
+		if (apply_after_touch) {
+			// Extract signed swerve amount from after_touch_side
+			f32 after_touch_amount =
+				Vector2ProjectScalar(ball->after_touch.activation_direction, after_touch_side);
+
+			// Apply force perpendicular to the ball's current velocity
+			v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
+			v2 force_dir_2d =
+				Vector2Scale(Vector2Perp(Vector2Normalize(ball_velocity_2d)), after_touch_amount);
+			v3 after_touch_direction = V2_TO_V3(force_dir_2d, 0);
+
+			// After touch force decays exponentially with time.
+			// Formula is:
+			// 1 - clamp((time_since_ball_kicked - after_touch_delay)^2 /
+			// (max_after_touch_time - after_touch_delay)^2, 0, 1)
+			f32 force =
+				1 -
+				Clamp(powf((after_touch_time - game_state->constants.ball_after_touch_delay_time),
+						   2) /
+						  powf((game_state->constants.ball_after_touch_max_time -
+								game_state->constants.ball_after_touch_delay_time),
+							   2),
+					  0,
+					  1);
+
+			// Apply it
+			after_touch_accel = Vector3Scale(after_touch_direction,
+											 game_state->constants.ball_after_touch_force * force);
+		}
+	} else {
+		if (ball->after_touch.activation_direction.x == 0 &&
+			ball->after_touch.activation_direction.y == 0) {
+			ball->after_touch.activation_direction = Vector2Perp(direction);
+		}
+	}
+	return after_touch_accel;
 }
 
 static void set_after_touch(struct component_ball *ball)
