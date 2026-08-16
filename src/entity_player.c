@@ -909,8 +909,10 @@ struct player_shot entity_player_aim_shot(struct entity *player_entity,
 	};
 }
 
-// Whether the ball will be high enough, and close enough to where the player is heading, that
-// jumping for a header is worth it.
+// Whether jumping is what the player actually meant: the ball has to be coming in above heading
+// height on a path he will meet. Below that he wants to volley it, and leaving the ground for a
+// header instead is a bad outcome. No upper bound on purpose — a ball high in the sky is always
+// worth going up for.
 b32 entity_player_should_jump_for_header(struct entity *player_entity,
 										 struct game_state *game_state)
 {
