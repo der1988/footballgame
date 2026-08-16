@@ -250,8 +250,8 @@ struct player_ball_reachability_prediction entity_player_can_reach_future_ball_p
 	struct game_state *game_state);
 
 v2 entity_player_position_to_seek_to_reach_ball(struct entity *player_entity,
-											   struct entity *ball_entity,
-											   struct game_state *game_state);
+												struct entity *ball_entity,
+												struct game_state *game_state);
 
 b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   v2 scan_direction,
@@ -265,6 +265,18 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 								struct entity *target_entity,
 								f32 max_distance,
 								struct game_state *game_state);
+
+// Where a charged shot ends up going, before the ball is actually struck.
+struct player_shot {
+	v2 direction;
+	f32 height;
+	f32 power;
+};
+
+struct player_shot entity_player_aim_shot(struct entity *player_entity,
+										  struct entity *ball_entity,
+										  f32 charge,
+										  struct game_state *game_state);
 
 b32 entity_player_find_nearest(v2 position,
 							   enum team_side team_side,

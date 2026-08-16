@@ -839,6 +839,76 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 	return aim_point;
 }
 
+// Going over 80% of charge it's going to be bad for the shot
+// - accuracy will decrease
+// - shot power will decrease
+// - shot height will rise
+struct player_shot entity_player_aim_shot(struct entity *player_entity,
+										  struct entity *ball_entity,
+										  f32 charge,
+										  struct game_state *game_state)
+{
+	const v2 ball_position = ball_entity->transform.position;
+	const v2 player_velocity = player_entity->physics.velocity;
+	const v2 steering = player_entity->player_controls.steering;
+	const enum pitch_side player_pitch_side =
+		game_state->vars.teams[player_entity->player.team_side].play_context.pitch_side;
+
+	f32 accuracy = game_state->vars.pitch.goal_width * 0.5f +
+				   (charge > 0.8f ? GetRandomValue(11, 20) : GetRandomValue(0, 10));
+
+	v2 center_of_goal = game_state->vars.pitch.goal[1 - player_pitch_side].center;
+	v2 shot_direction_to_center = Vector2Normalize(Vector2Subtract(center_of_goal, ball_position));
+	v2 shot_direction = steering;
+	if (Vector2ProjectScalar(shot_direction_to_center, shot_direction) < 0) {
+		shot_direction.y *= -1;
+	}
+	if (game_state->constants.shoot_aid_auto_aim) {
+		// Calculate shot direction for auto aim
+		v2 shot_direction_to_right_post = Vector2Normalize(
+			Vector2Subtract(Vector2Add(center_of_goal, (v2){.x = accuracy}), ball_position));
+		f32 angle_center_to_post =
+			Vector2Angle(shot_direction_to_center, shot_direction_to_right_post);
+
+		shot_direction = Vector2Rotate(shot_direction_to_center, angle_center_to_post * steering.x);
+	}
+
+	// Limit angle between requested shoot direction and current velocity
+	f32 angle = Vector2Angle(player_velocity, shot_direction);
+	f32 max_angle = 100 * DEG2RAD;
+	if (angle > max_angle) {
+		shot_direction = Vector2Normalize(Vector2Rotate(player_velocity, max_angle));
+	} else if (angle < -max_angle) {
+		shot_direction = Vector2Normalize(Vector2Rotate(player_velocity, -max_angle));
+	}
+
+	// Stick Y controls shot height: toward goal = high, away = low
+	f32 attack_sign = shot_direction_to_center.y > 0 ? -1.0f : 1.0f;
+	f32 toward_goal = steering.y * attack_sign;
+	// 0.4 should allow a shot to hit the goal even when the stick if fully tilted towards goal
+	// unless shot power is overcharged
+	f32 shot_height = Clamp01((1.0f - toward_goal) * 0.4f);
+
+	// Calculate shot force
+	// Max power is achieved at 80%, if you go over you actually lose power
+	f32 power = charge;
+	if (power > 0.8f) {
+		f32 overcharge_pct = (power - 0.8f) / 0.2f;
+		// Lose 20% of power immediately and another 12,5% proportionally to overcharge
+		power = 0.8f - 0.1f * overcharge_pct;
+		// Shot height is increased by 30% immediately and by another 30% proportionally to overcharge
+		shot_height *= 1 + 0.3f + 0.3f * overcharge_pct;
+	} else {
+		power = power / 0.8f;
+	}
+
+	return (struct player_shot){
+		.direction = shot_direction,
+		.height = shot_height,
+		.power = power,
+	};
+}
+
 b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 											   struct nearest_player *out_nearest_facing_oppo,
 											   struct game_state *game_state)
