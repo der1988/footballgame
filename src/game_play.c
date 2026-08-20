@@ -7,6 +7,7 @@
 #include "system.h"
 #include "input.h"
 #include "game.h"
+#include "gameplay.h"
 #include "gfx.h"
 #include "time_machine.h"
 #include <rlimgui/rlImGui.h>
@@ -189,8 +190,11 @@ struct game_state *game_play_init(struct game_config game_config,
 
 	football_pitch_setup(game_state);
 
+	// Zeroed unconditionally so current_state reads as FS_NONE, not arena garbage,
+	// in builds where setup never runs.
+	game_state->gameplay = (struct gameplay){0};
 #ifndef RUNNING_TEST
-	football_match_setup(game_state);
+	gameplay_init(game_state->config.gameplay_mode, game_state);
 #endif
 
 	game_state->initialised = true;
@@ -343,9 +347,11 @@ b32 game_play_update(struct game_state *game_state)
 		break;
 	}
 
-	layer_debug_queue_draw_text(game_state->layer_debug,
-								TextFormat("Match State: %s",
-										   match_state_to_string[game_state->vars.match.state]));
+	layer_debug_queue_draw_text(
+		game_state->layer_debug,
+		TextFormat(
+			"Match State: %s",
+			state_machine_football_state_string[game_state->gameplay.state_machine.current_state]));
 
 	layer_debug_queue_draw_text(game_state->layer_debug,
 								TextFormat("Possession: %s",
@@ -375,6 +381,8 @@ static void update(struct game_state *game_state)
 	if (IsKeyReleased(KEY_C)) {
 		game_state->vars.is_debug_log_shown = !game_state->vars.is_debug_log_shown;
 	}
+
+	gameplay_update(game_state);
 
 	system_goalie(game_state);
 	system_player_collisions(game_state);

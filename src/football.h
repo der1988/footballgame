@@ -1,36 +1,76 @@
 #ifndef FOOTBALL_H
 #define FOOTBALL_H
 
+#include "events_router.h"
 #include "macro.h"
+#include "state_machine.h"
 #include "types.h"
 
 // Forward declaration
 struct game_state;
 struct entity;
+struct gameplay;
 
-enum match_state {
-	MS_KICKOFF,
-	MS_HALF_TIME,
-	MS_EXTRA_TIME,
-	MS_PENALTIES,
-	MS_PLAY,
-	MS_GOAL,
-	MS_THROW_IN,
-	MS_GOAL_KICK,
-	MS_CORNER_KICK,
-	MS_PENALTY_KICK,
-	MS_FREE_KICK,
-	MS_COUNT
+enum state_machine_football_state {
+	FS_NONE,
+	FS_KICKOFF,
+	FS_HALF_TIME,
+	FS_EXTRA_TIME,
+	FS_PENALTIES,
+	FS_PLAY,
+	FS_GOAL,
+	FS_THROW_IN,
+	FS_GOAL_KICK,
+	FS_CORNER_KICK,
+	FS_PENALTY_KICK,
+	FS_FREE_KICK,
+	FS_COUNT
 };
 
-extern const char *match_state_to_string[MS_COUNT];
+extern const char *state_machine_football_state_string[FS_COUNT];
+
+// The football situation is never the actor, so its triggers read as things
+// that happened. A restart trigger names the restart, not the edge the ball
+// crossed: the table is a pure lookup with nowhere to branch, so "corner or
+// goal kick depending on last touch" has to be resolved before firing.
+enum state_machine_football_trigger {
+	FT_NONE,
+	FT_GOAL_SCORED,
+	FT_BALL_OUT_FOR_THROW_IN,
+	FT_BALL_OUT_FOR_CORNER,
+	FT_BALL_OUT_FOR_GOAL_KICK,
+	FT_CELEBRATION_ENDED,
+	FT_PLAY_RESUMED,
+	FT_COUNT
+};
+
+extern const char *state_machine_football_trigger_string[FT_COUNT];
+
+union state_machine_football_state_data {
+	struct state_machine_default_empty_data kickoff;
+	struct state_machine_default_empty_data half_time;
+	struct state_machine_default_empty_data extra_time;
+	struct state_machine_default_empty_data penalties;
+	struct state_machine_default_empty_data play;
+	struct {
+		fg_time_t start_time;
+	} goal;
+	struct state_machine_default_empty_data throw_in;
+	struct state_machine_default_empty_data goal_kick;
+	struct state_machine_default_empty_data corner_kick;
+	struct state_machine_default_empty_data penalty_kick;
+	struct state_machine_default_empty_data free_kick;
+};
+
+STATE_MACHINE_DEFINE(football, struct gameplay, FT_COUNT);
+STATE_MACHINE_DECLARE_FUNCTIONS(football, struct gameplay);
 
 struct match {
-	enum match_state state;
 	struct {
 		u16 home;
 		u16 away;
 	} score;
+	f32 celebration_time;
 };
 
 enum pitch_condition {
@@ -64,7 +104,10 @@ struct pitch {
 	enum pitch_condition condition;
 };
 
-void football_match_change_state(struct game_state *game_state, enum match_state new_state);
+// East and west are always a throw-in; a byline exit is a corner or a goal kick
+// depending on which team touched the ball last.
+enum state_machine_football_trigger football_classify_ball_out(enum event_type event,
+															   struct game_state *game_state);
 
 enum player_role {
 	PR_GK,	// Goalkeeper
@@ -176,9 +219,5 @@ INLINE v2 football_pitch_position_abs_to_normalized(rect_t pitch, v2 pos)
 }
 
 void football_pitch_setup(struct game_state *game_state);
-
-void football_match_setup(struct game_state *game_state);
-void football_training_setup(struct game_state *game_state);
-void football_test_setup(struct game_state *game_state);
 
 #endif // !FOOTBALL_H

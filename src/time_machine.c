@@ -79,6 +79,7 @@ void time_machine_save_capsule(struct time_machine *handle, struct game_state *g
 	time_capsule->camera = game_state->camera;
 	time_capsule->virtual_camera = game_state->virtual_camera;
 	time_capsule->vars = game_state->vars;
+	time_capsule->gameplay = game_state->gameplay;
 	time_capsule->constants = game_state->constants;
 	time_capsule->human_players[0] = game_state->human_players[0];
 	time_capsule->human_players[1] = game_state->human_players[1];
@@ -115,6 +116,7 @@ void time_machine_restore_capsule(struct time_machine *handle,
 	game_state->camera = time_capsule->camera;
 	game_state->virtual_camera = time_capsule->virtual_camera;
 	game_state->vars = time_capsule->vars;
+	game_state->gameplay = time_capsule->gameplay;
 	// game_state->constants = time_capsule->constants;
 	game_state->human_players[0] = time_capsule->human_players[0];
 	game_state->human_players[1] = time_capsule->human_players[1];

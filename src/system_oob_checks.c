@@ -10,7 +10,7 @@
 
 void system_oob_checks(struct game_state *game_state)
 {
-	if (game_state->vars.match.state == MS_PLAY) {
+	if (game_state->gameplay.state_machine.current_state == FS_PLAY) {
 		struct entity *ball_entity = game_state->vars.ball.entity;
 
 		DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
@@ -41,7 +41,7 @@ void system_oob_checks(struct game_state *game_state)
 			}
 
 			// We don't take decisions here about the consequence of the ball going out of bounds,
-			// we leave it to the current manager supervising the gameplay
+			// we leave it to the gameplay module supervising the session
 			events_router_publish(game_state->events_router, event_to_publish, game_state);
 		}
 	}

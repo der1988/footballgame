@@ -31,15 +31,17 @@ void system_ball(struct game_state *game_state)
 	struct game_controller *gc = &game_state->input_manager->game_controllers[game_controller_idx];
 
 	if (gc->state.current[GAME_CONTROL_TEST_RESET].digital.pressed) {
-		struct component_transform *p1_transform =
-			&entity_get(game_state->entity_repository,
-						game_state->human_players[0].controlled_player.entity_id)
-				 ->transform;
+		struct entity *p1 = entity_get(game_state->entity_repository,
+									   game_state->human_players[0].controlled_player.entity_id);
+		// Nobody is controlled until selection first runs.
+		if (!p1) {
+			return;
+		}
+		struct component_transform *p1_transform = &p1->transform;
 		entity_ball_set_position_and_velocity(
 			ball_entity,
 			V2_TO_V3(Vector2Add(p1_transform->position, (v2){.y = -20}), 50),
 			Vector3Zero());
-		football_match_change_state(game_state, MS_PLAY);
 		return;
 	}
 
@@ -49,7 +51,6 @@ void system_ball(struct game_state *game_state)
 											  (v3){.x = game_state->vars.pitch.field.x + 340,
 												   .z = 300},
 											  Vector3Scale((v3){.x = 0, .y = 1, .z = -1}, 290.5f));
-		football_match_change_state(game_state, MS_PLAY);
 		return;
 	}
 
@@ -59,7 +60,6 @@ void system_ball(struct game_state *game_state)
 			ball_entity,
 			(v3){.x = game_state->vars.pitch.field.x + 600, .z = 100},
 			Vector3Scale((v3){.x = -1, .y = 1.0f, .z = 0.2}, 280.5f));
-		football_match_change_state(game_state, MS_PLAY);
 		return;
 	}
 
@@ -69,7 +69,6 @@ void system_ball(struct game_state *game_state)
 											  (v3){.x = game_state->vars.pitch.field.x + 465.97,
 												   .z = 1050},
 											  Vector3Scale((v3){.x = -1, .y = 1.67, .z = 1}, 260));
-		football_match_change_state(game_state, MS_PLAY);
 		return;
 	}
 
@@ -81,7 +80,6 @@ void system_ball(struct game_state *game_state)
 				 .y = 200,
 				 .z = game_state->vars.pitch.goal[PSI_NORTH].penalty_spot.y},
 			Vector3Zero());
-		football_match_change_state(game_state, MS_PLAY);
 		return;
 	}
 
@@ -226,7 +224,7 @@ void system_ball(struct game_state *game_state)
 		if (transform->virtual_height > game_state->constants.crossbar_height + ball_radius) {
 			// If ball is very high it's going to be over everything
 			sprite->layer = SL_FOREGROUND;
-		} else if (game_state->vars.match.state == MS_GOAL) {
+		} else if (game_state->gameplay.state_machine.current_state == FS_GOAL) {
 			// If ball is in goal then it depends on which goal
 			if (transform->position.y < game_state->vars.pitch.field.y) {
 				sprite->layer = SL_BACKGROUND;

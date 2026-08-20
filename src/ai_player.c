@@ -45,7 +45,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	DECLARE_ENTITY_COMPONENT(player_entity, transform);
 
 	// Initialise all out-params before any early return: several code paths
-	// (e.g. the MS_PLAY / keeper-hands guard below) return without deciding an
+	// (e.g. the FS_PLAY / keeper-hands guard below) return without deciding an
 	// action, and the caller reads action_decision unconditionally. Leaving it
 	// uninitialised is UB that surfaces under -O2 as spurious headers.
 	*action_decision = PAAD_NO_ACTION;
@@ -62,7 +62,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
 	const b32 team_has_humans = team_has_human_players(player_entity->player.team_side, game_state);
-	if (game_state->vars.match.state != MS_PLAY || ball_in_keeper_hands) {
+	if (game_state->gameplay.state_machine.current_state != FS_PLAY || ball_in_keeper_hands) {
 		return PAS_KEEP_POSITION;
 	}
 

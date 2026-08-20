@@ -31,6 +31,7 @@ int main()
 		.screen_height = GetScreenHeight(),
 		.virtual_screen_width = virtual_screen_width,
 		.virtual_screen_height = virtual_screen_height,
+		.gameplay_mode = GPM_MATCH,
 	};
 
 	game_loop(game_config, assets, main_memory_arena);

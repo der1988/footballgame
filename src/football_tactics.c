@@ -146,8 +146,8 @@ v2 football_tactics_get_target_position(struct entity *player_entity,
 	enum pitch_side player_pitch_side =
 		game_state->vars.teams[player_entity->player.team_side].play_context.pitch_side;
 
-	switch (game_state->vars.match.state) {
-	case MS_PLAY: {
+	switch (game_state->gameplay.state_machine.current_state) {
+	case FS_PLAY: {
 		if (ball_entity->ball.state_machine.current_state == BS_GK_HANDS) {
 			target_pos = default_pos;
 			break;
@@ -189,17 +189,18 @@ v2 football_tactics_get_target_position(struct entity *player_entity,
 									 (ball_normalized_pos.x - 0.66f) / 0.33f);
 		}
 	} break;
-	case MS_KICKOFF:
-	case MS_HALF_TIME:
-	case MS_EXTRA_TIME:
-	case MS_PENALTIES:
-	case MS_GOAL:
-	case MS_THROW_IN:
-	case MS_GOAL_KICK:
-	case MS_CORNER_KICK:
-	case MS_PENALTY_KICK:
-	case MS_FREE_KICK:
-	case MS_COUNT:
+	case FS_NONE:
+	case FS_KICKOFF:
+	case FS_HALF_TIME:
+	case FS_EXTRA_TIME:
+	case FS_PENALTIES:
+	case FS_GOAL:
+	case FS_THROW_IN:
+	case FS_GOAL_KICK:
+	case FS_CORNER_KICK:
+	case FS_PENALTY_KICK:
+	case FS_FREE_KICK:
+	case FS_COUNT:
 		target_pos = default_pos;
 		break;
 	}

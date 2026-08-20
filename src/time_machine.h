@@ -18,6 +18,7 @@ struct time_capsule {
 	u64 frame_updates;
 	struct game_constants constants;
 	struct game_vars vars;
+	struct gameplay gameplay;
 	struct human_player human_players[MAX_HUMAN_PLAYERS];
 	struct entity_repository entity_repository;
 	camera2d_t camera;

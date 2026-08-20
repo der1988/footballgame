@@ -5,6 +5,7 @@
 #include "entity_player.h"
 #include "events_router.h"
 #include "football.h"
+#include "gameplay.h"
 #include "input.h"
 #include "memory.h"
 #include "types.h"
@@ -31,6 +32,7 @@ struct game_config {
 	u32 virtual_screen_height;
 	u32 screen_width;
 	u32 screen_height;
+	enum gameplay_mode gameplay_mode;
 };
 
 struct game_constants {
@@ -125,7 +127,6 @@ enum game_mode {
 
 struct game_vars {
 	enum game_mode mode;
-	struct match match;
 	struct pitch pitch;
 	struct team {
 		struct team_info info;
@@ -201,6 +202,7 @@ struct game_state {
 	struct game_config config;
 	struct game_constants constants;
 	struct game_vars vars;
+	struct gameplay gameplay;
 	struct game_gfx gfx;
 	struct human_player human_players[MAX_HUMAN_PLAYERS];
 	memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];

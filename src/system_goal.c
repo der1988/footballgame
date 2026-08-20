@@ -15,10 +15,10 @@ void system_goal(struct game_state *game_state)
 
 		DECLARE_ENTITY_COMPONENT(goal_entity, goal);
 
-		if (game_state->vars.match.state == MS_GOAL) {
+		if (game_state->gameplay.state_machine.current_state == FS_GOAL) {
 			entity_ball_settle_in_net(ball_entity, entity_goal_rectangle(goal_entity), i);
 			continue;
-		} else if (game_state->vars.match.state != MS_PLAY) {
+		} else if (game_state->gameplay.state_machine.current_state != FS_PLAY) {
 			continue;
 		}
 

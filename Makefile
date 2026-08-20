@@ -103,9 +103,9 @@ $(TEST_BUILD_DIR)/%.cpp.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TEST_FLAGS) -c $< -o $@
 
 .PHONY: test
-test: $(BUILD_DIR)/test_caches $(BUILD_DIR)/test_memory $(BUILD_DIR)/test_actions $(BUILD_DIR)/test_entity_repo $(BUILD_DIR)/test_events
+test: $(BUILD_DIR)/test_caches $(BUILD_DIR)/test_memory $(BUILD_DIR)/test_actions $(BUILD_DIR)/test_entity_repo $(BUILD_DIR)/test_events $(BUILD_DIR)/test_gameplay
 	@failed=""; \
-	for t in test_caches test_memory test_actions test_entity_repo test_events; do \
+	for t in test_caches test_memory test_actions test_entity_repo test_events test_gameplay; do \
 		echo; echo "=== Testing $$t ==="; echo; \
 		$(BUILD_DIR)/$$t || failed="$$failed $$t"; \
 	done; \
@@ -146,6 +146,12 @@ test_events: $(BUILD_DIR)/test_events
 	@echo
 	$(BUILD_DIR)/$@
 
+test_gameplay: $(BUILD_DIR)/test_gameplay
+	@echo
+	@echo === Testing gameplay ===
+	@echo
+	$(BUILD_DIR)/$@
+
 $(BUILD_DIR)/test_caches: $(TEST_OBJS) $(TEST_SRC_OBJS)
 	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
@@ -159,6 +165,9 @@ $(BUILD_DIR)/test_entity_repo: $(TEST_OBJS) $(TEST_SRC_OBJS)
 	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/test_events: $(TEST_OBJS) $(TEST_SRC_OBJS)
+	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
+
+$(BUILD_DIR)/test_gameplay: $(TEST_OBJS) $(TEST_SRC_OBJS)
 	$(CXX) $(filter $(TEST_BUILD_DIR)/$(TEST_SRC_DIRS)/$(notdir $@).c.o $(TEST_BUILD_DIR)/$(UNITY_SRC_DIRS)/%.c.o, $(TEST_OBJS)) $(filter-out $(TEST_BUILD_DIR)/$(SRC_DIRS)/main.c.o, $(TEST_SRC_OBJS)) -o $@ $(LDFLAGS)
 
 .PHONY: clean
