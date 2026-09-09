@@ -88,6 +88,15 @@ struct game_constants {
 	f32 player_control_radius;
 	f32 player_control_height;
 	f32 player_tackle_friction_force;
+	// A turn is skidded rather than run round only above this speed and when the direction
+	// asked for is turned this far from the run: -1 is a straight reversal, 0 a right angle,
+	// so a value just above 0 takes in a square cut as well.
+	f32 player_dribble_min_velocity;
+	f32 player_dribble_max_alignment;
+	// The skid holds for min_time whatever the steering does next, so the pose gets long enough
+	// on screen to read, and is dropped at max_time however the turn is going.
+	f32 player_dribble_min_time;
+	f32 player_dribble_max_time;
 	f32 player_goal_side_bonus;
 	f32 player_switch_grace_time;
 
@@ -148,6 +157,7 @@ struct game_gfx {
 		asset_sprite_frame_id_t stand_frames[SO_COUNT];
 		asset_animation_id_t run_animations[SO_COUNT];
 		asset_sprite_frame_id_t tackle_frames[SO_COUNT];
+		asset_sprite_frame_id_t dribble_frames[PDT_COUNT];
 		asset_animation_id_t fall_animations[SO_COUNT];
 		asset_animation_id_t header_animations[SO_COUNT];
 	} player;

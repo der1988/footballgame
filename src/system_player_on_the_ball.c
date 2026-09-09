@@ -305,6 +305,8 @@ void system_player_on_the_ball(struct game_state *game_state)
 
 			if (kicked_ball) {
 				input_reset_player(player_on_the_ball_entity_id, game_state);
+				// Striking the ball ends the turn: the skid pose must not carry through a kick
+				state_machine->state_data.normal.dribble.active = false;
 			}
 			break;
 		}

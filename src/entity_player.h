@@ -50,8 +50,36 @@ enum state_machine_player_trigger {
 
 extern const char *state_machine_player_trigger_string[PT_COUNT];
 
+// The skid poses, named after the axis the turn reverses (front is down the screen, back is up
+// it) and the drift that carries through it. Each is drawn facing the run it brakes, not the
+// heading it turns onto, so a run to the front picks a *_TO_FRONT pose.
+enum player_dribble_turn {
+	PDT_FRONT_TO_BACK_RIGHT,
+	PDT_FRONT_TO_BACK_LEFT,
+	PDT_BACK_TO_FRONT_RIGHT,
+	PDT_BACK_TO_FRONT_LEFT,
+	PDT_RIGHT_TO_LEFT_FRONT,
+	PDT_RIGHT_TO_LEFT_BACK,
+	PDT_LEFT_TO_RIGHT_FRONT,
+	PDT_LEFT_TO_RIGHT_BACK,
+	PDT_COUNT
+};
+
+extern const char *player_dribble_turn_string[PDT_COUNT];
+
 struct state_machine_player_normal_data {
 	enum sprite_orientation running_action_orientation;
+	// A skid changes the frame on show and nothing else, so it is a spell of running rather
+	// than a state of its own. Entering PS_NORMAL zeroes it with the rest of the state data.
+	struct {
+		b32 active;
+		fg_time_t start_time;
+		// Snapshot taken at the start: the heading the run has to come round to, and the
+		// reference the live steering is read against to tell a wavering stick from a new
+		// request.
+		v2 steering;
+		enum player_dribble_turn turn;
+	} dribble;
 };
 
 struct state_machine_running_action_state {
@@ -338,6 +366,19 @@ void entity_player_recompute_constants(struct entity *player_entity, struct game
 // EVT_CONSTANTS_CHANGED listener: recompute every player's cached constants. Register once per
 // game mode (context must be the struct game_state *).
 void entity_player_on_constants_changed(enum event_type type, void *context);
+
+// Whether the player has the ball at his feet and is asking for a direction turned far enough
+// from his run, at speed enough, for the turn to be skidded rather than run round.
+b32 entity_player_should_dribble(struct entity *player_entity,
+								 v2 steering,
+								 struct game_state *game_state);
+
+// Which of the eight skid poses a turn from velocity onto steering reads as.
+enum player_dribble_turn entity_player_dribble_turn(v2 velocity, v2 steering);
+
+void entity_player_dribble_start(struct entity *player_entity,
+								 v2 steering,
+								 struct game_state *game_state);
 
 void entity_player_header_start(struct entity *player_entity,
 								enum header_type type,

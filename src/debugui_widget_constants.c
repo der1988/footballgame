@@ -60,12 +60,13 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 									 1.0f,
 									 TextFormat("%.2f", game_state->constants.ball_cr_against_post),
 									 0);
-			changed |= igSliderFloat("Drag coefficient",
-									 &game_state->constants.ball_drag_coefficient,
-									 0.0f,
-									 1.0f,
-									 TextFormat("%.2f", game_state->constants.ball_drag_coefficient),
-									 0);
+			changed |=
+				igSliderFloat("Drag coefficient",
+							  &game_state->constants.ball_drag_coefficient,
+							  0.0f,
+							  1.0f,
+							  TextFormat("%.2f", game_state->constants.ball_drag_coefficient),
+							  0);
 			changed |= igSliderInt("Friction on pitch",
 								   (int *)&game_state->constants.ball_rolling_resistance_mult,
 								   1,
@@ -115,24 +116,26 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 									 1000.0f,
 									 TextFormat("%.2f", game_state->constants.ball_chip_shot_force),
 									 0);
-			changed |= igSliderFloat("Chip shot height",
-									 &game_state->constants.ball_chip_shot_height,
-									 0.0f,
-									 1.0f,
-									 TextFormat("%.2f", game_state->constants.ball_chip_shot_height),
-									 0);
+			changed |=
+				igSliderFloat("Chip shot height",
+							  &game_state->constants.ball_chip_shot_height,
+							  0.0f,
+							  1.0f,
+							  TextFormat("%.2f", game_state->constants.ball_chip_shot_height),
+							  0);
 			changed |= igSliderFloat("Long pass force",
 									 &game_state->constants.ball_long_pass_force,
 									 0.0f,
 									 1000.0f,
 									 TextFormat("%.2f", game_state->constants.ball_long_pass_force),
 									 0);
-			changed |= igSliderFloat("Long pass height",
-									 &game_state->constants.ball_long_pass_height,
-									 0.0f,
-									 1.0f,
-									 TextFormat("%.2f", game_state->constants.ball_long_pass_height),
-									 0);
+			changed |=
+				igSliderFloat("Long pass height",
+							  &game_state->constants.ball_long_pass_height,
+							  0.0f,
+							  1.0f,
+							  TextFormat("%.2f", game_state->constants.ball_long_pass_height),
+							  0);
 			changed |=
 				igSliderFloat("Long driven pass force",
 							  &game_state->constants.ball_long_driven_pass_force,
@@ -140,13 +143,13 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  1000.0f,
 							  TextFormat("%.2f", game_state->constants.ball_long_driven_pass_force),
 							  0);
-			changed |=
-				igSliderFloat("Long driven pass height",
-							  &game_state->constants.ball_long_driven_pass_height,
-							  0.0f,
-							  1.0f,
-							  TextFormat("%.2f", game_state->constants.ball_long_driven_pass_height),
-							  0);
+			changed |= igSliderFloat("Long driven pass height",
+									 &game_state->constants.ball_long_driven_pass_height,
+									 0.0f,
+									 1.0f,
+									 TextFormat("%.2f",
+												game_state->constants.ball_long_driven_pass_height),
+									 0);
 			changed |= igSliderFloat("Short pass force",
 									 &game_state->constants.ball_pass_force,
 									 0.0f,
@@ -167,12 +170,13 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  1.5f,
 							  TextFormat("%.2f", game_state->constants.ball_pass_auto_lead_amount),
 							  0);
-			changed |= igSliderFloat("Header min force",
-									 &game_state->constants.ball_header_min_force,
-									 0.0f,
-									 500.0f,
-									 TextFormat("%.2f", game_state->constants.ball_header_min_force),
-									 0);
+			changed |=
+				igSliderFloat("Header min force",
+							  &game_state->constants.ball_header_min_force,
+							  0.0f,
+							  500.0f,
+							  TextFormat("%.2f", game_state->constants.ball_header_min_force),
+							  0);
 			changed |=
 				igSliderFloat("Header fumble force",
 							  &game_state->constants.ball_header_fumble_force,
@@ -186,12 +190,8 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 								   BALL_MAX_LOOKAHEADS,
 								   "%d",
 								   0);
-			changed |= igSliderInt("Lookahead dts",
-								   (int *)&game_state->constants.ball_lookahead_dts,
-								   10,
-								   200,
-								   "%d",
-								   0);
+			changed |= igSliderInt(
+				"Lookahead dts", (int *)&game_state->constants.ball_lookahead_dts, 10, 200, "%d", 0);
 			changed |=
 				igSliderFloat("After touch delay time",
 							  &game_state->constants.ball_after_touch_delay_time,
@@ -206,22 +206,24 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  1.0f,
 							  TextFormat("%.2f", game_state->constants.ball_after_touch_max_time),
 							  0);
-			changed |= igSliderFloat("After touch force",
-									 &game_state->constants.ball_after_touch_force,
-									 0.0f,
-									 1000.0f,
-									 TextFormat("%.2f", game_state->constants.ball_after_touch_force),
-									 0);
+			changed |=
+				igSliderFloat("After touch force",
+							  &game_state->constants.ball_after_touch_force,
+							  0.0f,
+							  1000.0f,
+							  TextFormat("%.2f", game_state->constants.ball_after_touch_force),
+							  0);
 			igEndTabItem();
 		}
 
 		if (igBeginTabItem("Player", NULL, 0)) {
-			changed |= igSliderFloat("Movement force",
-									 &game_state->constants.player_movement_force,
-									 0.0f,
-									 100000.0f,
-									 TextFormat("%.2f", game_state->constants.player_movement_force),
-									 0);
+			changed |=
+				igSliderFloat("Movement force",
+							  &game_state->constants.player_movement_force,
+							  0.0f,
+							  100000.0f,
+							  TextFormat("%.2f", game_state->constants.player_movement_force),
+							  0);
 			changed |= igSliderFloat("Movement drag",
 									 &game_state->constants.player_movement_drag,
 									 0.0f,
@@ -242,24 +244,54 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  500.0f,
 							  TextFormat("%.2f", game_state->constants.player_run_max_velocity),
 							  0);
-			changed |= igSliderFloat("Control radius",
-									 &game_state->constants.player_control_radius,
+			changed |=
+				igSliderFloat("Control radius",
+							  &game_state->constants.player_control_radius,
+							  0.0f,
+							  100.0f,
+							  TextFormat("%.2f", game_state->constants.player_control_radius),
+							  0);
+			changed |=
+				igSliderFloat("Control height",
+							  &game_state->constants.player_control_height,
+							  0.0f,
+							  30.0f,
+							  TextFormat("%.2f", game_state->constants.player_control_height),
+							  0);
+			changed |= igSliderFloat("Tackle friction force",
+									 &game_state->constants.player_tackle_friction_force,
 									 0.0f,
-									 100.0f,
-									 TextFormat("%.2f", game_state->constants.player_control_radius),
-									 0);
-			changed |= igSliderFloat("Control height",
-									 &game_state->constants.player_control_height,
-									 0.0f,
-									 30.0f,
-									 TextFormat("%.2f", game_state->constants.player_control_height),
+									 100000.0f,
+									 TextFormat("%.2f",
+												game_state->constants.player_tackle_friction_force),
 									 0);
 			changed |=
-				igSliderFloat("Tackle friction force",
-							  &game_state->constants.player_tackle_friction_force,
+				igSliderFloat("Dribble min velocity",
+							  &game_state->constants.player_dribble_min_velocity,
 							  0.0f,
-							  100000.0f,
-							  TextFormat("%.2f", game_state->constants.player_tackle_friction_force),
+							  200.0f,
+							  TextFormat("%.2f", game_state->constants.player_dribble_min_velocity),
+							  0);
+			changed |= igSliderFloat("Dribble max alignment",
+									 &game_state->constants.player_dribble_max_alignment,
+									 -1.0f,
+									 1.0f,
+									 TextFormat("%.2f",
+												game_state->constants.player_dribble_max_alignment),
+									 0);
+			changed |=
+				igSliderFloat("Dribble min time",
+							  &game_state->constants.player_dribble_min_time,
+							  0.0f,
+							  0.5f,
+							  TextFormat("%.2f", game_state->constants.player_dribble_min_time),
+							  0);
+			changed |=
+				igSliderFloat("Dribble max time",
+							  &game_state->constants.player_dribble_max_time,
+							  0.0f,
+							  1.0f,
+							  TextFormat("%.2f", game_state->constants.player_dribble_max_time),
 							  0);
 			changed |=
 				igSliderFloat("Goal side bonus",
@@ -306,13 +338,13 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  300.0f,
 							  TextFormat("%.2f", game_state->constants.goalie_dive_max_velocity),
 							  0);
-			changed |=
-				igSliderFloat("Dive min ball velocity",
-							  &game_state->constants.goalie_dive_min_ball_velocity,
-							  0.0f,
-							  400.0f,
-							  TextFormat("%.2f", game_state->constants.goalie_dive_min_ball_velocity),
-							  0);
+			changed |= igSliderFloat(
+				"Dive min ball velocity",
+				&game_state->constants.goalie_dive_min_ball_velocity,
+				0.0f,
+				400.0f,
+				TextFormat("%.2f", game_state->constants.goalie_dive_min_ball_velocity),
+				0);
 			changed |=
 				igSliderFloat("Dive recover time",
 							  &game_state->constants.goalie_dive_recover_time,

@@ -42,6 +42,11 @@ void system_players_off_the_ball(struct game_state *game_state)
 		case PS_NONE:
 			break;
 		case PS_NORMAL: {
+			// A player mid-skid is committed to the turn and starts nothing new
+			if (state_machine->state_data.normal.dribble.active) {
+				break;
+			}
+
 			// Header
 			if (player_controls->header_shot || player_controls->header_pass) {
 				entity_player_header_start(entity,

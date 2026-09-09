@@ -172,4 +172,11 @@ INLINE v2 input_movement_vector(struct game_controller *game_controller)
 	return movement;
 }
 
+// The charge is being held: the wind-up has begun and the kick hasn't been released yet.
+INLINE b32 input_charge_lock_is_held(const struct game_controller *game_controller)
+{
+	return game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
+		   game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED;
+}
+
 #endif // !INPUT_H

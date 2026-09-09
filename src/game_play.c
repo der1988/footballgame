@@ -138,6 +138,13 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_control_radius = 6,
 		.player_control_height = 17,
 		.player_tackle_friction_force = 7500,
+		// Sharper than ~78° away from the run and a turn is skidded rather than run round: a cut
+		// square across the run counts, not just a reversal. Below a jog there is no momentum to
+		// fight, so the turn is a pivot rather than a skid.
+		.player_dribble_min_velocity = 6 * PIXELS_PER_METER,
+		.player_dribble_max_alignment = 0.2f,
+		.player_dribble_min_time = 0,
+		.player_dribble_max_time = 0.35f,
 		// Fraction a defender's time to the ball is cut by for standing right between it and his
 		// own goal, when picking who presses and who a human is handed on a switch
 		.player_goal_side_bonus = 0.35f,

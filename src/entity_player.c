@@ -28,6 +28,15 @@ const struct header_phase_window header_phase_windows[] = {
 const char *state_machine_player_state_string[PS_COUNT] = {
 	"none", "normal", "throw_in", "header", "sliding_tackle", "fall", "goalie"};
 
+const char *player_dribble_turn_string[PDT_COUNT] = {"FtoB_right",
+													 "FtoB_left",
+													 "BtoF_right",
+													 "BtoF_left",
+													 "RtoL_front",
+													 "RtoL_back",
+													 "LtoR_front",
+													 "LtoR_back"};
+
 const char *player_collider_type_to_string[PCT_COUNT] = {
 	"player", "goalie", "dive", "tackle_1", "tackle_2", "header", "body"};
 
@@ -89,9 +98,7 @@ const char *state_machine_goalie_trigger_string[GT_COUNT] = {
 // PS_GOALIE responds to nothing yet: a keeper stays one for the whole match.
 // Stepping out to play as an outfielder arrives with the back-pass rework.
 static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COUNT] = {
-	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER,
-				   [PT_TACKLE] = PS_SLIDING_TACKLE,
-				   [PT_TACKLED] = PS_FALL},
+	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER, [PT_TACKLE] = PS_SLIDING_TACKLE, [PT_TACKLED] = PS_FALL},
 	[PS_HEADER] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_SLIDING_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_FALL] = {[PT_RECOVER] = PS_NORMAL},
@@ -1230,6 +1237,101 @@ b32 entity_player_find_switch_target(struct entity *ball_entity,
 		*out_switch_target = selected_entity;
 	}
 	return selected_entity != NULL;
+}
+
+b32 entity_player_should_dribble(struct entity *player_entity,
+								 v2 steering,
+								 struct game_state *game_state)
+{
+	struct component_physics *physics = &player_entity->physics;
+
+	// Striking the ball is not a turn. The seek a charge puts on the run leaves it pointing at
+	// the ball while the stick aims the kick somewhere else, and the kick frame is the first one
+	// the charge no longer covers.
+	if (player_entity->player.kicked_ball) {
+		return false;
+	}
+
+	// A charging player seeks the ball instead of following the stick, so the stick is aiming
+	// the kick, not asking for a turn.
+	struct human_player *human_player =
+		game_input_human_player_by_player_entity_id(game_state, player_entity->header.id);
+	if (human_player) {
+		const struct game_controller *game_controller =
+			&game_state->input_manager->game_controllers[human_player->game_controller_id];
+		if (input_charge_lock_is_held(game_controller)) {
+			return false;
+		}
+	}
+
+	// Turning off the ball is just running: the skid is what carrying the ball through the turn
+	// costs you. Possession is too loose a test for that, since it outlives the touch by a
+	// second - the ball has to be at his feet this frame.
+	if (entity_ball_player_on_the_ball(game_state->vars.ball.entity, game_state) !=
+		player_entity->header.id) {
+		return false;
+	}
+
+	if (Vector2Length(physics->velocity) < game_state->constants.player_dribble_min_velocity) {
+		return false;
+	}
+
+	if (Vector2Length(steering) < game_state->constants.input_stick_dead_zone) {
+		return false;
+	}
+
+	f32 alignment =
+		Vector2DotProduct(Vector2Normalize(physics->velocity), Vector2Normalize(steering));
+
+	return alignment < game_state->constants.player_dribble_max_alignment;
+}
+
+enum player_dribble_turn entity_player_dribble_turn(v2 velocity, v2 steering)
+{
+	v2 from = Vector2Normalize(velocity);
+	v2 to = Vector2Normalize(steering);
+
+	// Which axis the turn reverses, which is not always the one the run is fastest along. -a*b
+	// is positive only when a and b point opposite ways, and grows with how much of each heading
+	// lies on that axis, so the higher score is the axis being braked harder. A run up and to
+	// the left, cut to the right, flips x while y carries straight on: sideways, even though the
+	// run is at 45 degrees. A square cut reverses nothing, scores zero on both, and falls back
+	// to the axis the run leans on.
+	f32 braking_x = -from.x * to.x;
+	f32 braking_y = -from.y * to.y;
+	b32 sideways = fabsf(braking_x - braking_y) > 0.01f ? braking_x > braking_y :
+														  fabsf(from.x) > fabsf(from.y);
+
+	// Four poses per axis: the run being braked can go either way along it, and the turn can
+	// drift either way across it. The pose is drawn facing the run, so `from` alone names it.
+	// The drifting axis is the one left unreversed, so both headings agree on its sign and their
+	// sum reads the drift off.
+	if (sideways) {
+		b32 front = (from.y + to.y) > 0;
+		return from.x > 0 ? (front ? PDT_LEFT_TO_RIGHT_FRONT : PDT_LEFT_TO_RIGHT_BACK) :
+							(front ? PDT_RIGHT_TO_LEFT_FRONT : PDT_RIGHT_TO_LEFT_BACK);
+	}
+
+	b32 right = (from.x + to.x) > 0;
+	return from.y > 0 ? (right ? PDT_BACK_TO_FRONT_RIGHT : PDT_BACK_TO_FRONT_LEFT) :
+						(right ? PDT_FRONT_TO_BACK_RIGHT : PDT_FRONT_TO_BACK_LEFT);
+}
+
+void entity_player_dribble_start(struct entity *player_entity,
+								 v2 steering,
+								 struct game_state *game_state)
+{
+	struct state_machine_player_normal_data *normal_state_data =
+		&player_entity->player.state_machine.state_data.normal;
+
+	normal_state_data->dribble.active = true;
+	normal_state_data->dribble.start_time = game_state->time;
+	normal_state_data->dribble.steering = Vector2Normalize(steering);
+	normal_state_data->dribble.turn =
+		entity_player_dribble_turn(player_entity->physics.velocity, steering);
+
+	player_entity->sprite.frame_id =
+		game_state->gfx.player.dribble_frames[normal_state_data->dribble.turn];
 }
 
 void entity_player_header_start(struct entity *player_entity,
