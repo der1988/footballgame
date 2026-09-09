@@ -1,6 +1,6 @@
 #version 330
 
-const int MAX_INDEXED_COLORS = 10;
+const int MAX_INDEXED_COLORS = 12;
 
 // Input vertex attributes (from vertex shader)
 in vec2 fragTexCoord;
@@ -21,8 +21,15 @@ void main()
     }
 
     // Use round() to avoid floating point truncation issues
-    // Use clamp() to prevent out-of-bounds array access
-    int index = clamp(int(round(texelColor.r * 255.0)), 0, MAX_INDEXED_COLORS - 1);
+    int index = int(round(texelColor.r * 255.0));
+
+    // A red channel past the last index is art that carries its own colours - the ball in the
+    // keeper's hands, say - and is drawn as it was authored.
+    if (index >= MAX_INDEXED_COLORS) {
+        finalColor = texelColor * fragColor;
+        return;
+    }
+
     ivec4 color = palette[index];
 
     // Explicitly cast to vec4 before dividing by a float, and multiply by vertex color
