@@ -338,7 +338,7 @@ void system_player_on_the_ball(struct game_state *game_state)
 			f32 ball_height = ball_transform->virtual_height;
 
 			// We normalize later
-			if (Vector2Length(player_controls->steering) > 0.1f) {
+			if (!IS_V2_ZERO(player_controls->steering)) {
 				hit_direction = player_controls->steering;
 			} else {
 				// If steering is zero we use the orientation of player's sprite

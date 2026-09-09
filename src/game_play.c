@@ -85,7 +85,6 @@ struct game_state *game_play_init(struct game_config game_config,
 		.show_radar = true,
 		.shoot_aid_no_inertia = true,
 		.shoot_aid_auto_aim = false,
-		.input_stick_dead_zone = 0.05f,
 
 		// Ball
 		// Coefficient of restitution

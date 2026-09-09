@@ -95,7 +95,7 @@ void system_player_control_human(struct game_state *game_state)
 						// - our gk just rebounded a shot and we want to do a sliding tackle to clear the ball
 						player_controls->sliding_tackle = true;
 					}
-				} else if (Vector2Length(player_controls->steering) < 0.1f) {
+				} else if (IS_V2_ZERO(player_controls->steering)) {
 					// This section only triggers if the player is not giving meaningful directional input
 					if (ball->pass_target_entity_id == entity->header.id) {
 						// the target of an automatic pass runs to meet the ball on his own, so that

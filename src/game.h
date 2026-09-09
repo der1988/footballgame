@@ -42,7 +42,6 @@ struct game_constants {
 	b32 shoot_aid_auto_aim;
 	b32 shoot_aid_no_inertia;
 
-	f32 input_stick_dead_zone;
 	v3 gravity_force;
 	f32 pixels_per_meter;
 	f32 air_density;

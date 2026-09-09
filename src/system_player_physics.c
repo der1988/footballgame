@@ -175,8 +175,7 @@ void system_player_physics(struct game_state *game_state)
 				// request: he is only coasting the turn out.
 				v2 requested_steering = player_controls->steering;
 				b32 asked_for_another_turn =
-					Vector2Length(requested_steering) >=
-						game_state->constants.input_stick_dead_zone &&
+					!IS_V2_ZERO(requested_steering) &&
 					Vector2DotProduct(Vector2Normalize(requested_steering), steering) <
 						DRIBBLE_SAME_REQUEST_ALIGNMENT;
 

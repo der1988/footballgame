@@ -1276,7 +1276,7 @@ b32 entity_player_should_dribble(struct entity *player_entity,
 		return false;
 	}
 
-	if (Vector2Length(steering) < game_state->constants.input_stick_dead_zone) {
+	if (IS_V2_ZERO(steering)) {
 		return false;
 	}
 

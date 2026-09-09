@@ -9,6 +9,7 @@
 #define SHOOT_CHARGE_MULTIPLIER		 2
 #define PASS_CHARGE_MULTIPLIER		 2
 #define LONG_PASS_CHARGE_MULTIPLIER	 2
+#define INPUT_STICK_DEAD_ZONE		 0.05f
 #define BALL_PASS_MAX_TRAVEL_TIME	 1.5f
 #define PASS_AIM_ITERATIONS			 6
 // Relaxation factor applied after the first iteration. A receiver running back towards the
