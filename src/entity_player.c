@@ -22,6 +22,27 @@
 #include <string.h>
 #include <time.h>
 
+// Sprite palette, indexed by the red channel of the sprite's own pixels.
+// Shared by every kit:
+#define HAIR_COLOR		  ((color_t){0, 0, 0, 255})
+#define SKIN_DARK_COLOR	  ((color_t){199, 137, 137, 255})
+#define SKIN_LIGHT_COLOR  ((color_t){243, 170, 170, 255})
+#define SHOES_COLOR		  ((color_t){0, 0, 0, 255})
+#define SHADOW_COLOR	  ((color_t){7, 45, 45, 100})
+#define SOCKS_LIGHT_COLOR ((color_t){255, 255, 255, 255})
+#define SHORTS_COLOR	  ((color_t){255, 255, 255, 255})
+// Index 10 is reached by referee art alone, which nothing draws yet.
+#define CARD_COLOR_UNUSED ((color_t){0, 0, 0, 255})
+// Per kit:
+#define PLAYER_KIT_COLOR_HOME	RED
+#define PLAYER_KIT_COLOR_AWAY	BLUE
+#define PLAYER_SOCKS_DARK_COLOR ((color_t){208, 208, 208, 255})
+#define GOALIE_KIT_LIGHT_COLOR	((color_t){29, 29, 29, 255})
+#define GOALIE_KIT_DARK_COLOR	((color_t){0, 0, 0, 255})
+#define GOALIE_SOCKS_DARK_COLOR ((color_t){255, 255, 255, 255})
+// Index 11 is present in the keeper's sprites only.
+#define GOALIE_GLOVES_COLOR ((color_t){9, 64, 110, 255})
+
 const struct header_phase_window header_phase_windows[] = {
 	{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 31, 28}, {28, 34, 31}};
 
@@ -209,10 +230,10 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 
 		state_machine_goalie_init(
 			&goalie->state_machine, entity, goalie_transitions, GS_PROTECT_GOAL, game_state);
-	} else {
-		sprite->before_draw = &player_custom_begin_draw;
-		sprite->after_draw = &player_custom_after_draw;
 	}
+
+	sprite->before_draw = &player_custom_begin_draw;
+	sprite->after_draw = &player_custom_after_draw;
 
 	enum pitch_side pitch_side = game_state->vars.teams[config.team_side].play_context.pitch_side;
 
@@ -1254,69 +1275,87 @@ void entity_player_header_hit(struct entity *player_entity, struct game_state *g
 
 static void player_custom_begin_draw(struct entity *entity, struct game_state *game_state)
 {
-	u32 *palette =
-		memory_arena_push(game_state->memory_by_lifetime[MAL_DRAW], sizeof(u32) * 4 * 10);
-	ASSERT(palette);
+	color_t kit_color;
+	color_t kit_dark_color;
+	color_t socks_dark_color;
+	if (entity->player.state_machine.current_state == PS_GOALIE) {
+		kit_color = GOALIE_KIT_LIGHT_COLOR;
+		kit_dark_color = GOALIE_KIT_DARK_COLOR;
+		socks_dark_color = GOALIE_SOCKS_DARK_COLOR;
+	} else {
+		kit_color = entity->player.team_side == TS_HOME ? PLAYER_KIT_COLOR_HOME :
+														  PLAYER_KIT_COLOR_AWAY;
+		kit_dark_color = ColorBrightness(kit_color, -0.25f);
+		socks_dark_color = PLAYER_SOCKS_DARK_COLOR;
+	}
 
-	color_t kit_color = entity->player.team_side == TS_HOME ? RED : BLUE;
-
-	color_t kit_dark_color = ColorBrightness(kit_color, -0.25f);
-
-	palette = (u32[]){// 0 - Hair
-					  0,
-					  0,
-					  0,
-					  255,
-					  // 1 - Socks light
-					  255,
-					  255,
-					  255,
-					  255,
-					  // 2 - Skin dark
-					  199,
-					  137,
-					  137,
-					  255,
-					  // 3 - Kit light
-					  kit_color.r,
-					  kit_color.g,
-					  kit_color.b,
-					  255,
-					  // 4 - Socks dark
-					  208,
-					  208,
-					  208,
-					  255,
-					  // 5 - Pantaloncini
-					  255,
-					  255,
-					  255,
-					  255,
-					  // 6 - Shoes
-					  0,
-					  0,
-					  0,
-					  255,
-					  // 7 - Shadow
-					  0,
-					  0,
-					  0,
-					  100,
-					  // 8 - Skin light
-					  243,
-					  170,
-					  170,
-					  255,
-					  // 9 - Kit dark
-					  kit_dark_color.r,
-					  kit_dark_color.g,
-					  kit_dark_color.b,
-					  255};
+	// Indices 10 and 11 are only ever sampled by referee and keeper sprites respectively, so one
+	// layout serves every player.
+	u32 *palette = (u32[]){// 0 - Hair
+						   HAIR_COLOR.r,
+						   HAIR_COLOR.g,
+						   HAIR_COLOR.b,
+						   HAIR_COLOR.a,
+						   // 1 - Socks light
+						   SOCKS_LIGHT_COLOR.r,
+						   SOCKS_LIGHT_COLOR.g,
+						   SOCKS_LIGHT_COLOR.b,
+						   SOCKS_LIGHT_COLOR.a,
+						   // 2 - Skin dark
+						   SKIN_DARK_COLOR.r,
+						   SKIN_DARK_COLOR.g,
+						   SKIN_DARK_COLOR.b,
+						   SKIN_DARK_COLOR.a,
+						   // 3 - Kit light
+						   kit_color.r,
+						   kit_color.g,
+						   kit_color.b,
+						   kit_color.a,
+						   // 4 - Socks dark
+						   socks_dark_color.r,
+						   socks_dark_color.g,
+						   socks_dark_color.b,
+						   socks_dark_color.a,
+						   // 5 - Pantaloncini
+						   SHORTS_COLOR.r,
+						   SHORTS_COLOR.g,
+						   SHORTS_COLOR.b,
+						   SHORTS_COLOR.a,
+						   // 6 - Shoes
+						   SHOES_COLOR.r,
+						   SHOES_COLOR.g,
+						   SHOES_COLOR.b,
+						   SHOES_COLOR.a,
+						   // 7 - Shadow
+						   SHADOW_COLOR.r,
+						   SHADOW_COLOR.g,
+						   SHADOW_COLOR.b,
+						   SHADOW_COLOR.a,
+						   // 8 - Skin light
+						   SKIN_LIGHT_COLOR.r,
+						   SKIN_LIGHT_COLOR.g,
+						   SKIN_LIGHT_COLOR.b,
+						   SKIN_LIGHT_COLOR.a,
+						   // 9 - Kit dark
+						   kit_dark_color.r,
+						   kit_dark_color.g,
+						   kit_dark_color.b,
+						   kit_dark_color.a,
+						   // 10 - Card
+						   CARD_COLOR_UNUSED.r,
+						   CARD_COLOR_UNUSED.g,
+						   CARD_COLOR_UNUSED.b,
+						   CARD_COLOR_UNUSED.a,
+						   // 11 - Gloves
+						   GOALIE_GLOVES_COLOR.r,
+						   GOALIE_GLOVES_COLOR.g,
+						   GOALIE_GLOVES_COLOR.b,
+						   GOALIE_GLOVES_COLOR.a};
 
 	struct asset_shader *assets_shader =
 		asset_shader_get_by_name(game_state->assets.shader_cache, "shader_palette");
 	u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
-	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC4, 10);
+	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC4, 12);
 
 	BeginShaderMode(assets_shader->shader);
 }
