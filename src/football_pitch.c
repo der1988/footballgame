@@ -26,7 +26,7 @@ b32 football_pitch_is_position_inside(v2 pos, struct game_state *game_state)
 void football_pitch_setup(struct game_state *game_state)
 {
 
-	game_state->vars.pitch.field = (rect_t){.x = 72, .y = 233, .width = 856, .height = 360 * 3 - 2};
+	game_state->vars.pitch.field = (rect_t){.x = 131, .y = 207, .width = 856, .height = 360 * 3 - 2};
 	game_state->vars.pitch.goal_width = 100;
 	game_state->vars.pitch.goal_height = 32;
 	game_state->vars.pitch.penalty_box_width = 478;

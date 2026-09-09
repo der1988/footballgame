@@ -165,162 +165,162 @@
     "dive_front_low_left_start": {
       "delay": 0.05,
       "frames": "0,1,2",
-      "prefix": "save_front_low_left_"
+      "prefix": "save_low_front_left_"
     },
     "dive_front_low_left_end": {
       "delay": 0.05,
       "frames": "3",
-      "prefix": "save_front_low_left_"
+      "prefix": "save_low_front_left_"
     },
     "dive_front_low_right_start": {
       "delay": 0.05,
       "frames": "0,1,2",
-      "prefix": "save_front_low_right_"
+      "prefix": "save_low_front_right_"
     },
     "dive_front_low_right_end": {
       "delay": 0.05,
       "frames": "3",
-      "prefix": "save_front_low_right_"
+      "prefix": "save_low_front_right_"
     },
     "dive_front_high_left_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_front_high_left_"
+      "prefix": "save_high_front_left_"
     },
     "dive_front_high_left_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_front_high_left_"
+      "prefix": "save_high_front_left_"
     },
     "dive_front_high_right_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_front_high_right_"
+      "prefix": "save_high_front_right_"
     },
     "dive_front_high_right_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_front_high_right_"
+      "prefix": "save_high_front_right_"
     },
     "dive_front_low_left_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,3",
-      "prefix": "save_front_low_left_ball_"
+      "prefix": "save_low_front_left_ball_"
     },
     "dive_front_low_right_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,3",
-      "prefix": "save_front_low_right_ball_"
+      "prefix": "save_low_front_right_ball_"
     },
     "dive_front_high_left_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,2,2,3,4,5",
-      "prefix": "save_front_high_left_ball_"
+      "prefix": "save_high_front_left_ball_"
     },
     "dive_front_high_right_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,2,2,3,4,5",
-      "prefix": "save_front_high_right_ball_"
+      "prefix": "save_high_front_right_ball_"
     },
     "dive_back_low_left_start": {
       "delay": 0.05,
       "frames": "0,1,2",
-      "prefix": "save_back_low_left_"
+      "prefix": "save_low_back_left_"
     },
     "dive_back_low_left_end": {
       "delay": 0.05,
       "frames": "3",
-      "prefix": "save_back_low_left_"
+      "prefix": "save_low_back_left_"
     },
     "dive_back_low_right_start": {
       "delay": 0.05,
       "frames": "0,1,2",
-      "prefix": "save_back_low_right_"
+      "prefix": "save_low_back_right_"
     },
     "dive_back_low_right_end": {
       "delay": 0.05,
       "frames": "3",
-      "prefix": "save_back_low_right_"
+      "prefix": "save_low_back_right_"
     },
     "dive_back_high_left_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_back_high_left_"
+      "prefix": "save_high_back_left_"
     },
     "dive_back_high_left_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_back_high_left_"
+      "prefix": "save_high_back_left_"
     },
     "dive_back_high_right_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_back_high_right_"
+      "prefix": "save_high_back_right_"
     },
     "dive_back_high_right_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_back_high_right_"
+      "prefix": "save_high_back_right_"
     },
     "dive_back_low_left_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,3",
-      "prefix": "save_back_low_left_ball_"
+      "prefix": "save_low_back_left_ball_"
     },
     "dive_back_low_right_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,3",
-      "prefix": "save_back_low_right_ball_"
+      "prefix": "save_low_back_right_ball_"
     },
     "dive_back_high_left_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,2,2,3,4,5",
-      "prefix": "save_back_high_left_ball_"
+      "prefix": "save_high_back_left_ball_"
     },
     "dive_back_high_right_ball_end": {
       "delay": 0.05,
       "frames": "2,2,2,2,2,3,4,5",
-      "prefix": "save_back_high_right_ball_"
+      "prefix": "save_high_back_right_ball_"
     },
     "front_jump_parry_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_front_jump_parry_"
+      "prefix": "save_jump_catch_front_"
     },
     "front_jump_parry_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_front_jump_parry_"
+      "prefix": "save_jump_catch_front_"
     },
     "front_jump_catch_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_front_jump_catch_"
+      "prefix": "save_jump_catch_ball_front_"
     },
     "front_jump_catch_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_front_jump_catch_"
+      "prefix": "save_jump_catch_ball_front_"
     },
     "back_jump_parry_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_back_jump_parry_"
+      "prefix": "save_jump_catch_back_"
     },
     "back_jump_parry_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_back_jump_parry_"
+      "prefix": "save_jump_catch_back_"
     },
     "back_jump_catch_start": {
       "delay": 0.05,
       "frames": "0,1",
-      "prefix": "save_back_jump_catch_"
+      "prefix": "save_jump_catch_ball_back_"
     },
     "back_jump_catch_end": {
       "delay": 0.05,
       "frames": "2,3,4",
-      "prefix": "save_back_jump_catch_"
+      "prefix": "save_jump_catch_ball_back_"
     }
   },
   "ball": {

@@ -334,7 +334,7 @@ static void state_machine_player_on_enter(struct entity *entity,
 	switch (to) {
 	case PS_SLIDING_TACKLE:
 		input_reset_player(entity->header.id, game_state);
-		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
+		entity->sprite.frame_id = game_state->gfx.player.sliding_tackle_frames[sprite->orientation];
 		entity->player.state_machine.state_data.sliding_tackle.start_time = game_state->time;
 		break;
 	case PS_FALL:
