@@ -113,8 +113,9 @@ void gameplay_setup_common(u8 outfield_players_per_team, struct game_state *game
 	//                                       (f32)game_state->config.screen_height / 2};
 	game_state->virtual_camera.zoom = 1;
 	game_state->virtual_camera.rotation = 0;
-	game_state->virtual_camera.offset = (v2){(f32)game_state->config.virtual_screen_width / 2,
-											 (f32)game_state->config.virtual_screen_height / 2};
+	game_state->virtual_camera.offset =
+		(v2){(f32)game_state->config.virtual_screen_width / 2 + VIRTUAL_SCREEN_BLEED,
+			 (f32)game_state->config.virtual_screen_height / 2 + VIRTUAL_SCREEN_BLEED};
 
 	game_state->human_players[0] =
 		(struct human_player){.enabled = true,

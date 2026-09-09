@@ -59,6 +59,13 @@ void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 					   scale.y;
 	}
 
+	// The sprites are pixel art drawn into a low resolution target: the quad has to land on
+	// whole virtual pixels, or nearest sampling duplicates one source column and drops another.
+	origin.x = roundf(origin.x);
+	origin.y = roundf(origin.y);
+	dst.x = roundf(dst.x);
+	dst.y = roundf(dst.y);
+
 	DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
 }
 

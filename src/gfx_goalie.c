@@ -75,19 +75,19 @@ void gfx_goalie_prepare(struct game_state *game_state)
 	// Dash frames
 	goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITHOUT_BALL] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_dash_front_left_0")
+									   "goalkeeper_save_dash_front_left_0")
 			->id;
 	goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITH_BALL] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_dash_front_left_1")
+									   "goalkeeper_save_dash_front_left_ball_0")
 			->id;
 	goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITHOUT_BALL] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_dash_front_right_0")
+									   "goalkeeper_save_dash_front_right_0")
 			->id;
 	goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITH_BALL] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_dash_front_right_1")
+									   "goalkeeper_save_dash_front_right_ball_0")
 			->id;
 
 	// Diving animations

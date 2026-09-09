@@ -31,38 +31,38 @@ void gfx_player_prepare(struct game_state *game_state)
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "player_back_right_0")
 			->id;
 
-	// Tackle frames
-	player->tackle_frames[SO_DOWN] =
+	// Sliding tackle frames
+	player->sliding_tackle_frames[SO_DOWN] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_front_0")
+									   "player_tackle_slide_front_0")
 			->id;
-	player->tackle_frames[SO_UP] =
+	player->sliding_tackle_frames[SO_UP] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_back_0")
+									   "player_tackle_slide_back_0")
 			->id;
-	player->tackle_frames[SO_LEFT] =
+	player->sliding_tackle_frames[SO_LEFT] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_left_0")
+									   "player_tackle_slide_left_0")
 			->id;
-	player->tackle_frames[SO_RIGHT] =
+	player->sliding_tackle_frames[SO_RIGHT] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_right_0")
+									   "player_tackle_slide_right_0")
 			->id;
-	player->tackle_frames[SO_DOWN_LEFT] =
+	player->sliding_tackle_frames[SO_DOWN_LEFT] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_front_left_0")
+									   "player_tackle_slide_front_left_0")
 			->id;
-	player->tackle_frames[SO_DOWN_RIGHT] =
+	player->sliding_tackle_frames[SO_DOWN_RIGHT] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_front_right_0")
+									   "player_tackle_slide_front_right_0")
 			->id;
-	player->tackle_frames[SO_UP_LEFT] =
+	player->sliding_tackle_frames[SO_UP_LEFT] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_back_left_0")
+									   "player_tackle_slide_back_left_0")
 			->id;
-	player->tackle_frames[SO_UP_RIGHT] =
+	player->sliding_tackle_frames[SO_UP_RIGHT] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "player_tackle_back_right_0")
+									   "player_tackle_slide_back_right_0")
 			->id;
 
 	// Dribble frames
