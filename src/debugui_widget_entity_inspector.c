@@ -181,6 +181,12 @@ static void draw_component_player(struct component_player *c)
 						  state_machine_player_state_string[c->state_machine.current_state]));
 		igText(TextFormat("  prev_state:           %s",
 						  state_machine_player_state_string[c->state_machine.previous_state]));
+		igText(TextFormat(
+			"  dribble:              %s",
+			c->state_machine.current_state == PS_NORMAL &&
+					c->state_machine.state_data.normal.dribble.active ?
+				player_dribble_turn_string[c->state_machine.state_data.normal.dribble.turn] :
+				"-"));
 		igText(TextFormat("  control_ball:         %s", c->control_ball ? "yes" : "no"));
 		igText(TextFormat("  team_side:            %s", team_side_to_string[c->team_side]));
 		igText(TextFormat("  formation_pos_idx:    %u", c->team_formation_position_idx));

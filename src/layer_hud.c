@@ -50,8 +50,7 @@ void layer_hud_draw(layer_hud_t *handle, struct game_state *game_state)
 
 		f32 power = 0;
 
-		if (gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
-			gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
+		if (input_charge_lock_is_held(gc)) {
 			fg_time_t current_duration = gc->charge_lock.end_time - gc->charge_lock.start_time;
 			switch (gc->charge_lock.control_id) {
 			case GAME_CONTROL_SHOOT:

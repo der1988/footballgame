@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include "ai.h"
 #include "types.h"
+#include "constants.h"
 
 void system_player_physics(struct game_state *game_state)
 {
@@ -48,6 +49,7 @@ void system_player_physics(struct game_state *game_state)
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
 			v2 effective_steering = player_controls->steering;
+			b32 charging_kick = false;
 
 			// If charging kick we seek the ball
 			struct human_player *human_player =
@@ -55,8 +57,8 @@ void system_player_physics(struct game_state *game_state)
 			if (human_player) {
 				struct game_controller *gc =
 					&game_state->input_manager->game_controllers[human_player->game_controller_id];
-				if (gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
-					gc->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
+				if (input_charge_lock_is_held(gc)) {
+					charging_kick = true;
 					effective_steering = Vector2Normalize(
 						Vector2Subtract(ball_transform->position, transform->position));
 				}
@@ -154,12 +156,56 @@ void system_player_physics(struct game_state *game_state)
 			entity_player_physics_apply_velocity(entity, game_state);
 
 			// Calculate frame to display
-			entity_player_anim_calculate_running_frame(entity,
-													   game_state->gfx.player.stand_frames,
-													   game_state->gfx.player.run_animations,
-													   physics->velocity,
-													   3,
-													   game_state);
+			struct state_machine_player_normal_data *normal_state_data =
+				&player->state_machine.state_data.normal;
+
+			// A skid is the run drawn differently, never simulated differently: everything above
+			// this point runs the same whether one is under way or not.
+			if (normal_state_data->dribble.active) {
+				v2 steering = normal_state_data->dribble.steering;
+
+				sprite->frame_id =
+					game_state->gfx.player.dribble_frames[normal_state_data->dribble.turn];
+
+				b32 running_the_new_way = Vector2DotProduct(Vector2Normalize(physics->velocity),
+															steering) >= DRIBBLE_END_ALIGNMENT;
+
+				// Asking for a third heading abandons the turn the pose brakes, so the skid is
+				// over whether or not the run ever came round. Steering let go is not a new
+				// request: he is only coasting the turn out.
+				v2 requested_steering = player_controls->steering;
+				b32 asked_for_another_turn =
+					!IS_V2_ZERO(requested_steering) &&
+					Vector2DotProduct(Vector2Normalize(requested_steering), steering) <
+						DRIBBLE_SAME_REQUEST_ALIGNMENT;
+
+				b32 committed = !HAS_TIME_PASSED(game_state->time,
+												 normal_state_data->dribble.start_time,
+												 game_state->constants.player_dribble_min_time);
+				// A charge taking over the run ends the skid at once, min_time or not: the
+				// player is seeking the ball now, not turning.
+				if (charging_kick ||
+					(!committed && (running_the_new_way || asked_for_another_turn ||
+									physics_is_at_rest(physics->velocity, 3))) ||
+					HAS_TIME_PASSED(game_state->time,
+									normal_state_data->dribble.start_time,
+									game_state->constants.player_dribble_max_time)) {
+					normal_state_data->dribble.active = false;
+				}
+			} else {
+				entity_player_anim_calculate_running_frame(entity,
+														   game_state->gfx.player.stand_frames,
+														   game_state->gfx.player.run_animations,
+														   physics->velocity,
+														   3,
+														   game_state);
+
+				// Tested against what was asked for, never the assisted steering above: that one
+				// is bent toward the ball, which is not a direction the player asked to turn on
+				if (entity_player_should_dribble(entity, player_controls->steering, game_state)) {
+					entity_player_dribble_start(entity, player_controls->steering, game_state);
+				}
+			}
 
 			break;
 		}

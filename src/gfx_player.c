@@ -65,6 +65,40 @@ void gfx_player_prepare(struct game_state *game_state)
 									   "player_tackle_slide_back_right_0")
 			->id;
 
+	// Dribble frames
+	player->dribble_frames[PDT_FRONT_TO_BACK_RIGHT] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_FtoB_right_0")
+			->id;
+	player->dribble_frames[PDT_FRONT_TO_BACK_LEFT] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_FtoB_left_0")
+			->id;
+	player->dribble_frames[PDT_BACK_TO_FRONT_RIGHT] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_BtoF_right_0")
+			->id;
+	player->dribble_frames[PDT_BACK_TO_FRONT_LEFT] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_BtoF_left_0")
+			->id;
+	player->dribble_frames[PDT_RIGHT_TO_LEFT_FRONT] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_RtoL_front_0")
+			->id;
+	player->dribble_frames[PDT_RIGHT_TO_LEFT_BACK] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_RtoL_back_0")
+			->id;
+	player->dribble_frames[PDT_LEFT_TO_RIGHT_FRONT] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_LtoR_front_0")
+			->id;
+	player->dribble_frames[PDT_LEFT_TO_RIGHT_BACK] =
+		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
+									   "player_dribble_LtoR_back_0")
+			->id;
+
 	// Running animations
 	player->run_animations[SO_DOWN] =
 		asset_animation_id_from_name(animation_cache, "player", "run_front", memory_arena_handle);

@@ -5,8 +5,7 @@ void input_reset(struct game_controller *game_controller)
 {
 	/*  If we are in the middle of a charge, force the user to let go
 	  before they can do anything else with this new player.*/
-	if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
-		game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
+	if (input_charge_lock_is_held(game_controller)) {
 		game_controller->charge_lock.state = INPUT_CHARGE_LOCK_WAITING_FOR_RELEASE;
 	} else {
 		game_controller->charge_lock.state = INPUT_CHARGE_LOCK_FREE;

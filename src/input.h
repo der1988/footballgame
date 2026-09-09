@@ -1,14 +1,13 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include "constants.h"
 #include "macro.h"
 #include "memory.h"
 #include "types.h"
 #include <raymath.h>
 
 #define MAX_GAME_CONTROLLERS 4
-
-#define ApplyDeadZone(value, dead_zone) (fabsf(value) < dead_zone ? 0 : value)
 
 /* Forward declarations. */
 struct game_state;
@@ -169,7 +168,21 @@ INLINE v2 input_movement_vector(struct game_controller *game_controller)
 		movement = Vector2Normalize(movement);
 	}
 
+	/* The dead zone is radial, not per axis: two axes at 0.9 * INPUT_STICK_DEAD_ZONE are a stick
+	   pushed past it on the diagonal, and killing them one at a time would let that through as a
+	   cardinal. */
+	if (Vector2LengthSqr(movement) < INPUT_STICK_DEAD_ZONE * INPUT_STICK_DEAD_ZONE) {
+		movement = Vector2Zero();
+	}
+
 	return movement;
+}
+
+// The charge is being held: the wind-up has begun and the kick hasn't been released yet.
+INLINE b32 input_charge_lock_is_held(const struct game_controller *game_controller)
+{
+	return game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGING ||
+		   game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED;
 }
 
 #endif // !INPUT_H

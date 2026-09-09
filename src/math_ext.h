@@ -24,6 +24,8 @@
 #define V3_TO_V2(vector3)                                                                          \
 	(v2) { .x = vector3.x, .y = vector3.z }
 
+#define IS_V2_ZERO(vector) (Vector2LengthSqr(vector) == 0)
+
 INLINE v2 Vector2Left()
 {
 	v2 v = {.x = -1, .y = 0};
