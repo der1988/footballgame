@@ -183,6 +183,8 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->header.enabled = true;
 
 	// Initialise sprite
+	enum pitch_side pitch_side = game_state->vars.teams[config.team_side].play_context.pitch_side;
+
 	char *player_frame_name = "player_front_0";
 	struct asset_sprite_frame *sprite_frame =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, player_frame_name);
@@ -195,6 +197,8 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	sprite->flipY = false;
 	sprite->pivot_override = (v2){.x = 0.5, .y = 0.65};
 	sprite->layer = SL_PLAYERS_AND_BALL;
+	// A player faces the goal he is attacking until he first moves.
+	sprite->orientation = pitch_side == PSI_NORTH ? SO_DOWN : SO_UP;
 	sprite->draw_shadow = false;
 	// sprite->shadow_color = BLACK;
 	// sprite->shadow_color.a = 100;
@@ -234,8 +238,6 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 
 	sprite->before_draw = &player_custom_begin_draw;
 	sprite->after_draw = &player_custom_after_draw;
-
-	enum pitch_side pitch_side = game_state->vars.teams[config.team_side].play_context.pitch_side;
 
 	collider->num_colliders = PCT_COUNT;
 	collider->colliders = memory_arena_push(game_state->memory_by_lifetime[MAL_LEVEL],
