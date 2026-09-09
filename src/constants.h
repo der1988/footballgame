@@ -16,4 +16,8 @@
 // shorter travel time, which means less lead, which means a longer aim again.
 #define PASS_AIM_RELAXATION 0.6f
 
+// The scene is rendered one virtual pixel wider than the virtual screen on every side, so
+// that scrolling the final blit by a sub-pixel camera offset never exposes an empty edge.
+#define VIRTUAL_SCREEN_BLEED 1
+
 #endif // !CONSTANTS_H

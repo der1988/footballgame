@@ -185,8 +185,9 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->layer_hud = layer_hud_create(game_state);
 	game_state->vars.is_debug_log_shown = true;
 
-	game_state->render_texture = LoadRenderTexture((f32)game_state->config.virtual_screen_width,
-												   (f32)game_state->config.virtual_screen_height);
+	game_state->render_texture =
+		LoadRenderTexture((f32)game_state->config.virtual_screen_width + VIRTUAL_SCREEN_BLEED * 2,
+						  (f32)game_state->config.virtual_screen_height + VIRTUAL_SCREEN_BLEED * 2);
 
 	football_pitch_setup(game_state);
 
