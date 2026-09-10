@@ -55,8 +55,16 @@ void system_render_debug(struct game_state *game_state)
 			}
 
 			if (collider->header.enabled) {
-				static color_t colliders_colors[] = {
-					RED, VIOLET, PINK, YELLOW, BLUE, MAGENTA, SKYBLUE};
+				static color_t colliders_colors[PCT_COUNT] = {
+					[PCT_PLAYER] = RED,
+					[PCT_GOALIE] = VIOLET,
+					[PCT_DIVE] = PINK,
+					[PCT_TACKLE_SENSOR] = YELLOW,
+					[PCT_TACKLE] = ORANGE,
+					[PCT_SLIDING_TACKLE_1] = BLUE,
+					[PCT_SLIDING_TACKLE_2] = MAGENTA,
+					[PCT_HEADER] = SKYBLUE,
+					[PCT_BODY] = LIME};
 				switch (entity->header.type) {
 				case ET_PLAYER:
 					for (usize i = 0; i < PCT_COUNT; ++i) {

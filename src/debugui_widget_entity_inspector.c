@@ -218,9 +218,10 @@ static void draw_component_player_controls(struct component_player_controls *c)
 		igText(TextFormat("  header_shot:    %s  header_pass: %s",
 						  c->header_shot ? "yes" : "no",
 						  c->header_pass ? "yes" : "no"));
-		igText(TextFormat("  sliding_tackle: %s  stop: %s",
-						  c->sliding_tackle ? "yes" : "no",
-						  c->stop ? "yes" : "no"));
+		igText(TextFormat("  tackle:         %s  sliding_tackle: %s",
+						  c->tackle ? "yes" : "no",
+						  c->sliding_tackle ? "yes" : "no"));
+		igText(TextFormat("  stop:           %s", c->stop ? "yes" : "no"));
 	}
 }
 

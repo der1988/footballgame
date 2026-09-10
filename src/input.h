@@ -24,6 +24,7 @@ enum game_control {
 	GAME_CONTROL_PASS,
 	GAME_CONTROL_LONG_PASS,
 	GAME_CONTROL_TACKLE,
+	GAME_CONTROL_SLIDING_TACKLE,
 	GAME_CONTROL_STOP,
 
 	/* Game control modifiers. */

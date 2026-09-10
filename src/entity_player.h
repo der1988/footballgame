@@ -30,6 +30,7 @@ enum state_machine_player_state {
 	PS_NORMAL,
 	PS_THROW_IN,
 	PS_HEADER,
+	PS_TACKLE,
 	PS_SLIDING_TACKLE,
 	PS_FALL,
 	PS_GOALIE,
@@ -43,6 +44,7 @@ enum state_machine_player_trigger {
 	PT_NONE,
 	PT_HEAD,
 	PT_TACKLE,
+	PT_SLIDE_TACKLE,
 	PT_TACKLED,
 	PT_RECOVER,
 	PT_COUNT
@@ -86,6 +88,15 @@ struct state_machine_running_action_state {
 	running_action_idx_t running_action_idx;
 };
 
+struct state_machine_player_tackle_data {
+	fg_time_t start_time;
+	// Where he was asking to go as he went in, which is where the ball is sent. Taken on the way
+	// in because the challenge answers no steering once it is under way.
+	v2 direction;
+	b32 touched_ball;
+	b32 touched_player;
+};
+
 struct state_machine_player_sliding_tackle_data {
 	fg_time_t start_time;
 	b32 touched_ball;
@@ -127,6 +138,7 @@ struct state_machine_player_header_data {
 
 union state_machine_player_state_data {
 	struct state_machine_player_normal_data normal;
+	struct state_machine_player_tackle_data tackle;
 	struct state_machine_player_sliding_tackle_data sliding_tackle;
 	struct state_machine_player_fall_data fall;
 	struct state_machine_player_header_data header;
@@ -186,8 +198,9 @@ enum player_collider_type {
 	PCT_GOALIE,
 	PCT_DIVE,
 	PCT_TACKLE_SENSOR,
-	PCT_TACKLE_1,
-	PCT_TACKLE_2,
+	PCT_TACKLE,
+	PCT_SLIDING_TACKLE_1,
+	PCT_SLIDING_TACKLE_2,
 	PCT_HEADER,
 	PCT_BODY,
 	PCT_COUNT
@@ -241,6 +254,7 @@ struct player_constants {
 	f32 control_radius;
 	f32 control_height;
 	f32 tackle_friction_force;
+	f32 sliding_tackle_friction_force;
 	f32 accel_ramp_up;
 	f32 decel_ramp_down;
 	f32 mass;

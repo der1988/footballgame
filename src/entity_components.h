@@ -123,6 +123,7 @@ struct component_player {
 	fg_time_low_prec_t last_header_time;
 	fg_time_low_prec_t last_frame_update_time;
 	fg_time_low_prec_t last_possession_time;
+	fg_time_low_prec_t last_tackled_time;
 	fg_time_low_prec_t last_selected_for_pass_time;
 	u16 last_running_frame_idx;
 	u8 team_formation_position_idx;
@@ -148,6 +149,7 @@ struct component_player_controls {
 	f32 long_driven_pass;
 	b32 header_shot;
 	b32 header_pass;
+	b32 tackle;
 	b32 sliding_tackle;
 	b32 stop;
 };

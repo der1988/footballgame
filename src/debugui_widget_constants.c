@@ -150,6 +150,19 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 									 TextFormat("%.2f",
 												game_state->constants.ball_long_driven_pass_height),
 									 0);
+			changed |= igSliderFloat("Tackle force",
+									 &game_state->constants.ball_tackle_force,
+									 0.0f,
+									 1000.0f,
+									 TextFormat("%.2f", game_state->constants.ball_tackle_force),
+									 0);
+			changed |= igSliderFloat(
+				"Sliding tackle force",
+				&game_state->constants.ball_sliding_tackle_force,
+				0.0f,
+				1000.0f,
+				TextFormat("%.2f", game_state->constants.ball_sliding_tackle_force),
+				0);
 			changed |= igSliderFloat("Short pass force",
 									 &game_state->constants.ball_pass_force,
 									 0.0f,
@@ -264,6 +277,13 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 									 100000.0f,
 									 TextFormat("%.2f",
 												game_state->constants.player_tackle_friction_force),
+									 0);
+			changed |= igSliderFloat("Sliding tackle friction force",
+									 &game_state->constants.player_sliding_tackle_friction_force,
+									 0.0f,
+									 100000.0f,
+									 TextFormat("%.2f",
+												game_state->constants.player_sliding_tackle_friction_force),
 									 0);
 			changed |=
 				igSliderFloat("Dribble min velocity",

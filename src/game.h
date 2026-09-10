@@ -68,6 +68,7 @@ struct game_constants {
 	f32 ball_long_driven_pass_force;
 	f32 ball_long_driven_pass_height;
 	f32 ball_tackle_force;
+	f32 ball_sliding_tackle_force;
 	f32 ball_header_fumble_force;
 	f32 ball_header_min_force;
 	f32 ball_max_velocity;
@@ -87,6 +88,7 @@ struct game_constants {
 	f32 player_control_radius;
 	f32 player_control_height;
 	f32 player_tackle_friction_force;
+	f32 player_sliding_tackle_friction_force;
 	// A turn is skidded rather than run round only above this speed and when the direction
 	// asked for is turned this far from the run: -1 is a straight reversal, 0 a right angle,
 	// so a value just above 0 takes in a square cut as well.
@@ -155,6 +157,7 @@ struct game_gfx {
 	struct player {
 		asset_sprite_frame_id_t stand_frames[SO_COUNT];
 		asset_animation_id_t run_animations[SO_COUNT];
+		asset_sprite_frame_id_t tackle_frames[SO_COUNT];
 		asset_sprite_frame_id_t sliding_tackle_frames[SO_COUNT];
 		asset_sprite_frame_id_t dribble_frames[PDT_COUNT];
 		asset_animation_id_t fall_animations[SO_COUNT];

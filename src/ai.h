@@ -13,6 +13,7 @@ enum player_ai_action_decision {
 	PAAD_PASS,
 	PAAD_LONG_PASS,
 	PAAD_TACKLE,
+	PAAD_SLIDING_TACKLE,
 	PAAD_HEADER_SHOOT,
 	PAAD_HEADER_PASS,
 };

@@ -68,18 +68,25 @@ void system_player_control_human(struct game_state *game_state)
 		case PS_NORMAL: {
 			// Off the ball
 			if (!entity->player.is_colliding_with_ball) {
-				// Header
-				if (game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
+				const b32 action_button_pressed =
+					game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed ||
 					game_controller_state->current[GAME_CONTROL_AUTOMATIC_PASS].digital.pressed ||
-					game_controller_state->current[GAME_CONTROL_PASS].digital.pressed) {
+					game_controller_state->current[GAME_CONTROL_PASS].digital.pressed;
+
+				// Header
+				b32 header_started = false;
+				if (action_button_pressed) {
 					if (entity_player_should_jump_for_header(entity, game_state)) {
 						player_controls->header_shot =
 							game_controller_state->current[GAME_CONTROL_SHOOT].digital.pressed;
 						player_controls->header_pass = !player_controls->header_shot;
+						header_started = true;
 					}
 				}
+
 				// Sliding tackle
-				else if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.pressed) {
+				if (!header_started &&
+					game_controller_state->current[GAME_CONTROL_SLIDING_TACKLE].digital.pressed) {
 					if (last_entity_that_touched_ball &&
 						last_entity_that_touched_ball->header.id != entity->header.id &&
 						(last_entity_that_touched_ball->player.team_side !=
@@ -95,7 +102,23 @@ void system_player_control_human(struct game_state *game_state)
 						// - our gk just rebounded a shot and we want to do a sliding tackle to clear the ball
 						player_controls->sliding_tackle = true;
 					}
-				} else if (IS_V2_ZERO(player_controls->steering)) {
+				}
+				// Tackle. It shares a button with the automatic pass, so it may only stand in
+				// for it while the opponents have the ball: that is exactly when the charge
+				// lock refuses to charge, so a press is never both a charge and a tackle.
+				// Held, not pressed: the button runs the player at the ball for as long as he
+				// holds it, and the challenge goes in on its own once he reaches it.
+				else if (!header_started &&
+						 game_controller_state->current[GAME_CONTROL_TACKLE].digital.down &&
+						 entity_ball_team_in_possession(ball_entity, game_state) !=
+							 entity->player.team_side) {
+					player_controls->steering =
+						steering_pursuit(entity->transform.position,
+										 entity->physics.velocity,
+										 entity->physics.max_velocity,
+										 ball_transform->position,
+										 V3_TO_V2(ball_physics_3d->velocity));
+				} else if (!action_button_pressed && IS_V2_ZERO(player_controls->steering)) {
 					// This section only triggers if the player is not giving meaningful directional input
 					if (ball->pass_target_entity_id == entity->header.id) {
 						// the target of an automatic pass runs to meet the ball on his own, so that
@@ -128,6 +151,14 @@ void system_player_control_human(struct game_state *game_state)
 			}
 			// On the ball
 			else if (entity->player.is_colliding_with_ball) {
+				// Tackle. The ball is in reach but the opponents still hold it, so the button
+				// goes in to win it rather than playing it. Winning it flips possession, which
+				// is what stops the challenge repeating.
+				if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.down &&
+					entity_ball_team_in_possession(ball_entity, game_state) !=
+						entity->player.team_side) {
+					player_controls->tackle = true;
+				}
 				// Stop
 				if (game_controller_state->current[GAME_CONTROL_STOP].digital.down) {
 					player_controls->stop = true;
@@ -175,6 +206,7 @@ void system_player_control_human(struct game_state *game_state)
 
 			break;
 		}
+		case PS_TACKLE:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
 		case PS_HEADER:

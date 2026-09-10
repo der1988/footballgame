@@ -17,6 +17,10 @@
 
 #define STAY_THERE_RADIUS 30.0f
 
+// Per tick, at the fixed 480Hz step, so about a fifth of a second of carrying it on average
+// once he has decided the ball should move.
+#define AI_PASS_PROBABILITY_PER_TICK 0.01f
+
 enum whos_on_the_ball {
 	WOTB_PLAYER,
 	WOTB_TEAMMATE,
@@ -142,8 +146,15 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				game_state->constants.ball_pass_auto_max_distance,
 				&teammate_entity,
 				game_state);
+			b32 passing = false;
 			if (pass_target_found && nearest_facing_oppo_found) {
-				// Facing an opponent and we have someone to pass to, let's pass
+				// He has decided the ball should move, but not on the same tick every time:
+				// rolling for it spreads the release out instead of firing it the instant the
+				// conditions line up.
+				passing = RANDOM_01(100000) < AI_PASS_PROBABILITY_PER_TICK;
+			}
+
+			if (passing) {
 				*action_decision = PAAD_PASS;
 				*power = 0.1f;
 				*target_position = Vector2Normalize(Vector2Subtract(
@@ -188,11 +199,21 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 												ball_transform->position,
 												V3_TO_V2(ball_physics_3d->velocity));
 
-			// Consider tackling if this is a fully AI-controlled team
-			if (!team_has_humans) {
+			if (player_in_possession_entity) {
+				// Close enough to play the ball while the opponent still holds it, so go in for
+				// it. Sending a man to press is asking him to win the ball, so he goes in
+				// whoever sent him - a human holding the press button included.
+				if (player_entity->player.is_colliding_with_ball) {
+					*action_decision = PAAD_TACKLE;
+					break;
+				}
+
+				// The slide stays with fully AI teams. It is the lunge at what he cannot reach,
+				// and a human sending a teammate to press has not asked him to gamble a card on
+				// it.
 				f32 dist_to_ball =
 					Vector2Distance(player_entity->transform.position, ball_transform->position);
-				if (dist_to_ball < 20.0f && player_in_possession_entity) {
+				if (!team_has_humans && dist_to_ball < 20.0f) {
 					// Check that player is moving toward the ball
 					v2 to_ball = Vector2Subtract(ball_transform->position,
 												 player_entity->transform.position);
@@ -206,10 +227,12 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 						Vector2Subtract(player_entity->transform.position,
 										player_in_possession_entity->transform.position);
 					f32 angle = fabs(Vector2Angle(carrier_vel, carrier_to_tackler) * RAD2DEG);
-					// Minimum 0.1% probability per tick if tackling from behind, maximum 1.5% if tackling frontally
-					f32 tackle_probability = 0.001f + angle / 180.0f * 0.014f;
+					// The angle is 0 with the tackler stood in the carrier's path and 180 with him
+					// chasing from directly behind, which is the one that gets a card. Minimum
+					// 0.05% probability per tick from behind, maximum 0.75% going in facing him.
+					f32 tackle_probability = 0.0005f + (1.0f - angle / 180.0f) * 0.007f;
 					if (RANDOM_01(100000) < tackle_probability) {
-						*action_decision = PAAD_TACKLE;
+						*action_decision = PAAD_SLIDING_TACKLE;
 					}
 				}
 			}

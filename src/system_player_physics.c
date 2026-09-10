@@ -290,6 +290,37 @@ void system_player_physics(struct game_state *game_state)
 
 			break;
 		}
+		case PS_TACKLE: {
+			struct state_machine_player_tackle_data *tackle_state_data =
+				&player->state_machine.state_data.tackle;
+
+			const b32 at_rest = physics_set_at_rest_if_needed(physics, 3);
+
+			// Body contact can hold a player above the rest threshold for as long as it lasts,
+			// so the challenge also ends on time whether or not he has come to a stop.
+			if ((at_rest &&
+				 HAS_TIME_PASSED(game_state->time, tackle_state_data->start_time, 0.15f)) ||
+				HAS_TIME_PASSED(game_state->time, tackle_state_data->start_time, 0.5f)) {
+				state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
+				break;
+			}
+
+			v2 force_to_apply = Vector2Zero();
+			if (!at_rest) {
+				// Apply friction
+				// TODO: this should depend on type of pitch
+				force_to_apply =
+					physics_drag_force(physics->velocity, player->constants.tackle_friction_force);
+			}
+
+			// Handle max velocity
+			physics->max_velocity = player->constants.run_max_velocity;
+
+			entity_player_physics_apply_force(entity, force_to_apply, game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
+
+			break;
+		}
 		case PS_SLIDING_TACKLE: {
 			struct state_machine_player_sliding_tackle_data *sliding_tackle_state_data =
 				&player->state_machine.state_data.sliding_tackle;
@@ -305,7 +336,7 @@ void system_player_physics(struct game_state *game_state)
 				// Apply friction
 				// TODO: this should depend on type of pitch
 				force_to_apply = physics_drag_force(
-					physics->velocity, game_state->constants.player_tackle_friction_force);
+					physics->velocity, player->constants.sliding_tackle_friction_force);
 			}
 
 			// Handle max velocity

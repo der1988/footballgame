@@ -47,7 +47,7 @@ const struct header_phase_window header_phase_windows[] = {
 	{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 31, 28}, {28, 34, 31}};
 
 const char *state_machine_player_state_string[PS_COUNT] = {
-	"none", "normal", "throw_in", "header", "sliding_tackle", "fall", "goalie"};
+	"none", "normal", "throw_in", "header", "tackle", "sliding_tackle", "fall", "goalie"};
 
 const char *player_dribble_turn_string[PDT_COUNT] = {"FtoB_right",
 													 "FtoB_left",
@@ -58,8 +58,15 @@ const char *player_dribble_turn_string[PDT_COUNT] = {"FtoB_right",
 													 "LtoR_front",
 													 "LtoR_back"};
 
-const char *player_collider_type_to_string[PCT_COUNT] = {
-	"player", "goalie", "dive", "tackle_1", "tackle_2", "header", "body"};
+const char *player_collider_type_to_string[PCT_COUNT] = {"player",
+														 "goalie",
+														 "dive",
+														 "tackle_sensor",
+														 "tackle",
+														 "sliding_tackle_1",
+														 "sliding_tackle_2",
+														 "header",
+														 "body"};
 
 // Linearly interpolate a value on the 1-5 characteristic scale
 static inline f32 char_lerp(u8 value, f32 at_1, f32 at_5)
@@ -82,6 +89,7 @@ struct player_constants entity_player_derive_constants(const struct player_chara
 		.control_radius = k->player_control_radius,
 		.control_height = k->player_control_height,
 		.tackle_friction_force = k->player_tackle_friction_force,
+		.sliding_tackle_friction_force = k->player_sliding_tackle_friction_force,
 		.accel_ramp_up = char_lerp(c->acceleration, 30.0f, 70.0f),
 		.decel_ramp_down = char_lerp(c->acceleration, 60.0f, 140.0f),
 		.mass = char_lerp(c->weight, 60.0f, 95.0f),
@@ -111,7 +119,7 @@ const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
 const char *state_machine_player_trigger_string[PT_COUNT] = {
-	"none", "head", "tackle", "tackled", "recover"};
+	"none", "head", "tackle", "slide_tackle", "tackled", "recover"};
 
 const char *state_machine_goalie_trigger_string[GT_COUNT] = {
 	"none", "dive", "jump", "catch", "recover", "release"};
@@ -119,8 +127,12 @@ const char *state_machine_goalie_trigger_string[GT_COUNT] = {
 // PS_GOALIE responds to nothing yet: a keeper stays one for the whole match.
 // Stepping out to play as an outfielder arrives with the back-pass rework.
 static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COUNT] = {
-	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER, [PT_TACKLE] = PS_SLIDING_TACKLE, [PT_TACKLED] = PS_FALL},
+	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER,
+				   [PT_TACKLE] = PS_TACKLE,
+				   [PT_SLIDE_TACKLE] = PS_SLIDING_TACKLE,
+				   [PT_TACKLED] = PS_FALL},
 	[PS_HEADER] = {[PT_RECOVER] = PS_NORMAL},
+	[PS_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_SLIDING_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_FALL] = {[PT_RECOVER] = PS_NORMAL},
 };
@@ -267,11 +279,14 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
 	collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
-	collider->colliders[PCT_TACKLE_1].shape = CS_CIRCLE;
-	collider->colliders[PCT_TACKLE_1].props.circle.radius = 4;
-	collider->colliders[PCT_TACKLE_2].shape = CS_CIRCLE;
-	collider->colliders[PCT_TACKLE_2].props.circle.radius = 5;
-	collider->colliders[PCT_TACKLE_2].props.circle.offset = (v2){.y = -3};
+	collider->colliders[PCT_TACKLE].shape = CS_CIRCLE;
+	collider->colliders[PCT_TACKLE].props.circle.radius = 6;
+
+	collider->colliders[PCT_SLIDING_TACKLE_1].shape = CS_CIRCLE;
+	collider->colliders[PCT_SLIDING_TACKLE_1].props.circle.radius = 4;
+	collider->colliders[PCT_SLIDING_TACKLE_2].shape = CS_CIRCLE;
+	collider->colliders[PCT_SLIDING_TACKLE_2].props.circle.radius = 5;
+	collider->colliders[PCT_SLIDING_TACKLE_2].props.circle.offset = (v2){.y = -3};
 
 	collider->colliders[PCT_TACKLE_SENSOR].shape = CS_CIRCLE;
 	collider->colliders[PCT_TACKLE_SENSOR].props.circle.radius = 3;
@@ -362,6 +377,13 @@ static void state_machine_player_on_enter(struct entity *entity,
 	memset(&state_machine->state_data, 0, sizeof(union state_machine_player_state_data));
 
 	switch (to) {
+	case PS_TACKLE:
+		entity->player.state_machine.state_data.tackle.direction =
+			Vector2Normalize(entity->player_controls.steering);
+		input_reset_player(entity->header.id, game_state);
+		entity->sprite.frame_id = game_state->gfx.player.tackle_frames[sprite->orientation];
+		entity->player.state_machine.state_data.tackle.start_time = game_state->time;
+		break;
 	case PS_SLIDING_TACKLE:
 		input_reset_player(entity->header.id, game_state);
 		entity->sprite.frame_id = game_state->gfx.player.sliding_tackle_frames[sprite->orientation];
@@ -418,6 +440,7 @@ static void state_machine_player_on_exit(struct entity *entity,
 	case PS_GOALIE:
 	case PS_THROW_IN:
 	case PS_HEADER:
+	case PS_TACKLE:
 	case PS_SLIDING_TACKLE:
 	case PS_FALL:
 	case PS_COUNT:
@@ -529,14 +552,40 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 	f32 collision_force = 0;
 
 	switch (collider_type) {
-	case PCT_TACKLE_1:
-	case PCT_TACKLE_2: {
-		struct tackle_colliders_config config =
-			ORIENTATION_TO_TACKLE_COLLIDERS_CONFIG[entity->sprite.orientation];
-		entity->collider.colliders[PCT_TACKLE_1].props.circle.offset = config.collider_1.offset;
-		entity->collider.colliders[PCT_TACKLE_1].props.circle.radius = config.collider_1.radius;
-		entity->collider.colliders[PCT_TACKLE_2].props.circle.offset = config.collider_2.offset;
-		entity->collider.colliders[PCT_TACKLE_2].props.circle.radius = config.collider_2.radius;
+	case PCT_TACKLE: {
+		struct tackle_collider_config config =
+			ORIENTATION_TO_TACKLE_COLLIDER_CONFIG[entity->sprite.orientation];
+		entity->collider.colliders[PCT_TACKLE].props.circle.offset = config.offset;
+		entity->collider.colliders[PCT_TACKLE].props.circle.radius = config.radius;
+
+		check_collision =
+			CheckCollisionCircles(ball_pos,
+								  ball_radius,
+								  Vector2Add(player_position, collider->props.circle.offset),
+								  collider->props.circle.radius);
+		if (check_collision) {
+			collision_direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
+
+			const v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
+			collision_force = 0.5f;
+
+			if (Vector2LengthSqr(ball_velocity_2d) > 25) {
+				collision_force =
+					(1 + -Vector2ProjectScalar(Vector2Normalize(V3_TO_V2(ball_velocity)),
+											   Vector2Normalize(entity->physics.velocity))) *
+					collision_force;
+			}
+		}
+		break;
+	}
+	case PCT_SLIDING_TACKLE_1:
+	case PCT_SLIDING_TACKLE_2: {
+		struct sliding_tackle_colliders_config config =
+			ORIENTATION_TO_SLIDING_TACKLE_COLLIDERS_CONFIG[entity->sprite.orientation];
+		entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.offset = config.collider_1.offset;
+		entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.radius = config.collider_1.radius;
+		entity->collider.colliders[PCT_SLIDING_TACKLE_2].props.circle.offset = config.collider_2.offset;
+		entity->collider.colliders[PCT_SLIDING_TACKLE_2].props.circle.radius = config.collider_2.radius;
 
 		check_collision =
 			CheckCollisionCircles(ball_pos,
@@ -1079,11 +1128,11 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.offset);
 			const v2 player_collider_pos =
 				Vector2Add(player_entity->transform.position,
-						   player_entity->collider.colliders[PCT_TACKLE_1].props.circle.offset);
+						   player_entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.offset);
 
 			const b32 is_tackled = CheckCollisionCircles(
 				player_collider_pos,
-				player_entity->collider.colliders[PCT_TACKLE_1].props.circle.radius,
+				player_entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.radius,
 				opponent_collider_pos,
 				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.radius);
 

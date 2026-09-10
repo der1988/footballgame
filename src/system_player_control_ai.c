@@ -116,6 +116,9 @@ void system_player_control_ai(struct game_state *game_state)
 					player_controls->long_pass = power;
 					break;
 				case PAAD_TACKLE:
+					player_controls->tackle = true;
+					break;
+				case PAAD_SLIDING_TACKLE:
 					player_controls->sliding_tackle = true;
 					break;
 				case PAAD_HEADER_SHOOT:
@@ -164,6 +167,7 @@ void system_player_control_ai(struct game_state *game_state)
 			}
 			break;
 		}
+		case PS_TACKLE:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
 		case PS_COUNT:

@@ -41,10 +41,12 @@ void debugui_debug_flags_draw(debugui_t *handle, struct game_state *game_state)
 					   (bool *)&game_state->debug_flags.show_player_collider[PCT_BODY]);
 			igCheckbox("Show Player Tackle Sensor Collider",
 					   (bool *)&game_state->debug_flags.show_player_collider[PCT_TACKLE_SENSOR]);
-			igCheckbox("Show Player Tackle 1 Collider",
-					   (bool *)&game_state->debug_flags.show_player_collider[PCT_TACKLE_1]);
-			igCheckbox("Show Player Tackle 2 Collider",
-					   (bool *)&game_state->debug_flags.show_player_collider[PCT_TACKLE_2]);
+			igCheckbox("Show Player Tackle Collider",
+					   (bool *)&game_state->debug_flags.show_player_collider[PCT_TACKLE]);
+			igCheckbox("Show Player Sliding Tackle 1 Collider",
+					   (bool *)&game_state->debug_flags.show_player_collider[PCT_SLIDING_TACKLE_1]);
+			igCheckbox("Show Player Sliding Tackle 2 Collider",
+					   (bool *)&game_state->debug_flags.show_player_collider[PCT_SLIDING_TACKLE_2]);
 			igCheckbox("Show Player Header Collider",
 					   (bool *)&game_state->debug_flags.show_player_collider[PCT_HEADER]);
 			igCheckbox("Show Player Goalie Collider",

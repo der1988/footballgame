@@ -5,7 +5,7 @@
 #include "types.h"
 #include <raymath.h>
 
-struct tackle_colliders_config {
+struct sliding_tackle_colliders_config {
 	struct {
 		v2 offset;
 		f32 radius;
@@ -16,7 +16,7 @@ struct tackle_colliders_config {
 	} collider_2;
 };
 
-const static struct tackle_colliders_config ORIENTATION_TO_TACKLE_COLLIDERS_CONFIG[] = {
+const static struct sliding_tackle_colliders_config ORIENTATION_TO_SLIDING_TACKLE_COLLIDERS_CONFIG[] = {
 	{{{.x = 0, .y = -8}, 4}, {{.x = 0, .y = 2}, 5}},	// SO_UP
 	{{{.x = -1, .y = 5}, 4}, {{.x = 0, .y = -4}, 5}},	// SO_DOWN
 	{{{.x = -8, .y = 0}, 4}, {{.x = 1, .y = -1}, 4}},	// SO_LEFT
@@ -25,6 +25,22 @@ const static struct tackle_colliders_config ORIENTATION_TO_TACKLE_COLLIDERS_CONF
 	{{{.x = 10, .y = -7}, 3}, {{.x = 0, .y = -4}, 6}},	// SO_UP_RIGHT
 	{{{.x = -7, .y = 2}, 4}, {{.x = 2, .y = -3}, 5}},	// SO_DOWN_LEFT
 	{{{.x = 7, .y = 2}, 4}, {{.x = -2, .y = -3}, 5}},	// SO_DOWN_RIGHT
+};
+
+struct tackle_collider_config {
+	v2 offset;
+	f32 radius;
+};
+
+const static struct tackle_collider_config ORIENTATION_TO_TACKLE_COLLIDER_CONFIG[] = {
+	{{.x = 0, .y = -4}, 6},	 // SO_UP
+	{{.x = 0, .y = 4}, 6},	 // SO_DOWN
+	{{.x = -4, .y = 0}, 6},	 // SO_LEFT
+	{{.x = 4, .y = 0}, 6},	 // SO_RIGHT
+	{{.x = -3, .y = -3}, 6}, // SO_UP_LEFT
+	{{.x = 3, .y = -3}, 6},	 // SO_UP_RIGHT
+	{{.x = -3, .y = 3}, 6},	 // SO_DOWN_LEFT
+	{{.x = 3, .y = 3}, 6},	 // SO_DOWN_RIGHT
 };
 
 INLINE rect_t collision_calculate_rectangle(v2 pos, v2 size, v2 offset)

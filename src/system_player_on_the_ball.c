@@ -322,7 +322,10 @@ void system_player_on_the_ball(struct game_state *game_state)
 							   player_on_the_ball_entity_id,
 							   V2_TO_V3(player->collision_direction, 0),
 							   tackle_force,
+							   game_state->constants.ball_sliding_tackle_force,
+							   false,
 							   game_state);
+			state_machine->state_data.sliding_tackle.touched_ball = true;
 
 			break;
 		}
@@ -441,6 +444,7 @@ void system_player_on_the_ball(struct game_state *game_state)
 
 			break;
 		}
+		case PS_TACKLE:
 		case PS_GOALIE:
 		case PS_THROW_IN:
 		case PS_FALL:

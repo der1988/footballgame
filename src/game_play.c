@@ -111,7 +111,8 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ball_long_pass_height = 0.54f,
 		.ball_long_driven_pass_force = 40 * PIXELS_PER_METER,
 		.ball_long_driven_pass_height = 0.32f,
-		.ball_tackle_force = 20 * PIXELS_PER_METER,
+		.ball_tackle_force = 12 * PIXELS_PER_METER,
+		.ball_sliding_tackle_force = 25 * PIXELS_PER_METER,
 		.ball_header_min_force = 12.5 * PIXELS_PER_METER,
 		.ball_header_fumble_force = 4 * PIXELS_PER_METER,
 		// 61m/s, that would be 220km/h
@@ -136,7 +137,8 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_run_max_velocity = 11.0f * PIXELS_PER_METER,
 		.player_control_radius = 6,
 		.player_control_height = 17,
-		.player_tackle_friction_force = 7500,
+		.player_tackle_friction_force = 25000,
+		.player_sliding_tackle_friction_force = 7500,
 		// Sharper than ~78° away from the run and a turn is skidded rather than run round: a cut
 		// square across the run counts, not just a reversal. Below a jog there is no momentum to
 		// fight, so the turn is a pivot rather than a skid.

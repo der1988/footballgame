@@ -46,6 +46,7 @@ void system_player_collisions(struct game_state *game_state)
 		{
 			state_machine_player_fire(
 				&tackled_player_entity->player.state_machine, PT_TACKLED, game_state);
+			tackled_player_entity->player.last_tackled_time = game_state->time;
 			GLOGF_INFO_CTX(LS_GAME,
 						   entities.array[tackled_player_entity_i]->header.name,
 						   "player tackled by %s",
@@ -92,12 +93,16 @@ void system_player_collisions(struct game_state *game_state)
 			struct entity *last_tackler =
 				entity_get(game_state->entity_repository, ball->last_tackle_entity_id);
 
+			// A challenge locks the ball away from the side that lost it: briefly from the whole
+			// team, so a ball knocked loose is not taken straight back, and for longer from the
+			// man who was challenged.
 			player->is_colliding_with_ball =
 				collision_with_ball_info.is_colliding &&
 				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f) &&
 				(!last_tackler ||
 				 last_tackler->player.team_side == player_entity->player.team_side ||
-				 HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f));
+				 HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f)) &&
+				HAS_TIME_PASSED(game_state->time, player->last_tackled_time, 0.5f);
 
 			if (player->is_colliding_with_ball) {
 				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
@@ -120,18 +125,19 @@ void system_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_SLIDING_TACKLE: {
-			if (ball->last_tackle_entity_id == player_entity->header.id &&
-				!HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f)) {
+			// A challenge plays the ball once. The state outlasts any timer short enough to let
+			// contact through again, so what has already been played is what stops it.
+			if (state_machine->state_data.sliding_tackle.touched_ball) {
 				break;
 			}
 
-			struct collider *collider = &player_entity->collider.colliders[PCT_TACKLE_1];
+			struct collider *collider = &player_entity->collider.colliders[PCT_SLIDING_TACKLE_1];
 
 			// Check first tackle collider
 			struct collision_information collision_with_ball_info =
 				entity_player_is_colliding_with_ball(
 					player_entity,
-					PCT_TACKLE_1,
+					PCT_SLIDING_TACKLE_1,
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
@@ -139,10 +145,10 @@ void system_player_collisions(struct game_state *game_state)
 
 			// If no hit, check second tackle collider
 			if (!collision_with_ball_info.is_colliding) {
-				collider = &player_entity->collider.colliders[PCT_TACKLE_2];
+				collider = &player_entity->collider.colliders[PCT_SLIDING_TACKLE_2];
 				collision_with_ball_info = entity_player_is_colliding_with_ball(
 					player_entity,
-					PCT_TACKLE_2,
+					PCT_SLIDING_TACKLE_2,
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
 					ball_entity->physics3d.velocity,
 					ball_collider->colliders[0].props.circle.radius,
@@ -223,6 +229,26 @@ void system_player_collisions(struct game_state *game_state)
 			}
 
 			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
+
+			break;
+		}
+		case PS_TACKLE: {
+			if (state_machine->state_data.tackle.touched_ball) {
+				break;
+			}
+
+			const struct collision_information collision_with_ball_info =
+				entity_player_is_colliding_with_ball(
+					player_entity,
+					PCT_TACKLE,
+					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+					ball_entity->physics3d.velocity,
+					ball_collider->colliders[0].props.circle.radius,
+					player->constants.control_height);
+
+			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
+			player->collision_direction = collision_with_ball_info.direction;
+			player->collision_force = collision_with_ball_info.force;
 
 			break;
 		}

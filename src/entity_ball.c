@@ -409,17 +409,20 @@ void entity_ball_tackle(struct entity *ball_entity,
 						entity_id_t tackler_entity_id,
 						v3 direction,
 						f32 power,
+						f32 force,
+						b32 reset_velocity,
 						struct game_state *game_state)
 {
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
 
-	// physics3d->velocity = Vector3Zero();
+	if (reset_velocity) {
+		physics3d->velocity = Vector3Zero();
+	}
 	physics3d->accel = Vector3Add(
 		physics3d->accel,
 		Vector3Scale(direction,
-					 math_ext_split_lerp(game_state->constants.ball_tackle_force, 0.5f, power) /
-						 game_state->dt));
+					 math_ext_split_lerp(force, 0.5f, power) / game_state->dt));
 	ball->last_tackle_time = game_state->time;
 	ball->last_tackle_entity_id = tackler_entity_id;
 	ball->last_kick_time = game_state->time;
@@ -463,7 +466,7 @@ void entity_ball_deviate_trajectory(struct entity *ball_entity,
 	physics3d->accel =
 		Vector3Add(physics3d->accel,
 				   Vector3Scale(random_deviation,
-								math_ext_split_lerp(game_state->constants.ball_tackle_force,
+								math_ext_split_lerp(game_state->constants.ball_sliding_tackle_force,
 													0.0f,
 													GetRandomValue(25, 100) / 100.f) /
 									game_state->dt));
