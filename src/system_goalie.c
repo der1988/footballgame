@@ -49,8 +49,6 @@ void system_goalie(struct game_state *game_state)
 		const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
 		// const f32 ball_distance_from_goal = Vector2Distance(goal_center, V3_TO_V2(ball_position));
 
-		collider->colliders[PCT_PLAYER].props.circle.radius =
-			game_state->constants.player_control_radius;
 		struct collider *goalie_collider = &collider->colliders[PCT_GOALIE];
 
 		entity_id_t player_in_possession_entity_id =

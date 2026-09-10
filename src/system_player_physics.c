@@ -37,14 +37,11 @@ void system_player_physics(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, physics);
 		DECLARE_ENTITY_COMPONENT(entity, player);
-		DECLARE_ENTITY_COMPONENT(entity, collider);
 		DECLARE_ENTITY_COMPONENT(entity, sprite);
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
 		struct component_player_controls *player_controls = &entity->player_controls;
-
-		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
@@ -390,6 +387,35 @@ void system_player_physics(struct game_state *game_state)
 				state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
 				break;
 			}
+
+			break;
+		}
+		case PS_TACKLED_RUN: {
+			struct state_machine_player_tackled_run_data *tackled_run_state_data =
+				&player->state_machine.state_data.tackled_run;
+
+			if (HAS_TIME_PASSED(game_state->time,
+								tackled_run_state_data->start_time,
+								game_state->constants.player_tackled_run_time)) {
+				state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
+				break;
+			}
+
+			physics->max_velocity = tackled_run_state_data->speed;
+
+			entity_player_physics_apply_force(entity,
+											  Vector2Scale(tackled_run_state_data->direction,
+														   player->constants.movement_force),
+											  game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
+
+			entity_player_anim_calculate_running_frame(
+				entity,
+				game_state->gfx.player.stand_frames,
+				game_state->gfx.player.run_tackled_animations,
+				tackled_run_state_data->direction,
+				3,
+				game_state);
 
 			break;
 		}

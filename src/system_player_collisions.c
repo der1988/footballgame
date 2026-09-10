@@ -16,6 +16,11 @@
 #include <stdio.h>
 #include <float.h>
 
+// Chance that a player hit by a tackle falls (PS_FALL) instead of starting a tackled run
+// (PS_TACKLED_RUN).
+#define TACKLE_KNOCKDOWN_PROBABILITY		 0.05f
+#define SLIDING_TACKLE_KNOCKDOWN_PROBABILITY 0.3f
+
 void system_player_collisions(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
@@ -25,6 +30,13 @@ void system_player_collisions(struct game_state *game_state)
 
 	struct entity_repository *repo = game_state->entity_repository;
 
+	FOR_EACH_ENTITY(entity, repo)
+	{
+		if (entity->header.alive && entity->header.type == ET_PLAYER) {
+			entity_player_update_colliders(entity);
+		}
+	}
+
 	// Handle tackles
 	FOR_EACH_ENTITY(tackling_player_entity, repo)
 	{
@@ -32,25 +44,27 @@ void system_player_collisions(struct game_state *game_state)
 			tackling_player_entity->header.type != ET_PLAYER)
 			continue;
 
-		DECLARE_ENTITY_COMPONENT(tackling_player_entity, player);
+		const enum state_machine_player_state state =
+			tackling_player_entity->player.state_machine.current_state;
 
-		struct state_machine_player *state_machine = &player->state_machine;
-
-		if (state_machine->current_state != PS_SLIDING_TACKLE) {
+		enum player_collider_type tackle_collider;
+		f32 knockdown_probability;
+		if (state == PS_TACKLE) {
+			tackle_collider = PCT_TACKLE;
+			knockdown_probability = TACKLE_KNOCKDOWN_PROBABILITY;
+		} else if (state == PS_SLIDING_TACKLE) {
+			tackle_collider = PCT_SLIDING_TACKLE_1;
+			knockdown_probability = SLIDING_TACKLE_KNOCKDOWN_PROBABILITY;
+		} else {
 			continue;
 		}
 
-		struct list_entities entities =
-			entity_player_find_tackled_opponents(tackling_player_entity, game_state);
+		struct list_entities entities = entity_player_find_tackled_opponents(
+			tackling_player_entity, tackle_collider, game_state);
 		LIST_ITERATE(tackled_player_entity, entities)
 		{
-			state_machine_player_fire(
-				&tackled_player_entity->player.state_machine, PT_TACKLED, game_state);
-			tackled_player_entity->player.last_tackled_time = game_state->time;
-			GLOGF_INFO_CTX(LS_GAME,
-						   entities.array[tackled_player_entity_i]->header.name,
-						   "player tackled by %s",
-						   tackling_player_entity->header.name);
+			entity_player_tackled(
+				tackled_player_entity, tackling_player_entity, knockdown_probability, game_state);
 		}
 	}
 
@@ -66,11 +80,8 @@ void system_player_collisions(struct game_state *game_state)
 
 		DECLARE_ENTITY_COMPONENT(player_entity, transform);
 		DECLARE_ENTITY_COMPONENT(player_entity, player);
-		DECLARE_ENTITY_COMPONENT(player_entity, collider);
 
 		struct state_machine_player *state_machine = &player->state_machine;
-
-		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		// Reset variables
 		player->is_colliding_with_ball = false;
@@ -93,16 +104,14 @@ void system_player_collisions(struct game_state *game_state)
 			struct entity *last_tackler =
 				entity_get(game_state->entity_repository, ball->last_tackle_entity_id);
 
-			// A challenge locks the ball away from the side that lost it: briefly from the whole
-			// team, so a ball knocked loose is not taken straight back, and for longer from the
-			// man who was challenged.
+			// After a tackle plays the ball, the tackled team can't touch it for 0.1s, so they
+			// can't take a ball that was knocked loose straight back.
 			player->is_colliding_with_ball =
 				collision_with_ball_info.is_colliding &&
 				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f) &&
 				(!last_tackler ||
 				 last_tackler->player.team_side == player_entity->player.team_side ||
-				 HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f)) &&
-				HAS_TIME_PASSED(game_state->time, player->last_tackled_time, 0.5f);
+				 HAS_TIME_PASSED(game_state->time, ball->last_tackle_time, 0.1f));
 
 			if (player->is_colliding_with_ball) {
 				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
@@ -249,6 +258,35 @@ void system_player_collisions(struct game_state *game_state)
 			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
 			player->collision_direction = collision_with_ball_info.direction;
 			player->collision_force = collision_with_ball_info.force;
+
+			break;
+		}
+		case PS_TACKLED_RUN: {
+			// He can only touch the ball while he is still the last player who touched it. Once
+			// someone else touches it (the tackler too), he can't get it back until he recovers.
+			if (ball->last_touch_entity_id != player_entity_id) {
+				break;
+			}
+
+			const struct collision_information collision_with_ball_info =
+				entity_player_is_colliding_with_ball(
+					player_entity,
+					PCT_PLAYER,
+					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+					ball_entity->physics3d.velocity,
+					ball_collider->colliders[0].props.circle.radius,
+					player->constants.control_height);
+
+			player->is_colliding_with_ball = collision_with_ball_info.is_colliding;
+
+			if (player->is_colliding_with_ball) {
+				const f32 distance_from_the_ball =
+					Vector2DistanceSqr(transform->position, ball_transform->position);
+				if (distance_from_the_ball < min_distance_from_the_ball_possession) {
+					player_on_the_ball_entity = player_entity;
+					min_distance_from_the_ball_possession = distance_from_the_ball;
+				}
+			}
 
 			break;
 		}

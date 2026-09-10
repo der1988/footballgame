@@ -314,6 +314,20 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  TextFormat("%.2f", game_state->constants.player_dribble_max_time),
 							  0);
 			changed |=
+				igSliderFloat("Tackled run time",
+							  &game_state->constants.player_tackled_run_time,
+							  0.0f,
+							  3.0f,
+							  TextFormat("%.2f", game_state->constants.player_tackled_run_time),
+							  0);
+			changed |= igSliderFloat(
+				"Tackled run min velocity",
+				&game_state->constants.player_tackled_run_min_velocity,
+				0.0f,
+				120.0f,
+				TextFormat("%.2f", game_state->constants.player_tackled_run_min_velocity),
+				0);
+			changed |=
 				igSliderFloat("Goal side bonus",
 							  &game_state->constants.player_goal_side_bonus,
 							  0.0f,

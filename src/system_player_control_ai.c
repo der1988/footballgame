@@ -45,14 +45,11 @@ void system_player_control_ai(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, physics);
 		DECLARE_ENTITY_COMPONENT(entity, player);
-		DECLARE_ENTITY_COMPONENT(entity, collider);
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 		RESET_COMPONENT(player_controls);
-
-		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		switch (state_machine->current_state) {
 		case PS_NONE:
@@ -170,6 +167,7 @@ void system_player_control_ai(struct game_state *game_state)
 		case PS_TACKLE:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
+		case PS_TACKLED_RUN:
 		case PS_COUNT:
 			break;
 		}

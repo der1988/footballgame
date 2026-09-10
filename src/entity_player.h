@@ -33,6 +33,7 @@ enum state_machine_player_state {
 	PS_TACKLE,
 	PS_SLIDING_TACKLE,
 	PS_FALL,
+	PS_TACKLED_RUN,
 	PS_GOALIE,
 	PS_COUNT
 };
@@ -46,6 +47,7 @@ enum state_machine_player_trigger {
 	PT_TACKLE,
 	PT_SLIDE_TACKLE,
 	PT_TACKLED,
+	PT_KNOCKED_DOWN,
 	PT_RECOVER,
 	PT_COUNT
 };
@@ -136,11 +138,19 @@ struct state_machine_player_header_data {
 	b32 hit_ball;
 };
 
+struct state_machine_player_tackled_run_data {
+	fg_time_t start_time;
+	// Set when the tackled run starts. They don't change until he recovers.
+	v2 direction;
+	f32 speed;
+};
+
 union state_machine_player_state_data {
 	struct state_machine_player_normal_data normal;
 	struct state_machine_player_tackle_data tackle;
 	struct state_machine_player_sliding_tackle_data sliding_tackle;
 	struct state_machine_player_fall_data fall;
+	struct state_machine_player_tackled_run_data tackled_run;
 	struct state_machine_player_header_data header;
 	struct state_machine_default_empty_data goalie;
 };
@@ -361,8 +371,20 @@ b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 											   struct nearest_player *out_nearest_facing_oppo,
 											   struct game_state *game_state);
 
+// Sets the colliders that depend on the player's facing or constants. Call for every player once
+// per tick, before any collision check.
+void entity_player_update_colliders(struct entity *player_entity);
+
 struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,
+														  enum player_collider_type tackle_collider,
 														  struct game_state *game_state);
+
+// Call when a tackle hits the player. With probability knockdown_probability he falls (PS_FALL),
+// otherwise he starts a tackled run (PS_TACKLED_RUN). He must be in PS_NORMAL.
+void entity_player_tackled(struct entity *player_entity,
+						   struct entity *tackler_entity,
+						   f32 knockdown_probability,
+						   struct game_state *game_state);
 
 b32 entity_player_is_trajectory_clear(v2 passer_position,
 									  v2 target_position,

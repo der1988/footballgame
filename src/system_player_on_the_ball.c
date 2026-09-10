@@ -444,6 +444,19 @@ void system_player_on_the_ball(struct game_state *game_state)
 
 			break;
 		}
+		case PS_TACKLED_RUN: {
+			// No controls during a tackled run: he can't kick, the ball just moves with him
+			f32 speed_mult =
+				Clamp01(powf(player_speed, 4) / powf(player->constants.run_max_velocity, 4));
+			f32 ball_height_mult =
+				(ball_transform->virtual_height - 2.5f) / (player->constants.control_height - 2.5f);
+			entity_ball_control_running(ball_entity,
+										state_machine->state_data.tackled_run.direction,
+										player_velocity,
+										(speed_mult + ball_height_mult) / 3.0f,
+										game_state);
+			break;
+		}
 		case PS_TACKLE:
 		case PS_GOALIE:
 		case PS_THROW_IN:

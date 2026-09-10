@@ -46,8 +46,15 @@
 const struct header_phase_window header_phase_windows[] = {
 	{16, 22, 19}, {19, 25, 22}, {22, 28, 25}, {25, 31, 28}, {28, 34, 31}};
 
-const char *state_machine_player_state_string[PS_COUNT] = {
-	"none", "normal", "throw_in", "header", "tackle", "sliding_tackle", "fall", "goalie"};
+const char *state_machine_player_state_string[PS_COUNT] = {"none",
+														   "normal",
+														   "throw_in",
+														   "header",
+														   "tackle",
+														   "sliding_tackle",
+														   "fall",
+														   "tackled_run",
+														   "goalie"};
 
 const char *player_dribble_turn_string[PDT_COUNT] = {"FtoB_right",
 													 "FtoB_left",
@@ -119,7 +126,7 @@ const char *state_machine_goalie_state_string[GS_COUNT] = {
 	"none", "protect_goal", "dive", "hold_ball", "jump"};
 
 const char *state_machine_player_trigger_string[PT_COUNT] = {
-	"none", "head", "tackle", "slide_tackle", "tackled", "recover"};
+	"none", "head", "tackle", "slide_tackle", "tackled", "knocked_down", "recover"};
 
 const char *state_machine_goalie_trigger_string[GT_COUNT] = {
 	"none", "dive", "jump", "catch", "recover", "release"};
@@ -130,11 +137,13 @@ static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COU
 	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER,
 				   [PT_TACKLE] = PS_TACKLE,
 				   [PT_SLIDE_TACKLE] = PS_SLIDING_TACKLE,
-				   [PT_TACKLED] = PS_FALL},
+				   [PT_TACKLED] = PS_TACKLED_RUN,
+				   [PT_KNOCKED_DOWN] = PS_FALL},
 	[PS_HEADER] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_SLIDING_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_FALL] = {[PT_RECOVER] = PS_NORMAL},
+	[PS_TACKLED_RUN] = {[PT_RECOVER] = PS_NORMAL},
 };
 
 static const enum state_machine_goalie_state goalie_transitions[GS_COUNT][GT_COUNT] = {
@@ -410,6 +419,20 @@ static void state_machine_player_on_enter(struct entity *entity,
 
 		break;
 	}
+	case PS_TACKLED_RUN: {
+		struct state_machine_player_tackled_run_data *tackled_run_data =
+			&state_machine->state_data.tackled_run;
+		input_reset_player(entity->header.id, game_state);
+		const v2 velocity = entity->physics.velocity;
+		tackled_run_data->direction =
+			physics_is_at_rest(velocity, 3) ?
+				Vector2Normalize(ORIENTATION_VECTORS[sprite->orientation]) :
+				Vector2Normalize(velocity);
+		tackled_run_data->speed =
+			fmaxf(Vector2Length(velocity), game_state->constants.player_tackled_run_min_velocity);
+		tackled_run_data->start_time = game_state->time;
+		break;
+	}
 	case PS_NONE:
 	case PS_NORMAL:
 	case PS_GOALIE:
@@ -443,6 +466,7 @@ static void state_machine_player_on_exit(struct entity *entity,
 	case PS_TACKLE:
 	case PS_SLIDING_TACKLE:
 	case PS_FALL:
+	case PS_TACKLED_RUN:
 	case PS_COUNT:
 		break;
 	}
@@ -546,6 +570,25 @@ static f32 ball_collision_force(v2 ball_velocity, v2 player_velocity, f32 slow_b
 											Vector2Normalize(player_velocity)));
 }
 
+void entity_player_update_colliders(struct entity *player_entity)
+{
+	struct collider *colliders = player_entity->collider.colliders;
+	const enum sprite_orientation orientation = player_entity->sprite.orientation;
+
+	colliders[PCT_PLAYER].props.circle.radius = player_entity->player.constants.control_radius;
+
+	const struct tackle_collider_config tackle = ORIENTATION_TO_TACKLE_COLLIDER_CONFIG[orientation];
+	colliders[PCT_TACKLE].props.circle.offset = tackle.offset;
+	colliders[PCT_TACKLE].props.circle.radius = tackle.radius;
+
+	const struct sliding_tackle_colliders_config sliding_tackle =
+		ORIENTATION_TO_SLIDING_TACKLE_COLLIDERS_CONFIG[orientation];
+	colliders[PCT_SLIDING_TACKLE_1].props.circle.offset = sliding_tackle.collider_1.offset;
+	colliders[PCT_SLIDING_TACKLE_1].props.circle.radius = sliding_tackle.collider_1.radius;
+	colliders[PCT_SLIDING_TACKLE_2].props.circle.offset = sliding_tackle.collider_2.offset;
+	colliders[PCT_SLIDING_TACKLE_2].props.circle.radius = sliding_tackle.collider_2.radius;
+}
+
 struct collision_information
 entity_player_is_colliding_with_ball(struct entity *entity,
 									 enum player_collider_type collider_type,
@@ -556,35 +599,19 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 {
 	const v2 player_position = entity->transform.position;
 	const v2 ball_pos = V3_TO_V2(ball_position);
-	struct collider *colliders = entity->collider.colliders;
-	const struct collider *collider = &colliders[collider_type];
+	const struct collider *collider = &entity->collider.colliders[collider_type];
 
 	b32 check_needed = true;
 	b32 plays_ball = false;
 	f32 slow_ball_force = 0;
 
 	switch (collider_type) {
-	case PCT_TACKLE: {
-		const struct tackle_collider_config config =
-			ORIENTATION_TO_TACKLE_COLLIDER_CONFIG[entity->sprite.orientation];
-		colliders[PCT_TACKLE].props.circle.offset = config.offset;
-		colliders[PCT_TACKLE].props.circle.radius = config.radius;
-		plays_ball = true;
-		slow_ball_force = 0.5f;
-		break;
-	}
+	case PCT_TACKLE:
 	case PCT_SLIDING_TACKLE_1:
-	case PCT_SLIDING_TACKLE_2: {
-		const struct sliding_tackle_colliders_config config =
-			ORIENTATION_TO_SLIDING_TACKLE_COLLIDERS_CONFIG[entity->sprite.orientation];
-		colliders[PCT_SLIDING_TACKLE_1].props.circle.offset = config.collider_1.offset;
-		colliders[PCT_SLIDING_TACKLE_1].props.circle.radius = config.collider_1.radius;
-		colliders[PCT_SLIDING_TACKLE_2].props.circle.offset = config.collider_2.offset;
-		colliders[PCT_SLIDING_TACKLE_2].props.circle.radius = config.collider_2.radius;
+	case PCT_SLIDING_TACKLE_2:
 		plays_ball = true;
 		slow_ball_force = 0.5f;
 		break;
-	}
 	case PCT_HEADER:
 		plays_ball = true;
 		break;
@@ -1072,6 +1099,7 @@ b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 }
 
 struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,
+														  enum player_collider_type tackle_collider,
 														  struct game_state *game_state)
 {
 	const u8 max_tackled_players = 3;
@@ -1091,13 +1119,13 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 			const v2 opponent_collider_pos = Vector2Add(
 				opponent_entity->transform.position,
 				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.offset);
-			const v2 player_collider_pos = Vector2Add(
-				player_entity->transform.position,
-				player_entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.offset);
+			const struct collider *tackle = &player_entity->collider.colliders[tackle_collider];
+			const v2 player_collider_pos =
+				Vector2Add(player_entity->transform.position, tackle->props.circle.offset);
 
 			const b32 is_tackled = CheckCollisionCircles(
 				player_collider_pos,
-				player_entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.radius,
+				tackle->props.circle.radius,
 				opponent_collider_pos,
 				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.radius);
 
@@ -1110,6 +1138,28 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 		}
 	}
 	return tackled_players;
+}
+
+void entity_player_tackled(struct entity *player_entity,
+						   struct entity *tackler_entity,
+						   f32 knockdown_probability,
+						   struct game_state *game_state)
+{
+	struct state_machine_player *state_machine = &player_entity->player.state_machine;
+
+	if (RANDOM_01(100000) < knockdown_probability) {
+		state_machine_player_fire(state_machine, PT_KNOCKED_DOWN, game_state);
+		GLOGF_INFO_CTX(LS_GAME,
+					   player_entity->header.name,
+					   "player knocked down by %s",
+					   tackler_entity->header.name);
+	} else {
+		state_machine_player_fire(state_machine, PT_TACKLED, game_state);
+		GLOGF_INFO_CTX(LS_GAME,
+					   player_entity->header.name,
+					   "player tackled by %s",
+					   tackler_entity->header.name);
+	}
 }
 
 b32 entity_player_find_nearest(v2 position,

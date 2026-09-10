@@ -43,7 +43,6 @@ void system_player_control_human(struct game_state *game_state)
 		}
 
 		DECLARE_ENTITY_COMPONENT(entity, player);
-		DECLARE_ENTITY_COMPONENT(entity, collider);
 
 		struct state_machine_player *state_machine = &player->state_machine;
 
@@ -52,8 +51,6 @@ void system_player_control_human(struct game_state *game_state)
 
 		struct entity *last_entity_that_touched_ball =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
-
-		collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
 
 		// Player is human controlled
 		struct game_controller *game_controller =
@@ -209,6 +206,7 @@ void system_player_control_human(struct game_state *game_state)
 		case PS_TACKLE:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
+		case PS_TACKLED_RUN:
 		case PS_HEADER:
 		case PS_GOALIE:
 		case PS_THROW_IN:

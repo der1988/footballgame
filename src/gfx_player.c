@@ -151,6 +151,24 @@ void gfx_player_prepare(struct game_state *game_state)
 	player->run_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
 		animation_cache, "player", "run_back_right", memory_arena_handle);
 
+	// Tackled running animations
+	player->run_tackled_animations[SO_DOWN] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_front", memory_arena_handle);
+	player->run_tackled_animations[SO_UP] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_back", memory_arena_handle);
+	player->run_tackled_animations[SO_LEFT] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_left", memory_arena_handle);
+	player->run_tackled_animations[SO_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_right", memory_arena_handle);
+	player->run_tackled_animations[SO_DOWN_LEFT] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_front_left", memory_arena_handle);
+	player->run_tackled_animations[SO_DOWN_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_front_right", memory_arena_handle);
+	player->run_tackled_animations[SO_UP_LEFT] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_back_left", memory_arena_handle);
+	player->run_tackled_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "player", "run_tackled_back_right", memory_arena_handle);
+
 	// Fall animations
 	player->fall_animations[SO_DOWN] =
 		asset_animation_id_from_name(animation_cache, "player", "fall_front", memory_arena_handle);

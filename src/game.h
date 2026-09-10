@@ -100,6 +100,10 @@ struct game_constants {
 	f32 player_dribble_max_time;
 	f32 player_goal_side_bonus;
 	f32 player_switch_grace_time;
+	// Tackled run: how long the player keeps running straight after a tackle, and the slowest
+	// speed he runs at.
+	f32 player_tackled_run_time;
+	f32 player_tackled_run_min_velocity;
 
 	f32 goalie_dive_reaction_time;
 	f32 goalie_dive_force;
@@ -157,6 +161,7 @@ struct game_gfx {
 	struct player {
 		asset_sprite_frame_id_t stand_frames[SO_COUNT];
 		asset_animation_id_t run_animations[SO_COUNT];
+		asset_animation_id_t run_tackled_animations[SO_COUNT];
 		asset_sprite_frame_id_t tackle_frames[SO_COUNT];
 		asset_sprite_frame_id_t sliding_tackle_frames[SO_COUNT];
 		asset_sprite_frame_id_t dribble_frames[PDT_COUNT];
