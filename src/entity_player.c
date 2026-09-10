@@ -535,6 +535,17 @@ static void state_machine_goalie_on_exit(struct entity *entity,
 	}
 }
 
+// If ball velocity is sufficient, collision force depends on how aligned are the velocities of
+// ball and player
+static f32 ball_collision_force(v2 ball_velocity, v2 player_velocity, f32 slow_ball_force)
+{
+	if (Vector2LengthSqr(ball_velocity) <= 25) {
+		return slow_ball_force;
+	}
+	return 0.5f * (1 - Vector2ProjectScalar(Vector2Normalize(ball_velocity),
+											Vector2Normalize(player_velocity)));
+}
+
 struct collision_information
 entity_player_is_colliding_with_ball(struct entity *entity,
 									 enum player_collider_type collider_type,
@@ -545,119 +556,73 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 {
 	const v2 player_position = entity->transform.position;
 	const v2 ball_pos = V3_TO_V2(ball_position);
-	b32 check_collision = false;
-	struct collider *collider = &entity->collider.colliders[collider_type];
+	struct collider *colliders = entity->collider.colliders;
+	const struct collider *collider = &colliders[collider_type];
 
-	v2 collision_direction = Vector2Zero();
-	f32 collision_force = 0;
+	b32 check_needed = true;
+	b32 plays_ball = false;
+	f32 slow_ball_force = 0;
 
 	switch (collider_type) {
 	case PCT_TACKLE: {
-		struct tackle_collider_config config =
+		const struct tackle_collider_config config =
 			ORIENTATION_TO_TACKLE_COLLIDER_CONFIG[entity->sprite.orientation];
-		entity->collider.colliders[PCT_TACKLE].props.circle.offset = config.offset;
-		entity->collider.colliders[PCT_TACKLE].props.circle.radius = config.radius;
-
-		check_collision =
-			CheckCollisionCircles(ball_pos,
-								  ball_radius,
-								  Vector2Add(player_position, collider->props.circle.offset),
-								  collider->props.circle.radius);
-		if (check_collision) {
-			collision_direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
-
-			const v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
-			collision_force = 0.5f;
-
-			if (Vector2LengthSqr(ball_velocity_2d) > 25) {
-				collision_force =
-					(1 + -Vector2ProjectScalar(Vector2Normalize(V3_TO_V2(ball_velocity)),
-											   Vector2Normalize(entity->physics.velocity))) *
-					collision_force;
-			}
-		}
+		colliders[PCT_TACKLE].props.circle.offset = config.offset;
+		colliders[PCT_TACKLE].props.circle.radius = config.radius;
+		plays_ball = true;
+		slow_ball_force = 0.5f;
 		break;
 	}
 	case PCT_SLIDING_TACKLE_1:
 	case PCT_SLIDING_TACKLE_2: {
-		struct sliding_tackle_colliders_config config =
+		const struct sliding_tackle_colliders_config config =
 			ORIENTATION_TO_SLIDING_TACKLE_COLLIDERS_CONFIG[entity->sprite.orientation];
-		entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.offset = config.collider_1.offset;
-		entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.radius = config.collider_1.radius;
-		entity->collider.colliders[PCT_SLIDING_TACKLE_2].props.circle.offset = config.collider_2.offset;
-		entity->collider.colliders[PCT_SLIDING_TACKLE_2].props.circle.radius = config.collider_2.radius;
-
-		check_collision =
-			CheckCollisionCircles(ball_pos,
-								  ball_radius,
-								  Vector2Add(player_position, collider->props.circle.offset),
-								  collider->props.circle.radius);
-		if (check_collision) {
-			// Collision direction is calculated from player position
-			collision_direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
-
-			const v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
-			collision_force = 0.5f;
-
-			// If ball velocity is sufficient, collision force depends on how aligned are the
-			// velocities of ball and player
-			if (Vector2LengthSqr(ball_velocity_2d) > 25) {
-				collision_force =
-					(1 + -Vector2ProjectScalar(Vector2Normalize(V3_TO_V2(ball_velocity)),
-											   Vector2Normalize(entity->physics.velocity))) *
-					collision_force;
-			}
-		}
+		colliders[PCT_SLIDING_TACKLE_1].props.circle.offset = config.collider_1.offset;
+		colliders[PCT_SLIDING_TACKLE_1].props.circle.radius = config.collider_1.radius;
+		colliders[PCT_SLIDING_TACKLE_2].props.circle.offset = config.collider_2.offset;
+		colliders[PCT_SLIDING_TACKLE_2].props.circle.radius = config.collider_2.radius;
+		plays_ball = true;
+		slow_ball_force = 0.5f;
 		break;
 	}
-	case PCT_DIVE:
-		check_collision = CheckCollisionCircleRec(
-			ball_pos,
-			ball_radius,
-			collision_calculate_rectangle(
-				player_position, collider->props.rectangle.size, collider->props.rectangle.offset));
+	case PCT_HEADER:
+		plays_ball = true;
 		break;
 	case PCT_PLAYER:
 	case PCT_GOALIE:
-		check_collision =
-			CheckCollisionCircles(ball_pos,
-								  ball_radius,
-								  Vector2Add(player_position, collider->props.circle.offset),
-								  collider->props.circle.radius);
-		break;
-	case PCT_HEADER:
-		check_collision =
-			CheckCollisionCircles(ball_pos,
-								  ball_radius,
-								  Vector2Add(player_position, collider->props.circle.offset),
-								  collider->props.circle.radius);
-		if (check_collision) {
-			// Collision direction is calculated from player position
-			collision_direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
-
-			const v2 ball_velocity_2d = V3_TO_V2(ball_velocity);
-
-			// If ball velocity is sufficient, collision force depends on how aligned are the
-			// velocities of ball and player
-			if (Vector2LengthSqr(ball_velocity_2d) > 25) {
-				collision_force =
-					0.5 - Vector2ProjectScalar(Vector2Normalize(V3_TO_V2(ball_velocity)),
-											   Vector2Normalize(entity->physics.velocity)) *
-							  0.5f;
-			}
-		}
+	case PCT_DIVE:
 		break;
 	case PCT_BODY:
 	case PCT_TACKLE_SENSOR:
 	case PCT_COUNT:
+		check_needed = false;
 		break;
 	}
 
-	if (check_collision && ball_position.y < max_height) {
-		return (struct collision_information){
-			.is_colliding = true, .direction = collision_direction, .force = collision_force};
+	if (!check_needed || ball_position.y >= max_height) {
+		return (struct collision_information){.is_colliding = false};
 	}
-	return (struct collision_information){.is_colliding = false};
+
+	const b32 is_colliding =
+		collider->shape == CS_RECTANGLE ?
+			CheckCollisionCircleRec(
+				ball_pos,
+				ball_radius,
+				collision_calculate_rectangle(player_position,
+											  collider->props.rectangle.size,
+											  collider->props.rectangle.offset)) :
+			CheckCollisionCircles(ball_pos,
+								  ball_radius,
+								  Vector2Add(player_position, collider->props.circle.offset),
+								  collider->props.circle.radius);
+
+	struct collision_information collision = {.is_colliding = is_colliding};
+	if (is_colliding && plays_ball) {
+		collision.direction = Vector2Normalize(Vector2Subtract(ball_pos, player_position));
+		collision.force = ball_collision_force(
+			V3_TO_V2(ball_velocity), entity->physics.velocity, slow_ball_force);
+	}
+	return collision;
 }
 
 b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
@@ -1126,9 +1091,9 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 			const v2 opponent_collider_pos = Vector2Add(
 				opponent_entity->transform.position,
 				opponent_entity->collider.colliders[PCT_TACKLE_SENSOR].props.circle.offset);
-			const v2 player_collider_pos =
-				Vector2Add(player_entity->transform.position,
-						   player_entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.offset);
+			const v2 player_collider_pos = Vector2Add(
+				player_entity->transform.position,
+				player_entity->collider.colliders[PCT_SLIDING_TACKLE_1].props.circle.offset);
 
 			const b32 is_tackled = CheckCollisionCircles(
 				player_collider_pos,
