@@ -82,7 +82,7 @@ void system_players_off_the_ball(struct game_state *game_state)
 								   V2_TO_V3(tackle_direction, 0),
 								   tackle_force,
 								   game_state->constants.ball_tackle_force,
-								   true,
+								   BTT_STANDING,
 								   game_state);
 				// Playing the ball takes it off him there and then. Nobody is in individual
 				// possession of a ball that has just been knocked loose, but it is the

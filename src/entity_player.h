@@ -287,6 +287,14 @@ void entity_player_physics_apply_force(struct entity *player_entity,
 void entity_player_physics_apply_velocity(struct entity *player_entity,
 										  struct game_state *game_state);
 
+// Steering a player the way a stick does: pointing where he should go, at most 1 long. Speed is
+// left to player physics, which caps it.
+v2 entity_player_steer_seek(struct entity *player_entity, v2 target);
+v2 entity_player_steer_arrive(struct entity *player_entity,
+							  v2 target,
+							  struct game_state *game_state);
+v2 entity_player_steer_pursuit(struct entity *player_entity, v2 target, v2 target_velocity);
+
 void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 												asset_sprite_frame_id_t *stand_frames,
 												asset_animation_id_t *run_animations,

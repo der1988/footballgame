@@ -104,6 +104,10 @@ struct game_constants {
 	// speed he runs at.
 	f32 player_tackled_run_time;
 	f32 player_tackled_run_min_velocity;
+	// Steering for AI and assisted players: brakes onto a target at brake_ratio of the player's
+	// full push, and only eases off the stick once his velocity is within band of the one it wants.
+	f32 player_steering_brake_ratio;
+	f32 player_steering_band;
 
 	f32 goalie_dive_reaction_time;
 	f32 goalie_dive_force;
@@ -203,6 +207,7 @@ struct debug_flags {
 	b32 show_goal_collider;
 
 	b32 show_player_collider[PCT_COUNT];
+	b32 show_player_steering;
 };
 
 struct game_state {

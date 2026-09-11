@@ -56,8 +56,7 @@ void system_player_on_the_ball(struct game_state *game_state)
 				b32 deviate_trajectory = true;
 				if (deviate_trajectory) {
 					GLOG_DEBUG_CTX(LS_GAME, player_entity->header.name, "deviating trajectory\n");
-					entity_ball_deviate_trajectory(
-						ball_entity, player_on_the_ball_entity_id, game_state);
+					entity_ball_deviate_trajectory(ball_entity, game_state);
 				}
 				return;
 			}
@@ -323,7 +322,7 @@ void system_player_on_the_ball(struct game_state *game_state)
 							   V2_TO_V3(player->collision_direction, 0),
 							   tackle_force,
 							   game_state->constants.ball_sliding_tackle_force,
-							   false,
+							   BTT_SLIDING,
 							   game_state);
 			state_machine->state_data.sliding_tackle.touched_ball = true;
 

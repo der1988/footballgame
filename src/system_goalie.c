@@ -6,7 +6,6 @@
 #include "football.h"
 #include "game.h"
 #include "macro.h"
-#include "steering.h"
 #include "math_ext.h"
 #include "constants.h"
 #include "physics.h"
@@ -159,11 +158,7 @@ void system_goalie(struct game_state *game_state)
 					force = game_state->constants.player_movement_force * 2;
 
 					destination = ball_future_reachable_position;
-					steering = steering_arrive(transform->position,
-											   physics->velocity,
-											   physics->max_velocity,
-											   destination,
-											   10);
+					steering = entity_player_steer_arrive(entity, destination, game_state);
 				} else {
 					// Calculate whether goalie can reach the ball using predicted positions
 					// At this point we already know no one is in possession
@@ -180,10 +175,7 @@ void system_goalie(struct game_state *game_state)
 						force = game_state->constants.player_movement_force * 1;
 
 						destination = V3_TO_V2(prediction.future_pos);
-						steering = steering_seek(transform->position,
-												 physics->velocity,
-												 physics->max_velocity,
-												 destination);
+						steering = entity_player_steer_seek(entity, destination);
 					} else {
 						// ball isn't within reach, let's protect goal
 						protect_goal = true;
@@ -242,8 +234,7 @@ void system_goalie(struct game_state *game_state)
 					destination = Vector2Add(goal_center, Vector2Scale(direction, 20));
 				}
 
-				steering = steering_arrive(
-					transform->position, physics->velocity, physics->max_velocity, destination, 10);
+				steering = entity_player_steer_arrive(entity, destination, game_state);
 			}
 
 			// Run force

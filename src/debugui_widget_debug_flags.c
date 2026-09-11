@@ -21,6 +21,8 @@ void debugui_debug_flags_draw(debugui_t *handle, struct game_state *game_state)
 			igCheckbox("Debug Render", (bool *)&game_state->debug_flags.debug_render);
 			igCheckbox("Show Bounding Boxes", (bool *)&game_state->debug_flags.show_bounding_boxes);
 			igCheckbox("Show Pitch Lines", (bool *)&game_state->debug_flags.show_pitch_lines);
+			igCheckbox("Show Player Steering",
+					   (bool *)&game_state->debug_flags.show_player_steering);
 			igEndTabItem();
 		}
 

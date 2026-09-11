@@ -328,6 +328,19 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 				TextFormat("%.2f", game_state->constants.player_tackled_run_min_velocity),
 				0);
 			changed |=
+				igSliderFloat("Steering brake ratio",
+							  &game_state->constants.player_steering_brake_ratio,
+							  0.05f,
+							  1.0f,
+							  TextFormat("%.2f", game_state->constants.player_steering_brake_ratio),
+							  0);
+			changed |= igSliderFloat("Steering band",
+									 &game_state->constants.player_steering_band,
+									 1.0f,
+									 100.0f,
+									 TextFormat("%.2f", game_state->constants.player_steering_band),
+									 0);
+			changed |=
 				igSliderFloat("Goal side bonus",
 							  &game_state->constants.player_goal_side_bonus,
 							  0.0f,

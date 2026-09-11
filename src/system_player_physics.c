@@ -60,8 +60,10 @@ void system_player_physics(struct game_state *game_state)
 						Vector2Subtract(ball_transform->position, transform->position));
 				}
 				// Ball magnetism: gently bend steering toward the ball when
-				// the player is already heading roughly in the right direction
-				else if (Vector2Length(effective_steering) > 0.3f &&
+				// the player is already heading roughly in the right direction.
+				// Only works if steering is not assisted.
+				else if (!player_controls->steering_assisted &&
+						 Vector2Length(effective_steering) > 0.3f &&
 						 player_in_possession_entity_id != entity_id) {
 					v2 to_ball = Vector2Subtract(ball_transform->position, transform->position);
 					f32 dist_to_ball = Vector2Length(to_ball);
@@ -110,7 +112,8 @@ void system_player_physics(struct game_state *game_state)
 			force_to_apply = Vector2Scale(effective_steering, player->constants.movement_force);
 
 			// Apply drag if no steering applied (per-player)
-			if (steering_magnitude < 0.01f && !physics_set_at_rest_if_needed(physics, 3)) {
+			if (steering_magnitude < 0.01f &&
+				!physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
 				force_to_apply = Vector2Add(
 					force_to_apply, physics_drag_force(physics->velocity, player->constants.drag));
 			}
@@ -183,7 +186,7 @@ void system_player_physics(struct game_state *game_state)
 				// player is seeking the ball now, not turning.
 				if (charging_kick ||
 					(!committed && (running_the_new_way || asked_for_another_turn ||
-									physics_is_at_rest(physics->velocity, 3))) ||
+									physics_is_at_rest(physics->velocity, PLAYER_AT_REST_SPEED))) ||
 					HAS_TIME_PASSED(game_state->time,
 									normal_state_data->dribble.start_time,
 									game_state->constants.player_dribble_max_time)) {
@@ -291,7 +294,7 @@ void system_player_physics(struct game_state *game_state)
 			struct state_machine_player_tackle_data *tackle_state_data =
 				&player->state_machine.state_data.tackle;
 
-			const b32 at_rest = physics_set_at_rest_if_needed(physics, 3);
+			const b32 at_rest = physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED);
 
 			// Body contact can hold a player above the rest threshold for as long as it lasts,
 			// so the challenge also ends on time whether or not he has come to a stop.
@@ -323,7 +326,7 @@ void system_player_physics(struct game_state *game_state)
 				&player->state_machine.state_data.sliding_tackle;
 
 			v2 force_to_apply = Vector2Zero();
-			if (physics_set_at_rest_if_needed(physics, 3)) {
+			if (physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
 				if (HAS_TIME_PASSED(
 						game_state->time, sliding_tackle_state_data->start_time, 0.25f)) {
 					state_machine_player_fire(&player->state_machine, PT_RECOVER, game_state);
@@ -369,7 +372,7 @@ void system_player_physics(struct game_state *game_state)
 
 			v2 force_to_apply = Vector2Zero();
 			if (fall_state_data->animation_completed) {
-				if (!physics_set_at_rest_if_needed(physics, 3)) {
+				if (!physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
 					// Apply friction
 					// TODO: this should depend on type of pitch
 					force_to_apply = physics_drag_force(physics->velocity, 30000);

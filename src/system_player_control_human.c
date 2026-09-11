@@ -8,7 +8,6 @@
 #include "input.h"
 #include "macro.h"
 #include "constants.h"
-#include "steering.h"
 #include "math_ext.h"
 #include <raymath.h>
 #include <string.h>
@@ -109,12 +108,9 @@ void system_player_control_human(struct game_state *game_state)
 						 game_controller_state->current[GAME_CONTROL_TACKLE].digital.down &&
 						 entity_ball_team_in_possession(ball_entity, game_state) !=
 							 entity->player.team_side) {
-					player_controls->steering =
-						steering_pursuit(entity->transform.position,
-										 entity->physics.velocity,
-										 entity->physics.max_velocity,
-										 ball_transform->position,
-										 V3_TO_V2(ball_physics_3d->velocity));
+					player_controls->steering = entity_player_steer_pursuit(
+						entity, ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
+					player_controls->steering_assisted = true;
 				} else if (!action_button_pressed && IS_V2_ZERO(player_controls->steering)) {
 					// This section only triggers if the player is not giving meaningful directional input
 					if (ball->pass_target_entity_id == entity->header.id) {
@@ -123,26 +119,24 @@ void system_player_control_human(struct game_state *game_state)
 						// takes the run over as soon as it leaves the dead zone and gives it back as soon
 						// as it recenters; buttons keep working throughout.
 						player_controls->steering =
-							steering_arrive(entity->transform.position,
-											entity->physics.velocity,
-											entity->physics.max_velocity,
-											entity_player_position_to_seek_to_reach_ball(
-												entity, ball_entity, game_state),
-											20);
+							entity_player_steer_arrive(entity,
+													   entity_player_position_to_seek_to_reach_ball(
+														   entity, ball_entity, game_state),
+													   game_state);
+						player_controls->steering_assisted = true;
 					} else if (ball_transform->virtual_height > HEADER_MAX_HEIGHT &&
 							   game_state->vars.ball.entity->ball
 								   .future_positions[FUTURE_POSITION_BOUNCE]
 								   .available) {
 						// let's steer the player towards where the ball should be reachable again:
 						// this is going to help a lot with headers.
-						player_controls->steering =
-							steering_arrive(entity->transform.position,
-											entity->physics.velocity,
-											entity->physics.max_velocity,
-											V3_TO_V2(game_state->vars.ball.entity->ball
-														 .future_positions[FUTURE_POSITION_BOUNCE]
-														 .position),
-											20);
+						player_controls->steering = entity_player_steer_arrive(
+							entity,
+							V3_TO_V2(game_state->vars.ball.entity->ball
+										 .future_positions[FUTURE_POSITION_BOUNCE]
+										 .position),
+							game_state);
+						player_controls->steering_assisted = true;
 					}
 				}
 			}

@@ -15,6 +15,7 @@
 #include "physics.h"
 #include "collision.h"
 #include "gfx.h"
+#include "constants.h"
 #include <float.h>
 #include <raylib.h>
 #include <raymath.h>
@@ -328,6 +329,48 @@ void entity_player_physics_apply_velocity(struct entity *player_entity,
 	physics_apply_velocity(&player_entity->transform, &player_entity->physics, game_state->dt);
 }
 
+v2 entity_player_steer_seek(struct entity *player_entity, v2 target)
+{
+	return Vector2Normalize(Vector2Subtract(target, player_entity->transform.position));
+}
+
+v2 entity_player_steer_arrive(struct entity *player_entity,
+							  v2 target,
+							  struct game_state *game_state)
+{
+	const struct player_constants *constants = &player_entity->player.constants;
+
+	v2 to_target = Vector2Subtract(target, player_entity->transform.position);
+	f32 distance = Vector2Length(to_target);
+
+	// The fastest the player can run at and still stop on the target, braking at brake_ratio of
+	// his full push. Far away this is above his top speed, so the stick stays at full length.
+	v2 desired_velocity = Vector2Zero();
+	if (distance > 0) {
+		f32 brake_accel = constants->movement_force / constants->mass *
+						  game_state->constants.player_steering_brake_ratio;
+		desired_velocity = Vector2Scale(to_target, sqrtf(2 * brake_accel * distance) / distance);
+	}
+
+	v2 steering = Vector2Scale(Vector2Subtract(desired_velocity, player_entity->physics.velocity),
+							   1.0f / game_state->constants.player_steering_band);
+	return Vector2ClampValue(steering, 0, 1);
+}
+
+v2 entity_player_steer_pursuit(struct entity *player_entity, v2 target, v2 target_velocity)
+{
+	v2 to_target = Vector2Subtract(target, player_entity->transform.position);
+
+	// The lookahead time grows with the distance to the target and shrinks with the speed the
+	// two close in at
+	f32 look_ahead_time =
+		Vector2Length(to_target) /
+		(player_entity->player.constants.run_max_velocity + Vector2Length(target_velocity));
+
+	return entity_player_steer_seek(
+		player_entity, Vector2Add(target, Vector2Scale(target_velocity, look_ahead_time)));
+}
+
 void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 												asset_sprite_frame_id_t *stand_frames,
 												asset_animation_id_t *run_animations,
@@ -425,7 +468,7 @@ static void state_machine_player_on_enter(struct entity *entity,
 		input_reset_player(entity->header.id, game_state);
 		const v2 velocity = entity->physics.velocity;
 		tackled_run_data->direction =
-			physics_is_at_rest(velocity, 3) ?
+			physics_is_at_rest(velocity, PLAYER_AT_REST_SPEED) ?
 				Vector2Normalize(ORIENTATION_VECTORS[sprite->orientation]) :
 				Vector2Normalize(velocity);
 		tackled_run_data->speed =
@@ -695,7 +738,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 	f32 reaction_time =
 		game_state->constants.goalie_dive_reaction_time * (RANDOM_01(100) > 0.02f ? 1 : 0.5f);
 
-	if (!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_kick_time, reaction_time)) {
+	if (!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_loose_time, reaction_time)) {
 		return false;
 	}
 

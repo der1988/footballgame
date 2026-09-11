@@ -7,7 +7,6 @@
 #include "football.h"
 #include "math_ext.h"
 #include "sprite.h"
-#include "steering.h"
 #include "types.h"
 #include "game.h"
 #include <math.h>
@@ -193,11 +192,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					 .play_context.player_nearest_to_the_ball == player_entity->header.id)) {
 			// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
 			ai_state = PAS_SET_STEERING;
-			*target_position = steering_pursuit(player_entity->transform.position,
-												player_entity->physics.velocity,
-												player_entity->physics.max_velocity,
-												ball_transform->position,
-												V3_TO_V2(ball_physics_3d->velocity));
+			*target_position = entity_player_steer_pursuit(
+				player_entity, ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
 
 			if (player_in_possession_entity) {
 				// Close enough to play the ball while the opponent still holds it, so go in for

@@ -7,15 +7,16 @@
 #include "game.h"
 #include "input.h"
 #include "macro.h"
+#include "physics.h"
 #include "sprite.h"
-#include "steering.h"
 #include "math_ext.h"
 #include <raymath.h>
 #include <string.h>
 #include "ai.h"
 #include "types.h"
+#include "constants.h"
 
-#define STAY_THERE_RADIUS 30.0f
+#define STAY_THERE_RADIUS 10.0f
 
 void system_player_control_ai(struct game_state *game_state)
 {
@@ -69,30 +70,24 @@ void system_player_control_ai(struct game_state *game_state)
 					v2 target_position =
 						football_tactics_get_target_position(entity, ball_entity, game_state);
 
+					// Standing on his spot he lets small shifts of it go, but while he is still
+					// moving he keeps braking onto it
 					if (Vector2Distance(target_position, entity->transform.position) <
-						STAY_THERE_RADIUS)
+							STAY_THERE_RADIUS &&
+						physics_is_at_rest(physics->velocity, PLAYER_AT_REST_SPEED))
 						player_controls->steering = Vector2Zero();
 					else
-						player_controls->steering = steering_arrive(transform->position,
-																	physics->velocity,
-																	physics->max_velocity,
-																	target_position,
-																	20);
+						player_controls->steering =
+							entity_player_steer_arrive(entity, target_position, game_state);
 					break;
 				}
 				case PAS_SEEK_POSITION: {
-					// TODO: Using this instead of steering_seek has fixed the slow down when running
-					// I'm not sure it's the right approach but it does the trick for now.
-					player_controls->steering =
-						Vector2Normalize(Vector2Subtract(target_pos, transform->position));
+					player_controls->steering = entity_player_steer_seek(entity, target_pos);
 					break;
 				}
 				case PAS_ARRIVE_TO_POSITION: {
-					player_controls->steering = steering_arrive(transform->position,
-																physics->velocity,
-																physics->max_velocity,
-																target_pos,
-																20);
+					player_controls->steering =
+						entity_player_steer_arrive(entity, target_pos, game_state);
 					break;
 				}
 				case PAS_SET_STEERING: {

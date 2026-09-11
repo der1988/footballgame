@@ -7,6 +7,10 @@
 #include <raylib.h>
 #include <raymath.h>
 
+// Drawn length of a full stick, and of a player running at top speed
+#define DEBUG_STEERING_LENGTH 30.0f
+#define DEBUG_SPEED_LENGTH	  20.0f
+
 static void draw_collider(v2 position, struct collider *collider, color_t color)
 {
 	if (collider->shape == CS_CIRCLE) {
@@ -89,6 +93,27 @@ void system_render_debug(struct game_state *game_state)
 				default:
 					break;
 				}
+			}
+
+			// Steering (yellow), speed (green) and the speed cap it runs up to (grey)
+			if (game_state->debug_flags.show_player_steering && entity->header.type == ET_PLAYER) {
+				v2 feet = transform->position;
+				f32 speed_scale = DEBUG_SPEED_LENGTH / entity->player.constants.run_max_velocity;
+				v2 heading = Vector2Normalize(entity->physics.velocity);
+
+				DrawLineV(
+					feet,
+					Vector2Add(feet,
+							   Vector2Scale(heading, entity->physics.max_velocity * speed_scale)),
+					GRAY);
+				DrawLineV(feet,
+						  Vector2Add(feet, Vector2Scale(entity->physics.velocity, speed_scale)),
+						  GREEN);
+				DrawLineV(feet,
+						  Vector2Add(feet,
+									 Vector2Scale(entity->player_controls.steering,
+												  DEBUG_STEERING_LENGTH)),
+						  YELLOW);
 			}
 
 			// Ball lookahead positions

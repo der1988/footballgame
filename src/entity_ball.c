@@ -96,8 +96,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 
 	gfx_ball_prepare(game_state);
 
-	state_machine_ball_init(
-		&ball->state_machine, entity, ball_transitions, BS_IN_PLAY, game_state);
+	state_machine_ball_init(&ball->state_machine, entity, ball_transitions, BS_IN_PLAY, game_state);
 
 	GLOG_INFO_CTX(LS_ENTITIES, entity->header.name, "ball created");
 
@@ -225,10 +224,9 @@ void entity_ball_settle_in_net(struct entity *ball_entity,
 
 	// Only damp while the ball is still short of the net or outside the posts: once it is in
 	// the netting the normal physics settles it.
-	b32 short_of_the_net =
-		side == PSI_NORTH ? transform->position.y < goal_rectangle.y - 3 :
-							transform->position.y >
-								(goal_rectangle.y + goal_rectangle.height * 2 + 3);
+	b32 short_of_the_net = side == PSI_NORTH ? (transform->position.y < goal_rectangle.y - 3) :
+											   (transform->position.y >
+												goal_rectangle.y + goal_rectangle.height * 2 + 3);
 	if (!short_of_the_net && transform->position.x >= goal_rectangle.x &&
 		transform->position.x <= (goal_rectangle.x + goal_rectangle.width)) {
 		return;
@@ -346,6 +344,7 @@ void entity_ball_shoot(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_loose_time = game_state->time;
 
 	set_after_touch(&ball_entity->ball);
 }
@@ -369,6 +368,7 @@ void entity_ball_short_pass(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(direction, power / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_loose_time = game_state->time;
 }
 
 void entity_ball_long_pass(struct entity *ball_entity,
@@ -403,6 +403,7 @@ void entity_ball_long_pass(struct entity *ball_entity,
 
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_loose_time = game_state->time;
 }
 
 void entity_ball_tackle(struct entity *ball_entity,
@@ -410,23 +411,26 @@ void entity_ball_tackle(struct entity *ball_entity,
 						v3 direction,
 						f32 power,
 						f32 force,
-						b32 reset_velocity,
+						enum ball_tackle_type type,
 						struct game_state *game_state)
 {
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
 
-	if (reset_velocity) {
+	if (type == BTT_STANDING) {
 		physics3d->velocity = Vector3Zero();
 	}
 	physics3d->accel = Vector3Add(
 		physics3d->accel,
-		Vector3Scale(direction,
-					 math_ext_split_lerp(force, 0.5f, power) / game_state->dt));
+		Vector3Scale(direction, math_ext_split_lerp(force, 0.5f, power) / game_state->dt));
 	ball->last_tackle_time = game_state->time;
 	ball->last_tackle_entity_id = tackler_entity_id;
-	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = tackler_entity_id;
+	ball->last_loose_time = game_state->time;
+	// A slide plays the ball away, so it counts as a kick. A standing tackle wins it, so it doesn't.
+	if (type == BTT_SLIDING) {
+		ball->last_kick_time = game_state->time;
+		ball->last_kicker_entity_id = tackler_entity_id;
+	}
 
 	reset_after_touch(&ball_entity->ball);
 }
@@ -445,13 +449,12 @@ void entity_ball_header(struct entity *ball_entity,
 		Vector3Add(physics3d->accel, Vector3Scale(direction, force / game_state->dt));
 	ball->last_kick_time = game_state->time;
 	ball->last_kicker_entity_id = header_entity_id;
+	ball->last_loose_time = game_state->time;
 
 	reset_after_touch(&ball_entity->ball);
 }
 
-void entity_ball_deviate_trajectory(struct entity *ball_entity,
-									entity_id_t player_entity_id,
-									struct game_state *game_state)
+void entity_ball_deviate_trajectory(struct entity *ball_entity, struct game_state *game_state)
 {
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
 	struct component_ball *ball = &ball_entity->ball;
@@ -470,8 +473,8 @@ void entity_ball_deviate_trajectory(struct entity *ball_entity,
 													0.0f,
 													GetRandomValue(25, 100) / 100.f) /
 									game_state->dt));
-	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = player_entity_id;
+	// Bouncing off a player is no kick, but the ball has got away from him
+	ball->last_loose_time = game_state->time;
 
 	reset_after_touch(&ball_entity->ball);
 }
@@ -514,11 +517,11 @@ entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
 	// 	   ball_entity->ball.last_touch_entity_id != EID_NOT_VALID,
 	// 	   HAS_TIME_PASSED(game_state->time, ball_entity->ball.first_player_possession_time, 0.1f),
 	// 	   !HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f),
-	// 	   ball_entity->ball.last_touch_time > ball_entity->ball.last_kick_time);
+	// 	   ball_entity->ball.last_touch_time > ball_entity->ball.last_loose_time);
 	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
 		HAS_TIME_PASSED(game_state->time, ball_entity->ball.first_player_possession_time, 0.1f) &&
 		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f) &&
-		ball_entity->ball.last_touch_time > ball_entity->ball.last_kick_time) {
+		ball_entity->ball.last_touch_time > ball_entity->ball.last_loose_time) {
 		return ball_entity->ball.last_touch_entity_id;
 	} else {
 		return EID_NOT_VALID;

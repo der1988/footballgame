@@ -153,6 +153,8 @@ struct game_state *game_play_init(struct game_config game_config,
 		.player_switch_grace_time = 0.5f,
 		.player_tackled_run_time = 0.75f,
 		.player_tackled_run_min_velocity = 4 * PIXELS_PER_METER,
+		.player_steering_brake_ratio = 0.6f,
+		.player_steering_band = 1 * PIXELS_PER_METER,
 
 		// Goalie
 		// Elite goalie has 150ms reaction time

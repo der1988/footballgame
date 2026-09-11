@@ -140,6 +140,8 @@ struct component_player {
 struct component_player_controls {
 	struct component_header header;
 	v2 steering;
+	// Steering was set by an assist rather than the stick
+	b32 steering_assisted;
 	f32 shot;
 	f32 chip_shot;
 	f32 pass;
@@ -180,9 +182,12 @@ struct component_ball {
 	entity_id_t last_touch_entity_id;
 	fg_time_t first_player_possession_time;
 
-	// Kicks
+	// Kicks: the ball played on purpose (shots, passes, headers, slides)
 	fg_time_t last_kick_time;
 	entity_id_t last_kicker_entity_id;
+	// When the ball last got away from whoever had it: every kick, plus standing tackles and
+	// deflections. Nobody is in possession of it until it is touched again.
+	fg_time_t last_loose_time;
 
 	// Passes
 	entity_id_t pass_target_entity_id;

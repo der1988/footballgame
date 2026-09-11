@@ -20,6 +20,11 @@ struct ball_config {
 	v2 position;
 };
 
+enum ball_tackle_type {
+	BTT_STANDING,
+	BTT_SLIDING,
+};
+
 enum state_machine_ball_state {
 	BS_NONE,
 	BS_IN_PLAY,
@@ -88,16 +93,14 @@ void entity_ball_tackle(struct entity *ball_entity,
 						v3 direction,
 						f32 power,
 						f32 force,
-						b32 reset_velocity,
+						enum ball_tackle_type type,
 						struct game_state *game_state);
 void entity_ball_header(struct entity *ball_entity,
 						entity_id_t header_entity_id,
 						v3 direction,
 						f32 power,
 						struct game_state *game_state);
-void entity_ball_deviate_trajectory(struct entity *ball_entity,
-									entity_id_t player_entity_id,
-									struct game_state *game_state);
+void entity_ball_deviate_trajectory(struct entity *ball_entity, struct game_state *game_state);
 void entity_ball_held_by_goalie(struct entity *ball_entity,
 								entity_id_t goalie_entity_id,
 								struct game_state *game_state);

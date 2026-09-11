@@ -218,9 +218,10 @@ void system_player_selection(struct game_state *game_state)
 				if (human_player->controlled_player.entity_id ==
 					player_in_possession_entity->header.id) {
 					// Current human player is in possession of the ball.
-					// Note: entity_ball_player_in_possession requires last_touch_time > last_kick_time,
-					// so kicked_ball can never be true here — if the player kicked in this frame,
-					// last_touch_time == last_kick_time and possession is already NONE.
+					// Note: entity_ball_player_in_possession requires last_touch_time > last_loose_time,
+					// and every kick stamps last_loose_time, so kicked_ball can never be true here — if
+					// the player kicked in this frame, last_touch_time = last_loose_time and possession
+					// is already NONE.
 					// The kicked_ball case is handled separately below.
 					human_player->controlled_player.is_manually_selected = false;
 					continue;
