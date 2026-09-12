@@ -222,6 +222,9 @@ static void draw_component_player_controls(struct component_player_controls *c)
 						  c->tackle ? "yes" : "no",
 						  c->sliding_tackle ? "yes" : "no"));
 		igText(TextFormat("  stop:           %s", c->stop ? "yes" : "no"));
+		igText(TextFormat("  put_down:       %s  charging_throw: %s",
+						  c->put_down ? "yes" : "no",
+						  c->charging_throw ? "yes" : "no"));
 	}
 }
 
@@ -297,6 +300,10 @@ static void draw_component_goalie(struct component_goalie *c)
 		igText(TextFormat("  dive_height:    %s", save_height_to_string[c->dive_height]));
 		igText(TextFormat("  dive_distance:  %.2f", c->dive_distance));
 		igText(TextFormat("  dive_speed:     %.2f", c->dive_speed));
+		igText(TextFormat("  throw_dir:      (%.2f, %.2f)  power: %.2f",
+						  c->throw_direction.x,
+						  c->throw_direction.y,
+						  c->throw_power));
 		igText(TextFormat("  last_save_time: %.3f", (double)c->last_save_time));
 	}
 }
