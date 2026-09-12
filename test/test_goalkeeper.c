@@ -1,3 +1,4 @@
+#include "ai.h"
 #include "asset_manager.h"
 #include "entity.h"
 #include "entity_ball.h"
@@ -313,6 +314,79 @@ void test_a_back_pass_into_his_area_leaves_him_out_on_his_feet(void)
 	TEST_ASSERT_EQUAL_INT(PS_NORMAL, g_goalie_entity->player.state_machine.current_state);
 }
 
+// What he does with the ball once he has it in his hands. His goalkeeping is not decided here.
+
+static void keeper_catches_the_ball(void)
+{
+	state_machine_goalie_fire(&g_goalie_entity->goalie.state_machine, GT_CATCH, g_game_state);
+	g_goalie_entity->transform.position = position_in_his_area();
+}
+
+// He has had his moment to look up.
+static void time_to_think_passes(void)
+{
+	g_game_state->time += GOALIE_AI_THINK_TIME * 2;
+}
+
+static enum goalie_ai_action goalie_decision(void)
+{
+	return ai_goalie_think(g_goalie_entity, g_game_state).action;
+}
+
+static void place_relative_to_keeper(struct entity *player_entity, f32 up_the_pitch)
+{
+	player_entity->transform.position =
+		Vector2Add(g_goalie_entity->transform.position, (v2){.y = up_the_pitch});
+}
+
+void test_he_holds_on_to_it_until_he_has_looked_up(void)
+{
+	keeper_catches_the_ball();
+
+	TEST_ASSERT_EQUAL_INT(GAA_HOLD, goalie_decision());
+}
+
+void test_closed_down_he_clears_it(void)
+{
+	keeper_catches_the_ball();
+	time_to_think_passes();
+	place_relative_to_keeper(g_opponent_entity, GOALIE_AI_PRESSURE_RADIUS * 0.5f);
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 4);
+
+	TEST_ASSERT_EQUAL_INT(GAA_KICK, goalie_decision());
+}
+
+void test_a_free_team_mate_in_range_gets_it_thrown_to_him(void)
+{
+	keeper_catches_the_ball();
+	time_to_think_passes();
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 0.6f);
+	place_relative_to_keeper(g_opponent_entity, -GOALIE_AI_THROW_RANGE);
+
+	TEST_ASSERT_EQUAL_INT(GAA_THROW, goalie_decision());
+}
+
+// An opponent stood on the line of the throw is reason enough not to make it.
+void test_a_screened_team_mate_does_not_get_the_throw(void)
+{
+	keeper_catches_the_ball();
+	time_to_think_passes();
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 0.6f);
+	place_relative_to_keeper(g_opponent_entity, GOALIE_AI_THROW_RANGE * 0.3f);
+
+	TEST_ASSERT_NOT_EQUAL_INT(GAA_THROW, goalie_decision());
+}
+
+void test_with_nobody_near_him_he_puts_it_down(void)
+{
+	keeper_catches_the_ball();
+	time_to_think_passes();
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 4);
+	place_relative_to_keeper(g_opponent_entity, GOALIE_AI_THROW_RANGE * 4);
+
+	TEST_ASSERT_EQUAL_INT(GAA_PUT_DOWN, goalie_decision());
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "goalkeeper test - start");
@@ -336,6 +410,12 @@ int main()
 	RUN_TEST(test_he_goes_back_in_goal_once_the_opponents_have_the_ball);
 	RUN_TEST(test_a_ball_rebounding_onto_him_in_his_area_puts_him_back_in_goal);
 	RUN_TEST(test_a_back_pass_into_his_area_leaves_him_out_on_his_feet);
+
+	RUN_TEST(test_he_holds_on_to_it_until_he_has_looked_up);
+	RUN_TEST(test_closed_down_he_clears_it);
+	RUN_TEST(test_a_free_team_mate_in_range_gets_it_thrown_to_him);
+	RUN_TEST(test_a_screened_team_mate_does_not_get_the_throw);
+	RUN_TEST(test_with_nobody_near_him_he_puts_it_down);
 
 	return UNITY_END();
 }

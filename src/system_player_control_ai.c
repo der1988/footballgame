@@ -126,7 +126,32 @@ void system_player_control_ai(struct game_state *game_state)
 
 			break;
 		}
-		case PS_GOALIE:
+		case PS_GOALIE: {
+			if (entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
+				// Everything else he does in goal is system_goalie's business
+				break;
+			}
+
+			const struct goalie_ai_decision decision = ai_goalie_think(entity, game_state);
+			switch (decision.action) {
+			case GAA_HOLD:
+				break;
+			case GAA_CARRY:
+				player_controls->steering = decision.steering;
+				break;
+			case GAA_THROW:
+				player_controls->pass = decision.power;
+				player_controls->automatic_pass = true;
+				break;
+			case GAA_KICK:
+				player_controls->long_pass = decision.power;
+				break;
+			case GAA_PUT_DOWN:
+				player_controls->put_down = true;
+				break;
+			}
+			break;
+		}
 		case PS_THROW_IN:
 		case PS_HEADER: {
 			// We want to pay the price of this logic only when colliding with the ball

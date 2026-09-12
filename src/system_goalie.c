@@ -547,22 +547,7 @@ void system_goalie(struct game_state *game_state)
 				break;
 			}
 
-			if (game_input_human_player_by_player_entity_id(game_state, entity_id)) {
-				// He holds on to it until the human says what to do with it
-				break;
-			}
-
-			if (!HAS_TIME_PASSED(game_state->time,
-								 goalie->state_machine.state_data.hold_ball.hold_start_time,
-								 1)) {
-				break;
-			}
-			entity_ball_back_in_play(ball_entity, game_state);
-			entity_ball_set_position_and_velocity(
-				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
-			entity_ball_long_pass(
-				ball_entity, entity_id, (v2){.y = direction}, 0.7f, false, game_state);
-			state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
+			// Human or AI, he leaves GS_HOLD_BALL only through the controls above
 			break;
 		}
 		case GS_DIVE: {
