@@ -327,7 +327,8 @@ b32 entity_player_is_goalie(struct entity *player_entity);
 
 // A keeper on the ball in his own area takes it in his hands, when the laws let him. Returns
 // whether he did, in which case he now holds it and must not be given the ball at his feet.
-b32 entity_player_goalie_pick_up_ball(struct entity *player_entity, struct game_state *game_state);
+b32 entity_player_goalie_try_pick_up_ball(struct entity *player_entity,
+										  struct game_state *game_state);
 
 // Settles whether the keeper is the goalie right now (PS_GOALIE, hands) or a field player
 // (PS_NORMAL, feet). He is the goalie only inside his own area while the opponents have the ball.

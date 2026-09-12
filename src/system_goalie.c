@@ -57,8 +57,7 @@ void system_goalie(struct game_state *game_state)
 					ball_collider->colliders[0].props.circle.radius,
 					game_state->constants.crossbar_height);
 			if (ball_within_reach_info.is_colliding) {
-				// Refuses by itself when the laws or his position say no
-				entity_player_goalie_pick_up_ball(entity, game_state);
+				entity_player_goalie_try_pick_up_ball(entity, game_state);
 			}
 			continue;
 		}

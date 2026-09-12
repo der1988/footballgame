@@ -831,7 +831,8 @@ b32 entity_player_is_goalie(struct entity *player_entity)
 	return player_entity->goalie.header.enabled;
 }
 
-b32 entity_player_goalie_pick_up_ball(struct entity *player_entity, struct game_state *game_state)
+b32 entity_player_goalie_try_pick_up_ball(struct entity *player_entity,
+										  struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;
 	const enum pitch_side pitch_side =
