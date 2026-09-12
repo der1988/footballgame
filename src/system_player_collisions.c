@@ -108,6 +108,9 @@ void system_player_collisions(struct game_state *game_state)
 			// can't take a ball that was knocked loose straight back.
 			player->is_colliding_with_ball =
 				collision_with_ball_info.is_colliding &&
+				// A ball in the keeper's hands is nobody else's to touch. It rides below control
+				// height, so without this anyone brushing past him takes the last touch off him.
+				ball->state_machine.current_state != BS_GK_HANDS &&
 				HAS_TIME_PASSED(game_state->time, player->last_kick_time, 0.1f) &&
 				(!last_tackler ||
 				 last_tackler->player.team_side == player_entity->player.team_side ||
@@ -134,6 +137,11 @@ void system_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_SLIDING_TACKLE: {
+			if (ball->state_machine.current_state == BS_GK_HANDS) {
+				// Not his to win while the keeper is holding it
+				break;
+			}
+
 			// A challenge plays the ball once. The state outlasts any timer short enough to let
 			// contact through again, so what has already been played is what stops it.
 			if (state_machine->state_data.sliding_tackle.touched_ball) {
@@ -183,6 +191,11 @@ void system_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_HEADER: {
+			if (ball->state_machine.current_state == BS_GK_HANDS) {
+				// Not his to head while the keeper is holding it
+				break;
+			}
+
 			if (ball->last_play_entity_id == player_entity->header.id &&
 				!HAS_TIME_PASSED(game_state->time, ball->last_play_time, 0.2f)) {
 				break;
@@ -242,6 +255,11 @@ void system_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_TACKLE: {
+			if (ball->state_machine.current_state == BS_GK_HANDS) {
+				// Not his to win while the keeper is holding it
+				break;
+			}
+
 			if (state_machine->state_data.tackle.touched_ball) {
 				break;
 			}
@@ -262,6 +280,11 @@ void system_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_TACKLED_RUN: {
+			if (ball->state_machine.current_state == BS_GK_HANDS) {
+				// Not his to touch while the keeper is holding it
+				break;
+			}
+
 			// He can only touch the ball while he is still the last player who touched it. Once
 			// someone else touches it (the tackler too), he can't get it back until he recovers.
 			if (ball->last_touch_entity_id != player_entity_id) {
@@ -290,7 +313,18 @@ void system_player_collisions(struct game_state *game_state)
 
 			break;
 		}
-		case PS_GOALIE:
+		case PS_GOALIE: {
+			// With the ball in his hands he is in contact with it every tick. The stamp has to
+			// happen here, before system_player_on_the_ball runs: that is what makes him the player
+			// on the ball, and so what lets him release it. Keyed on him holding it and never on
+			// who touched it last, so that anything else taking the last touch for a frame cannot
+			// strand him holding a ball he can no longer release.
+			if (ball->state_machine.current_state == BS_GK_HANDS &&
+				player_entity->goalie.state_machine.current_state == GS_HOLD_BALL) {
+				entity_ball_set_last_touch(ball, player_entity_id, game_state);
+			}
+			break;
+		}
 		case PS_THROW_IN:
 		case PS_FALL:
 		case PS_NONE:

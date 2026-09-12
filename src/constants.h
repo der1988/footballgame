@@ -15,6 +15,14 @@
 // How wide he looks for the man, measured off the up-the-pitch axis to either side, so the cone he
 // scans is twice this
 #define GOALIE_AI_THROW_HALF_ANGLE 80.0f
+// Height the ball leaves his hands at when he rolls it out
+#define GOALIE_THROW_HEIGHT 6
+// He carries the ball slower than he runs without it
+#define GOALIE_CARRY_SPEED_RATIO 0.75f
+// And pulls up harder than a player running free, so the ball in his hands has some weight
+#define GOALIE_CARRY_DRAG_RATIO 1.5f
+// Height the ball sits at while it is in his hands
+#define GOALIE_HOLD_BALL_HEIGHT		 12
 #define BALL_MAX_LOOKAHEADS			 30
 #define MAX_HUMAN_PLAYERS			 2
 #define SHOOT_CHARGE_MULTIPLIER		 2

@@ -243,6 +243,26 @@ void system_ball(struct game_state *game_state)
 		break;
 	}
 	case BS_GK_HANDS: {
+		// The keeper's own frames draw the ball, so the entity is only kept with his hands to keep
+		// the camera, the lookaheads and the out of bounds checks honest.
+		struct entity *holder_entity =
+			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
+		if (!holder_entity) {
+			break;
+		}
+
+		const enum pitch_side pitch_side =
+			game_state->vars.teams[holder_entity->player.team_side].play_context.pitch_side;
+		const i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
+		const struct collider *goalie_collider = &holder_entity->collider.colliders[PCT_GOALIE];
+
+		entity_ball_set_position_and_velocity(
+			ball_entity,
+			V2_TO_V3(Vector2Add(holder_entity->transform.position,
+								Vector2Scale((v2){.y = direction},
+											 goalie_collider->props.circle.radius)),
+					 GOALIE_HOLD_BALL_HEIGHT),
+			Vector3Zero());
 		break;
 	}
 	case BS_COUNT:

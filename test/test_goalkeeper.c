@@ -7,7 +7,9 @@
 #include "football.h"
 #include "game.h"
 #include "log.h"
+#include "math_ext.h"
 #include "memory.h"
+#include "system.h"
 #include "types.h"
 #include "unity/unity.h"
 #include "unity/unity_internals.h"
@@ -387,6 +389,59 @@ void test_with_nobody_near_him_he_puts_it_down(void)
 	TEST_ASSERT_EQUAL_INT(GAA_PUT_DOWN, goalie_decision());
 }
 
+// The ball in his hands rides below control height, so every ball collision case would otherwise
+// collide with it and hand the last touch to whoever walked past. Losing the touch is not cosmetic:
+// the releases only run for the player entity_ball_player_on_the_ball returns, so a keeper who loses
+// it is holding a ball he can never let go of.
+
+static void keeper_picks_the_ball_up(void)
+{
+	keeper_plays_out();
+	g_goalie_entity->transform.position = position_in_his_area();
+	g_ball_entity->transform.position = position_in_his_area();
+
+	TEST_ASSERT_TRUE(entity_player_goalie_try_pick_up_ball(g_goalie_entity, g_game_state));
+	TEST_ASSERT_EQUAL_INT(BS_GK_HANDS, g_ball_entity->ball.state_machine.current_state);
+
+	// While he holds it, system_ball rides the ball at his hands, below control height. That is
+	// what puts it inside everybody else's collider, so the fixture has to place it there too: a
+	// ball left at its creation height of 100 is out of everyone's reach and tests nothing.
+	entity_ball_set_position_and_velocity(g_ball_entity,
+										  V2_TO_V3(g_goalie_entity->transform.position,
+												   GOALIE_HOLD_BALL_HEIGHT),
+										  Vector3Zero());
+}
+
+// Stood on top of him, overlapping the ball, but not quite on the same spot as it.
+static void opponent_closes_in_on_the_ball(void)
+{
+	g_opponent_entity->transform.position =
+		Vector2Add(g_ball_entity->transform.position, (v2){.x = 2});
+}
+
+void test_an_opponent_cannot_take_a_ball_out_of_his_hands(void)
+{
+	keeper_picks_the_ball_up();
+	opponent_closes_in_on_the_ball();
+
+	system_player_collisions(g_game_state);
+
+	TEST_ASSERT_FALSE(g_opponent_entity->player.is_colliding_with_ball);
+	TEST_ASSERT_EQUAL_UINT32(g_goalie_entity->header.id, g_ball_entity->ball.last_touch_entity_id);
+}
+
+// And if anything does take the touch off him for a tick, he has to take it straight back: the stamp
+// is keyed on him holding the ball, never on him already being the last man to touch it.
+void test_he_reclaims_the_touch_if_something_takes_it_off_him(void)
+{
+	keeper_picks_the_ball_up();
+	entity_ball_set_last_touch(&g_ball_entity->ball, g_opponent_entity->header.id, g_game_state);
+
+	system_player_collisions(g_game_state);
+
+	TEST_ASSERT_EQUAL_UINT32(g_goalie_entity->header.id, g_ball_entity->ball.last_touch_entity_id);
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "goalkeeper test - start");
@@ -416,6 +471,9 @@ int main()
 	RUN_TEST(test_a_free_team_mate_in_range_gets_it_thrown_to_him);
 	RUN_TEST(test_a_screened_team_mate_does_not_get_the_throw);
 	RUN_TEST(test_with_nobody_near_him_he_puts_it_down);
+
+	RUN_TEST(test_an_opponent_cannot_take_a_ball_out_of_his_hands);
+	RUN_TEST(test_he_reclaims_the_touch_if_something_takes_it_off_him);
 
 	return UNITY_END();
 }

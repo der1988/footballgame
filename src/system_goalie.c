@@ -5,28 +5,18 @@
 #include "entity.h"
 #include "football.h"
 #include "game.h"
-#include "input.h"
 #include "macro.h"
 #include "math_ext.h"
 #include "constants.h"
 #include "physics.h"
-#include "sprite.h"
 #include "types.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
 #include "collision.h"
 
-// Height the ball leaves his hands at when he rolls it out
-#define GOALIE_THROW_HEIGHT 6
 // How long he holds the follow-through pose once the ball has gone
 #define GOALIE_THROW_FOLLOW_THROUGH_TIME 0.5f
-// He carries the ball slower than he runs without it
-#define GOALIE_CARRY_SPEED_RATIO 0.75f
-// And pulls up harder than a player running free, so the ball in his hands has some weight
-#define GOALIE_CARRY_DRAG_RATIO 1.5f
-// Height the ball sits at while it is in his hands
-#define GOALIE_HOLD_BALL_HEIGHT 12
 
 void system_goalie(struct game_state *game_state)
 {
@@ -65,7 +55,6 @@ void system_goalie(struct game_state *game_state)
 		DECLARE_ENTITY_COMPONENT(entity, physics);
 		DECLARE_ENTITY_COMPONENT(entity, sprite);
 		DECLARE_ENTITY_COMPONENT(entity, goalie);
-		DECLARE_ENTITY_COMPONENT(entity, collider);
 
 		struct state_machine_goalie *state_machine = &goalie->state_machine;
 
@@ -78,8 +67,6 @@ void system_goalie(struct game_state *game_state)
 		const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 		const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
 		// const f32 ball_distance_from_goal = Vector2Distance(goal_center, V3_TO_V2(ball_position));
-
-		struct collider *goalie_collider = &collider->colliders[PCT_GOALIE];
 
 		entity_id_t player_in_possession_entity_id =
 			entity_ball_player_in_possession(ball_entity, game_state);
@@ -401,152 +388,9 @@ void system_goalie(struct game_state *game_state)
 			break;
 		}
 		case GS_HOLD_BALL: {
-			const i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
-			const v2 new_ball_position = Vector2Add(
-				transform->position,
-				Vector2Scale((v2){.y = direction},
-							 goalie_collider->props.circle.offset.y +
-								 goalie_collider->props.circle.radius + ball_radius + 7));
-
-			// He can run with it in his hands, slower than he runs without it
-			physics->max_velocity = player->constants.run_max_velocity * GOALIE_CARRY_SPEED_RATIO;
-
-			const v2 carry_steering = entity->player_controls.steering;
-			v2 carry_force = Vector2Scale(carry_steering, player->constants.movement_force);
-
-			// Let go of the stick and he pulls up instead of gliding on
-			if (Vector2Length(carry_steering) < 0.01f &&
-				!physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
-				carry_force = Vector2Add(carry_force,
-										 physics_drag_force(physics->velocity,
-															player->constants.drag *
-																GOALIE_CARRY_DRAG_RATIO));
-			}
-
-			entity_player_physics_apply_force(entity, carry_force, game_state);
-			entity_player_physics_apply_velocity(entity, game_state);
-
-			// Carrying it out of his area is not allowed, so he is stopped at the edge
-			const rect_t penalty_box = game_state->vars.pitch.goal[pitch_side].penalty_box;
-			const v2 position_in_box = {
-				.x = Clamp(transform->position.x, penalty_box.x, penalty_box.x + penalty_box.width),
-				.y = Clamp(
-					transform->position.y, penalty_box.y, penalty_box.y + penalty_box.height)};
-			if (position_in_box.x != transform->position.x) {
-				physics->velocity.x = 0;
-			}
-			if (position_in_box.y != transform->position.y) {
-				physics->velocity.y = 0;
-			}
-			transform->position = position_in_box;
-
-			// His own frames draw the ball, so the entity is only kept with his hands to keep the
-			// camera, the lookaheads and the out of bounds checks honest.
-			entity_ball_set_position_and_velocity(
-				ball_entity,
-				V2_TO_V3(Vector2Add(transform->position,
-									Vector2Scale((v2){.y = direction},
-												 goalie_collider->props.circle.radius)),
-						 GOALIE_HOLD_BALL_HEIGHT),
-				Vector3Zero());
-			// Holding on to it is possession, however long he holds it for
-			entity_ball_set_last_touch(ball, entity_id, game_state);
-
-			// Winding up a throw he holds the ball out ready, facing where it is going
-			if (entity->player_controls.charging_throw) {
-				if (!IS_V2_ZERO(entity->player_controls.steering)) {
-					sprite->orientation =
-						sprite_calculate_orientation(entity->player_controls.steering);
-				}
-				struct asset_animation *throw_animation = asset_animation_get_by_id(
-					game_state->assets.animation_cache,
-					game_state->gfx.goalie.hand_pass_animations[sprite->orientation]);
-				sprite->frame_id = throw_animation->frames[0];
-			} else {
-				// Standing still he holds it at his chest, which the art only has facing up or down
-				asset_sprite_frame_id_t hold_frames[SO_COUNT];
-				for (usize i = 0; i < SO_COUNT; ++i) {
-					hold_frames[i] = game_state->gfx.goalie.save_frames[pitch_side][ST_WITH_BALL];
-				}
-				entity_player_anim_calculate_running_frame(
-					entity,
-					hold_frames,
-					game_state->gfx.goalie.run_ball_animations,
-					physics->velocity,
-					5,
-					game_state);
-			}
-
-			if (entity->player_controls.put_down) {
-				entity_ball_back_in_play(ball_entity, game_state);
-				entity_ball_set_position_and_velocity(
-					ball_entity, V2_TO_V3(new_ball_position, ball_radius), Vector3Zero());
-				state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
-				state_machine_player_fire(&player->state_machine, PT_STEP_OUT, game_state);
-				input_reset_player(entity_id, game_state);
-				break;
-			}
-
-			if (entity->player_controls.pass > 0) {
-				// Thrown out by hand. The team mate is picked the way an automatic pass picks one.
-				v2 throw_direction = entity->player_controls.steering;
-				if (IS_V2_ZERO(throw_direction)) {
-					throw_direction = (v2){.y = direction};
-				}
-
-				const f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
-				struct entity *target_entity;
-				if (entity_player_find_pass_target(entity,
-												   throw_direction,
-												   30,
-												   entity->player_controls.pass * max_distance,
-												   max_distance,
-												   &target_entity,
-												   game_state)) {
-					throw_direction =
-						Vector2Subtract(target_entity->transform.position, transform->position);
-					ball->pass_target_entity_id = target_entity->header.id;
-				}
-
-				goalie->throw_direction = Vector2Normalize(throw_direction);
-				goalie->throw_power = entity->player_controls.pass;
-				sprite->orientation = sprite_calculate_orientation(goalie->throw_direction);
-
-				const v2 ball_release_position =
-					Vector2Add(transform->position,
-							   Vector2Scale(goalie->throw_direction,
-											goalie_collider->props.circle.radius + ball_radius + 2));
-				entity_ball_back_in_play(ball_entity, game_state);
-				entity_ball_set_position_and_velocity(
-					ball_entity, V2_TO_V3(ball_release_position, GOALIE_THROW_HEIGHT), Vector3Zero());
-				// Rolled out along the ground, so no height on the direction
-				entity_ball_short_pass(ball_entity,
-									   entity_id,
-									   V2_TO_V3(goalie->throw_direction, 0),
-									   goalie->throw_power,
-									   true,
-									   game_state);
-
-				state_machine_goalie_fire(&goalie->state_machine, GT_THROW, game_state);
-				break;
-			}
-
-			if (entity->player_controls.long_pass > 0) {
-				// Kicked long out of his hands, the same kick the AI makes below
-				entity_ball_back_in_play(ball_entity, game_state);
-				entity_ball_set_position_and_velocity(
-					ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
-				entity_ball_long_pass(ball_entity,
-									  entity_id,
-									  (v2){.y = direction},
-									  entity->player_controls.long_pass,
-									  false,
-									  game_state);
-				state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
-				break;
-			}
-
-			// Human or AI, he leaves GS_HOLD_BALL only through the controls above
+			// Carrying the ball, holding it and releasing it are not goalkeeping: they live in
+			// system_player_physics, system_ball and system_player_on_the_ball, the same systems
+			// that move and act for every other player.
 			break;
 		}
 		case GS_DIVE: {

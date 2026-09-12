@@ -9,6 +9,7 @@
 #include "macro.h"
 #include "math_ext.h"
 #include "physics.h"
+#include "sprite.h"
 #include <raymath.h>
 #include <stdio.h>
 #include "ai.h"
@@ -426,8 +427,76 @@ void system_player_physics(struct game_state *game_state)
 
 			break;
 		}
+		case PS_GOALIE: {
+			// Only carrying the ball moves him from here. His goalkeeping, dives and jumps drive
+			// their own movement in system_goalie.
+			if (ball->state_machine.current_state != BS_GK_HANDS ||
+				ball->last_touch_entity_id != entity_id) {
+				break;
+			}
+
+			const enum pitch_side pitch_side =
+				game_state->vars.teams[player->team_side].play_context.pitch_side;
+
+			// He can run with it in his hands, slower than he runs without it
+			physics->max_velocity = player->constants.run_max_velocity * GOALIE_CARRY_SPEED_RATIO;
+
+			const v2 carry_steering = player_controls->steering;
+			v2 carry_force = Vector2Scale(carry_steering, player->constants.movement_force);
+
+			// Let go of the stick and he pulls up instead of gliding on
+			if (Vector2Length(carry_steering) < 0.01f &&
+				!physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
+				carry_force = Vector2Add(
+					carry_force,
+					physics_drag_force(physics->velocity,
+									   player->constants.drag * GOALIE_CARRY_DRAG_RATIO));
+			}
+
+			entity_player_physics_apply_force(entity, carry_force, game_state);
+			entity_player_physics_apply_velocity(entity, game_state);
+
+			// Carrying it out of his area is not allowed, so he is stopped at the edge
+			const rect_t penalty_box = game_state->vars.pitch.goal[pitch_side].penalty_box;
+			const v2 position_in_box = {
+				.x = Clamp(transform->position.x, penalty_box.x, penalty_box.x + penalty_box.width),
+				.y = Clamp(
+					transform->position.y, penalty_box.y, penalty_box.y + penalty_box.height)};
+			if (position_in_box.x != transform->position.x) {
+				physics->velocity.x = 0;
+			}
+			if (position_in_box.y != transform->position.y) {
+				physics->velocity.y = 0;
+			}
+			transform->position = position_in_box;
+
+			// Winding up a throw he holds the ball out ready, facing where it is going
+			if (player_controls->charging_throw) {
+				if (!IS_V2_ZERO(player_controls->steering)) {
+					sprite->orientation = sprite_calculate_orientation(player_controls->steering);
+				}
+				struct asset_animation *throw_animation = asset_animation_get_by_id(
+					game_state->assets.animation_cache,
+					game_state->gfx.goalie.hand_pass_animations[sprite->orientation]);
+				sprite->frame_id = throw_animation->frames[0];
+			} else {
+				// Standing still he holds it at his chest, which the art only has facing up or down
+				asset_sprite_frame_id_t hold_frames[SO_COUNT];
+				for (usize i = 0; i < SO_COUNT; ++i) {
+					hold_frames[i] = game_state->gfx.goalie.save_frames[pitch_side][ST_WITH_BALL];
+				}
+				entity_player_anim_calculate_running_frame(
+					entity,
+					hold_frames,
+					game_state->gfx.goalie.run_ball_animations,
+					physics->velocity,
+					5,
+					game_state);
+			}
+
+			break;
+		}
 		case PS_NONE:
-		case PS_GOALIE:
 		case PS_THROW_IN:
 		case PS_COUNT:
 			break;
