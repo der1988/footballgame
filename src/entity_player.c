@@ -833,23 +833,17 @@ b32 entity_player_is_goalie(struct entity *player_entity)
 
 b32 entity_player_goalie_pick_up_ball(struct entity *player_entity, struct game_state *game_state)
 {
+	struct entity *ball_entity = game_state->vars.ball.entity;
+	const enum pitch_side pitch_side =
+		game_state->vars.teams[player_entity->player.team_side].play_context.pitch_side;
+
 	// Only a keeper playing on his feet takes it in his hands from here: mid-header, mid-tackle or
 	// on the floor he finishes what he is doing first, and PT_PICK_UP leads nowhere from there.
 	if (!entity_player_is_goalie(player_entity) ||
-		player_entity->player.state_machine.current_state != PS_NORMAL) {
-		return false;
-	}
-
-	struct entity *ball_entity = game_state->vars.ball.entity;
-
-	const enum pitch_side pitch_side =
-		game_state->vars.teams[player_entity->player.team_side].play_context.pitch_side;
-	if (!football_pitch_is_position_inside_penalty_area(
-			player_entity->transform.position, pitch_side, game_state)) {
-		return false;
-	}
-
-	if (!entity_ball_may_goalie_handle(ball_entity, player_entity, game_state)) {
+		player_entity->player.state_machine.current_state != PS_NORMAL ||
+		!football_pitch_is_position_inside_penalty_area(
+			player_entity->transform.position, pitch_side, game_state) ||
+		!entity_ball_may_goalie_handle(ball_entity, player_entity, game_state)) {
 		return false;
 	}
 
