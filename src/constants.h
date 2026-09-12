@@ -10,9 +10,11 @@
 #define GOALIE_AI_PRESSURE_RADIUS 60.0f
 // Nobody nearer than this and he can safely put it down and play out
 #define GOALIE_AI_PLAY_OUT_RADIUS 200.0f
-// How far he rolls the ball out by hand, and how wide he looks for the man
+// How far he rolls the ball out by hand
 #define GOALIE_AI_THROW_RANGE 250.0f
-#define GOALIE_AI_THROW_ANGLE 100.0f
+// How wide he looks for the man, measured off the up-the-pitch axis to either side, so the cone he
+// scans is twice this
+#define GOALIE_AI_THROW_HALF_ANGLE 80.0f
 #define BALL_MAX_LOOKAHEADS			 30
 #define MAX_HUMAN_PLAYERS			 2
 #define SHOOT_CHARGE_MULTIPLIER		 2

@@ -42,7 +42,7 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 	struct entity *throw_target;
 	if (entity_player_find_pass_target(goalie_entity,
 									   up_the_pitch,
-									   GOALIE_AI_THROW_ANGLE,
+									   GOALIE_AI_THROW_HALF_ANGLE,
 									   GOALIE_AI_THROW_RANGE * 0.6f,
 									   GOALIE_AI_THROW_RANGE,
 									   &throw_target,
