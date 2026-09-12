@@ -153,6 +153,10 @@ struct component_player_controls {
 	b32 tackle;
 	b32 sliding_tackle;
 	b32 stop;
+	// The keeper sets the ball down to carry on with his feet
+	b32 put_down;
+	// The keeper is winding up a throw, so he holds the throwing pose
+	b32 charging_throw;
 };
 
 enum future_position_type {
@@ -182,9 +186,10 @@ struct component_ball {
 	entity_id_t last_touch_entity_id;
 	fg_time_t first_player_possession_time;
 
-	// Kicks: the ball played on purpose (shots, passes, headers, slides)
-	fg_time_t last_kick_time;
-	entity_id_t last_kicker_entity_id;
+	// Plays: the ball played on purpose (shots, passes, headers, slides)
+	fg_time_t last_play_time;
+	entity_id_t last_play_entity_id;
+	enum ball_play_type last_play_type;
 	// When the ball last got away from whoever had it: every kick, plus standing tackles and
 	// deflections. Nobody is in possession of it until it is touched again.
 	fg_time_t last_loose_time;
@@ -223,6 +228,9 @@ struct component_goalie {
 	enum save_height dive_height;
 	f32 dive_distance;
 	f32 dive_speed;
+	// Where the ball is thrown and how hard, settled before the throw starts
+	v2 throw_direction;
+	f32 throw_power;
 	fg_time_t last_frame_update_time;
 	fg_time_t last_save_time;
 };

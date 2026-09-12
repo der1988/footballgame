@@ -116,9 +116,9 @@ void system_player_selection(struct game_state *game_state)
 
 		// We don't want to select again the same player that just kicked the ball.
 		// Let's not bother to check whether kicker is in our team or not, we don't care.
-		if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
-			ball->last_kicker_entity_id != EID_NOT_VALID) {
-			LIST_ADD(team_excluded_players_list, ball->last_kicker_entity_id);
+		if (!HAS_TIME_PASSED(game_state->time, ball->last_play_time, 0.5f) &&
+			ball->last_play_entity_id != EID_NOT_VALID) {
+			LIST_ADD(team_excluded_players_list, ball->last_play_entity_id);
 		}
 
 		struct list_human_players ordered_list =
@@ -158,14 +158,19 @@ void system_player_selection(struct game_state *game_state)
 				game_state->entity_repository, human_player->controlled_player.entity_id);
 
 			if (currently_selected_player_entity &&
-				currently_selected_player_entity->player.state_machine.current_state == PS_FALL) {
-				// Let's force a switch if we fell.
+				(currently_selected_player_entity->player.state_machine.current_state == PS_FALL ||
+				 (currently_selected_player_entity->player.state_machine.current_state ==
+					  PS_GOALIE &&
+				  currently_selected_player_entity->goalie.state_machine.current_state !=
+					  GS_HOLD_BALL))) {
+				// Let's force a switch if we fell, or if the keeper we were on has gone back to
+				// minding his goal: from there he looks after himself.
 				force_switch = true;
 			}
 
-			if (!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.5f) &&
-				ball->last_kicker_entity_id != EID_NOT_VALID &&
-				currently_selected_player_entity->header.id == ball->last_kicker_entity_id) {
+			if (!HAS_TIME_PASSED(game_state->time, ball->last_play_time, 0.5f) &&
+				ball->last_play_entity_id != EID_NOT_VALID &&
+				currently_selected_player_entity->header.id == ball->last_play_entity_id) {
 				// Let's force a switch if we kicked the ball
 				force_switch = true;
 			}
@@ -176,9 +181,9 @@ void system_player_selection(struct game_state *game_state)
 
 			// Don't switch away from the kicker while after touch is active unless the human requested the switch
 			if (ball->after_touch.active &&
-				human_player->controlled_player.entity_id == ball->last_kicker_entity_id &&
+				human_player->controlled_player.entity_id == ball->last_play_entity_id &&
 				!HAS_TIME_PASSED(game_state->time,
-								 ball->last_kick_time,
+								 ball->last_play_time,
 								 game_state->constants.ball_after_touch_max_time) &&
 				!is_human_required_player_switch) {
 				continue;

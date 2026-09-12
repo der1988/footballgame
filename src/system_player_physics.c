@@ -193,12 +193,16 @@ void system_player_physics(struct game_state *game_state)
 					normal_state_data->dribble.active = false;
 				}
 			} else {
-				entity_player_anim_calculate_running_frame(entity,
-														   game_state->gfx.player.stand_frames,
-														   game_state->gfx.player.run_animations,
-														   physics->velocity,
-														   3,
-														   game_state);
+				const b32 is_goalie = entity_player_is_goalie(entity);
+				entity_player_anim_calculate_running_frame(
+					entity,
+					is_goalie ? game_state->gfx.goalie.stand_frames :
+								game_state->gfx.player.stand_frames,
+					is_goalie ? game_state->gfx.goalie.run_animations :
+								game_state->gfx.player.run_animations,
+					physics->velocity,
+					3,
+					game_state);
 
 				// Tested against what was asked for, never the assisted steering above: that one
 				// is bent toward the ball, which is not a direction the player asked to turn on

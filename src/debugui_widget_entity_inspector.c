@@ -243,12 +243,13 @@ static void draw_component_ball(struct component_ball *c)
 							  c->last_touch_entity_id,
 							  (double)c->last_touch_time));
 		}
-		if (c->last_kicker_entity_id == EID_NOT_VALID) {
-			igText("  last_kicker_id: (invalid)");
+		if (c->last_play_entity_id == EID_NOT_VALID) {
+			igText("  last_play_id:   (invalid)");
 		} else {
-			igText(TextFormat("  last_kicker_id: %u  time: %.3f",
-							  c->last_kicker_entity_id,
-							  (double)c->last_kick_time));
+			igText(TextFormat("  last_play_id:   %u  time: %.3f  type: %s",
+							  c->last_play_entity_id,
+							  (double)c->last_play_time,
+							  ball_play_type_string[c->last_play_type]));
 		}
 		igText(TextFormat("  last_loose:     %.3f", (double)c->last_loose_time));
 		if (c->pass_target_entity_id == EID_NOT_VALID) {

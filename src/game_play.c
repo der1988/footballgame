@@ -117,7 +117,7 @@ struct game_state *game_play_init(struct game_config game_config,
 		.ball_header_fumble_force = 4 * PIXELS_PER_METER,
 		// 61m/s, that would be 220km/h
 		.ball_max_velocity = 61 * PIXELS_PER_METER,
-		.ball_max_velocity_to_gain_possession = 25 * PIXELS_PER_METER,
+		.ball_max_velocity_to_gain_possession = 35 * PIXELS_PER_METER,
 		.ball_lookaheads = 15,
 		.ball_lookahead_dts = 48,
 

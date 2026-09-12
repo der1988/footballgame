@@ -103,7 +103,7 @@ void system_ball(struct game_state *game_state)
 
 		// After touch
 		struct human_player *human_player =
-			game_input_human_player_by_player_entity_id(game_state, ball->last_kicker_entity_id);
+			game_input_human_player_by_player_entity_id(game_state, ball->last_play_entity_id);
 		v2 after_touch_direction = Vector2Zero();
 		v3 after_touch_accel = Vector3Zero();
 		if (human_player && ball->after_touch.active) {

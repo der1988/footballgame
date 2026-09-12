@@ -176,6 +176,8 @@ struct game_gfx {
 	struct goalie {
 		asset_sprite_frame_id_t stand_frames[SO_COUNT];
 		asset_animation_id_t run_animations[SO_COUNT];
+		asset_animation_id_t run_ball_animations[SO_COUNT];
+		asset_animation_id_t hand_pass_animations[SO_COUNT];
 		asset_sprite_frame_id_t save_frames[PSI_COUNT][ST_COUNT];
 		asset_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
 		asset_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];

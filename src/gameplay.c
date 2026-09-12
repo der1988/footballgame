@@ -28,6 +28,13 @@ static struct player_characteristics characteristics_for_position(u8 idx)
 		.speed = 4, .acceleration = 4, .strength = 2, .weight = 2}; // Forwards
 }
 
+// A keeper is rated like anybody else: big and strong, no quicker than a midfielder.
+static struct player_characteristics characteristics_for_goalie(void)
+{
+	return (struct player_characteristics){
+		.speed = 3, .acceleration = 3, .strength = 4, .weight = 4};
+}
+
 // Translates an event into a trigger and fires it. What the trigger means is
 // the mode's transition table to decide, never this function.
 static void on_event(enum event_type event_type, void *context)
@@ -88,12 +95,14 @@ void gameplay_setup_common(u8 outfield_players_per_team, struct game_state *game
 	entity_player_create((struct player_config){.is_goalie = true,
 												.position =
 													game_state->vars.pitch.goal[PSI_NORTH].center,
-												.team_side = TS_HOME},
+												.team_side = TS_HOME,
+												.characteristics = characteristics_for_goalie()},
 						 game_state);
 	entity_player_create((struct player_config){.is_goalie = true,
 												.position =
 													game_state->vars.pitch.goal[PSI_SOUTH].center,
-												.team_side = TS_AWAY},
+												.team_side = TS_AWAY,
+												.characteristics = characteristics_for_goalie()},
 						 game_state);
 
 	struct entity *ball_entity = entity_ball_create(

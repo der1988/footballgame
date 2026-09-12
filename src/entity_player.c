@@ -124,22 +124,33 @@ void entity_player_on_constants_changed(enum event_type type, void *context)
 }
 
 const char *state_machine_goalie_state_string[GS_COUNT] = {
-	"none", "protect_goal", "dive", "hold_ball", "jump"};
+	"none", "protect_goal", "dive", "hold_ball", "jump", "throw"};
 
-const char *state_machine_player_trigger_string[PT_COUNT] = {
-	"none", "head", "tackle", "slide_tackle", "tackled", "knocked_down", "recover"};
+const char *state_machine_player_trigger_string[PT_COUNT] = {"none",
+															 "head",
+															 "tackle",
+															 "slide_tackle",
+															 "tackled",
+															 "knocked_down",
+															 "recover",
+															 "step_out",
+															 "guard_goal",
+															 "pick_up"};
 
 const char *state_machine_goalie_trigger_string[GT_COUNT] = {
-	"none", "dive", "jump", "catch", "recover", "release"};
+	"none", "dive", "jump", "catch", "recover", "release", "throw"};
 
-// PS_GOALIE responds to nothing yet: a keeper stays one for the whole match.
-// Stepping out to play as an outfielder arrives with the back-pass rework.
+// A keeper holds PS_GOALIE while he is the goalie and PS_NORMAL while he plays with his feet, so
+// those two swap both ways. Everything that can happen to a player happens to him in PS_NORMAL.
 static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COUNT] = {
 	[PS_NORMAL] = {[PT_HEAD] = PS_HEADER,
 				   [PT_TACKLE] = PS_TACKLE,
 				   [PT_SLIDE_TACKLE] = PS_SLIDING_TACKLE,
 				   [PT_TACKLED] = PS_TACKLED_RUN,
-				   [PT_KNOCKED_DOWN] = PS_FALL},
+				   [PT_KNOCKED_DOWN] = PS_FALL,
+				   [PT_GUARD_GOAL] = PS_GOALIE,
+				   [PT_PICK_UP] = PS_GOALIE},
+	[PS_GOALIE] = {[PT_STEP_OUT] = PS_NORMAL},
 	[PS_HEADER] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_SLIDING_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
@@ -151,7 +162,8 @@ static const enum state_machine_goalie_state goalie_transitions[GS_COUNT][GT_COU
 	[GS_PROTECT_GOAL] = {[GT_DIVE] = GS_DIVE, [GT_JUMP] = GS_JUMP, [GT_CATCH] = GS_HOLD_BALL},
 	[GS_DIVE] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
 	[GS_JUMP] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
-	[GS_HOLD_BALL] = {[GT_RELEASE] = GS_PROTECT_GOAL},
+	[GS_HOLD_BALL] = {[GT_RELEASE] = GS_PROTECT_GOAL, [GT_THROW] = GS_THROW},
+	[GS_THROW] = {[GT_RELEASE] = GS_PROTECT_GOAL},
 };
 
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(player, struct entity);
@@ -538,7 +550,7 @@ static void state_machine_goalie_on_enter(struct entity *entity,
 	case GS_NONE:
 		break;
 	case GS_PROTECT_GOAL: {
-		entity->physics.max_velocity = game_state->constants.player_run_max_velocity * 1.25f;
+		entity->physics.max_velocity = entity->player.constants.run_max_velocity;
 		break;
 	}
 	case GS_DIVE: {
@@ -562,6 +574,12 @@ static void state_machine_goalie_on_enter(struct entity *entity,
 		state_machine->state_data.jump.animation_start_time = game_state->time;
 		break;
 	}
+	case GS_THROW: {
+		entity->physics.velocity = Vector2Zero();
+		entity->physics.accel = Vector2Zero();
+		state_machine->state_data.throw_ball.start_time = game_state->time;
+		break;
+	}
 	case GS_COUNT:
 		break;
 	}
@@ -575,6 +593,7 @@ static void state_machine_goalie_on_exit(struct entity *entity,
 {
 	UNUSED(trigger);
 	UNUSED(to);
+	UNUSED(game_state);
 
 	GLOGF_INFO_CTX(LS_ENTITIES,
 				   entity->header.name,
@@ -588,13 +607,16 @@ static void state_machine_goalie_on_exit(struct entity *entity,
 		break;
 	}
 	case GS_DIVE: {
-		entity->physics.max_velocity = game_state->constants.player_run_max_velocity;
+		entity->physics.max_velocity = entity->player.constants.run_max_velocity;
 		break;
 	}
 	case GS_HOLD_BALL: {
 		break;
 	}
 	case GS_JUMP: {
+		break;
+	}
+	case GS_THROW: {
 		break;
 	}
 	case GS_COUNT:
@@ -802,6 +824,113 @@ enum player_ball_possession entity_player_ball_possession(struct entity *player_
 void entity_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state)
 {
 	player_entity->player.last_selected_for_pass_time = game_state->time;
+}
+
+b32 entity_player_is_goalie(struct entity *player_entity)
+{
+	return player_entity->goalie.header.enabled;
+}
+
+b32 entity_player_goalie_pick_up_ball(struct entity *player_entity, struct game_state *game_state)
+{
+	// Only a keeper playing on his feet takes it in his hands from here: mid-header, mid-tackle or
+	// on the floor he finishes what he is doing first, and PT_PICK_UP leads nowhere from there.
+	if (!entity_player_is_goalie(player_entity) ||
+		player_entity->player.state_machine.current_state != PS_NORMAL) {
+		return false;
+	}
+
+	struct entity *ball_entity = game_state->vars.ball.entity;
+
+	const enum pitch_side pitch_side =
+		game_state->vars.teams[player_entity->player.team_side].play_context.pitch_side;
+	if (!football_pitch_is_position_inside_penalty_area(
+			player_entity->transform.position, pitch_side, game_state)) {
+		return false;
+	}
+
+	if (!entity_ball_may_goalie_handle(ball_entity, player_entity, game_state)) {
+		return false;
+	}
+
+	entity_ball_held_by_goalie(ball_entity, player_entity->header.id, game_state);
+	state_machine_player_fire(&player_entity->player.state_machine, PT_PICK_UP, game_state);
+	state_machine_goalie_fire(&player_entity->goalie.state_machine, GT_CATCH, game_state);
+	input_reset_player(player_entity->header.id, game_state);
+
+	return true;
+}
+
+void entity_player_goalie_update_role(struct entity *player_entity, struct game_state *game_state)
+{
+	struct entity *ball_entity = game_state->vars.ball.entity;
+	struct component_player *player = &player_entity->player;
+	struct component_goalie *goalie = &player_entity->goalie;
+
+	const enum pitch_side pitch_side =
+		game_state->vars.teams[player->team_side].play_context.pitch_side;
+	const b32 is_in_own_box = football_pitch_is_position_inside_penalty_area(
+		player_entity->transform.position, pitch_side, game_state);
+	const b32 is_ball_in_own_box = football_pitch_is_position_inside_penalty_area(
+		ball_entity->transform.position, pitch_side, game_state);
+
+	switch (player->state_machine.current_state) {
+	case PS_GOALIE: {
+		if (goalie->state_machine.current_state != GS_PROTECT_GOAL) {
+			// A dive, a jump and the ball in his hands all play out to their end first
+			break;
+		}
+
+		// A team mate on the ball means his side is playing, so he joins in. He himself does not
+		// count: a save leaves the ball unmarked as loose, so parrying one would read as his own
+		// possession and stop him picking up the rebound.
+		const entity_id_t player_in_possession_entity_id =
+			entity_ball_player_in_possession(ball_entity, game_state);
+		struct entity *player_in_possession_entity =
+			entity_get(game_state->entity_repository, player_in_possession_entity_id);
+		const b32 is_team_mate_in_possession =
+			player_in_possession_entity != NULL &&
+			player_in_possession_entity->header.id != player_entity->header.id &&
+			player_in_possession_entity->player.team_side == player->team_side;
+
+		// While the ball is in his own area he stays the goalie whoever has it: a cross dropping on
+		// his six yard box is no moment to be playing out as a field player.
+		if (!is_in_own_box || (is_team_mate_in_possession && !is_ball_in_own_box)) {
+			state_machine_player_fire(&player->state_machine, PT_STEP_OUT, game_state);
+		}
+		break;
+	}
+	case PS_NORMAL: {
+		if (!is_in_own_box) {
+			// Out of his area he is a field player, whoever has the ball
+			break;
+		}
+
+		const b32 do_opponents_have_the_ball =
+			entity_ball_team_in_possession(ball_entity, game_state) != player->team_side;
+		const b32 is_play_running =
+			game_state->gameplay.state_machine.current_state == FS_PLAY;
+		// Any contact reads as possession, his own included, so a ball landing on him must not be
+		// what keeps him out of goal. Only the ball actually at his feet does.
+		const b32 is_ball_his_to_play =
+			entity_ball_player_in_possession(ball_entity, game_state) == player_entity->header.id;
+
+		// A ball in his area he is not allowed to touch is one he has to go and play with his feet,
+		// so that one leaves him out here.
+		const b32 may_handle_ball =
+			entity_ball_may_goalie_handle(ball_entity, player_entity, game_state);
+
+		if (do_opponents_have_the_ball || !is_play_running ||
+			(is_ball_in_own_box && !is_ball_his_to_play && may_handle_ball)) {
+			state_machine_player_fire(&player->state_machine, PT_GUARD_GOAL, game_state);
+		}
+		break;
+	}
+	default:
+		// Mid-header, mid-tackle, on the floor: he finishes what he is doing and comes back to
+		// PS_NORMAL, where this runs again.
+		break;
+	}
 }
 
 struct player_ball_reachability_prediction entity_player_can_reach_future_ball_position(
@@ -1489,7 +1618,7 @@ static void player_custom_begin_draw(struct entity *entity, struct game_state *g
 	color_t kit_color;
 	color_t kit_dark_color;
 	color_t socks_dark_color;
-	if (entity->player.state_machine.current_state == PS_GOALIE) {
+	if (entity_player_is_goalie(entity)) {
 		kit_color = GOALIE_KIT_LIGHT_COLOR;
 		kit_dark_color = GOALIE_KIT_DARK_COLOR;
 		socks_dark_color = GOALIE_SOCKS_DARK_COLOR;
@@ -1636,7 +1765,7 @@ struct entity *entity_player_select_press_player(struct entity *ball_entity,
 		// with humans gets a single chaser, so the presser is free to be the nearest one.
 		if (!entity->header.alive || entity->header.type != ET_PLAYER ||
 			entity->player.state_machine.current_state != PS_NORMAL ||
-			entity->player.team_side != team_side ||
+			entity_player_is_goalie(entity) || entity->player.team_side != team_side ||
 			(!team_has_humans &&
 			 entity_id ==
 				 game_state->vars.teams[team_side].play_context.player_nearest_to_the_ball)) {
@@ -1697,9 +1826,13 @@ static b32 is_player_selectable(struct entity *player_entity)
 	const struct component_player *player = &player_entity->player;
 	const struct component_goalie *goalie = &player_entity->goalie;
 
-	return (player->state_machine.current_state == PS_NORMAL ||
-			player->state_machine.current_state == PS_GOALIE) &&
-		   !(goalie->header.enabled && goalie->state_machine.current_state != GS_HOLD_BALL);
+	// A keeper is handed over only with the ball in his hands. Out of goal he is in PS_NORMAL and
+	// selectable like anybody else.
+	if (player->state_machine.current_state == PS_GOALIE) {
+		return goalie->state_machine.current_state == GS_HOLD_BALL;
+	}
+
+	return player->state_machine.current_state == PS_NORMAL;
 }
 
 // The speed is the conservative one the AI seek uses, so both agree on what is reachable.

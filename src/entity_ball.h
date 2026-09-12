@@ -25,6 +25,20 @@ enum ball_tackle_type {
 	BTT_SLIDING,
 };
 
+// How the ball was last played on purpose. A standing tackle wins the ball rather than playing it,
+// so it leaves the last_play_* fields alone.
+enum ball_play_type {
+	BPT_NONE,
+	BPT_PASS,
+	BPT_LONG_PASS,
+	BPT_SHOT,
+	BPT_HEADER,
+	BPT_SLIDING_TACKLE,
+	BPT_COUNT
+};
+
+extern const char *ball_play_type_string[BPT_COUNT];
+
 enum state_machine_ball_state {
 	BS_NONE,
 	BS_IN_PLAY,
@@ -112,6 +126,9 @@ void entity_ball_in_goal(struct entity *ball_entity);
 void entity_ball_set_last_touch(struct component_ball *ball,
 								entity_id_t player_on_the_ball_entity_id,
 								struct game_state *game_state);
+b32 entity_ball_may_goalie_handle(struct entity *ball_entity,
+								  struct entity *goalie_entity,
+								  struct game_state *game_state);
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
 											 struct game_state *game_state);
 entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,

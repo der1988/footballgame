@@ -183,8 +183,8 @@ void system_player_collisions(struct game_state *game_state)
 			break;
 		}
 		case PS_HEADER: {
-			if (ball->last_kicker_entity_id == player_entity->header.id &&
-				!HAS_TIME_PASSED(game_state->time, ball->last_kick_time, 0.2f)) {
+			if (ball->last_play_entity_id == player_entity->header.id &&
+				!HAS_TIME_PASSED(game_state->time, ball->last_play_time, 0.2f)) {
 				break;
 			}
 

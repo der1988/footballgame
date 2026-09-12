@@ -49,6 +49,10 @@ void system_player_on_the_ball(struct game_state *game_state)
 
 		switch (state_machine->current_state) {
 		case PS_NORMAL: {
+			if (entity_player_goalie_pick_up_ball(player_entity, game_state)) {
+				break;
+			}
+
 			if (ball_speed > game_state->constants.ball_max_velocity_to_gain_possession) {
 				// Ball is too fast, we cannot control it
 				// b32 deviate_trajectory = GetRandomValue(0, 100) % 2 == 0;

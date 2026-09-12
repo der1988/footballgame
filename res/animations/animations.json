@@ -202,6 +202,86 @@
       "frames": "0,1,2,3",
       "prefix": "run_back_right_"
     },
+    "hand_pass_front": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_front_"
+    },
+    "hand_pass_back": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_back_"
+    },
+    "hand_pass_left": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_left_"
+    },
+    "hand_pass_right": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_right_"
+    },
+    "hand_pass_front_left": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_front_left_"
+    },
+    "hand_pass_front_right": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_front_right_"
+    },
+    "hand_pass_back_left": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_back_left_"
+    },
+    "hand_pass_back_right": {
+      "delay": 0.1,
+      "frames": "0,1",
+      "prefix": "hand_pass_back_right_"
+    },
+    "run_ball_front": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_front_"
+    },
+    "run_ball_back": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_back_"
+    },
+    "run_ball_left": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_left_"
+    },
+    "run_ball_right": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_right_"
+    },
+    "run_ball_front_left": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_front_left_"
+    },
+    "run_ball_front_right": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_front_right_"
+    },
+    "run_ball_back_left": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_back_left_"
+    },
+    "run_ball_back_right": {
+      "delay": 0.1,
+      "frames": "0,1,2,3",
+      "prefix": "run_ball_back_right_"
+    },
     "dive_front_low_left_start": {
       "delay": 0.05,
       "frames": "0,1,2",

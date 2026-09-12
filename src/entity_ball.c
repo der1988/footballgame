@@ -22,6 +22,9 @@ const char *state_machine_ball_state_string[BS_COUNT] = {
 
 const char *state_machine_ball_trigger_string[BT_COUNT] = {"none", "caught", "released"};
 
+const char *ball_play_type_string[BPT_COUNT] = {
+	"none", "pass", "long_pass", "shot", "header", "sliding_tackle"};
+
 static const enum state_machine_ball_state ball_transitions[BS_COUNT][BT_COUNT] = {
 	[BS_IN_PLAY] = {[BT_CAUGHT] = BS_GK_HANDS},
 	[BS_GK_HANDS] = {[BT_RELEASED] = BS_IN_PLAY},
@@ -90,7 +93,8 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	struct component_ball *ball = &entity->ball;
 	ball->header.enabled = true;
 	ball->last_touch_entity_id = EID_NOT_VALID;
-	ball->last_kicker_entity_id = EID_NOT_VALID;
+	ball->last_play_entity_id = EID_NOT_VALID;
+	ball->last_play_type = BPT_NONE;
 	ball->pass_target_entity_id = EID_NOT_VALID;
 	ball->last_touch_time = 0;
 
@@ -342,8 +346,9 @@ void entity_ball_shoot(struct entity *ball_entity,
 
 	physics3d->accel =
 		Vector3Add(physics3d->accel, Vector3Scale(shot_direction, shot_force / game_state->dt));
-	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_play_time = game_state->time;
+	ball->last_play_entity_id = kicker_entity_id;
+	ball->last_play_type = BPT_SHOT;
 	ball->last_loose_time = game_state->time;
 
 	set_after_touch(&ball_entity->ball);
@@ -366,8 +371,9 @@ void entity_ball_short_pass(struct entity *ball_entity,
 
 	physics3d->accel =
 		Vector3Add(physics3d->accel, Vector3Scale(direction, power / game_state->dt));
-	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_play_time = game_state->time;
+	ball->last_play_entity_id = kicker_entity_id;
+	ball->last_play_type = BPT_PASS;
 	ball->last_loose_time = game_state->time;
 }
 
@@ -401,8 +407,9 @@ void entity_ball_long_pass(struct entity *ball_entity,
 	physics3d->accel = Vector3Add(
 		physics3d->accel, Vector3Scale(long_pass_direction, long_pass_force / game_state->dt));
 
-	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = kicker_entity_id;
+	ball->last_play_time = game_state->time;
+	ball->last_play_entity_id = kicker_entity_id;
+	ball->last_play_type = BPT_LONG_PASS;
 	ball->last_loose_time = game_state->time;
 }
 
@@ -428,8 +435,9 @@ void entity_ball_tackle(struct entity *ball_entity,
 	ball->last_loose_time = game_state->time;
 	// A slide plays the ball away, so it counts as a kick. A standing tackle wins it, so it doesn't.
 	if (type == BTT_SLIDING) {
-		ball->last_kick_time = game_state->time;
-		ball->last_kicker_entity_id = tackler_entity_id;
+		ball->last_play_time = game_state->time;
+		ball->last_play_entity_id = tackler_entity_id;
+		ball->last_play_type = BPT_SLIDING_TACKLE;
 	}
 
 	reset_after_touch(&ball_entity->ball);
@@ -447,8 +455,9 @@ void entity_ball_header(struct entity *ball_entity,
 	physics3d->velocity = Vector3Zero();
 	physics3d->accel =
 		Vector3Add(physics3d->accel, Vector3Scale(direction, force / game_state->dt));
-	ball->last_kick_time = game_state->time;
-	ball->last_kicker_entity_id = header_entity_id;
+	ball->last_play_time = game_state->time;
+	ball->last_play_entity_id = header_entity_id;
+	ball->last_play_type = BPT_HEADER;
 	ball->last_loose_time = game_state->time;
 
 	reset_after_touch(&ball_entity->ball);
@@ -508,6 +517,41 @@ void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *gam
 	struct component_ball *ball = &ball_entity->ball;
 
 	state_machine_ball_fire(&ball->state_machine, BT_RELEASED, game_state);
+}
+
+// Whether this goalie may take the ball in his hands, by the laws: not one he let go of himself
+// until somebody else has touched it, and not one a team mate played to him deliberately with
+// anything but his head.
+b32 entity_ball_may_goalie_handle(struct entity *ball_entity,
+								  struct entity *goalie_entity,
+								  struct game_state *game_state)
+{
+	struct component_ball *ball = &ball_entity->ball;
+
+	if (ball->state_machine.previous_state == BS_GK_HANDS &&
+		ball->last_touch_entity_id == goalie_entity->header.id) {
+		return false;
+	}
+
+	struct entity *last_play_entity =
+		entity_get(game_state->entity_repository, ball->last_play_entity_id);
+	if (!last_play_entity) {
+		return true;
+	}
+
+	if (last_play_entity->player.team_side != goalie_entity->player.team_side) {
+		// An opponent played it to him
+		return true;
+	}
+
+	if (ball->last_play_type == BPT_HEADER) {
+		return true;
+	}
+
+	// A team mate played it to him with his feet. It stops being that ball once somebody else has
+	// taken it on; his own touches, as he brings it under control, are not somebody else.
+	return ball->last_touch_entity_id != ball->last_play_entity_id &&
+		   ball->last_touch_entity_id != goalie_entity->header.id;
 }
 
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
@@ -613,7 +657,7 @@ v3 entity_ball_after_touch_acceleration(struct component_ball *ball,
 {
 	// TODO: we'd like CPU controlled players to also be able to control after touch in some way.
 	v3 after_touch_accel = Vector3Zero();
-	f32 after_touch_time = (time - ball->last_kick_time);
+	f32 after_touch_time = (time - ball->last_play_time);
 	if (after_touch_time > game_state->constants.ball_after_touch_delay_time) {
 		v2 after_touch_side = Vector2Zero();
 		b32 apply_after_touch = true;

@@ -56,6 +56,42 @@ void gfx_goalie_prepare(struct game_state *game_state)
 	goalie->run_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
 		animation_cache, "goalkeeper", "run_back_right", memory_arena_handle);
 
+	// Throwing the ball out by hand
+	goalie->hand_pass_animations[SO_DOWN] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_front", memory_arena_handle);
+	goalie->hand_pass_animations[SO_UP] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_back", memory_arena_handle);
+	goalie->hand_pass_animations[SO_LEFT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_left", memory_arena_handle);
+	goalie->hand_pass_animations[SO_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_right", memory_arena_handle);
+	goalie->hand_pass_animations[SO_DOWN_LEFT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_front_left", memory_arena_handle);
+	goalie->hand_pass_animations[SO_DOWN_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_front_right", memory_arena_handle);
+	goalie->hand_pass_animations[SO_UP_LEFT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_back_left", memory_arena_handle);
+	goalie->hand_pass_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "hand_pass_back_right", memory_arena_handle);
+
+	// Running with the ball in his hands
+	goalie->run_ball_animations[SO_DOWN] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_front", memory_arena_handle);
+	goalie->run_ball_animations[SO_UP] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_back", memory_arena_handle);
+	goalie->run_ball_animations[SO_LEFT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_left", memory_arena_handle);
+	goalie->run_ball_animations[SO_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_right", memory_arena_handle);
+	goalie->run_ball_animations[SO_DOWN_LEFT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_front_left", memory_arena_handle);
+	goalie->run_ball_animations[SO_DOWN_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_front_right", memory_arena_handle);
+	goalie->run_ball_animations[SO_UP_LEFT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_back_left", memory_arena_handle);
+	goalie->run_ball_animations[SO_UP_RIGHT] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "run_ball_back_right", memory_arena_handle);
+
 	// Save frames
 	goalie->save_frames[PSI_NORTH][ST_WITHOUT_BALL] =
 		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache, "goalkeeper_front_0")

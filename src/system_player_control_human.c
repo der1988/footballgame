@@ -197,12 +197,43 @@ void system_player_control_human(struct game_state *game_state)
 
 			break;
 		}
+		case PS_GOALIE: {
+			if (entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
+				break;
+			}
+
+			// He holds the throwing pose for as long as the throw is being wound up
+			player_controls->charging_throw =
+				input_charge_lock_is_held(game_controller) &&
+				game_controller->charge_lock.control_id == GAME_CONTROL_AUTOMATIC_PASS;
+
+			// What he can do with the ball in his hands: put it down and carry on with his feet,
+			// throw it out to a team mate, or kick it long.
+			if (game_controller->charge_lock.state == INPUT_CHARGE_LOCK_CHARGED) {
+				const fg_time_t time_holding_button = game_controller->charge_lock.end_time -
+													  game_controller->charge_lock.start_time;
+				switch (game_controller->charge_lock.control_id) {
+				case GAME_CONTROL_PASS:
+					player_controls->put_down = true;
+					break;
+				case GAME_CONTROL_AUTOMATIC_PASS:
+					player_controls->pass = PASS_POWER(time_holding_button);
+					player_controls->automatic_pass = true;
+					break;
+				case GAME_CONTROL_LONG_PASS:
+					player_controls->long_pass = LONG_PASS_POWER(time_holding_button);
+					break;
+				default:
+					break;
+				}
+			}
+			break;
+		}
 		case PS_TACKLE:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
 		case PS_TACKLED_RUN:
 		case PS_HEADER:
-		case PS_GOALIE:
 		case PS_THROW_IN:
 		case PS_COUNT:
 			break;

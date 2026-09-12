@@ -15,8 +15,12 @@ void system_oob_checks(struct game_state *game_state)
 
 		DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 
-		UNUSED(ball);
 		UNUSED(ball_physics_3d);
+
+		if (ball->state_machine.current_state == BS_GK_HANDS) {
+			// In the keeper's hands it is never out of play, and it travels with him
+			return;
+		}
 
 		const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 

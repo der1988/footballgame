@@ -49,6 +49,9 @@ enum state_machine_player_trigger {
 	PT_TACKLED,
 	PT_KNOCKED_DOWN,
 	PT_RECOVER,
+	PT_STEP_OUT,
+	PT_GUARD_GOAL,
+	PT_PICK_UP,
 	PT_COUNT
 };
 
@@ -164,6 +167,7 @@ enum state_machine_goalie_state {
 	GS_DIVE,
 	GS_HOLD_BALL,
 	GS_JUMP,
+	GS_THROW,
 	GS_COUNT
 };
 
@@ -176,6 +180,7 @@ enum state_machine_goalie_trigger {
 	GT_CATCH,
 	GT_RECOVER,
 	GT_RELEASE,
+	GT_THROW,
 	GT_COUNT
 };
 
@@ -196,11 +201,17 @@ struct state_machine_goalie_animation_data {
 	b32 ball_held;
 };
 
+// The ball is already gone when this state begins: it holds the follow-through pose.
+struct state_machine_goalie_throw_data {
+	fg_time_t start_time;
+};
+
 union state_machine_goalie_state_data {
 	struct state_machine_default_empty_data protect_goal;
 	struct state_machine_goalie_animation_data dive;
 	struct state_machine_goalie_hold_ball_data hold_ball;
 	struct state_machine_goalie_animation_data jump;
+	struct state_machine_goalie_throw_data throw_ball;
 };
 
 enum player_collider_type {
@@ -309,6 +320,19 @@ entity_player_is_colliding_with_ball(struct entity *player_entity,
 									 v3 ball_velocity,
 									 f32 ball_radius,
 									 f32 max_height);
+
+// Whether this player is his team's keeper, whatever state he is in: out of goal he plays as
+// PS_NORMAL and still wears the gloves.
+b32 entity_player_is_goalie(struct entity *player_entity);
+
+// A keeper on the ball in his own area takes it in his hands, when the laws let him. Returns
+// whether he did, in which case he now holds it and must not be given the ball at his feet.
+b32 entity_player_goalie_pick_up_ball(struct entity *player_entity, struct game_state *game_state);
+
+// Settles whether the keeper is the goalie right now (PS_GOALIE, hands) or a field player
+// (PS_NORMAL, feet). He is the goalie only inside his own area while the opponents have the ball.
+// Call once per tick for every keeper, before anything reads his state.
+void entity_player_goalie_update_role(struct entity *player_entity, struct game_state *game_state);
 
 b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 									 struct entity *ball_entity,

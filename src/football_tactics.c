@@ -133,6 +133,36 @@ v2 football_tactics_get_target_position(struct entity *player_entity,
 										struct entity *ball_entity,
 										struct game_state *game_state)
 {
+	// A keeper has no slot in the formation, so he is placed against his own goal: up into his area
+	// while his side has the ball, back on his line when it doesn't.
+	if (entity_player_is_goalie(player_entity)) {
+		const enum pitch_side goalie_pitch_side =
+			game_state->vars.teams[player_entity->player.team_side].play_context.pitch_side;
+		const struct goal *goal = &game_state->vars.pitch.goal[goalie_pitch_side];
+
+		if (entity_ball_team_in_possession(ball_entity, game_state) ==
+			player_entity->player.team_side) {
+			// He follows the ball up and down: on his line while it is on top of his goal, out on
+			// the edge of his area while his side has it at the other end.
+			const v2 ball_normalized_position = football_pitch_position_abs_to_normalized(
+				game_state->vars.pitch.field, ball_entity->transform.position);
+			const f32 ball_distance_from_his_goal = goalie_pitch_side == PSI_NORTH ?
+														ball_normalized_position.y :
+														1.0f - ball_normalized_position.y;
+
+			const v2 penalty_area_edge = {
+				.x = goal->penalty_box.x + goal->penalty_box.width * 0.5f,
+				.y = goalie_pitch_side == PSI_NORTH ?
+						 goal->penalty_box.y + goal->penalty_box.height :
+						 goal->penalty_box.y};
+
+			return Vector2Lerp(
+				goal->center, penalty_area_edge, Clamp(ball_distance_from_his_goal, 0, 1));
+		}
+
+		return goal->center;
+	}
+
 	struct team_formation_position *team_formation_position =
 		football_tactics_get_team_formation_position(
 			TF_433, player_entity->player.team_formation_position_idx);
