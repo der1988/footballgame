@@ -7,8 +7,7 @@
 #include "log.h"
 #include "game.h"
 #include <string.h>
-
-#define BALL_RESTART_HEIGHT 30
+#include "constants.h"
 
 const char *pitch_side_to_string[PSI_COUNT] = {"north", "south"};
 const char *team_side_to_string[TS_COUNT] = {"home", "away"};

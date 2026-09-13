@@ -13,12 +13,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <stdio.h>
-
-#define STAY_THERE_RADIUS 30.0f
-
-// Per tick, at the fixed 480Hz step, so about a fifth of a second of carrying it on average
-// once he has decided the ball should move.
-#define AI_PASS_PROBABILITY_PER_TICK 0.01f
+#include "constants.h"
 
 enum whos_on_the_ball {
 	WOTB_PLAYER,
@@ -150,7 +145,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				// He has decided the ball should move, but not on the same tick every time:
 				// rolling for it spreads the release out instead of firing it the instant the
 				// conditions line up.
-				passing = RANDOM_01(100000) < AI_PASS_PROBABILITY_PER_TICK;
+				passing = RANDOM_01(100000) < PLAYER_AI_PASS_PROBABILITY_PER_TICK;
 			}
 
 			if (passing) {

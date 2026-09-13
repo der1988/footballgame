@@ -16,8 +16,6 @@
 #include "types.h"
 #include "constants.h"
 
-#define STAY_THERE_RADIUS 10.0f
-
 void system_player_control_ai(struct game_state *game_state)
 {
 	UNUSED(memset);
@@ -73,7 +71,7 @@ void system_player_control_ai(struct game_state *game_state)
 					// Standing on his spot he lets small shifts of it go, but while he is still
 					// moving he keeps braking onto it
 					if (Vector2Distance(target_position, entity->transform.position) <
-							STAY_THERE_RADIUS &&
+							PLAYER_AI_STAY_THERE_RADIUS &&
 						physics_is_at_rest(physics->velocity, PLAYER_AT_REST_SPEED))
 						player_controls->steering = Vector2Zero();
 					else

@@ -15,11 +15,7 @@
 #include <raymath.h>
 #include <stdio.h>
 #include <float.h>
-
-// Chance that a player hit by a tackle falls (PS_FALL) instead of starting a tackled run
-// (PS_TACKLED_RUN).
-#define TACKLE_KNOCKDOWN_PROBABILITY		 0.05f
-#define SLIDING_TACKLE_KNOCKDOWN_PROBABILITY 0.3f
+#include "constants.h"
 
 void system_player_collisions(struct game_state *game_state)
 {

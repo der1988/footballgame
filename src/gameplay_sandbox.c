@@ -2,11 +2,7 @@
 #include "game.h"
 #include "gameplay.h"
 #include "gameplay_sandbox.h"
-
-#define SANDBOX_OUTFIELD_PLAYERS_PER_TEAM 0
-// Long enough to see the ball settle in the net, short enough not to slow down
-// repeated shots.
-#define SANDBOX_RESTART_DELAY 1.0f
+#include "constants.h"
 
 static const enum state_machine_football_state sandbox_transitions[FS_COUNT][FT_COUNT] = {
 	[FS_PLAY] = {[FT_GOAL_SCORED] = FS_GOAL,

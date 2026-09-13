@@ -74,8 +74,6 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 								{.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
 							[GAME_CONTROL_TACKLE] = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
-													 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DOWN},
-							[GAME_CONTROL_SLIDING_TACKLE] = {.type = GAME_CONTROL_BINDING_TYPE_DIGITAL,
 													 .to =
 														 PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_RIGHT},
 							[GAME_CONTROL_STOP] =

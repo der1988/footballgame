@@ -37,12 +37,42 @@
 #define GOALIE_AI_THROW_HALF_ANGLE 80.0f
 // Height the ball leaves his hands at when he rolls it out
 #define GOALIE_THROW_HEIGHT 6
+// How long he holds the follow-through pose once the ball has gone
+#define GOALIE_THROW_FOLLOW_THROUGH_TIME 0.5f
 // He carries the ball slower than he runs without it
 #define GOALIE_CARRY_SPEED_RATIO 0.75f
 // And pulls up harder than a player running free, so the ball in his hands has some weight
 #define GOALIE_CARRY_DRAG_RATIO 1.5f
 // Height the ball sits at while it is in his hands
 #define GOALIE_HOLD_BALL_HEIGHT 12
+
+// A player standing this close to his tactical spot stays put instead of chasing small shifts of it
+#define PLAYER_AI_STAY_THERE_RADIUS 10.0f
+// Per tick, at the fixed 480Hz step, so about a fifth of a second of carrying it on average
+// once he has decided the ball should move.
+#define PLAYER_AI_PASS_PROBABILITY_PER_TICK 0.01f
+
+// Chance that a player hit by a tackle falls (PS_FALL) instead of starting a tackled run
+// (PS_TACKLED_RUN).
+#define TACKLE_KNOCKDOWN_PROBABILITY		 0.05f
+#define SLIDING_TACKLE_KNOCKDOWN_PROBABILITY 0.3f
+
+// Height the ball is dropped from when play restarts
+#define BALL_RESTART_HEIGHT		   30
+#define BALL_IN_NET_DAMPING		   0.8f
+#define BALL_IN_NET_RISING_DAMPING 0.9f
+
+#define GOAL_POST_WIDTH		   2
+#define GOAL_HIT_POST_COOLDOWN 0.05f
+// How far off a squarely struck post the deflection can be rotated, in degrees.
+#define GOAL_DEFLECTION_ANGLE 120
+
+#define MATCH_OUTFIELD_PLAYERS_PER_TEAM	  10
+#define MATCH_CELEBRATION_TIME			  3.0f
+#define SANDBOX_OUTFIELD_PLAYERS_PER_TEAM 0
+// Long enough to see the ball settle in the net, short enough not to slow down
+// repeated shots.
+#define SANDBOX_RESTART_DELAY 1.0f
 
 // The scene is rendered one virtual pixel wider than the virtual screen on every side, so
 // that scrolling the final blit by a sub-pixel camera offset never exposes an empty edge.

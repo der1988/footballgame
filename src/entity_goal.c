@@ -9,11 +9,7 @@
 #include "math_ext.h"
 #include <raymath.h>
 #include "game.h"
-
-#define GOAL_POST_WIDTH		   2
-#define GOAL_HIT_POST_COOLDOWN 0.05f
-// How far off a squarely struck post the deflection can be rotated, in degrees.
-#define GOAL_DEFLECTION_ANGLE  120
+#include "constants.h"
 
 static const char *goal_woodwork_name[] = {"none", "left post", "right post", "crossbar"};
 

@@ -15,9 +15,6 @@
 #include <stdio.h>
 #include "collision.h"
 
-// How long he holds the follow-through pose once the ball has gone
-#define GOALIE_THROW_FOLLOW_THROUGH_TIME 0.5f
-
 void system_goalie(struct game_state *game_state)
 {
 	struct entity *ball_entity = game_state->vars.ball.entity;

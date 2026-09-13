@@ -2,9 +2,7 @@
 #include "game.h"
 #include "gameplay.h"
 #include "gameplay_match.h"
-
-#define MATCH_OUTFIELD_PLAYERS_PER_TEAM 10
-#define MATCH_CELEBRATION_TIME			3.0f
+#include "constants.h"
 
 static const enum state_machine_football_state match_transitions[FS_COUNT][FT_COUNT] = {
 	[FS_PLAY] = {[FT_GOAL_SCORED] = FS_GOAL,

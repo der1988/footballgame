@@ -13,9 +13,7 @@
 #include <string.h>
 #include "game.h"
 #include "gfx.h"
-
-#define BALL_IN_NET_DAMPING		   0.8f
-#define BALL_IN_NET_RISING_DAMPING 0.9f
+#include "constants.h"
 
 const char *state_machine_ball_state_string[BS_COUNT] = {
 	"none", "in_play", "out_of_play", "gk_hands"};
