@@ -461,10 +461,9 @@ void system_player_on_the_ball(struct game_state *game_state)
 			break;
 		}
 		case PS_GOALIE: {
-			// What he does with the ball in his hands. Guarded on the ball rather than on
-			// GS_HOLD_BALL alone: he only reaches this system because the collision system stamped
-			// his touch earlier in the frame, and that only happens while he is holding it.
-			if (ball->state_machine.current_state != BS_GK_HANDS) {
+			// What he does with the ball in his hands
+			if (ball->state_machine.current_state != BS_GK_HANDS ||
+				player_entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
 				break;
 			}
 

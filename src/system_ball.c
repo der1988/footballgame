@@ -247,7 +247,7 @@ void system_ball(struct game_state *game_state)
 		// the camera, the lookaheads and the out of bounds checks honest.
 		struct entity *holder_entity =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
-		if (!holder_entity) {
+		if (!holder_entity || holder_entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
 			break;
 		}
 

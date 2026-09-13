@@ -428,10 +428,10 @@ void system_player_physics(struct game_state *game_state)
 			break;
 		}
 		case PS_GOALIE: {
-			// Only carrying the ball moves him from here. His goalkeeping, dives and jumps drive
-			// their own movement in system_goalie.
+			// Only carrying the ball moves him from here. The ball is already in his hands for the
+			// rest of a dive or jump that caught it, and those move him in system_goalie.
 			if (ball->state_machine.current_state != BS_GK_HANDS ||
-				ball->last_touch_entity_id != entity_id) {
+				entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
 				break;
 			}
 
