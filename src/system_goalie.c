@@ -32,20 +32,6 @@ void system_goalie(struct game_state *game_state)
 		entity_player_goalie_update_role(entity, game_state);
 
 		if (player->state_machine.current_state != PS_GOALIE) {
-			// Out of goal he is a field player, but a ball that comes into his area is still his to
-			// catch. The field player's ball test only reaches control height, which a header or a
-			// cross flies straight over, so the goalie's reach is used here.
-			const struct collision_information ball_within_reach_info =
-				entity_player_is_colliding_with_ball(
-					entity,
-					PCT_GOALIE,
-					V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-					ball_entity->physics3d.velocity,
-					ball_collider->colliders[0].props.circle.radius,
-					game_state->constants.crossbar_height);
-			if (ball_within_reach_info.is_colliding) {
-				entity_player_goalie_try_pick_up_ball(entity, game_state);
-			}
 			continue;
 		}
 		DECLARE_ENTITY_COMPONENT(entity, transform);

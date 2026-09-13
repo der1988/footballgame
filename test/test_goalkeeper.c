@@ -316,6 +316,24 @@ void test_a_back_pass_into_his_area_leaves_him_out_on_his_feet(void)
 	TEST_ASSERT_EQUAL_INT(PS_NORMAL, g_goalie_entity->player.state_machine.current_state);
 }
 
+// A header back to him arrives above control height, out of reach of the field player's ball test,
+// so it has to be the goalie that catches it.
+void test_a_team_mates_header_into_his_area_is_caught_while_playing_out(void)
+{
+	keeper_plays_out();
+	g_goalie_entity->transform.position = position_in_his_area();
+	ball_played_by(g_team_mate_entity, BPT_HEADER);
+	entity_ball_set_position_and_velocity(g_ball_entity,
+										  V2_TO_V3(g_goalie_entity->transform.position,
+												   g_game_state->constants.crossbar_height - 5),
+										  Vector3Zero());
+
+	system_goalie(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(BS_GK_HANDS, g_ball_entity->ball.state_machine.current_state);
+	TEST_ASSERT_EQUAL_INT(GS_HOLD_BALL, g_goalie_entity->goalie.state_machine.current_state);
+}
+
 // What he does with the ball once he has it in his hands. His goalkeeping is not decided here.
 
 static void keeper_catches_the_ball(void)
@@ -497,6 +515,7 @@ int main()
 	RUN_TEST(test_he_goes_back_in_goal_once_the_opponents_have_the_ball);
 	RUN_TEST(test_a_ball_rebounding_onto_him_in_his_area_puts_him_back_in_goal);
 	RUN_TEST(test_a_back_pass_into_his_area_leaves_him_out_on_his_feet);
+	RUN_TEST(test_a_team_mates_header_into_his_area_is_caught_while_playing_out);
 
 	RUN_TEST(test_he_holds_on_to_it_until_he_has_looked_up);
 	RUN_TEST(test_closed_down_he_clears_it);
