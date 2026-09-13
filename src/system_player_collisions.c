@@ -192,11 +192,6 @@ void system_player_collisions(struct game_state *game_state)
 				break;
 			}
 
-			if (ball->last_play_entity_id == player_entity->header.id &&
-				!HAS_TIME_PASSED(game_state->time, ball->last_play_time, 0.2f)) {
-				break;
-			}
-
 			struct state_machine_player_header_data *header_data =
 				&player_entity->player.state_machine.state_data.header;
 
