@@ -388,9 +388,6 @@ void system_goalie(struct game_state *game_state)
 			break;
 		}
 		case GS_HOLD_BALL: {
-			// Carrying the ball, holding it and releasing it are not goalkeeping: they live in
-			// system_player_physics, system_ball and system_player_on_the_ball, the same systems
-			// that move and act for every other player.
 			break;
 		}
 		case GS_DIVE: {

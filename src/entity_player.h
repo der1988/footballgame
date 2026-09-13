@@ -331,7 +331,9 @@ b32 entity_player_goalie_try_pick_up_ball(struct entity *player_entity,
 										  struct game_state *game_state);
 
 // Settles whether the keeper is the goalie right now (PS_GOALIE, hands) or a field player
-// (PS_NORMAL, feet). He is the goalie only inside his own area while the opponents have the ball.
+// (PS_NORMAL, feet). Outside his own area he is always a field player. Inside it he steps out once
+// a team mate has the ball outside the area, and goes back in goal when the opponents have the
+// ball, when play is stopped, or when a ball he may handle is loose in his area.
 // Call once per tick for every keeper, before anything reads his state.
 void entity_player_goalie_update_role(struct entity *player_entity, struct game_state *game_state);
 
