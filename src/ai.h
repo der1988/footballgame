@@ -44,9 +44,8 @@ struct goalie_ai_decision {
 
 struct player_ai_decision {
 	enum player_ai_state state;
-	// A position for PAS_SEEK_POSITION and PAS_ARRIVE_TO_POSITION, a steering vector for
-	// PAS_SET_STEERING
-	v2 target_position;
+	v2 target_position; // where he goes, for PAS_SEEK_POSITION and PAS_ARRIVE_TO_POSITION
+	v2 steering;		// the stick he holds, for PAS_SET_STEERING
 	enum player_ai_action_decision action;
 	f32 power;
 	entity_id_t pass_target_entity_id; // who he passes to, for PAAD_PASS
@@ -62,6 +61,7 @@ b32 ai_pass_find_target(struct entity *passer_entity,
 						f32 detection_angle,
 						f32 target_distance,
 						f32 max_distance,
+						b32 require_clear_trajectory,
 						struct entity **out_pass_target,
 						struct game_state *game_state);
 

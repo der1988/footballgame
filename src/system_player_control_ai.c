@@ -86,7 +86,7 @@ void system_player_control_ai(struct game_state *game_state)
 					break;
 				}
 				case PAS_SET_STEERING: {
-					player_controls->steering = decision.target_position;
+					player_controls->steering = decision.steering;
 					break;
 				}
 				}
@@ -169,6 +169,7 @@ void system_player_control_ai(struct game_state *game_state)
 											180,
 											0,
 											game_state->constants.ball_pass_auto_max_distance,
+											false,
 											&teammate,
 											game_state);
 					if (found && teammate->player.state_machine.current_state != PS_GOALIE) {
@@ -196,6 +197,7 @@ void system_player_control_ai(struct game_state *game_state)
 											180,
 											0,
 											game_state->constants.ball_pass_auto_max_distance,
+											false,
 											&teammate,
 											game_state)) {
 						player_controls->steering = Vector2Normalize(Vector2Subtract(

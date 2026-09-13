@@ -16,6 +16,7 @@ b32 ai_pass_find_target(struct entity *passer_entity,
 						f32 detection_angle,
 						f32 target_distance,
 						f32 max_distance,
+						b32 require_clear_trajectory,
 						struct entity **out_pass_target,
 						struct game_state *game_state)
 {
@@ -50,6 +51,8 @@ b32 ai_pass_find_target(struct entity *passer_entity,
 			candidate_entity->transform.position,
 			OPPONENT_TEAM_SIDE(candidate_entity->player.team_side),
 			game_state);
+		if (require_clear_trajectory && !clear_trajectory)
+			continue;
 
 		// The man nearest to target_distance along his own line from the passer ranks highest
 		const f32 distance_from_target = fabsf(distance - target_distance);

@@ -45,20 +45,15 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 							GOALIE_AI_THROW_HALF_ANGLE,
 							GOALIE_AI_THROW_RANGE * 0.6f,
 							GOALIE_AI_THROW_RANGE,
+							true,
 							&throw_target,
 							game_state)) {
 		const f32 distance_to_target =
 			Vector2Distance(goalie_entity->transform.position, throw_target->transform.position);
-
-		if (entity_player_is_trajectory_clear(goalie_entity->transform.position,
-											  throw_target->transform.position,
-											  opposing_team,
-											  game_state)) {
-			return (struct goalie_ai_decision){
-				.action = GAA_THROW,
-				.power = Clamp(distance_to_target / GOALIE_AI_THROW_RANGE, 0.2f, 1.0f),
-				.target_entity_id = throw_target->header.id};
-		}
+		return (struct goalie_ai_decision){
+			.action = GAA_THROW,
+			.power = Clamp(distance_to_target / GOALIE_AI_THROW_RANGE, 0.2f, 1.0f),
+			.target_entity_id = throw_target->header.id};
 	}
 
 	// Nobody near him at all, so he sets it down and plays out

@@ -123,8 +123,14 @@ static struct entity *human_search(v2 scan_direction, f32 angle, f32 target_dist
 static struct entity *ai_search(v2 scan_direction, f32 angle, f32 target_distance)
 {
 	struct entity *target = NULL;
-	ai_pass_find_target(
-		g_passer_entity, scan_direction, angle, target_distance, pass_range(), &target, g_game_state);
+	ai_pass_find_target(g_passer_entity,
+						scan_direction,
+						angle,
+						target_distance,
+						pass_range(),
+						false,
+						&target,
+						g_game_state);
 	return target;
 }
 
@@ -225,6 +231,18 @@ void test_the_ai_search_never_picks_a_man_out_of_range(void)
 	place_relative_to_passer(g_team_mate_entity, pass_range() + 10, 0);
 
 	TEST_ASSERT_NULL(ai_search(UP_THE_PITCH, 90, pass_range()));
+}
+
+void test_the_ai_search_skips_a_screened_man_only_when_asked_to(void)
+{
+	place_relative_to_passer(g_team_mate_entity, 150, 0);
+	place_relative_to_passer(g_opponent_entity, 75, 0);
+
+	TEST_ASSERT_EQUAL_PTR(g_team_mate_entity, ai_search(UP_THE_PITCH, 90, 150));
+
+	struct entity *target = NULL;
+	TEST_ASSERT_FALSE(ai_pass_find_target(
+		g_passer_entity, UP_THE_PITCH, 90, 150, pass_range(), true, &target, g_game_state));
 }
 
 static void team_mate_just_played_the_ball(void)
@@ -506,6 +524,7 @@ int main()
 	RUN_TEST(test_the_human_search_takes_the_man_at_the_charged_distance_even_behind);
 	RUN_TEST(test_the_ai_search_prefers_the_man_up_the_pitch);
 	RUN_TEST(test_the_ai_search_never_picks_a_man_out_of_range);
+	RUN_TEST(test_the_ai_search_skips_a_screened_man_only_when_asked_to);
 	RUN_TEST(test_the_ai_search_does_not_give_the_ball_straight_back);
 	RUN_TEST(test_the_ai_search_gives_the_ball_back_once_the_pass_back_time_is_over);
 

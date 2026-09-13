@@ -96,7 +96,7 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 				if (game_state->constants.shoot_aid_auto_aim) {
 					v2 shoot_target = Vector2Zero();
 					shoot_target.x += GetRandomValue(-60, 60) / 60.f;
-					decision.target_position = shoot_target;
+					decision.steering = shoot_target;
 				} else {
 					f32 accuracy =
 						40 +
@@ -114,10 +114,10 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 						Vector2Rotate(shot_direction_to_center,
 									  angle_center_to_post * GetRandomValue(-100, 100) / 100.f);
 
-					decision.target_position = shot_direction;
+					decision.steering = shot_direction;
 				}
 			} else {
-				decision.target_position = Vector2Normalize(
+				decision.steering = Vector2Normalize(
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
 		} else {
@@ -131,6 +131,7 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 									90,
 									0,
 									game_state->constants.ball_pass_auto_max_distance,
+									false,
 									&teammate_entity,
 									game_state);
 			b32 passing = false;
@@ -145,11 +146,11 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 				decision.action = PAAD_PASS;
 				decision.power = 0.1f;
 				decision.pass_target_entity_id = teammate_entity->header.id;
-				decision.target_position = Vector2Normalize(Vector2Subtract(
+				decision.steering = Vector2Normalize(Vector2Subtract(
 					teammate_entity->transform.position, player_entity->transform.position));
 			} else {
 				decision.action = PAAD_NO_ACTION;
-				decision.target_position = Vector2Normalize(
+				decision.steering = Vector2Normalize(
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
 		}
@@ -181,7 +182,7 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 					 .play_context.player_nearest_to_the_ball == player_entity->header.id)) {
 			// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
 			decision.state = PAS_SET_STEERING;
-			decision.target_position = entity_player_steer_pursuit(
+			decision.steering = entity_player_steer_pursuit(
 				player_entity, ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
 
 			if (player_in_possession_entity) {
