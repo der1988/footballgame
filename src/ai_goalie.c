@@ -21,7 +21,7 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 	if (!HAS_TIME_PASSED(game_state->time,
 						 goalie_entity->goalie.state_machine.state_data.hold_ball.hold_start_time,
 						 GOALIE_AI_THINK_TIME)) {
-		return (struct goalie_ai_decision){.action = GAA_HOLD};
+		return (struct goalie_ai_decision){.action = GAA_HOLD, .target_entity_id = EID_NOT_VALID};
 	}
 
 	struct nearest_player nearest_opponent = {0};
@@ -33,37 +33,38 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 
 	// Closed down, so he gets rid of it
 	if (is_opponent_found && nearest_opponent.distance < GOALIE_AI_PRESSURE_RADIUS) {
-		return (struct goalie_ai_decision){.action = GAA_KICK, .power = 1.0f};
+		return (struct goalie_ai_decision){
+			.action = GAA_KICK, .power = 1.0f, .target_entity_id = EID_NOT_VALID};
 	}
 
-	// A team mate he can reach by hand, with nobody in the way of it. The pass target search scores
-	// by distance rather than rejecting on it, so how far away the man is has to be asked here.
+	// A team mate he can reach by hand, with nobody in the way of it
 	const v2 up_the_pitch = {.y = pitch_side == PSI_NORTH ? 1.0f : -1.0f};
 	struct entity *throw_target;
-	if (entity_player_find_pass_target(goalie_entity,
-									   up_the_pitch,
-									   GOALIE_AI_THROW_HALF_ANGLE,
-									   GOALIE_AI_THROW_RANGE * 0.6f,
-									   GOALIE_AI_THROW_RANGE,
-									   &throw_target,
-									   game_state)) {
+	if (ai_pass_find_target(goalie_entity,
+							up_the_pitch,
+							GOALIE_AI_THROW_HALF_ANGLE,
+							GOALIE_AI_THROW_RANGE * 0.6f,
+							GOALIE_AI_THROW_RANGE,
+							&throw_target,
+							game_state)) {
 		const f32 distance_to_target =
 			Vector2Distance(goalie_entity->transform.position, throw_target->transform.position);
 
-		if (distance_to_target <= GOALIE_AI_THROW_RANGE &&
-			entity_player_is_trajectory_clear(goalie_entity->transform.position,
+		if (entity_player_is_trajectory_clear(goalie_entity->transform.position,
 											  throw_target->transform.position,
 											  opposing_team,
 											  game_state)) {
 			return (struct goalie_ai_decision){
 				.action = GAA_THROW,
-				.power = Clamp(distance_to_target / GOALIE_AI_THROW_RANGE, 0.2f, 1.0f)};
+				.power = Clamp(distance_to_target / GOALIE_AI_THROW_RANGE, 0.2f, 1.0f),
+				.target_entity_id = throw_target->header.id};
 		}
 	}
 
 	// Nobody near him at all, so he sets it down and plays out
 	if (!is_opponent_found || nearest_opponent.distance > GOALIE_AI_PLAY_OUT_RADIUS) {
-		return (struct goalie_ai_decision){.action = GAA_PUT_DOWN};
+		return (struct goalie_ai_decision){.action = GAA_PUT_DOWN,
+										   .target_entity_id = EID_NOT_VALID};
 	}
 
 	// Otherwise he walks out towards the edge of his area, where all of this is asked again
@@ -75,5 +76,6 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 
 	return (struct goalie_ai_decision){
 		.action = GAA_CARRY,
-		.steering = entity_player_steer_arrive(goalie_entity, area_edge, game_state)};
+		.steering = entity_player_steer_arrive(goalie_entity, area_edge, game_state),
+		.target_entity_id = EID_NOT_VALID};
 }

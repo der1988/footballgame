@@ -397,6 +397,37 @@ void test_a_screened_team_mate_does_not_get_the_throw(void)
 	TEST_ASSERT_NOT_EQUAL_INT(GAA_THROW, goalie_decision());
 }
 
+// The man out of range scores higher on distance, and must not stop the throw to the man in range.
+void test_a_man_out_of_range_does_not_stop_the_throw_to_a_man_in_range(void)
+{
+	keeper_catches_the_ball();
+	time_to_think_passes();
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 0.14f);
+	struct entity *out_of_range_entity =
+		entity_player_create((struct player_config){.team_side = TS_HOME}, g_game_state);
+	place_relative_to_keeper(out_of_range_entity, GOALIE_AI_THROW_RANGE * 1.04f);
+	place_relative_to_keeper(g_opponent_entity, -GOALIE_AI_THROW_RANGE);
+
+	const struct goalie_ai_decision decision = ai_goalie_think(g_goalie_entity, g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GAA_THROW, decision.action);
+	TEST_ASSERT_EQUAL_UINT32(g_team_mate_entity->header.id, decision.target_entity_id);
+}
+
+// The man he decides to throw to is named in the decision, so the throw cannot pick another.
+void test_the_throw_names_the_team_mate_it_goes_to(void)
+{
+	keeper_catches_the_ball();
+	time_to_think_passes();
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 0.6f);
+	place_relative_to_keeper(g_opponent_entity, -GOALIE_AI_THROW_RANGE);
+
+	const struct goalie_ai_decision decision = ai_goalie_think(g_goalie_entity, g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GAA_THROW, decision.action);
+	TEST_ASSERT_EQUAL_UINT32(g_team_mate_entity->header.id, decision.target_entity_id);
+}
+
 void test_with_nobody_near_him_he_puts_it_down(void)
 {
 	keeper_catches_the_ball();
@@ -460,6 +491,62 @@ void test_he_reclaims_the_touch_if_something_takes_it_off_him(void)
 	TEST_ASSERT_EQUAL_UINT32(g_goalie_entity->header.id, g_ball_entity->ball.last_touch_entity_id);
 }
 
+// The throw itself, not just the decision: the ball has to go to the man the AI chose. The second
+// team mate stands straight up the pitch, where a search aimed only up the pitch would find him
+// instead of the man the AI chose out wide.
+void test_the_ball_is_thrown_to_the_team_mate_he_chose(void)
+{
+	keeper_picks_the_ball_up();
+	time_to_think_passes();
+	g_team_mate_entity->transform.position =
+		Vector2Add(g_goalie_entity->transform.position,
+				   Vector2Rotate((v2){.y = GOALIE_AI_THROW_RANGE * 0.6f}, 45 * DEG2RAD));
+	struct entity *team_mate_up_the_pitch_entity =
+		entity_player_create((struct player_config){.team_side = TS_HOME}, g_game_state);
+	place_relative_to_keeper(team_mate_up_the_pitch_entity, GOALIE_AI_THROW_RANGE * 0.95f);
+	place_relative_to_keeper(g_opponent_entity, -GOALIE_AI_THROW_RANGE);
+
+	// In game_play.c order: the collisions stamp his touch again after the time he spent looking up
+	system_player_collisions(g_game_state);
+	system_player_control_ai(g_game_state);
+	TEST_ASSERT_EQUAL_UINT32(g_team_mate_entity->header.id,
+							 g_goalie_entity->player_controls.pass_target_entity_id);
+
+	system_player_on_the_ball(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GS_THROW, g_goalie_entity->goalie.state_machine.current_state);
+	TEST_ASSERT_EQUAL_UINT32(g_team_mate_entity->header.id,
+							 g_ball_entity->ball.pass_target_entity_id);
+}
+
+// A throw with nobody chosen goes where he aims it, and nobody is told to run onto it.
+void test_a_throw_with_nobody_chosen_has_no_receiver(void)
+{
+	keeper_picks_the_ball_up();
+	place_relative_to_keeper(g_team_mate_entity, GOALIE_AI_THROW_RANGE * 0.6f);
+	g_goalie_entity->player_controls.pass = 0.5f;
+	g_goalie_entity->player_controls.pass_target_entity_id = EID_NOT_VALID;
+
+	system_player_on_the_ball(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GS_THROW, g_goalie_entity->goalie.state_machine.current_state);
+	TEST_ASSERT_EQUAL_UINT32(EID_NOT_VALID, g_ball_entity->ball.pass_target_entity_id);
+}
+
+// Whatever id ends up in his controls, the ball never goes to the other side.
+void test_a_throw_never_goes_to_an_opponent(void)
+{
+	keeper_picks_the_ball_up();
+	place_relative_to_keeper(g_opponent_entity, GOALIE_AI_THROW_RANGE * 0.6f);
+	g_goalie_entity->player_controls.pass = 0.5f;
+	g_goalie_entity->player_controls.pass_target_entity_id = g_opponent_entity->header.id;
+
+	system_player_on_the_ball(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GS_THROW, g_goalie_entity->goalie.state_machine.current_state);
+	TEST_ASSERT_EQUAL_UINT32(EID_NOT_VALID, g_ball_entity->ball.pass_target_entity_id);
+}
+
 // A dive that catches the ball puts it in BS_GK_HANDS while he is still in GS_DIVE. The carry in
 // system_player_physics must wait for GS_HOLD_BALL: run during the dive, it swaps the dive's speed
 // cap for the carry's and pushes him along with whatever steering is in his controls.
@@ -521,10 +608,16 @@ int main()
 	RUN_TEST(test_closed_down_he_clears_it);
 	RUN_TEST(test_a_free_team_mate_in_range_gets_it_thrown_to_him);
 	RUN_TEST(test_a_screened_team_mate_does_not_get_the_throw);
+	RUN_TEST(test_a_man_out_of_range_does_not_stop_the_throw_to_a_man_in_range);
+	RUN_TEST(test_the_throw_names_the_team_mate_it_goes_to);
 	RUN_TEST(test_with_nobody_near_him_he_puts_it_down);
 
 	RUN_TEST(test_an_opponent_cannot_take_a_ball_out_of_his_hands);
 	RUN_TEST(test_he_reclaims_the_touch_if_something_takes_it_off_him);
+
+	RUN_TEST(test_the_ball_is_thrown_to_the_team_mate_he_chose);
+	RUN_TEST(test_a_throw_with_nobody_chosen_has_no_receiver);
+	RUN_TEST(test_a_throw_never_goes_to_an_opponent);
 
 	RUN_TEST(test_a_dive_that_catches_the_ball_is_not_moved_by_the_carry);
 

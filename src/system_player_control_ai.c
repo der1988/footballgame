@@ -41,7 +41,6 @@ void system_player_control_ai(struct game_state *game_state)
 			continue;
 		}
 
-		DECLARE_ENTITY_COMPONENT(entity, transform);
 		DECLARE_ENTITY_COMPONENT(entity, physics);
 		DECLARE_ENTITY_COMPONENT(entity, player);
 
@@ -49,6 +48,7 @@ void system_player_control_ai(struct game_state *game_state)
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 		RESET_COMPONENT(player_controls);
+		player_controls->pass_target_entity_id = EID_NOT_VALID;
 
 		switch (state_machine->current_state) {
 		case PS_NONE:
@@ -57,13 +57,9 @@ void system_player_control_ai(struct game_state *game_state)
 
 			// Player is AI controlled
 			if (game_state->constants.ai_enabled) {
-				v2 target_pos = transform->position;
-				f32 power = 0.0f;
-				enum player_ai_action_decision action_decision = PAAD_NO_ACTION;
-				enum player_ai_state ai_state =
-					ai_player_think(entity, &target_pos, &action_decision, &power, game_state);
+				const struct player_ai_decision decision = ai_player_think(entity, game_state);
 
-				switch (ai_state) {
+				switch (decision.state) {
 				case PAS_KEEP_POSITION: {
 					v2 target_position =
 						football_tactics_get_target_position(entity, ball_entity, game_state);
@@ -80,30 +76,32 @@ void system_player_control_ai(struct game_state *game_state)
 					break;
 				}
 				case PAS_SEEK_POSITION: {
-					player_controls->steering = entity_player_steer_seek(entity, target_pos);
+					player_controls->steering =
+						entity_player_steer_seek(entity, decision.target_position);
 					break;
 				}
 				case PAS_ARRIVE_TO_POSITION: {
 					player_controls->steering =
-						entity_player_steer_arrive(entity, target_pos, game_state);
+						entity_player_steer_arrive(entity, decision.target_position, game_state);
 					break;
 				}
 				case PAS_SET_STEERING: {
-					player_controls->steering = target_pos;
+					player_controls->steering = decision.target_position;
 					break;
 				}
 				}
 
-				switch (action_decision) {
+				switch (decision.action) {
 				case PAAD_SHOOT:
-					player_controls->shot = power;
+					player_controls->shot = decision.power;
 					break;
 				case PAAD_PASS:
+					player_controls->pass = decision.power;
 					player_controls->automatic_pass = true;
-					player_controls->pass = power;
+					player_controls->pass_target_entity_id = decision.pass_target_entity_id;
 					break;
 				case PAAD_LONG_PASS:
-					player_controls->long_pass = power;
+					player_controls->long_pass = decision.power;
 					break;
 				case PAAD_TACKLE:
 					player_controls->tackle = true;
@@ -140,6 +138,7 @@ void system_player_control_ai(struct game_state *game_state)
 			case GAA_THROW:
 				player_controls->pass = decision.power;
 				player_controls->automatic_pass = true;
+				player_controls->pass_target_entity_id = decision.target_entity_id;
 				break;
 			case GAA_KICK:
 				player_controls->long_pass = decision.power;
@@ -150,11 +149,9 @@ void system_player_control_ai(struct game_state *game_state)
 			}
 			break;
 		}
-		case PS_THROW_IN:
-		case PS_HEADER: {
+		case PS_THROW_IN: {
 			// We want to pay the price of this logic only when colliding with the ball
 			if (entity->player.is_colliding_with_ball) {
-				// Keep steering toward the header target so the ball gets directed properly
 				v2 goal_center = game_state->vars.pitch
 									 .goal[game_state->vars.teams[1 - entity->player.team_side]
 											   .play_context.pitch_side]
@@ -166,17 +163,44 @@ void system_player_control_ai(struct game_state *game_state)
 						Vector2Normalize(Vector2Subtract(goal_center, entity->transform.position));
 				} else {
 					struct entity *teammate;
-					b32 found = entity_player_find_pass_target(
-						entity,
-						ORIENTATION_VECTORS[entity->sprite.orientation],
-						180,
-						0,
-						game_state->constants.ball_pass_auto_max_distance,
-						&teammate,
-						game_state);
+					b32 found =
+						ai_pass_find_target(entity,
+											ORIENTATION_VECTORS[entity->sprite.orientation],
+											180,
+											0,
+											game_state->constants.ball_pass_auto_max_distance,
+											&teammate,
+											game_state);
 					if (found && teammate->player.state_machine.current_state != PS_GOALIE) {
 						player_controls->steering = Vector2Normalize(Vector2Subtract(
 							teammate->transform.position, entity->transform.position));
+					}
+				}
+			}
+			break;
+		}
+		case PS_HEADER: {
+			// We want to pay the price of this logic only when colliding with the ball
+			if (entity->player.is_colliding_with_ball) {
+				if (state_machine->state_data.header.type == HEADER_TYPE_SHOOT) {
+					v2 goal_center = game_state->vars.pitch
+										 .goal[game_state->vars.teams[1 - entity->player.team_side]
+												   .play_context.pitch_side]
+										 .center;
+					player_controls->steering =
+						Vector2Normalize(Vector2Subtract(goal_center, entity->transform.position));
+				} else {
+					struct entity *teammate;
+					if (ai_pass_find_target(entity,
+											ORIENTATION_VECTORS[entity->sprite.orientation],
+											180,
+											0,
+											game_state->constants.ball_pass_auto_max_distance,
+											&teammate,
+											game_state)) {
+						player_controls->steering = Vector2Normalize(Vector2Subtract(
+							teammate->transform.position, entity->transform.position));
+						player_controls->pass_target_entity_id = teammate->header.id;
 					}
 				}
 			}

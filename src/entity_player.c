@@ -266,6 +266,7 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 	// Initialise player controls
 	struct component_player_controls *player_controls = &entity->player_controls;
 	player_controls->header.enabled = true;
+	player_controls->pass_target_entity_id = EID_NOT_VALID;
 
 	if (config.is_goalie) {
 		// Initialise goalie
@@ -821,11 +822,6 @@ enum player_ball_possession entity_player_ball_possession(struct entity *player_
 	}
 }
 
-void entity_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state)
-{
-	player_entity->player.last_selected_for_pass_time = game_state->time;
-}
-
 b32 entity_player_is_goalie(struct entity *player_entity)
 {
 	return player_entity->goalie.header.enabled;
@@ -985,88 +981,70 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   struct entity **out_pass_target,
 								   struct game_state *game_state)
 {
-	const b32 is_player_human_controlled =
-		game_input_human_player_by_player_entity_id(game_state,
-													player_on_the_ball_entity->header.id) != NULL;
-
 	struct entity_repository *entity_repository = game_state->entity_repository;
 	struct entity *selected_entity = NULL;
 	f32 selected_score = 0;
-	struct entity *potential_pass_target_entity;
-	for (usize entity_id = 0; entity_id < entity_repository->max_slots; ++entity_id) {
-		potential_pass_target_entity = entity_get(game_state->entity_repository, entity_id);
-		if (potential_pass_target_entity->header.alive &&
-			potential_pass_target_entity->header.type == ET_PLAYER) {
+	FOR_EACH_ENTITY(candidate_entity, entity_repository)
+	{
+		if (!candidate_entity->header.alive || candidate_entity->header.type != ET_PLAYER ||
+			candidate_entity->header.id == player_on_the_ball_entity->header.id ||
+			candidate_entity->player.team_side != player_on_the_ball_entity->player.team_side) {
+			continue;
+		}
 
-			struct component_transform *transform = &potential_pass_target_entity->transform;
+		v2 to_player = Vector2Subtract(candidate_entity->transform.position,
+									   player_on_the_ball_entity->transform.position);
+		f32 angle = fabs(Vector2Angle(scan_direction, to_player) * RAD2DEG);
+		if (angle > detection_angle)
+			continue;
 
-			if (player_on_the_ball_entity->header.id == entity_id ||
-				player_on_the_ball_entity->player.team_side !=
-					potential_pass_target_entity->player.team_side) {
-				// We don't want to pass to ourselves nor to the other team, right?
-				continue;
-			}
+		b32 clear_trajectory = entity_player_is_trajectory_clear(
+			player_on_the_ball_entity->transform.position,
+			candidate_entity->transform.position,
+			OPPONENT_TEAM_SIDE(candidate_entity->player.team_side),
+			game_state);
 
-			v2 to_player =
-				Vector2Subtract(transform->position, player_on_the_ball_entity->transform.position);
-			f32 distance_from_player = Vector2Length(to_player);
-			f32 angle = fabs(Vector2Angle(scan_direction, to_player) * RAD2DEG);
+		// The man nearest to target_distance along his own line from the passer ranks highest
+		const f32 distance_from_target = fabsf(Vector2Length(to_player) - target_distance);
+		f32 distance_factor =
+			Clamp01((distance_from_target * distance_from_target) / (max_distance * max_distance));
+		f32 score = 0.33f * (1 - distance_factor);
+		score += 0.67f * clear_trajectory;
 
-			if (angle > detection_angle)
-				continue;
-
-			fg_time_low_prec_t last_time_selected_for_pass =
-				potential_pass_target_entity->player.last_selected_for_pass_time;
-			b32 nearer_to_goal = game_state->vars.teams[player_on_the_ball_entity->player.team_side]
-											 .play_context.pitch_side == PSI_NORTH ?
-									 (potential_pass_target_entity->transform.position.y >
-									  player_on_the_ball_entity->transform.position.y) :
-									 (potential_pass_target_entity->transform.position.y <
-									  player_on_the_ball_entity->transform.position.y);
-
-			// Check if pass trajectory is clear
-			b32 clear_trajectory = entity_player_is_trajectory_clear(
-				player_on_the_ball_entity->transform.position,
-				potential_pass_target_entity->transform.position,
-				1 - potential_pass_target_entity->player.team_side,
-				game_state);
-
-			f32 score = 0;
-			// If a target distance is specified we use the difference with candidate player distance
-			// as a distance factor to rank players.
-			// Basically we want to target the player that is nearer to the target point identified by
-			// the target distance along the direction vector going from the player in possession to the
-			// candidate player.
-			const f32 distance_from_target = fabsf(distance_from_player - target_distance);
-			if (!is_player_human_controlled) {
-				f32 distance_factor = Clamp01((distance_from_target * distance_from_target) /
-											  (max_distance * max_distance));
-				score = 0.15f * (1 - distance_factor);
-				score += 0.5f * Clamp01((game_state->time - last_time_selected_for_pass) / 1.f);
-				score += 0.15f * nearer_to_goal;
-				score += 0.2f * clear_trajectory;
-			} else {
-				f32 distance_factor = Clamp01((distance_from_target * distance_from_target) /
-											  (max_distance * max_distance));
-				score = 0.33f * (1 - distance_factor);
-				score += 0.67f * clear_trajectory;
-			}
-
-			if (score > selected_score) {
-				selected_entity = potential_pass_target_entity;
-				selected_score = score;
-			}
+		if (score > selected_score) {
+			selected_entity = candidate_entity;
+			selected_score = score;
 		}
 	}
 	if (selected_entity) {
-		entity_player_selected_for_pass(selected_entity, game_state);
 		GLOGF_TRACE(LS_GAME,
-					"selected pass target %zu with score %.2f",
+					"selected pass target %u with score %.2f",
 					selected_entity->header.id,
 					selected_score);
 		*out_pass_target = selected_entity;
 	}
 	return selected_entity != NULL;
+}
+
+entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
+											 v2 steering,
+											 v2 centred_stick_direction,
+											 f32 target_distance,
+											 struct game_state *game_state)
+{
+	const v2 scan_direction =
+		Vector2Length(steering) < 0.1f ? centred_stick_direction : steering;
+	struct entity *target_entity;
+	if (entity_player_find_pass_target(passer_entity,
+									   scan_direction,
+									   PASS_SCAN_HALF_ANGLE,
+									   target_distance,
+									   game_state->constants.ball_pass_auto_max_distance,
+									   &target_entity,
+									   game_state)) {
+		return target_entity->header.id;
+	}
+	return EID_NOT_VALID;
 }
 
 // Aim point and ball travel time depend on each other: leading further makes the pass
@@ -1081,6 +1059,10 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 	const v2 target_position = target_entity->transform.position;
 	const v2 target_velocity = target_entity->physics.velocity;
 	const rect_t field = game_state->vars.pitch.field;
+	const f32 min_x = field.x + PASS_AIM_FIELD_MARGIN;
+	const f32 max_x = field.x + field.width - PASS_AIM_FIELD_MARGIN;
+	const f32 min_y = field.y + PASS_AIM_FIELD_MARGIN;
+	const f32 max_y = field.y + field.height - PASS_AIM_FIELD_MARGIN;
 	const f32 pass_height = game_state->constants.ball_pass_height;
 	const f32 lead_amount = game_state->constants.ball_pass_auto_lead_amount;
 
@@ -1109,12 +1091,54 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 				Vector2Add(passer_position, Vector2Scale(to_aim_led, max_distance / led_distance));
 		}
 
-		// Leading a player running at the touchline must not put the ball out
-		aim_point.x = Clamp(aim_point.x, field.x, field.x + field.width);
-		aim_point.y = Clamp(aim_point.y, field.y, field.y + field.height);
+		// Leading a player running at the touchline must not put the ball out: cut the lead short
+		// along his run, and if he is already outside the margin, aim inside it from where he is
+		const v2 aim_lead = Vector2Subtract(aim_point, target_position);
+		f32 lead_fraction = 1.0f;
+		if (aim_point.x < min_x && aim_lead.x < 0)
+			lead_fraction = MIN(lead_fraction, (min_x - target_position.x) / aim_lead.x);
+		if (aim_point.x > max_x && aim_lead.x > 0)
+			lead_fraction = MIN(lead_fraction, (max_x - target_position.x) / aim_lead.x);
+		if (aim_point.y < min_y && aim_lead.y < 0)
+			lead_fraction = MIN(lead_fraction, (min_y - target_position.y) / aim_lead.y);
+		if (aim_point.y > max_y && aim_lead.y > 0)
+			lead_fraction = MIN(lead_fraction, (max_y - target_position.y) / aim_lead.y);
+		aim_point = Vector2Add(target_position, Vector2Scale(aim_lead, Clamp01(lead_fraction)));
+		aim_point.x = Clamp(aim_point.x, min_x, max_x);
+		aim_point.y = Clamp(aim_point.y, min_y, max_y);
 	}
 
 	return aim_point;
+}
+
+struct entity *entity_player_get_pass_target(struct entity *passer_entity,
+											 entity_id_t target_entity_id,
+											 struct game_state *game_state)
+{
+	if (target_entity_id == EID_NOT_VALID || target_entity_id == passer_entity->header.id) {
+		return NULL;
+	}
+
+	struct entity *target_entity = entity_get(game_state->entity_repository, target_entity_id);
+	if (!target_entity || !target_entity->header.alive || target_entity->header.type != ET_PLAYER ||
+		target_entity->player.team_side != passer_entity->player.team_side) {
+		return NULL;
+	}
+	return target_entity;
+}
+
+struct player_pass entity_player_aim_pass(struct entity *passer_entity,
+										  struct entity *ball_entity,
+										  struct entity *target_entity,
+										  struct game_state *game_state)
+{
+	const f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
+	const v2 aim_point = entity_player_pass_aim_point(
+		passer_entity, ball_entity, target_entity, max_distance, game_state);
+	const v2 to_aim = Vector2Subtract(aim_point, passer_entity->transform.position);
+	return (struct player_pass){
+		.direction = Vector3Normalize(V2_TO_V3(to_aim, game_state->constants.ball_pass_height)),
+		.power = Clamp01(Vector2Length(to_aim) / max_distance)};
 }
 
 // Going over 80% of charge it's going to be bad for the shot

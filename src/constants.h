@@ -16,6 +16,11 @@
 // passer makes the undamped iteration oscillate instead of settling: a shorter aim means a
 // shorter travel time, which means less lead, which means a longer aim again.
 #define PASS_AIM_RELAXATION 0.6f
+// An automatic pass aims at least this far inside the lines, so a ball that rolls on past the aim
+// point does not go straight out
+#define PASS_AIM_FIELD_MARGIN (2.0f * PIXELS_PER_METER)
+// A human's automatic pass looks for a team mate this many degrees either side of the stick
+#define PASS_SCAN_HALF_ANGLE 30.0f
 // The turn is done, and the skid over, once the run points this close to the heading asked for
 #define DRIBBLE_END_ALIGNMENT 0.7f
 // Steering staying this close to the heading the skid started on is the same request being held,
@@ -51,6 +56,10 @@
 // Per tick, at the fixed 480Hz step, so about a fifth of a second of carrying it on average
 // once he has decided the ball should move.
 #define PLAYER_AI_PASS_PROBABILITY_PER_TICK 0.01f
+// The man who last played the ball loses this much of his AI pass score right after he played it,
+// down to nothing once AI_PASS_BACK_TIME has gone by
+#define AI_PASS_BACK_PENALTY 0.5f
+#define AI_PASS_BACK_TIME	 3.0f
 
 // Chance that a player hit by a tackle falls (PS_FALL) instead of starting a tackled run
 // (PS_TACKLED_RUN).

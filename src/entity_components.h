@@ -123,7 +123,6 @@ struct component_player {
 	fg_time_low_prec_t last_header_time;
 	fg_time_low_prec_t last_frame_update_time;
 	fg_time_low_prec_t last_possession_time;
-	fg_time_low_prec_t last_selected_for_pass_time;
 	u16 last_running_frame_idx;
 	u8 team_formation_position_idx;
 	enum team_side team_side;
@@ -146,6 +145,8 @@ struct component_player_controls {
 	f32 chip_shot;
 	f32 pass;
 	b32 automatic_pass;
+	// The team mate a pass, throw or header goes to. EID_NOT_VALID sends it along the steering.
+	entity_id_t pass_target_entity_id;
 	f32 long_pass;
 	f32 long_driven_pass;
 	b32 header_shot;

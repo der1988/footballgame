@@ -9,6 +9,7 @@
 #include "macro.h"
 #include "constants.h"
 #include "math_ext.h"
+#include "sprite.h"
 #include <raymath.h>
 #include <string.h>
 
@@ -47,6 +48,7 @@ void system_player_control_human(struct game_state *game_state)
 
 		struct component_player_controls *player_controls = &entity->player_controls;
 		RESET_COMPONENT(player_controls);
+		player_controls->pass_target_entity_id = EID_NOT_VALID;
 
 		struct entity *last_entity_that_touched_ball =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
@@ -173,6 +175,12 @@ void system_player_control_human(struct game_state *game_state)
 						f32 power = PASS_POWER(time_holding_button);
 						player_controls->pass = power;
 						player_controls->automatic_pass = true;
+						player_controls->pass_target_entity_id = entity_player_choose_pass_target(
+							entity,
+							player_controls->steering,
+							ORIENTATION_VECTORS[entity->sprite.orientation],
+							power * game_state->constants.ball_pass_auto_max_distance,
+							game_state);
 						break;
 					}
 					case GAME_CONTROL_PASS: {
@@ -216,10 +224,21 @@ void system_player_control_human(struct game_state *game_state)
 				case GAME_CONTROL_PASS:
 					player_controls->put_down = true;
 					break;
-				case GAME_CONTROL_AUTOMATIC_PASS:
-					player_controls->pass = PASS_POWER(time_holding_button);
+				case GAME_CONTROL_AUTOMATIC_PASS: {
+					f32 power = PASS_POWER(time_holding_button);
+					const enum pitch_side pitch_side =
+						game_state->vars.teams[entity->player.team_side].play_context.pitch_side;
+					const v2 up_the_pitch = {.y = pitch_side == PSI_NORTH ? 1.0f : -1.0f};
+					player_controls->pass = power;
 					player_controls->automatic_pass = true;
+					player_controls->pass_target_entity_id = entity_player_choose_pass_target(
+						entity,
+						player_controls->steering,
+						up_the_pitch,
+						power * game_state->constants.ball_pass_auto_max_distance,
+						game_state);
 					break;
+				}
 				case GAME_CONTROL_LONG_PASS:
 					player_controls->long_pass = LONG_PASS_POWER(time_holding_button);
 					break;
@@ -229,11 +248,23 @@ void system_player_control_human(struct game_state *game_state)
 			}
 			break;
 		}
+		case PS_HEADER: {
+			// We want to pay the price of this logic only when colliding with the ball
+			if (entity->player.is_colliding_with_ball &&
+				state_machine->state_data.header.type == HEADER_TYPE_PASS) {
+				player_controls->pass_target_entity_id = entity_player_choose_pass_target(
+					entity,
+					player_controls->steering,
+					ORIENTATION_VECTORS[entity->sprite.orientation],
+					0,
+					game_state);
+			}
+			break;
+		}
 		case PS_TACKLE:
 		case PS_SLIDING_TACKLE:
 		case PS_FALL:
 		case PS_TACKLED_RUN:
-		case PS_HEADER:
 		case PS_THROW_IN:
 		case PS_COUNT:
 			break;

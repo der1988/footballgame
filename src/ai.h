@@ -39,15 +39,30 @@ struct goalie_ai_decision {
 	enum goalie_ai_action action;
 	v2 steering; // where he walks, for GAA_CARRY
 	f32 power;	 // what a human's charge would have been, for GAA_THROW and GAA_KICK
+	entity_id_t target_entity_id; // who he throws to, for GAA_THROW
 };
 
-enum player_ai_state ai_player_think(struct entity *entity,
-									 v2 *target_position,
-									 enum player_ai_action_decision *action_decision,
-									 f32 *power,
-									 struct game_state *game_state);
+struct player_ai_decision {
+	enum player_ai_state state;
+	// A position for PAS_SEEK_POSITION and PAS_ARRIVE_TO_POSITION, a steering vector for
+	// PAS_SET_STEERING
+	v2 target_position;
+	enum player_ai_action_decision action;
+	f32 power;
+	entity_id_t pass_target_entity_id; // who he passes to, for PAAD_PASS
+};
+
+struct player_ai_decision ai_player_think(struct entity *entity, struct game_state *game_state);
 
 struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 										  struct game_state *game_state);
+
+b32 ai_pass_find_target(struct entity *passer_entity,
+						v2 scan_direction,
+						f32 detection_angle,
+						f32 target_distance,
+						f32 max_distance,
+						struct entity **out_pass_target,
+						struct game_state *game_state);
 
 #endif // !AI_H

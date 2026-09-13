@@ -212,8 +212,16 @@ static void draw_component_player_controls(struct component_player_controls *c)
 	if (igCollapsingHeader_TreeNodeFlags("PlayerControls", 0)) {
 		igText(TextFormat("  steering:       (%.2f, %.2f)", c->steering.x, c->steering.y));
 		igText(TextFormat("  shot:           %.2f", c->shot));
-		igText(TextFormat(
-			"  pass:           %.2f  auto: %s", c->pass, c->automatic_pass ? "yes" : "no"));
+		const char *automatic_pass = c->automatic_pass ? "yes" : "no";
+		if (c->pass_target_entity_id == EID_NOT_VALID) {
+			igText(TextFormat(
+				"  pass:           %.2f  auto: %s  target: (invalid)", c->pass, automatic_pass));
+		} else {
+			igText(TextFormat("  pass:           %.2f  auto: %s  target: %u",
+							  c->pass,
+							  automatic_pass,
+							  c->pass_target_entity_id));
+		}
 		igText(TextFormat("  long_pass:      %.2f", c->long_pass));
 		igText(TextFormat("  header_shot:    %s  header_pass: %s",
 						  c->header_shot ? "yes" : "no",

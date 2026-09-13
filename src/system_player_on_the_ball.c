@@ -95,30 +95,15 @@ void system_player_on_the_ball(struct game_state *game_state)
 				// Pass
 				player->last_kick_time = game_state->time;
 				v3 pass_direction;
-				struct entity *teammate_entity;
 				f32 power = player_controls->pass;
-				b32 automatic_pass = player_controls->automatic_pass;
-				if (automatic_pass) {
-					f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
-					b32 found = entity_player_find_pass_target(player_entity,
-															   steering,
-															   30,
-															   power * max_distance,
-															   max_distance,
-															   &teammate_entity,
-															   game_state);
-					if (found) {
-						v2 aim_point = entity_player_pass_aim_point(
-							player_entity, ball_entity, teammate_entity, max_distance, game_state);
-						v2 to_aim = Vector2Subtract(aim_point, player_position);
-						pass_direction = Vector3Normalize(
-							V2_TO_V3(to_aim, game_state->constants.ball_pass_height));
-						ball->pass_target_entity_id = teammate_entity->header.id;
-						power = Clamp01(Vector2Length(to_aim) / max_distance);
-					} else {
-						pass_direction = Vector3Normalize(
-							V2_TO_V3(steering, game_state->constants.ball_pass_height));
-					}
+				struct entity *teammate_entity = entity_player_get_pass_target(
+					player_entity, player_controls->pass_target_entity_id, game_state);
+				if (teammate_entity) {
+					struct player_pass pass = entity_player_aim_pass(
+						player_entity, ball_entity, teammate_entity, game_state);
+					pass_direction = pass.direction;
+					power = pass.power;
+					ball->pass_target_entity_id = teammate_entity->header.id;
 				} else {
 					pass_direction = Vector3Normalize(
 						V2_TO_V3(steering, game_state->constants.ball_pass_height));
@@ -127,7 +112,7 @@ void system_player_on_the_ball(struct game_state *game_state)
 									   player_on_the_ball_entity_id,
 									   pass_direction,
 									   power * power,
-									   automatic_pass,
+									   player_controls->automatic_pass,
 									   game_state);
 				kicked_ball = true;
 			} else if (player_controls->long_pass > 0 || player_controls->long_driven_pass > 0) {
@@ -344,7 +329,13 @@ void system_player_on_the_ball(struct game_state *game_state)
 			f32 ball_height = ball_transform->virtual_height;
 
 			// We normalize later
-			if (!IS_V2_ZERO(player_controls->steering)) {
+			struct entity *header_target_entity = entity_player_get_pass_target(
+				player_entity, player_controls->pass_target_entity_id, game_state);
+			if (header_target_entity) {
+				hit_direction =
+					Vector2Subtract(header_target_entity->transform.position, player_position);
+				ball->pass_target_entity_id = header_target_entity->header.id;
+			} else if (!IS_V2_ZERO(player_controls->steering)) {
 				hit_direction = player_controls->steering;
 			} else {
 				// If steering is zero we use the orientation of player's sprite
@@ -493,28 +484,25 @@ void system_player_on_the_ball(struct game_state *game_state)
 			}
 
 			if (player_controls->pass > 0) {
-				// Thrown out by hand. The team mate is picked the way an automatic pass picks one.
+				// Thrown out by hand, led to the team mate the way an automatic pass is
 				v2 throw_direction = player_controls->steering;
 				if (IS_V2_ZERO(throw_direction)) {
 					throw_direction = (v2){.y = direction};
 				}
+				f32 throw_power = player_controls->pass;
 
-				const f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
-				struct entity *target_entity;
-				if (entity_player_find_pass_target(player_entity,
-												   throw_direction,
-												   30,
-												   player_controls->pass * max_distance,
-												   max_distance,
-												   &target_entity,
-												   game_state)) {
-					throw_direction =
-						Vector2Subtract(target_entity->transform.position, player_position);
+				struct entity *target_entity = entity_player_get_pass_target(
+					player_entity, player_controls->pass_target_entity_id, game_state);
+				if (target_entity) {
+					struct player_pass pass = entity_player_aim_pass(
+						player_entity, ball_entity, target_entity, game_state);
+					throw_direction = V3_TO_V2(pass.direction);
+					throw_power = pass.power * pass.power;
 					ball->pass_target_entity_id = target_entity->header.id;
 				}
 
 				goalie->throw_direction = Vector2Normalize(throw_direction);
-				goalie->throw_power = player_controls->pass;
+				goalie->throw_power = throw_power;
 				sprite->orientation = sprite_calculate_orientation(goalie->throw_direction);
 
 				const v2 ball_release_position = Vector2Add(
@@ -531,7 +519,7 @@ void system_player_on_the_ball(struct game_state *game_state)
 									   player_on_the_ball_entity_id,
 									   V2_TO_V3(goalie->throw_direction, 0),
 									   goalie->throw_power,
-									   true,
+									   player_controls->automatic_pass,
 									   game_state);
 
 				state_machine_goalie_fire(&goalie->state_machine, GT_THROW, game_state);

@@ -27,14 +27,9 @@ static enum whos_on_the_ball identify_whos_in_possession(
 
 static b32 team_has_human_players(enum team_side team_side, struct game_state *game_state);
 
-enum player_ai_state ai_player_think(struct entity *player_entity,
-									 v2 *target_position,
-									 enum player_ai_action_decision *action_decision,
-									 f32 *power,
-									 struct game_state *game_state)
+struct player_ai_decision ai_player_think(struct entity *player_entity,
+										  struct game_state *game_state)
 {
-	enum player_ai_state ai_state;
-
 	struct entity *ball_entity = game_state->vars.ball.entity;
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 	UNUSED(ball_collider);
@@ -42,13 +37,11 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	DECLARE_ENTITY_COMPONENT(player_entity, transform);
 
-	// Initialise all out-params before any early return: several code paths
-	// (e.g. the FS_PLAY / keeper-hands guard below) return without deciding an
-	// action, and the caller reads action_decision unconditionally. Leaving it
-	// uninitialised is UB that surfaces under -O2 as spurious headers.
-	*action_decision = PAAD_NO_ACTION;
-	*power = 0.0f;
-	*target_position = transform->position;
+	struct player_ai_decision decision = {.state = PAS_KEEP_POSITION,
+										  .target_position = transform->position,
+										  .action = PAAD_NO_ACTION,
+										  .power = 0.0f,
+										  .pass_target_entity_id = EID_NOT_VALID};
 
 	b32 ball_in_keeper_hands = ball->state_machine.current_state == BS_GK_HANDS;
 
@@ -61,7 +54,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 
 	const b32 team_has_humans = team_has_human_players(player_entity->player.team_side, game_state);
 	if (game_state->gameplay.state_machine.current_state != FS_PLAY || ball_in_keeper_hands) {
-		return PAS_KEEP_POSITION;
+		return decision;
 	}
 
 	enum whos_on_the_ball whos_on_the_ball =
@@ -76,13 +69,13 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		// If the player who has possession of the ball is controlled by AI, but the team has a human player,
 		// then we should really hand over control to the human
 		if (team_has_humans) {
-			ai_state = PAS_KEEP_POSITION;
+			decision.state = PAS_KEEP_POSITION;
 			break;
 		}
 		if (player_on_the_ball_entity_id == EID_NOT_VALID) {
 			// We are not on the ball, so we just chase it to gain control again
-			ai_state = PAS_SEEK_POSITION;
-			*target_position = ball_transform->position;
+			decision.state = PAS_SEEK_POSITION;
+			decision.target_position = ball_transform->position;
 			break;
 		}
 
@@ -97,13 +90,13 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			f32 angle =
 				fabs(Vector2Angle(player_entity->physics.velocity, to_target_goal) * RAD2DEG);
 			if (angle < 30) {
-				*action_decision = PAAD_SHOOT;
-				*power = 0.5f + 0.5f * RANDOM_01(100);
+				decision.action = PAAD_SHOOT;
+				decision.power = 0.5f + 0.5f * RANDOM_01(100);
 
 				if (game_state->constants.shoot_aid_auto_aim) {
 					v2 shoot_target = Vector2Zero();
 					shoot_target.x += GetRandomValue(-60, 60) / 60.f;
-					*target_position = shoot_target;
+					decision.target_position = shoot_target;
 				} else {
 					f32 accuracy =
 						40 +
@@ -121,10 +114,10 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 						Vector2Rotate(shot_direction_to_center,
 									  angle_center_to_post * GetRandomValue(-100, 100) / 100.f);
 
-					*target_position = shot_direction;
+					decision.target_position = shot_direction;
 				}
 			} else {
-				*target_position = Vector2Normalize(
+				decision.target_position = Vector2Normalize(
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
 		} else {
@@ -132,14 +125,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			b32 nearest_facing_oppo_found = entity_player_find_nearest_facing_opponent(
 				player_entity, &nearest_facing_oppo, game_state);
 			struct entity *teammate_entity;
-			const b32 pass_target_found = entity_player_find_pass_target(
-				player_entity,
-				ORIENTATION_VECTORS[player_entity->sprite.orientation],
-				90,
-				0,
-				game_state->constants.ball_pass_auto_max_distance,
-				&teammate_entity,
-				game_state);
+			const b32 pass_target_found =
+				ai_pass_find_target(player_entity,
+									ORIENTATION_VECTORS[player_entity->sprite.orientation],
+									90,
+									0,
+									game_state->constants.ball_pass_auto_max_distance,
+									&teammate_entity,
+									game_state);
 			b32 passing = false;
 			if (pass_target_found && nearest_facing_oppo_found) {
 				// He has decided the ball should move, but not on the same tick every time:
@@ -149,17 +142,18 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			}
 
 			if (passing) {
-				*action_decision = PAAD_PASS;
-				*power = 0.1f;
-				*target_position = Vector2Normalize(Vector2Subtract(
+				decision.action = PAAD_PASS;
+				decision.power = 0.1f;
+				decision.pass_target_entity_id = teammate_entity->header.id;
+				decision.target_position = Vector2Normalize(Vector2Subtract(
 					teammate_entity->transform.position, player_entity->transform.position));
 			} else {
-				*action_decision = PAAD_NO_ACTION;
-				*target_position = Vector2Normalize(
+				decision.action = PAAD_NO_ACTION;
+				decision.target_position = Vector2Normalize(
 					Vector2Subtract(goal_center, player_entity->transform.position));
 			}
 		}
-		ai_state = PAS_SET_STEERING;
+		decision.state = PAS_SET_STEERING;
 		break;
 	}
 	case WOTB_TEAMMATE: {
@@ -168,11 +162,11 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		if (ball->pass_target_entity_id == player_entity->header.id) {
 			// This player is the target of an automatic pass
 			// Let's move towards the ball
-			*target_position = entity_player_position_to_seek_to_reach_ball(
+			decision.target_position = entity_player_position_to_seek_to_reach_ball(
 				player_entity, ball_entity, game_state);
-			ai_state = PAS_SEEK_POSITION;
+			decision.state = PAS_SEEK_POSITION;
 		} else {
-			ai_state = PAS_KEEP_POSITION;
+			decision.state = PAS_KEEP_POSITION;
 		}
 		break;
 	}
@@ -186,8 +180,8 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			 game_state->vars.teams[player_entity->player.team_side]
 					 .play_context.player_nearest_to_the_ball == player_entity->header.id)) {
 			// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
-			ai_state = PAS_SET_STEERING;
-			*target_position = entity_player_steer_pursuit(
+			decision.state = PAS_SET_STEERING;
+			decision.target_position = entity_player_steer_pursuit(
 				player_entity, ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
 
 			if (player_in_possession_entity) {
@@ -195,7 +189,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				// it. Sending a man to press is asking him to win the ball, so he goes in
 				// whoever sent him - a human holding the press button included.
 				if (player_entity->player.is_colliding_with_ball) {
-					*action_decision = PAAD_TACKLE;
+					decision.action = PAAD_TACKLE;
 					break;
 				}
 
@@ -223,14 +217,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 					// 0.05% probability per tick from behind, maximum 0.75% going in facing him.
 					f32 tackle_probability = 0.0005f + (1.0f - angle / 180.0f) * 0.007f;
 					if (RANDOM_01(100000) < tackle_probability) {
-						*action_decision = PAAD_SLIDING_TACKLE;
+						decision.action = PAAD_SLIDING_TACKLE;
 					}
 				}
 			}
 		} else {
 			// We are not the nearest to the player with the ball, so let's mind our business
 			// and move based on the tactics of the team
-			ai_state = PAS_KEEP_POSITION;
+			decision.state = PAS_KEEP_POSITION;
 		}
 		break;
 	}
@@ -241,14 +235,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 		if (ball->pass_target_entity_id == player_entity->header.id) {
 			// This player is the target of an automatic pass
 			// Let's move towards the ball
-			*target_position = entity_player_position_to_seek_to_reach_ball(
+			decision.target_position = entity_player_position_to_seek_to_reach_ball(
 				player_entity, ball_entity, game_state);
-			ai_state = PAS_ARRIVE_TO_POSITION;
+			decision.state = PAS_ARRIVE_TO_POSITION;
 		} else if (ball_future_reachable_position->available &&
 				   Vector2Distance(transform->position,
 								   V3_TO_V2(ball_future_reachable_position->position)) < 50) {
-			*target_position = V3_TO_V2(ball_future_reachable_position->position);
-			ai_state = PAS_ARRIVE_TO_POSITION;
+			decision.target_position = V3_TO_V2(ball_future_reachable_position->position);
+			decision.state = PAS_ARRIVE_TO_POSITION;
 		} else if (game_state->vars.teams[player_entity->player.team_side]
 					   .play_context.player_nearest_to_the_ball == player_entity->header.id) {
 			struct player_ball_reachability_prediction prediction =
@@ -264,14 +258,14 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 			else
 				ball_future_pos =
 					V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
-			*target_position = V3_TO_V2(ball_future_pos);
-			ai_state = PAS_SEEK_POSITION;
+			decision.target_position = V3_TO_V2(ball_future_pos);
+			decision.state = PAS_SEEK_POSITION;
 		} else {
 			// Let's move based on the tactics of the team
-			ai_state = PAS_KEEP_POSITION;
+			decision.state = PAS_KEEP_POSITION;
 		}
 
-		*action_decision = PAAD_NO_ACTION;
+		decision.action = PAAD_NO_ACTION;
 
 		// Header attempt - only when ball is not high, team is fully AI controlled and enough passed from previous attempt
 		if (!team_has_humans &&
@@ -289,7 +283,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 				f32 distance_from_goal =
 					Vector2Distance(goal_center, player_entity->transform.position);
 
-				*action_decision = distance_from_goal < 250 ? PAAD_HEADER_SHOOT : PAAD_HEADER_PASS;
+				decision.action = distance_from_goal < 250 ? PAAD_HEADER_SHOOT : PAAD_HEADER_PASS;
 			}
 		}
 
@@ -297,7 +291,7 @@ enum player_ai_state ai_player_think(struct entity *player_entity,
 	}
 	}
 
-	return ai_state;
+	return decision;
 }
 
 static enum whos_on_the_ball identify_whos_in_possession(struct entity *player_entity,

@@ -351,8 +351,6 @@ enum player_ball_possession entity_player_ball_possession(struct entity *player_
 														  struct entity *ball_entity,
 														  struct game_state *game_state);
 
-void entity_player_selected_for_pass(struct entity *player_entity, struct game_state *game_state);
-
 struct player_ball_reachability_prediction entity_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
 	f32 seeker_max_speed,
@@ -371,11 +369,38 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 								   f32 max_distance,
 								   struct entity **out_pass_target,
 								   struct game_state *game_state);
+
+// The team mate a human's pass goes to: searched along the stick, or along
+// centred_stick_direction when the stick is centred. EID_NOT_VALID when there is nobody.
+entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
+											 v2 steering,
+											 v2 centred_stick_direction,
+											 f32 target_distance,
+											 struct game_state *game_state);
+
 v2 entity_player_pass_aim_point(struct entity *player_entity,
 								struct entity *ball_entity,
 								struct entity *target_entity,
 								f32 max_distance,
 								struct game_state *game_state);
+
+// The team mate a pass may go to: NULL unless the id names a live player on the passer's team
+// other than the passer himself.
+struct entity *entity_player_get_pass_target(struct entity *passer_entity,
+											 entity_id_t target_entity_id,
+											 struct game_state *game_state);
+
+// An automatic pass to a team mate: led to where he will be, and struck as hard as the distance
+// needs.
+struct player_pass {
+	v3 direction;
+	f32 power;
+};
+
+struct player_pass entity_player_aim_pass(struct entity *passer_entity,
+										  struct entity *ball_entity,
+										  struct entity *target_entity,
+										  struct game_state *game_state);
 
 // Where a charged shot ends up going, before the ball is actually struck.
 struct player_shot {
