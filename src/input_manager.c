@@ -122,7 +122,7 @@ struct input_manager *input_manager_create(memory_arena_handle_t *memory_arena)
 								 .to = PLATFORM_INPUT_DEVICE_GAMEPAD_BUTTON_DPAD_LEFT},
 
 						},
-					.device_id = 1,
+					.device_id = 0,
 				}};
 
 	handle->game_controllers[1] =
