@@ -442,6 +442,38 @@ void test_he_reclaims_the_touch_if_something_takes_it_off_him(void)
 	TEST_ASSERT_EQUAL_UINT32(g_goalie_entity->header.id, g_ball_entity->ball.last_touch_entity_id);
 }
 
+// A dive that catches the ball puts it in BS_GK_HANDS while he is still in GS_DIVE. The carry in
+// system_player_physics must wait for GS_HOLD_BALL: run during the dive, it swaps the dive's speed
+// cap for the carry's and pushes him along with whatever steering is in his controls.
+void test_a_dive_that_catches_the_ball_is_not_moved_by_the_carry(void)
+{
+	struct component_goalie *goalie = &g_goalie_entity->goalie;
+	struct component_physics *physics = &g_goalie_entity->physics;
+
+	g_goalie_entity->transform.position = position_in_his_area();
+	goalie->dive_direction = SD_RIGHT;
+	goalie->dive_speed = 1.0f;
+	state_machine_goalie_fire(&goalie->state_machine, GT_DIVE, g_game_state);
+
+	physics->velocity = (v2){.x = physics->max_velocity};
+	const f32 dive_max_velocity = physics->max_velocity;
+	const v2 dive_velocity = physics->velocity;
+	const v2 dive_position = g_goalie_entity->transform.position;
+
+	entity_ball_held_by_goalie(g_ball_entity, g_goalie_entity->header.id, g_game_state);
+	TEST_ASSERT_EQUAL_INT(BS_GK_HANDS, g_ball_entity->ball.state_machine.current_state);
+	g_goalie_entity->player_controls.steering = (v2){.y = 1};
+
+	system_player_physics(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GS_DIVE, goalie->state_machine.current_state);
+	TEST_ASSERT_EQUAL_FLOAT(dive_max_velocity, physics->max_velocity);
+	TEST_ASSERT_EQUAL_FLOAT(dive_velocity.x, physics->velocity.x);
+	TEST_ASSERT_EQUAL_FLOAT(dive_velocity.y, physics->velocity.y);
+	TEST_ASSERT_EQUAL_FLOAT(dive_position.x, g_goalie_entity->transform.position.x);
+	TEST_ASSERT_EQUAL_FLOAT(dive_position.y, g_goalie_entity->transform.position.y);
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "goalkeeper test - start");
@@ -474,6 +506,8 @@ int main()
 
 	RUN_TEST(test_an_opponent_cannot_take_a_ball_out_of_his_hands);
 	RUN_TEST(test_he_reclaims_the_touch_if_something_takes_it_off_him);
+
+	RUN_TEST(test_a_dive_that_catches_the_ball_is_not_moved_by_the_carry);
 
 	return UNITY_END();
 }
