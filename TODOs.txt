@@ -145,3 +145,5 @@ v implement game manager that governs the gameplay (what happens if the ball goe
 - we don't need a b32 for each game control, we just need a bit
 - fix AI controlled players steering
 - implement new goalkeeper features
+- move target selection for automated pass in controls
+- gk jump on ball when it's near
