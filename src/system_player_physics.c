@@ -428,72 +428,261 @@ void system_player_physics(struct game_state *game_state)
 			break;
 		}
 		case PS_GOALIE: {
-			// Only carrying the ball moves him from here. The ball is already in his hands for the
-			// rest of a dive or jump that caught it, and those move him in system_goalie.
-			if (ball->state_machine.current_state != BS_GK_HANDS ||
-				entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
-				break;
-			}
+			DECLARE_ENTITY_COMPONENT(entity, goalie);
 
 			const enum pitch_side pitch_side =
 				game_state->vars.teams[player->team_side].play_context.pitch_side;
 
-			// He can run with it in his hands, slower than he runs without it
-			physics->max_velocity = player->constants.run_max_velocity * GOALIE_CARRY_SPEED_RATIO;
+			switch (goalie->state_machine.current_state) {
+			case GS_DIVE: {
+				const struct goalie_dive *dive = &goalie->state_machine.state_data.dive.dive;
+				enum save_direction direction = dive->direction;
 
-			const v2 carry_steering = player_controls->steering;
-			v2 carry_force = Vector2Scale(carry_steering, player->constants.movement_force);
+				struct state_machine_goalie_dive_data *dive_state_data =
+					&goalie->state_machine.state_data.dive;
 
-			// Let go of the stick and he pulls up instead of gliding on
-			if (Vector2Length(carry_steering) < 0.01f &&
-				!physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
-				carry_force = Vector2Add(
-					carry_force,
-					physics_drag_force(physics->velocity,
-									   player->constants.drag * GOALIE_CARRY_DRAG_RATIO));
-			}
-
-			entity_player_physics_apply_force(entity, carry_force, game_state);
-			entity_player_physics_apply_velocity(entity, game_state);
-
-			// Carrying it out of his area is not allowed, so he is stopped at the edge
-			const rect_t penalty_box = game_state->vars.pitch.goal[pitch_side].penalty_box;
-			const v2 position_in_box = {
-				.x = Clamp(transform->position.x, penalty_box.x, penalty_box.x + penalty_box.width),
-				.y = Clamp(
-					transform->position.y, penalty_box.y, penalty_box.y + penalty_box.height)};
-			if (position_in_box.x != transform->position.x) {
-				physics->velocity.x = 0;
-			}
-			if (position_in_box.y != transform->position.y) {
-				physics->velocity.y = 0;
-			}
-			transform->position = position_in_box;
-
-			// Winding up a throw he holds the ball out ready, facing where it is going
-			if (player_controls->charging_throw) {
-				if (!IS_V2_ZERO(player_controls->steering)) {
-					sprite->orientation = sprite_calculate_orientation(player_controls->steering);
+				if (!dive_state_data->animation.first_phase_completed) {
+					struct asset_animation *animation = asset_animation_get_by_id(
+						game_state->assets.animation_cache,
+						game_state->gfx.goalie
+							.dive_animations_start[pitch_side][direction][dive->height]);
+					f32 animation_completion =
+						Clamp((game_state->time - dive_state_data->animation.start_time) /
+								  (animation->delay * animation->frames_count),
+							  0,
+							  1);
+					const u16 new_frame_id =
+						floorf(animation_completion * (animation->frames_count - 1));
+					if (animation_completion >= 1) {
+						animation_completion = 1;
+						dive_state_data->animation.first_phase_completed = true;
+						dive_state_data->animation.first_phase_end_time = game_state->time;
+					}
+					sprite->frame_id = animation->frames[new_frame_id];
+				} else if ((dive_state_data->ball_held ||
+							HAS_TIME_PASSED(game_state->time,
+											dive_state_data->animation.first_phase_end_time,
+											Clamp(dive->speed * 0.35f, 0.25f, 0.35f))) &&
+						   !dive_state_data->animation.completed) {
+					if (!dive_state_data->animation.second_phase_started) {
+						dive_state_data->animation.second_phase_started = true;
+						dive_state_data->animation.start_time = game_state->time;
+					}
+					struct asset_animation *animation = asset_animation_get_by_id(
+						game_state->assets.animation_cache,
+						game_state->gfx.goalie
+							.dive_animations_end[pitch_side][direction][dive->height]
+												[dive_state_data->ball_held]);
+					f32 animation_completion =
+						Clamp((game_state->time - dive_state_data->animation.start_time) /
+								  (animation->delay * animation->frames_count),
+							  0,
+							  1);
+					const u16 new_frame_id =
+						floorf(animation_completion * (animation->frames_count - 1));
+					if (animation_completion >= 1) {
+						animation_completion = 1;
+						dive_state_data->animation.completed = true;
+						dive_state_data->animation.end_time = game_state->time;
+					}
+					sprite->frame_id = animation->frames[new_frame_id];
 				}
-				struct asset_animation *throw_animation = asset_animation_get_by_id(
+
+				v2 force_to_apply = Vector2Zero();
+				if (dive_state_data->animation.completed) {
+					if (!physics_set_at_rest_if_needed(physics, 5)) {
+						// Apply friction
+						// TODO: this should depend on type of pitch
+						force_to_apply = physics_drag_force(
+							physics->velocity, game_state->constants.goalie_dive_friction_force);
+					}
+				} else {
+					v2 steering = direction == SD_LEFT ? Vector2Left() : Vector2Right();
+					force_to_apply =
+						Vector2Scale(steering, game_state->constants.goalie_dive_force);
+				}
+				entity_player_physics_apply_force(entity, force_to_apply, game_state);
+				entity_player_physics_apply_velocity(entity, game_state);
+
+				if (dive_state_data->animation.completed &&
+					HAS_TIME_PASSED(game_state->time,
+									dive_state_data->animation.end_time,
+									game_state->constants.goalie_dive_recover_time)) {
+					state_machine_goalie_fire(&goalie->state_machine,
+											  dive_state_data->ball_held ? GT_CATCH : GT_RECOVER,
+											  game_state);
+				}
+				break;
+			}
+			case GS_JUMP: {
+				struct state_machine_goalie_jump_data *jump_state_data =
+					&goalie->state_machine.state_data.jump;
+
+				if (!jump_state_data->animation.first_phase_completed) {
+					struct asset_animation *animation = asset_animation_get_by_id(
+						game_state->assets.animation_cache,
+						game_state->gfx.goalie.jump_animations_start[pitch_side]);
+					f32 animation_completion =
+						Clamp((game_state->time - jump_state_data->animation.start_time) /
+								  (animation->delay * animation->frames_count),
+							  0,
+							  1);
+					const u16 new_frame_id =
+						floorf(animation_completion * (animation->frames_count - 1));
+					if (animation_completion >= 1) {
+						animation_completion = 1;
+						jump_state_data->animation.first_phase_completed = true;
+						jump_state_data->animation.first_phase_end_time = game_state->time;
+					}
+					sprite->frame_id = animation->frames[new_frame_id];
+				} else if ((jump_state_data->ball_held ||
+							HAS_TIME_PASSED(game_state->time,
+											jump_state_data->animation.first_phase_end_time,
+											0.05f)) &&
+						   !jump_state_data->animation.completed) {
+					if (!jump_state_data->animation.second_phase_started) {
+						jump_state_data->animation.second_phase_started = true;
+						jump_state_data->animation.start_time = game_state->time;
+					}
+					struct asset_animation *animation = asset_animation_get_by_id(
+						game_state->assets.animation_cache,
+						game_state->gfx.goalie
+							.jump_animations_end[pitch_side][jump_state_data->ball_held]);
+					f32 animation_completion =
+						Clamp((game_state->time - jump_state_data->animation.start_time) /
+								  (animation->delay * animation->frames_count),
+							  0,
+							  1);
+					const u16 new_frame_id =
+						floorf(animation_completion * (animation->frames_count - 1));
+					if (animation_completion >= 1) {
+						animation_completion = 1;
+						jump_state_data->animation.completed = true;
+						jump_state_data->animation.end_time = game_state->time;
+					}
+					sprite->frame_id = animation->frames[new_frame_id];
+				}
+
+				if (jump_state_data->animation.completed) {
+					state_machine_goalie_fire(&goalie->state_machine,
+											  jump_state_data->ball_held ? GT_CATCH : GT_RECOVER,
+											  game_state);
+				}
+				break;
+			}
+			case GS_HOLD_BALL: {
+				if (ball->state_machine.current_state != BS_GK_HANDS) {
+					break;
+				}
+
+				// He can run with it in his hands, slower than he runs without it
+				physics->max_velocity =
+					player->constants.run_max_velocity * GOALIE_CARRY_SPEED_RATIO;
+
+				const v2 carry_steering = player_controls->steering;
+				v2 carry_force = Vector2Scale(carry_steering, player->constants.movement_force);
+
+				// Let go of the stick and he pulls up instead of gliding on
+				if (Vector2Length(carry_steering) < 0.01f &&
+					!physics_set_at_rest_if_needed(physics, PLAYER_AT_REST_SPEED)) {
+					carry_force = Vector2Add(
+						carry_force,
+						physics_drag_force(physics->velocity,
+										   player->constants.drag * GOALIE_CARRY_DRAG_RATIO));
+				}
+
+				entity_player_physics_apply_force(entity, carry_force, game_state);
+				entity_player_physics_apply_velocity(entity, game_state);
+
+				// Carrying it out of his area is not allowed, so he is stopped at the edge
+				const rect_t penalty_box = game_state->vars.pitch.goal[pitch_side].penalty_box;
+				const v2 position_in_box = {.x = Clamp(transform->position.x,
+													   penalty_box.x,
+													   penalty_box.x + penalty_box.width),
+											.y = Clamp(transform->position.y,
+													   penalty_box.y,
+													   penalty_box.y + penalty_box.height)};
+				if (position_in_box.x != transform->position.x) {
+					physics->velocity.x = 0;
+				}
+				if (position_in_box.y != transform->position.y) {
+					physics->velocity.y = 0;
+				}
+				transform->position = position_in_box;
+
+				// Winding up a throw he holds the ball out ready, facing where it is going
+				if (player_controls->charging_throw) {
+					if (!IS_V2_ZERO(player_controls->steering)) {
+						sprite->orientation =
+							sprite_calculate_orientation(player_controls->steering);
+					}
+					struct asset_animation *throw_animation = asset_animation_get_by_id(
+						game_state->assets.animation_cache,
+						game_state->gfx.goalie.hand_pass_animations[sprite->orientation]);
+					sprite->frame_id = throw_animation->frames[0];
+				} else {
+					// Standing still he holds it at his chest, which the art only has facing up or down
+					asset_sprite_frame_id_t hold_frames[SO_COUNT];
+					for (usize i = 0; i < SO_COUNT; ++i) {
+						hold_frames[i] =
+							game_state->gfx.goalie.save_frames[pitch_side][ST_WITH_BALL];
+					}
+					entity_player_anim_calculate_running_frame(
+						entity,
+						hold_frames,
+						game_state->gfx.goalie.run_ball_animations,
+						physics->velocity,
+						5,
+						game_state);
+				}
+
+				break;
+			}
+			case GS_THROW: {
+				// The ball has already gone: this is the follow-through, held long enough to read.
+				struct asset_animation *animation = asset_animation_get_by_id(
 					game_state->assets.animation_cache,
 					game_state->gfx.goalie.hand_pass_animations[sprite->orientation]);
-				sprite->frame_id = throw_animation->frames[0];
-			} else {
-				// Standing still he holds it at his chest, which the art only has facing up or down
-				asset_sprite_frame_id_t hold_frames[SO_COUNT];
-				for (usize i = 0; i < SO_COUNT; ++i) {
-					hold_frames[i] = game_state->gfx.goalie.save_frames[pitch_side][ST_WITH_BALL];
-				}
-				entity_player_anim_calculate_running_frame(
-					entity,
-					hold_frames,
-					game_state->gfx.goalie.run_ball_animations,
-					physics->velocity,
-					5,
-					game_state);
-			}
+				sprite->frame_id = animation->frames[animation->frames_count - 1];
 
+				if (HAS_TIME_PASSED(game_state->time,
+									goalie->state_machine.state_data.throw_ball.start_time,
+									GOALIE_THROW_FOLLOW_THROUGH_TIME)) {
+					state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
+				}
+				break;
+			}
+			case GS_PROTECT_GOAL: {
+				physics->max_velocity = player->constants.run_max_velocity;
+
+				if (player_controls->jump) {
+					state_machine_goalie_fire(&goalie->state_machine, GT_JUMP, game_state);
+					break;
+				}
+
+				entity_player_physics_apply_force(entity,
+												  Vector2Scale(player_controls->steering,
+															   player->constants.movement_force),
+												  game_state);
+				entity_player_physics_apply_velocity(entity, game_state);
+
+				entity_player_anim_calculate_running_frame(entity,
+														   game_state->gfx.goalie.stand_frames,
+														   game_state->gfx.goalie.run_animations,
+														   Vector2Subtract(ball_transform->position,
+																		   transform->position),
+														   5,
+														   game_state);
+
+				if (player_controls->dive) {
+					entity_player_goalie_dive_start(entity, player_controls->dive_data, game_state);
+				}
+				break;
+			}
+			case GS_NONE:
+			case GS_COUNT:
+				break;
+			}
 			break;
 		}
 		case PS_NONE:

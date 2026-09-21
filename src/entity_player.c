@@ -194,10 +194,7 @@ static b32 check_whether_goalie_should_dive(v3 pos_to_check,
 											b32 attacking_south,
 											f32 time_to_unsaveable,
 											struct entity *goalie_entity,
-											enum save_direction *dive_direction,
-											enum save_height *dive_height,
-											f32 *dive_speed,
-											f32 *dive_distance,
+											struct goalie_dive *dive,
 											struct game_state *game_state);
 
 struct entity *entity_player_create(struct player_config config, struct game_state *game_state)
@@ -351,6 +348,14 @@ v2 entity_player_steer_arrive(struct entity *player_entity,
 							  v2 target,
 							  struct game_state *game_state)
 {
+	return entity_player_steer_arrive_limited(player_entity, target, FLT_MAX, game_state);
+}
+
+v2 entity_player_steer_arrive_limited(struct entity *player_entity,
+									  v2 target,
+									  f32 max_speed,
+									  struct game_state *game_state)
+{
 	const struct player_constants *constants = &player_entity->player.constants;
 
 	v2 to_target = Vector2Subtract(target, player_entity->transform.position);
@@ -362,7 +367,8 @@ v2 entity_player_steer_arrive(struct entity *player_entity,
 	if (distance > 0) {
 		f32 brake_accel = constants->movement_force / constants->mass *
 						  game_state->constants.player_steering_brake_ratio;
-		desired_velocity = Vector2Scale(to_target, sqrtf(2 * brake_accel * distance) / distance);
+		desired_velocity =
+			Vector2Scale(to_target, fminf(sqrtf(2 * brake_accel * distance), max_speed) / distance);
 	}
 
 	v2 steering = Vector2Scale(Vector2Subtract(desired_velocity, player_entity->physics.velocity),
@@ -555,9 +561,7 @@ static void state_machine_goalie_on_enter(struct entity *entity,
 		break;
 	}
 	case GS_DIVE: {
-		entity->physics.max_velocity =
-			entity->goalie.dive_speed * game_state->constants.goalie_dive_max_velocity;
-		state_machine->state_data.dive.animation_start_time = game_state->time;
+		state_machine->state_data.dive.animation.start_time = game_state->time;
 		break;
 	}
 	case GS_HOLD_BALL: {
@@ -572,7 +576,7 @@ static void state_machine_goalie_on_enter(struct entity *entity,
 	case GS_JUMP: {
 		entity->physics.velocity = Vector2Zero();
 		entity->physics.accel = Vector2Zero();
-		state_machine->state_data.jump.animation_start_time = game_state->time;
+		state_machine->state_data.jump.animation.start_time = game_state->time;
 		break;
 	}
 	case GS_THROW: {
@@ -718,12 +722,344 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 	return collision;
 }
 
+b32 entity_player_goalie_is_goalkeeping(struct entity *player_entity)
+{
+	return player_entity->player.state_machine.current_state == PS_GOALIE &&
+		   player_entity->goalie.state_machine.current_state != GS_HOLD_BALL;
+}
+
+b32 entity_player_goalie_is_colliding_with_ball(struct entity *goalie_entity,
+												struct game_state *game_state)
+{
+	struct entity *ball_entity = game_state->vars.ball.entity;
+	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
+
+	const struct component_goalie *goalie = &goalie_entity->goalie;
+
+	const enum pitch_side pitch_side =
+		game_state->vars.teams[goalie_entity->player.team_side].play_context.pitch_side;
+
+	const v3 ball_position = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+	const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
+
+	switch (goalie->state_machine.current_state) {
+	case GS_PROTECT_GOAL:
+		return entity_player_is_colliding_with_ball(goalie_entity,
+													PCT_GOALIE,
+													ball_position,
+													ball_physics_3d->velocity,
+													ball_radius,
+													game_state->constants.crossbar_height)
+			.is_colliding;
+	case GS_JUMP: {
+		const struct state_machine_goalie_jump_data *jump_state_data =
+			&goalie->state_machine.state_data.jump;
+
+		return !jump_state_data->ball_saved &&
+			   HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
+			   !jump_state_data->animation.completed &&
+			   entity_player_is_colliding_with_ball(goalie_entity,
+													PCT_GOALIE,
+													ball_position,
+													ball_physics_3d->velocity,
+													ball_radius,
+													game_state->constants.crossbar_height)
+				   .is_colliding;
+	}
+	case GS_DIVE: {
+		const struct state_machine_goalie_dive_data *dive_state_data =
+			&goalie->state_machine.state_data.dive;
+
+		return !dive_state_data->ball_saved &&
+			   HAS_TIME_PASSED(game_state->time, goalie->last_save_time, 0.1f) &&
+			   // If the ball hits the post and comes back we don't want to touch the ball
+			   ((pitch_side == PSI_NORTH && ball_physics_3d->velocity.z < 0) ||
+				(pitch_side == PSI_SOUTH && ball_physics_3d->velocity.z > 0)) &&
+			   (!dive_state_data->animation.completed ||
+				// If ball height is very low we are going to make the save even when
+				// lying on the floor after the dive
+				ball_transform->virtual_height < ball_radius) &&
+			   entity_player_is_colliding_with_ball(goalie_entity,
+													PCT_DIVE,
+													ball_position,
+													ball_physics_3d->velocity,
+													ball_radius,
+													game_state->constants.crossbar_height -
+														ball_radius * 1.5f)
+				   .is_colliding;
+	}
+	case GS_HOLD_BALL:
+		// With the ball in his hands he is in contact with it every tick. Keyed on him holding it
+		// and never on who touched it last, so that anything else taking the last touch for a
+		// frame cannot strand him holding a ball he can no longer release.
+		return ball->state_machine.current_state == BS_GK_HANDS;
+	case GS_THROW:
+	case GS_NONE:
+	case GS_COUNT:
+		break;
+	}
+	return false;
+}
+
+void entity_player_goalie_on_the_ball(struct entity *goalie_entity, struct game_state *game_state)
+{
+	struct entity *ball_entity = game_state->vars.ball.entity;
+	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
+
+	struct component_player *player = &goalie_entity->player;
+	struct component_goalie *goalie = &goalie_entity->goalie;
+	const entity_id_t goalie_entity_id = goalie_entity->header.id;
+
+	const enum pitch_side pitch_side =
+		game_state->vars.teams[player->team_side].play_context.pitch_side;
+
+	const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
+
+	// A ball a team mate played back to him has to be played with his feet
+	const b32 may_handle_ball = !entity_ball_is_goalie_hands_barred(ball_entity, player->team_side);
+
+	switch (goalie->state_machine.current_state) {
+	case GS_PROTECT_GOAL: {
+		// Choose whether to bounce or hold the ball
+		// Definitely hold if ball velocity is lower than 54km/h
+		// Sometimes hold if ball velocity is lower than 108km/h
+		// Otherwise bounce it
+		const b32 hold = may_handle_ball && GOALIE_HOLD_OR_BOUNCE(ball_velocity);
+
+		if (hold) {
+			// Hold ball in hands
+			entity_ball_held_by_goalie(ball_entity, goalie_entity_id, game_state);
+			state_machine_goalie_fire(&goalie->state_machine, GT_CATCH, game_state);
+
+		} else {
+			// Bounce ball
+			v3 new_ball_velocity = Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1});
+
+			// Step ball position back one tick to place it outside the collider
+			v3 where_to_place_ball =
+				Vector3Add(V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+						   Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
+
+			entity_ball_set_position_and_velocity(
+				ball_entity, where_to_place_ball, Vector3Scale(new_ball_velocity, 0.3f));
+			entity_ball_saved_by_goalie(ball_entity, goalie_entity_id, game_state);
+
+			// TODO: we should play some animation here and maybe transition to some stunned state
+		}
+		break;
+	}
+	case GS_JUMP: {
+		struct state_machine_goalie_jump_data *jump_state_data =
+			&goalie->state_machine.state_data.jump;
+
+		// Choose whether to bounce or hold the ball
+		// Definitely hold if ball velocity is lower than 54km/h
+		// Sometimes hold if ball velocity is lower than 108km/h
+		// Otherwise bounce it
+		jump_state_data->ball_held = may_handle_ball && GOALIE_HOLD_OR_BOUNCE(ball_velocity);
+
+		if (jump_state_data->ball_held) {
+			entity_ball_held_by_goalie(ball_entity, goalie_entity_id, game_state);
+		} else {
+			// Bounce ball
+			v3 new_ball_velocity =
+				Vector3Normalize(Vector3Reflect(ball_physics_3d->velocity, (v3){.z = 1}));
+			new_ball_velocity.y = 1;
+
+			// Step ball position back one tick to place it outside the collider
+			v3 where_to_place_ball =
+				Vector3Add(V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+						   Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
+
+			entity_ball_set_position_and_velocity(ball_entity,
+												  where_to_place_ball,
+												  Vector3Scale(new_ball_velocity,
+															   10 * PIXELS_PER_METER));
+			entity_ball_saved_by_goalie(ball_entity, goalie_entity_id, game_state);
+		}
+
+		goalie->last_save_time = game_state->time;
+		jump_state_data->ball_saved = true;
+		break;
+	}
+	case GS_DIVE: {
+		struct state_machine_goalie_dive_data *dive_state_data =
+			&goalie->state_machine.state_data.dive;
+
+		// Choose whether to bounce or hold the ball
+		// Definitely hold if ball velocity is lower than 54km/h
+		// Sometimes hold if ball velocity is lower than 108km/h
+		// Definitely don't hold the ball if ball is very high
+		// Otherwise bounce it
+		dive_state_data->ball_held = may_handle_ball && GOALIE_HOLD_OR_BOUNCE(ball_velocity) &&
+									 ball_transform->virtual_height < 25;
+
+		if (dive_state_data->ball_held) {
+			entity_ball_held_by_goalie(ball_entity, goalie_entity_id, game_state);
+		} else {
+			// Bounce ball
+			// Type of deflection depends on where the ball hit the diving goalkeeper
+
+			f32 deflection_x = ball_transform->position.x - goalie_entity->transform.position.x;
+			f32 dive_collider_width =
+				goalie_entity->collider.colliders[PCT_DIVE].props.rectangle.size.x;
+			f32 deflection_factor_x = Clamp1(deflection_x / (dive_collider_width * 0.5f));
+
+			// Deflection velocity is scaled down from the impact velocity.
+			// Minimum is 0.3x the original, max 0.5x.
+			// If the ball is saved in the middle of the collider it's going to be near to 0.3x
+			// If it's saved at the edges it's going to be near to 0.5x
+			f32 velocity_scale = 0.5f - (1 - deflection_factor_x * deflection_factor_x) * 0.2f;
+
+			GLOGF_TRACE_CTX(LS_GAME,
+							goalie_entity->header.name,
+							"dive deflection factor x: %.2f",
+							deflection_factor_x);
+
+			v3 deflection = (v3){.x = 0, .y = 0, .z = ball_physics_3d->velocity.z > 0 ? -1 : 1};
+			deflection = Vector3RotateByAxisAngle(deflection,
+												  (v3){.y = pitch_side == PSI_SOUTH ? 1 : -1},
+												  -deflection_factor_x * 90 * DEG2RAD);
+
+			// Deflection over the bar
+			if (ball_transform->virtual_height >= 25) {
+				deflection = Vector3RotateByAxisAngle(deflection,
+													  (v3){.x = pitch_side == PSI_SOUTH ? 1 : -1},
+													  GetRandomValue(130, 170) * DEG2RAD);
+				// Deflections over the bar keep most of the original velocity
+				velocity_scale = 0.9f - (1 - deflection_factor_x * deflection_factor_x) * 0.2f;
+			}
+
+			GLOGF_TRACE_CTX(
+				LS_GAME, goalie_entity->header.name, "dive velocity scale: %.2f", velocity_scale);
+
+			deflection =
+				Vector3Scale(deflection, Vector3Length(ball_physics_3d->velocity) * velocity_scale);
+
+			// Step ball position back one tick to place it outside the collider
+			v3 where_to_place_ball =
+				Vector3Add(V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
+						   Vector3Scale(Vector3Negate(ball_physics_3d->velocity), game_state->dt));
+
+			entity_ball_set_position_and_velocity(ball_entity, where_to_place_ball, deflection);
+			entity_ball_saved_by_goalie(ball_entity, goalie_entity_id, game_state);
+		}
+
+		goalie->last_save_time = game_state->time;
+		dive_state_data->ball_saved = true;
+		break;
+	}
+	case GS_HOLD_BALL: {
+		// What he does with the ball in his hands
+		if (ball->state_machine.current_state != BS_GK_HANDS) {
+			break;
+		}
+
+		DECLARE_ENTITY_COMPONENT(goalie_entity, sprite);
+
+		struct component_player_controls *player_controls = &goalie_entity->player_controls;
+		const v2 goalie_position = goalie_entity->transform.position;
+		const struct collider *goalie_collider = &goalie_entity->collider.colliders[PCT_GOALIE];
+		const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
+
+		const i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
+		const v2 new_ball_position =
+			Vector2Add(goalie_position,
+					   Vector2Scale((v2){.y = direction},
+									goalie_collider->props.circle.offset.y +
+										goalie_collider->props.circle.radius + ball_radius + 7));
+
+		if (player_controls->put_down) {
+			entity_ball_released_by_goalie(ball_entity, goalie_entity_id, game_state);
+			entity_ball_set_position_and_velocity(
+				ball_entity, V2_TO_V3(new_ball_position, ball_radius), Vector3Zero());
+			state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
+			state_machine_player_fire(&player->state_machine, PT_STEP_OUT, game_state);
+			input_reset_player(goalie_entity_id, game_state);
+			break;
+		}
+
+		if (player_controls->pass > 0) {
+			// Thrown out by hand, led to the team mate the way an automatic pass is
+			v2 throw_direction = player_controls->steering;
+			if (IS_V2_ZERO(throw_direction)) {
+				throw_direction = (v2){.y = direction};
+			}
+			f32 throw_power = player_controls->pass;
+
+			struct entity *target_entity =
+				entity_get(game_state->entity_repository, player_controls->pass_target_entity_id);
+			if (target_entity) {
+				struct player_pass pass =
+					entity_player_aim_pass(goalie_entity, ball_entity, target_entity, game_state);
+				throw_direction = V3_TO_V2(pass.direction);
+				throw_power = pass.power * pass.power;
+				ball->pass_target_entity_id = target_entity->header.id;
+			}
+
+			throw_direction = Vector2Normalize(throw_direction);
+			sprite->orientation = sprite_calculate_orientation(throw_direction);
+
+			const v2 ball_release_position =
+				Vector2Add(goalie_position,
+						   Vector2Scale(throw_direction,
+										goalie_collider->props.circle.radius + ball_radius + 2));
+			entity_ball_released_by_goalie(ball_entity, goalie_entity_id, game_state);
+			entity_ball_set_position_and_velocity(
+				ball_entity, V2_TO_V3(ball_release_position, GOALIE_THROW_HEIGHT), Vector3Zero());
+			// Rolled out along the ground, so no height on the direction
+			entity_ball_short_pass(ball_entity,
+								   goalie_entity_id,
+								   V2_TO_V3(throw_direction, 0),
+								   throw_power,
+								   player_controls->automatic_pass,
+								   game_state);
+
+			state_machine_goalie_fire(&goalie->state_machine, GT_THROW, game_state);
+			// Set after the transition because on_enter resets the state data
+			goalie->state_machine.state_data.throw_ball.direction = throw_direction;
+			goalie->state_machine.state_data.throw_ball.power = throw_power;
+			break;
+		}
+
+		if (player_controls->long_pass > 0) {
+			entity_ball_released_by_goalie(ball_entity, goalie_entity_id, game_state);
+			entity_ball_set_position_and_velocity(
+				ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
+			entity_ball_long_pass(ball_entity,
+								  goalie_entity_id,
+								  (v2){.y = direction},
+								  player_controls->long_pass,
+								  false,
+								  game_state);
+			state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
+			break;
+		}
+
+		// Human or AI, he leaves GS_HOLD_BALL only through the controls above
+		break;
+	}
+	case GS_THROW:
+	case GS_NONE:
+	case GS_COUNT:
+		break;
+	}
+}
+
+void entity_player_goalie_dive_start(struct entity *goalie_entity,
+									 struct goalie_dive dive,
+									 struct game_state *game_state)
+{
+	state_machine_goalie_fire(&goalie_entity->goalie.state_machine, GT_DIVE, game_state);
+	// Set after the transition because on_enter resets the state data
+	goalie_entity->goalie.state_machine.state_data.dive.dive = dive;
+	goalie_entity->physics.max_velocity =
+		dive.speed * game_state->constants.goalie_dive_max_velocity;
+}
+
 b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 									 struct entity *ball_entity,
-									 enum save_direction *dive_direction,
-									 enum save_height *dive_height,
-									 f32 *dive_speed,
-									 f32 *dive_distance,
+									 struct goalie_dive *dive,
 									 struct game_state *game_state)
 {
 	b32 should_dive = false;
@@ -770,10 +1106,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 			 attacking_south,
 			 0.0f,
 			 goalie_entity,
-			 dive_direction,
-			 dive_height,
-			 dive_speed,
-			 dive_distance,
+			 dive,
 			 game_state))) {
 		// Usually at this point there's nothing left to do, but let's dive anyway to show off
 		return true;
@@ -788,10 +1121,7 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 															attacking_south,
 															time_to_unsaveable,
 															goalie_entity,
-															dive_direction,
-															dive_height,
-															dive_speed,
-															dive_distance,
+															dive,
 															game_state))) {
 			break;
 		}
@@ -803,8 +1133,7 @@ void entity_player_gained_possession(struct entity *player_entity, struct game_s
 {
 	player_entity->player.last_possession_time = game_state->time;
 
-	entity_ball_set_last_touch(
-		&game_state->vars.ball.entity->ball, player_entity->header.id, game_state);
+	entity_ball_set_last_touch(game_state->vars.ball.entity, player_entity->header.id, game_state);
 }
 
 enum player_ball_possession entity_player_ball_possession(struct entity *player_entity,
@@ -840,7 +1169,7 @@ b32 entity_player_goalie_try_pick_up_ball(struct entity *player_entity,
 		player_entity->player.state_machine.current_state != PS_NORMAL ||
 		!football_pitch_is_position_inside_penalty_area(
 			player_entity->transform.position, pitch_side, game_state) ||
-		!entity_ball_may_goalie_handle(ball_entity, player_entity, game_state)) {
+		entity_ball_is_goalie_hands_barred(ball_entity, player_entity->player.team_side)) {
 		return false;
 	}
 
@@ -862,8 +1191,14 @@ void entity_player_goalie_update_role(struct entity *player_entity, struct game_
 		game_state->vars.teams[player->team_side].play_context.pitch_side;
 	const b32 is_in_own_box = football_pitch_is_position_inside_penalty_area(
 		player_entity->transform.position, pitch_side, game_state);
-	const b32 is_ball_in_own_box = football_pitch_is_position_inside_penalty_area(
-		ball_entity->transform.position, pitch_side, game_state);
+	const b32 is_play_running = game_state->gameplay.state_machine.current_state == FS_PLAY;
+
+	// A ball he may not handle was last played by his own side and no opponent has touched it since,
+	// so he has to play it with his feet
+	const b32 may_handle_ball = !entity_ball_is_goalie_hands_barred(ball_entity, player->team_side);
+
+	// Both roles read this one answer, so they can never send him back and forth
+	const b32 should_guard_goal = is_in_own_box && (!is_play_running || may_handle_ball);
 
 	switch (player->state_machine.current_state) {
 	case PS_GOALIE: {
@@ -872,47 +1207,13 @@ void entity_player_goalie_update_role(struct entity *player_entity, struct game_
 			break;
 		}
 
-		// A team mate on the ball means his side is playing, so he joins in. He himself does not
-		// count: a save leaves the ball unmarked as loose, so parrying one would read as his own
-		// possession and stop him picking up the rebound.
-		const entity_id_t player_in_possession_entity_id =
-			entity_ball_player_in_possession(ball_entity, game_state);
-		struct entity *player_in_possession_entity =
-			entity_get(game_state->entity_repository, player_in_possession_entity_id);
-		const b32 is_team_mate_in_possession =
-			player_in_possession_entity != NULL &&
-			player_in_possession_entity->header.id != player_entity->header.id &&
-			player_in_possession_entity->player.team_side == player->team_side;
-
-		// While the ball is in his own area he stays the goalie whoever has it: a cross dropping on
-		// his six yard box is no moment to be playing out as a field player.
-		if (!is_in_own_box || (is_team_mate_in_possession && !is_ball_in_own_box)) {
+		if (!should_guard_goal) {
 			state_machine_player_fire(&player->state_machine, PT_STEP_OUT, game_state);
 		}
 		break;
 	}
 	case PS_NORMAL: {
-		if (!is_in_own_box) {
-			// Out of his area he is a field player, whoever has the ball
-			break;
-		}
-
-		const b32 do_opponents_have_the_ball =
-			entity_ball_team_in_possession(ball_entity, game_state) != player->team_side;
-		const b32 is_play_running =
-			game_state->gameplay.state_machine.current_state == FS_PLAY;
-		// Any contact reads as possession, his own included, so a ball landing on him must not be
-		// what keeps him out of goal. Only the ball actually at his feet does.
-		const b32 is_ball_his_to_play =
-			entity_ball_player_in_possession(ball_entity, game_state) == player_entity->header.id;
-
-		// A ball in his area he is not allowed to touch is one he has to go and play with his feet,
-		// so that one leaves him out here.
-		const b32 may_handle_ball =
-			entity_ball_may_goalie_handle(ball_entity, player_entity, game_state);
-
-		if (do_opponents_have_the_ball || !is_play_running ||
-			(is_ball_in_own_box && !is_ball_his_to_play && may_handle_ball)) {
+		if (should_guard_goal) {
 			state_machine_player_fire(&player->state_machine, PT_GUARD_GOAL, game_state);
 		}
 		break;
@@ -1047,15 +1348,13 @@ entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
 	return EID_NOT_VALID;
 }
 
-// Aim point and ball travel time depend on each other: leading further makes the pass
-// longer, which makes it both faster and slower to arrive. Solved by fixed point iteration.
-v2 entity_player_pass_aim_point(struct entity *player_entity,
-								struct entity *ball_entity,
-								struct entity *target_entity,
-								f32 max_distance,
-								struct game_state *game_state)
+struct player_pass entity_player_aim_pass(struct entity *passer_entity,
+										  struct entity *ball_entity,
+										  struct entity *target_entity,
+										  struct game_state *game_state)
 {
-	const v2 passer_position = player_entity->transform.position;
+	const f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
+	const v2 passer_position = passer_entity->transform.position;
 	const v2 target_position = target_entity->transform.position;
 	const v2 target_velocity = target_entity->physics.velocity;
 	const rect_t field = game_state->vars.pitch.field;
@@ -1066,6 +1365,8 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 	const f32 pass_height = game_state->constants.ball_pass_height;
 	const f32 lead_amount = game_state->constants.ball_pass_auto_lead_amount;
 
+	// Aim point and ball travel time depend on each other: leading further makes the pass
+	// longer, which makes it both faster and slower to arrive. Solved by fixed point iteration.
 	v2 aim_point = target_position;
 	for (u8 i = 0; i < PASS_AIM_ITERATIONS; ++i) {
 		v2 to_aim = Vector2Subtract(aim_point, passer_position);
@@ -1108,37 +1409,9 @@ v2 entity_player_pass_aim_point(struct entity *player_entity,
 		aim_point.y = Clamp(aim_point.y, min_y, max_y);
 	}
 
-	return aim_point;
-}
-
-struct entity *entity_player_get_pass_target(struct entity *passer_entity,
-											 entity_id_t target_entity_id,
-											 struct game_state *game_state)
-{
-	if (target_entity_id == EID_NOT_VALID || target_entity_id == passer_entity->header.id) {
-		return NULL;
-	}
-
-	struct entity *target_entity = entity_get(game_state->entity_repository, target_entity_id);
-	if (!target_entity || !target_entity->header.alive || target_entity->header.type != ET_PLAYER ||
-		target_entity->player.team_side != passer_entity->player.team_side) {
-		return NULL;
-	}
-	return target_entity;
-}
-
-struct player_pass entity_player_aim_pass(struct entity *passer_entity,
-										  struct entity *ball_entity,
-										  struct entity *target_entity,
-										  struct game_state *game_state)
-{
-	const f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
-	const v2 aim_point = entity_player_pass_aim_point(
-		passer_entity, ball_entity, target_entity, max_distance, game_state);
-	const v2 to_aim = Vector2Subtract(aim_point, passer_entity->transform.position);
-	return (struct player_pass){
-		.direction = Vector3Normalize(V2_TO_V3(to_aim, game_state->constants.ball_pass_height)),
-		.power = Clamp01(Vector2Length(to_aim) / max_distance)};
+	const v2 to_aim = Vector2Subtract(aim_point, passer_position);
+	return (struct player_pass){.direction = Vector3Normalize(V2_TO_V3(to_aim, pass_height)),
+								.power = Clamp01(Vector2Length(to_aim) / max_distance)};
 }
 
 // Going over 80% of charge it's going to be bad for the shot
@@ -1731,10 +2004,7 @@ static b32 check_whether_goalie_should_dive(v3 pos_to_check,
 											b32 attacking_south,
 											f32 time_to_unsaveable,
 											struct entity *goalie_entity,
-											enum save_direction *dive_direction,
-											enum save_height *dive_height,
-											f32 *dive_speed,
-											f32 *dive_distance,
+											struct goalie_dive *dive,
 											struct game_state *game_state)
 {
 	b32 should_dive = false;
@@ -1747,18 +2017,17 @@ static b32 check_whether_goalie_should_dive(v3 pos_to_check,
 		pos_to_check.y < game_state->constants.crossbar_height) {
 		f32 max_distance_we_can_cover_in_available_time =
 			game_state->constants.goalie_dive_max_velocity * time_to_unsaveable / 1.0f;
-		*dive_direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
-		*dive_height = pos_to_check.y < GOALIE_DIVE_HEIGHT_THRESHOLD ? SH_LOW : SH_HIGH;
-		*dive_speed = Clamp(distance_to_cover / max_distance_we_can_cover_in_available_time, 0, 1);
-		*dive_distance = distance_to_cover;
+		dive->direction = x_diff > 0 ? SD_RIGHT : SD_LEFT;
+		dive->height = pos_to_check.y < GOALIE_DIVE_HEIGHT_THRESHOLD ? SH_LOW : SH_HIGH;
+		dive->speed = Clamp(distance_to_cover / max_distance_we_can_cover_in_available_time, 0, 1);
+		dive->distance = distance_to_cover;
 		GLOGF_DEBUG_CTX(LS_GAME,
 						goalie_entity->header.name,
 						"goalie has %.3fs to save a ball that will be %.2fpx away: "
 						"dive speed %.2fpx/s",
 						time_to_unsaveable,
 						distance_to_cover,
-						goalie_entity->goalie.dive_speed *
-							game_state->constants.goalie_dive_max_velocity);
+						dive->speed * game_state->constants.goalie_dive_max_velocity);
 		should_dive = true;
 	}
 	return should_dive;

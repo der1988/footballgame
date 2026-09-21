@@ -1,6 +1,7 @@
 #ifndef AI_H
 #define AI_H
 
+#include "football.h"
 #include "types.h"
 
 // Forward declaration
@@ -25,21 +26,39 @@ enum player_ai_state {
 	PAS_SET_STEERING,
 };
 
-// What the keeper does with the ball once it is in his hands. His goalkeeping is not decided here:
-// protecting the goal, coming for loose balls, diving and jumping all live in system_goalie.
+// Where the keeper is going while he is the goalie
+enum goalie_ai_state {
+	GAS_NONE,		// nothing to steer: holding still, diving, jumping, following through
+	GAS_STAND,		// on the arc between the ball and his goal centre
+	GAS_COVER_LINE, // where the ball will cross his line, at half speed
+	GAS_CLAIM_BALL, // running to where he can get to the ball
+	GAS_CARRY,		// walking out with the ball in his hands
+};
+
 enum goalie_ai_action {
-	GAA_HOLD,	  // keep hold of it a moment longer
-	GAA_CARRY,	  // walk out with it before releasing
+	GAA_NO_ACTION,
 	GAA_THROW,	  // roll it out to a team mate
 	GAA_KICK,	  // clear it upfield
 	GAA_PUT_DOWN, // set it down and play on with his feet
+	GAA_JUMP,	  // go up for a high ball he can reach where he stands
+	GAA_DIVE,	  // dive for a ball going past him
 };
 
 struct goalie_ai_decision {
+	enum goalie_ai_state state;
+	v2 steering;
 	enum goalie_ai_action action;
-	v2 steering; // where he walks, for GAA_CARRY
-	f32 power;	 // what a human's charge would have been, for GAA_THROW and GAA_KICK
-	entity_id_t target_entity_id; // who he throws to, for GAA_THROW
+	// Only the member named by action is valid
+	union {
+		struct {
+			f32 power; // what a human's charge would have been
+			entity_id_t target_entity_id;
+		} throw_ball;
+		struct {
+			f32 power; // what a human's charge would have been
+		} kick;
+		struct goalie_dive dive;
+	} action_data;
 };
 
 struct player_ai_decision {

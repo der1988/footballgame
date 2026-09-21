@@ -42,6 +42,11 @@ void system_player_control_human(struct game_state *game_state)
 			continue;
 		}
 
+		// In goal without the ball in his hands, system_player_control_ai fills his controls
+		if (entity_player_goalie_is_goalkeeping(entity)) {
+			continue;
+		}
+
 		DECLARE_ENTITY_COMPONENT(entity, player);
 
 		struct state_machine_player *state_machine = &player->state_machine;
@@ -206,10 +211,6 @@ void system_player_control_human(struct game_state *game_state)
 			break;
 		}
 		case PS_GOALIE: {
-			if (entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
-				break;
-			}
-
 			// He holds the throwing pose for as long as the throw is being wound up
 			player_controls->charging_throw =
 				input_charge_lock_is_held(game_controller) &&

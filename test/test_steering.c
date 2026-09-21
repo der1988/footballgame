@@ -84,6 +84,25 @@ void test_player_arrive_never_pushes_harder_than_a_full_stick(void)
 	}
 }
 
+// Running flat out at a far target, a limit of half his top speed has him braking down to it
+void test_player_limited_arrive_brakes_down_to_its_limit(void)
+{
+	player_entity.physics.velocity = (v2){TOP_SPEED, 0};
+	v2 steering = entity_player_steer_arrive_limited(
+		&player_entity, (v2){1000, 0}, TOP_SPEED * 0.5f, &game_state);
+
+	TEST_ASSERT_FLOAT_WITHIN(0.001f, -1, steering.x);
+}
+
+void test_player_limited_arrive_holds_its_limit(void)
+{
+	player_entity.physics.velocity = (v2){TOP_SPEED * 0.5f, 0};
+	v2 steering = entity_player_steer_arrive_limited(
+		&player_entity, (v2){1000, 0}, TOP_SPEED * 0.5f, &game_state);
+
+	TEST_ASSERT_FLOAT_WITHIN(0.001f, 0, steering.x);
+}
+
 void test_player_seek_is_a_full_stick_at_the_target(void)
 {
 	player_entity.transform.position = (v2){10, 10};
@@ -196,6 +215,8 @@ int main()
 	RUN_TEST(test_player_arrive_cancels_sideways_drift_near_the_target);
 	RUN_TEST(test_player_arrive_on_the_target_at_rest_lets_go_of_the_stick);
 	RUN_TEST(test_player_arrive_never_pushes_harder_than_a_full_stick);
+	RUN_TEST(test_player_limited_arrive_brakes_down_to_its_limit);
+	RUN_TEST(test_player_limited_arrive_holds_its_limit);
 	RUN_TEST(test_player_seek_is_a_full_stick_at_the_target);
 	RUN_TEST(test_player_pursuit_leads_a_moving_target);
 	RUN_TEST(test_seek_from_rest_points_at_the_target);

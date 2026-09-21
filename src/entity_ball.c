@@ -1,6 +1,7 @@
 #include "entity_components.h"
 #include "entity.h"
 #include "entity_ball.h"
+#include "entity_player.h"
 #include "events_router.h"
 #include "state_machine.h"
 #include "types.h"
@@ -23,6 +24,8 @@ const char *state_machine_ball_trigger_string[BT_COUNT] = {"none", "caught", "re
 const char *ball_play_type_string[BPT_COUNT] = {
 	"none", "pass", "long_pass", "shot", "header", "sliding_tackle"};
 
+const char *ball_not_pickable_by_string[BNPB_COUNT] = {"nobody", "home_goalie", "away_goalie"};
+
 static const enum state_machine_ball_state ball_transitions[BS_COUNT][BT_COUNT] = {
 	[BS_IN_PLAY] = {[BT_CAUGHT] = BS_GK_HANDS},
 	[BS_GK_HANDS] = {[BT_RELEASED] = BS_IN_PLAY},
@@ -34,6 +37,9 @@ STATE_MACHINE_IMPLEMENT_FUNCTIONS(ball, struct entity);
 static void set_after_touch(struct component_ball *ball);
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side);
 static void reset_after_touch(struct component_ball *ball);
+static void bar_goalie_hands_for_team_of(struct component_ball *ball,
+										 entity_id_t player_entity_id,
+										 struct game_state *game_state);
 
 struct entity *entity_ball_create(struct ball_config config, struct game_state *game_state)
 {
@@ -93,6 +99,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	ball->last_touch_entity_id = EID_NOT_VALID;
 	ball->last_play_entity_id = EID_NOT_VALID;
 	ball->last_play_type = BPT_NONE;
+	ball->not_pickable_by = BNPB_NOBODY;
 	ball->pass_target_entity_id = EID_NOT_VALID;
 	ball->last_touch_time = 0;
 
@@ -180,11 +187,11 @@ static void state_machine_ball_on_exit(struct entity *entity,
 	}
 }
 
-void entity_ball_set_last_touch(struct component_ball *ball,
+void entity_ball_set_last_touch(struct entity *ball_entity,
 								entity_id_t player_entity_id,
 								struct game_state *game_state)
 {
-	UNUSED(game_state);
+	struct component_ball *ball = &ball_entity->ball;
 
 	if (player_entity_id == EID_NOT_VALID) {
 		ball->last_touch_time = 0;
@@ -196,6 +203,13 @@ void entity_ball_set_last_touch(struct component_ball *ball,
 			ball->first_player_possession_time = game_state->time;
 		}
 		ball->last_touch_time = game_state->time;
+
+		// Any touch by the other team, of any kind, lets the goalie use his hands again
+		const struct entity *player_entity =
+			entity_get(game_state->entity_repository, player_entity_id);
+		if (!entity_ball_is_goalie_hands_barred(ball_entity, player_entity->player.team_side)) {
+			ball->not_pickable_by = BNPB_NOBODY;
+		}
 	}
 
 	ball->last_touch_entity_id = player_entity_id;
@@ -348,6 +362,7 @@ void entity_ball_shoot(struct entity *ball_entity,
 	ball->last_play_entity_id = kicker_entity_id;
 	ball->last_play_type = BPT_SHOT;
 	ball->last_loose_time = game_state->time;
+	bar_goalie_hands_for_team_of(ball, kicker_entity_id, game_state);
 
 	set_after_touch(&ball_entity->ball);
 }
@@ -373,6 +388,7 @@ void entity_ball_short_pass(struct entity *ball_entity,
 	ball->last_play_entity_id = kicker_entity_id;
 	ball->last_play_type = BPT_PASS;
 	ball->last_loose_time = game_state->time;
+	bar_goalie_hands_for_team_of(ball, kicker_entity_id, game_state);
 }
 
 void entity_ball_long_pass(struct entity *ball_entity,
@@ -409,6 +425,7 @@ void entity_ball_long_pass(struct entity *ball_entity,
 	ball->last_play_entity_id = kicker_entity_id;
 	ball->last_play_type = BPT_LONG_PASS;
 	ball->last_loose_time = game_state->time;
+	bar_goalie_hands_for_team_of(ball, kicker_entity_id, game_state);
 }
 
 void entity_ball_tackle(struct entity *ball_entity,
@@ -436,6 +453,7 @@ void entity_ball_tackle(struct entity *ball_entity,
 		ball->last_play_time = game_state->time;
 		ball->last_play_entity_id = tackler_entity_id;
 		ball->last_play_type = BPT_SLIDING_TACKLE;
+		bar_goalie_hands_for_team_of(ball, tackler_entity_id, game_state);
 	}
 
 	reset_after_touch(&ball_entity->ball);
@@ -457,6 +475,11 @@ void entity_ball_header(struct entity *ball_entity,
 	ball->last_play_entity_id = header_entity_id;
 	ball->last_play_type = BPT_HEADER;
 	ball->last_loose_time = game_state->time;
+	// A header from a team mate lets the goalie use his hands, but not one of his own
+	struct entity *header_entity = entity_get(game_state->entity_repository, header_entity_id);
+	if (!entity_player_is_goalie(header_entity)) {
+		ball->not_pickable_by = BNPB_NOBODY;
+	}
 
 	reset_after_touch(&ball_entity->ball);
 }
@@ -492,7 +515,7 @@ void entity_ball_held_by_goalie(struct entity *ball_entity,
 {
 	struct component_ball *ball = &ball_entity->ball;
 
-	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
+	entity_ball_set_last_touch(ball_entity, goalie_entity_id, game_state);
 
 	state_machine_ball_fire(&ball->state_machine, BT_CAUGHT, game_state);
 
@@ -503,53 +526,26 @@ void entity_ball_saved_by_goalie(struct entity *ball_entity,
 								 entity_id_t goalie_entity_id,
 								 struct game_state *game_state)
 {
-	struct component_ball *ball = &ball_entity->ball;
-
-	entity_ball_set_last_touch(ball, goalie_entity_id, game_state);
+	entity_ball_set_last_touch(ball_entity, goalie_entity_id, game_state);
 
 	reset_after_touch(&ball_entity->ball);
 }
 
-void entity_ball_back_in_play(struct entity *ball_entity, struct game_state *game_state)
+void entity_ball_released_by_goalie(struct entity *ball_entity,
+									entity_id_t goalie_entity_id,
+									struct game_state *game_state)
 {
 	struct component_ball *ball = &ball_entity->ball;
+
+	bar_goalie_hands_for_team_of(ball, goalie_entity_id, game_state);
 
 	state_machine_ball_fire(&ball->state_machine, BT_RELEASED, game_state);
 }
 
-// Whether this goalie may take the ball in his hands, by the laws: not one he let go of himself
-// until somebody else has touched it, and not one a team mate played to him deliberately with
-// anything but his head.
-b32 entity_ball_may_goalie_handle(struct entity *ball_entity,
-								  struct entity *goalie_entity,
-								  struct game_state *game_state)
+b32 entity_ball_is_goalie_hands_barred(struct entity *ball_entity, enum team_side team_side)
 {
-	struct component_ball *ball = &ball_entity->ball;
-
-	if (ball->state_machine.previous_state == BS_GK_HANDS &&
-		ball->last_touch_entity_id == goalie_entity->header.id) {
-		return false;
-	}
-
-	struct entity *last_play_entity =
-		entity_get(game_state->entity_repository, ball->last_play_entity_id);
-	if (!last_play_entity) {
-		return true;
-	}
-
-	if (last_play_entity->player.team_side != goalie_entity->player.team_side) {
-		// An opponent played it to him
-		return true;
-	}
-
-	if (ball->last_play_type == BPT_HEADER) {
-		return true;
-	}
-
-	// A team mate played it to him with his feet. It stops being that ball once somebody else has
-	// taken it on; his own touches, as he brings it under control, are not somebody else.
-	return ball->last_touch_entity_id != ball->last_play_entity_id &&
-		   ball->last_touch_entity_id != goalie_entity->header.id;
+	return ball_entity->ball.not_pickable_by ==
+		   (team_side == TS_HOME ? BNPB_HOME_GOALIE : BNPB_AWAY_GOALIE);
 }
 
 entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
@@ -726,4 +722,14 @@ static void reset_after_touch(struct component_ball *ball)
 {
 	ball->after_touch.active = false;
 	ball->after_touch.selected_side = ball->after_touch.activation_direction = Vector2Zero();
+}
+
+static void bar_goalie_hands_for_team_of(struct component_ball *ball,
+										 entity_id_t player_entity_id,
+										 struct game_state *game_state)
+{
+	const struct entity *player_entity =
+		entity_get(game_state->entity_repository, player_entity_id);
+	const enum team_side team_side = player_entity->player.team_side;
+	ball->not_pickable_by = team_side == TS_HOME ? BNPB_HOME_GOALIE : BNPB_AWAY_GOALIE;
 }

@@ -304,23 +304,27 @@ void system_player_collisions(struct game_state *game_state)
 
 			break;
 		}
-		case PS_GOALIE: {
-			// With the ball in his hands he is in contact with it every tick. The stamp has to
-			// happen here, before system_player_on_the_ball runs: that is what makes him the player
-			// on the ball, and so what lets him release it. Keyed on him holding it and never on
-			// who touched it last, so that anything else taking the last touch for a frame cannot
-			// strand him holding a ball he can no longer release.
-			if (ball->state_machine.current_state == BS_GK_HANDS &&
-				player_entity->goalie.state_machine.current_state == GS_HOLD_BALL) {
-				entity_ball_set_last_touch(ball, player_entity_id, game_state);
-			}
-			break;
-		}
+		case PS_GOALIE:
 		case PS_THROW_IN:
 		case PS_FALL:
 		case PS_NONE:
 		case PS_COUNT:
 			break;
+		}
+	}
+
+	// Goalies last, so a ball a goalie gets to is his whoever else touched it on this tick
+	FOR_EACH_ENTITY(goalie_entity, repo)
+	{
+		if (!goalie_entity->header.alive || goalie_entity->header.type != ET_PLAYER ||
+			goalie_entity->player.state_machine.current_state != PS_GOALIE) {
+			continue;
+		}
+
+		goalie_entity->player.is_colliding_with_ball =
+			entity_player_goalie_is_colliding_with_ball(goalie_entity, game_state);
+		if (goalie_entity->player.is_colliding_with_ball) {
+			player_on_the_ball_entity = goalie_entity;
 		}
 	}
 

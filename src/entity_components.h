@@ -158,6 +158,11 @@ struct component_player_controls {
 	b32 put_down;
 	// The keeper is winding up a throw, so he holds the throwing pose
 	b32 charging_throw;
+	// The keeper goes up for a ball he can reach where he stands
+	b32 jump;
+	// The keeper dives, the way dive_data describes
+	b32 dive;
+	struct goalie_dive dive_data;
 };
 
 enum future_position_type {
@@ -194,6 +199,9 @@ struct component_ball {
 	// When the ball last got away from whoever had it: every kick, plus standing tackles and
 	// deflections. Nobody is in possession of it until it is touched again.
 	fg_time_t last_loose_time;
+	// Set when a player plays the ball with his feet or his goalie releases it, for that team's
+	// goalie; cleared by any touch of the other team and by a header from a team mate.
+	enum ball_not_pickable_by not_pickable_by;
 
 	// Passes
 	entity_id_t pass_target_entity_id;
@@ -225,13 +233,6 @@ struct component_goal {
 struct component_goalie {
 	struct component_header header;
 	struct state_machine_goalie state_machine;
-	enum save_direction dive_direction;
-	enum save_height dive_height;
-	f32 dive_distance;
-	f32 dive_speed;
-	// Where the ball is thrown and how hard, settled before the throw starts
-	v2 throw_direction;
-	f32 throw_power;
 	fg_time_t last_frame_update_time;
 	fg_time_t last_save_time;
 };

@@ -32,7 +32,8 @@ void system_player_control_ai(struct game_state *game_state)
 	{
 		struct human_player *human_player =
 			game_input_human_player_by_player_entity_id(game_state, entity_id);
-		if (human_player) {
+		// A human-controlled keeper is still the AI's in goal, until he has the ball in his hands
+		if (human_player && !entity_player_goalie_is_goalkeeping(entity)) {
 			continue;
 		}
 
@@ -123,28 +124,29 @@ void system_player_control_ai(struct game_state *game_state)
 			break;
 		}
 		case PS_GOALIE: {
-			if (entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
-				// Everything else he does in goal is system_goalie's business
-				break;
-			}
-
 			const struct goalie_ai_decision decision = ai_goalie_think(entity, game_state);
+			player_controls->steering = decision.steering;
 			switch (decision.action) {
-			case GAA_HOLD:
-				break;
-			case GAA_CARRY:
-				player_controls->steering = decision.steering;
+			case GAA_NO_ACTION:
 				break;
 			case GAA_THROW:
-				player_controls->pass = decision.power;
+				player_controls->pass = decision.action_data.throw_ball.power;
 				player_controls->automatic_pass = true;
-				player_controls->pass_target_entity_id = decision.target_entity_id;
+				player_controls->pass_target_entity_id =
+					decision.action_data.throw_ball.target_entity_id;
 				break;
 			case GAA_KICK:
-				player_controls->long_pass = decision.power;
+				player_controls->long_pass = decision.action_data.kick.power;
 				break;
 			case GAA_PUT_DOWN:
 				player_controls->put_down = true;
+				break;
+			case GAA_JUMP:
+				player_controls->jump = true;
+				break;
+			case GAA_DIVE:
+				player_controls->dive = true;
+				player_controls->dive_data = decision.action_data.dive;
 				break;
 			}
 			break;

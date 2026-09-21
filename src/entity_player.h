@@ -191,12 +191,23 @@ struct state_machine_goalie_hold_ball_data {
 };
 
 struct state_machine_goalie_animation_data {
-	f64 animation_start_time;
-	f64 animation_first_phase_end_time;
-	f64 animation_end_time;
-	b32 animation_first_phase_completed;
-	b32 animation_second_phase_started;
-	b32 animation_completed;
+	f64 start_time;
+	f64 first_phase_end_time;
+	f64 end_time;
+	b32 first_phase_completed;
+	b32 second_phase_started;
+	b32 completed;
+};
+
+struct state_machine_goalie_dive_data {
+	struct state_machine_goalie_animation_data animation;
+	struct goalie_dive dive;
+	b32 ball_saved;
+	b32 ball_held;
+};
+
+struct state_machine_goalie_jump_data {
+	struct state_machine_goalie_animation_data animation;
 	b32 ball_saved;
 	b32 ball_held;
 };
@@ -204,13 +215,15 @@ struct state_machine_goalie_animation_data {
 // The ball is already gone when this state begins: it holds the follow-through pose.
 struct state_machine_goalie_throw_data {
 	fg_time_t start_time;
+	v2 direction;
+	f32 power;
 };
 
 union state_machine_goalie_state_data {
 	struct state_machine_default_empty_data protect_goal;
-	struct state_machine_goalie_animation_data dive;
+	struct state_machine_goalie_dive_data dive;
 	struct state_machine_goalie_hold_ball_data hold_ball;
-	struct state_machine_goalie_animation_data jump;
+	struct state_machine_goalie_jump_data jump;
 	struct state_machine_goalie_throw_data throw_ball;
 };
 
@@ -304,6 +317,11 @@ v2 entity_player_steer_seek(struct entity *player_entity, v2 target);
 v2 entity_player_steer_arrive(struct entity *player_entity,
 							  v2 target,
 							  struct game_state *game_state);
+// An arrive that never asks for more than max_speed
+v2 entity_player_steer_arrive_limited(struct entity *player_entity,
+									  v2 target,
+									  f32 max_speed,
+									  struct game_state *game_state);
 v2 entity_player_steer_pursuit(struct entity *player_entity, v2 target, v2 target_velocity);
 
 void entity_player_anim_calculate_running_frame(struct entity *player_entity,
@@ -337,12 +355,25 @@ b32 entity_player_goalie_try_pick_up_ball(struct entity *player_entity,
 // Call once per tick for every keeper, before anything reads his state.
 void entity_player_goalie_update_role(struct entity *player_entity, struct game_state *game_state);
 
+// In goal and without the ball in his hands: jumps, dives and positioning are decided for him,
+// whoever controls him.
+b32 entity_player_goalie_is_goalkeeping(struct entity *player_entity);
+
+// Whether the goalie touches the ball the way his goalie state reaches for it. Holding it counts.
+b32 entity_player_goalie_is_colliding_with_ball(struct entity *goalie_entity,
+												struct game_state *game_state);
+
+// The goalie on the ball in goal, in a jump or in a dive: catch it, parry it, or step out of goal
+// to play one he may not handle with his feet.
+void entity_player_goalie_on_the_ball(struct entity *goalie_entity, struct game_state *game_state);
+
+void entity_player_goalie_dive_start(struct entity *goalie_entity,
+									 struct goalie_dive dive,
+									 struct game_state *game_state);
+
 b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 									 struct entity *ball_entity,
-									 enum save_direction *dive_direction,
-									 enum save_height *dive_height,
-									 f32 *dive_speed,
-									 f32 *dive_distance,
+									 struct goalie_dive *dive,
 									 struct game_state *game_state);
 
 void entity_player_gained_possession(struct entity *player_entity, struct game_state *game_state);
@@ -378,17 +409,6 @@ entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
 											 f32 target_distance,
 											 struct game_state *game_state);
 
-v2 entity_player_pass_aim_point(struct entity *player_entity,
-								struct entity *ball_entity,
-								struct entity *target_entity,
-								f32 max_distance,
-								struct game_state *game_state);
-
-// The team mate a pass may go to: NULL unless the id names a live player on the passer's team
-// other than the passer himself.
-struct entity *entity_player_get_pass_target(struct entity *passer_entity,
-											 entity_id_t target_entity_id,
-											 struct game_state *game_state);
 
 // An automatic pass to a team mate: led to where he will be, and struck as hard as the distance
 // needs.

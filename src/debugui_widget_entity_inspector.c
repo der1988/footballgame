@@ -233,6 +233,8 @@ static void draw_component_player_controls(struct component_player_controls *c)
 		igText(TextFormat("  put_down:       %s  charging_throw: %s",
 						  c->put_down ? "yes" : "no",
 						  c->charging_throw ? "yes" : "no"));
+		igText(TextFormat(
+			"  jump:           %s  dive: %s", c->jump ? "yes" : "no", c->dive ? "yes" : "no"));
 	}
 }
 
@@ -263,6 +265,8 @@ static void draw_component_ball(struct component_ball *c)
 							  ball_play_type_string[c->last_play_type]));
 		}
 		igText(TextFormat("  last_loose:     %.3f", (double)c->last_loose_time));
+		igText(
+			TextFormat("  not_pickable_by: %s", ball_not_pickable_by_string[c->not_pickable_by]));
 		if (c->pass_target_entity_id == EID_NOT_VALID) {
 			igText("  pass_target_id: (invalid)");
 		} else {
@@ -304,14 +308,21 @@ static void draw_component_goalie(struct component_goalie *c)
 						  state_machine_goalie_state_string[c->state_machine.current_state]));
 		igText(TextFormat("  prev_state:     %s",
 						  state_machine_goalie_state_string[c->state_machine.previous_state]));
-		igText(TextFormat("  dive_direction: %s", save_direction_to_string[c->dive_direction]));
-		igText(TextFormat("  dive_height:    %s", save_height_to_string[c->dive_height]));
-		igText(TextFormat("  dive_distance:  %.2f", c->dive_distance));
-		igText(TextFormat("  dive_speed:     %.2f", c->dive_speed));
-		igText(TextFormat("  throw_dir:      (%.2f, %.2f)  power: %.2f",
-						  c->throw_direction.x,
-						  c->throw_direction.y,
-						  c->throw_power));
+		if (c->state_machine.current_state == GS_DIVE) {
+			const struct goalie_dive *dive = &c->state_machine.state_data.dive.dive;
+			igText(TextFormat("  dive_direction: %s", save_direction_to_string[dive->direction]));
+			igText(TextFormat("  dive_height:    %s", save_height_to_string[dive->height]));
+			igText(TextFormat("  dive_distance:  %.2f", dive->distance));
+			igText(TextFormat("  dive_speed:     %.2f", dive->speed));
+		}
+		if (c->state_machine.current_state == GS_THROW) {
+			const struct state_machine_goalie_throw_data *throw_ball =
+				&c->state_machine.state_data.throw_ball;
+			igText(TextFormat("  throw_dir:      (%.2f, %.2f)  power: %.2f",
+							  throw_ball->direction.x,
+							  throw_ball->direction.y,
+							  throw_ball->power));
+		}
 		igText(TextFormat("  last_save_time: %.3f", (double)c->last_save_time));
 	}
 }

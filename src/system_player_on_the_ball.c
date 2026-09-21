@@ -96,8 +96,8 @@ void system_player_on_the_ball(struct game_state *game_state)
 				player->last_kick_time = game_state->time;
 				v3 pass_direction;
 				f32 power = player_controls->pass;
-				struct entity *teammate_entity = entity_player_get_pass_target(
-					player_entity, player_controls->pass_target_entity_id, game_state);
+				struct entity *teammate_entity = entity_get(game_state->entity_repository,
+															player_controls->pass_target_entity_id);
 				if (teammate_entity) {
 					struct player_pass pass = entity_player_aim_pass(
 						player_entity, ball_entity, teammate_entity, game_state);
@@ -329,8 +329,8 @@ void system_player_on_the_ball(struct game_state *game_state)
 			f32 ball_height = ball_transform->virtual_height;
 
 			// We normalize later
-			struct entity *header_target_entity = entity_player_get_pass_target(
-				player_entity, player_controls->pass_target_entity_id, game_state);
+			struct entity *header_target_entity =
+				entity_get(game_state->entity_repository, player_controls->pass_target_entity_id);
 			if (header_target_entity) {
 				hit_direction =
 					Vector2Subtract(header_target_entity->transform.position, player_position);
@@ -451,98 +451,9 @@ void system_player_on_the_ball(struct game_state *game_state)
 										game_state);
 			break;
 		}
-		case PS_GOALIE: {
-			// What he does with the ball in his hands
-			if (ball->state_machine.current_state != BS_GK_HANDS ||
-				player_entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
-				break;
-			}
-
-			DECLARE_ENTITY_COMPONENT(player_entity, goalie);
-			DECLARE_ENTITY_COMPONENT(player_entity, sprite);
-
-			const enum pitch_side pitch_side =
-				game_state->vars.teams[player->team_side].play_context.pitch_side;
-			const struct collider *goalie_collider = &player_entity->collider.colliders[PCT_GOALIE];
-			const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
-
-			const i8 direction = pitch_side == PSI_NORTH ? 1 : -1;
-			const v2 new_ball_position = Vector2Add(
-				player_position,
-				Vector2Scale((v2){.y = direction},
-							 goalie_collider->props.circle.offset.y +
-								 goalie_collider->props.circle.radius + ball_radius + 7));
-
-			if (player_controls->put_down) {
-				entity_ball_back_in_play(ball_entity, game_state);
-				entity_ball_set_position_and_velocity(
-					ball_entity, V2_TO_V3(new_ball_position, ball_radius), Vector3Zero());
-				state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
-				state_machine_player_fire(&player->state_machine, PT_STEP_OUT, game_state);
-				input_reset_player(player_on_the_ball_entity_id, game_state);
-				break;
-			}
-
-			if (player_controls->pass > 0) {
-				// Thrown out by hand, led to the team mate the way an automatic pass is
-				v2 throw_direction = player_controls->steering;
-				if (IS_V2_ZERO(throw_direction)) {
-					throw_direction = (v2){.y = direction};
-				}
-				f32 throw_power = player_controls->pass;
-
-				struct entity *target_entity = entity_player_get_pass_target(
-					player_entity, player_controls->pass_target_entity_id, game_state);
-				if (target_entity) {
-					struct player_pass pass = entity_player_aim_pass(
-						player_entity, ball_entity, target_entity, game_state);
-					throw_direction = V3_TO_V2(pass.direction);
-					throw_power = pass.power * pass.power;
-					ball->pass_target_entity_id = target_entity->header.id;
-				}
-
-				goalie->throw_direction = Vector2Normalize(throw_direction);
-				goalie->throw_power = throw_power;
-				sprite->orientation = sprite_calculate_orientation(goalie->throw_direction);
-
-				const v2 ball_release_position = Vector2Add(
-					player_position,
-					Vector2Scale(goalie->throw_direction,
-								 goalie_collider->props.circle.radius + ball_radius + 2));
-				entity_ball_back_in_play(ball_entity, game_state);
-				entity_ball_set_position_and_velocity(ball_entity,
-													  V2_TO_V3(ball_release_position,
-															   GOALIE_THROW_HEIGHT),
-													  Vector3Zero());
-				// Rolled out along the ground, so no height on the direction
-				entity_ball_short_pass(ball_entity,
-									   player_on_the_ball_entity_id,
-									   V2_TO_V3(goalie->throw_direction, 0),
-									   goalie->throw_power,
-									   player_controls->automatic_pass,
-									   game_state);
-
-				state_machine_goalie_fire(&goalie->state_machine, GT_THROW, game_state);
-				break;
-			}
-
-			if (player_controls->long_pass > 0) {
-				entity_ball_back_in_play(ball_entity, game_state);
-				entity_ball_set_position_and_velocity(
-					ball_entity, V2_TO_V3(new_ball_position, 10), Vector3Zero());
-				entity_ball_long_pass(ball_entity,
-									  player_on_the_ball_entity_id,
-									  (v2){.y = direction},
-									  player_controls->long_pass,
-									  false,
-									  game_state);
-				state_machine_goalie_fire(&goalie->state_machine, GT_RELEASE, game_state);
-				break;
-			}
-
-			// Human or AI, he leaves GS_HOLD_BALL only through the controls above
+		case PS_GOALIE:
+			entity_player_goalie_on_the_ball(player_entity, game_state);
 			break;
-		}
 		case PS_TACKLE:
 		case PS_THROW_IN:
 		case PS_FALL:

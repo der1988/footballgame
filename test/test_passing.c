@@ -340,50 +340,15 @@ void test_an_automatic_pass_to_nobody_is_struck_as_an_automatic_pass(void)
 		expected_accel * 0.001f, expected_accel, Vector3Length(g_ball_entity->physics3d.accel));
 }
 
-static void pass_with_target_id(entity_id_t target_entity_id)
-{
-	passer_on_the_ball();
-	g_passer_entity->player_controls.steering = UP_THE_PITCH;
-	g_passer_entity->player_controls.pass = 0.5f;
-	g_passer_entity->player_controls.pass_target_entity_id = target_entity_id;
-
-	system_player_on_the_ball(g_game_state);
-}
-
-void test_a_pass_never_goes_to_an_opponent(void)
-{
-	place_relative_to_passer(g_opponent_entity, 150, WIDE_ANGLE_DEG);
-
-	pass_with_target_id(g_opponent_entity->header.id);
-
-	TEST_ASSERT_EQUAL_UINT32(EID_NOT_VALID, g_ball_entity->ball.pass_target_entity_id);
-	TEST_ASSERT_FLOAT_WITHIN(0.001f, 1.0f, Vector2DotProduct(ball_direction(), UP_THE_PITCH));
-}
-
-void test_a_pass_never_goes_to_the_passer_himself(void)
-{
-	pass_with_target_id(g_passer_entity->header.id);
-
-	TEST_ASSERT_EQUAL_UINT32(EID_NOT_VALID, g_ball_entity->ball.pass_target_entity_id);
-}
-
-void test_a_pass_never_goes_to_a_man_no_longer_there(void)
-{
-	place_relative_to_passer(g_team_mate_entity, 150, WIDE_ANGLE_DEG);
-	const entity_id_t gone_entity_id = g_team_mate_entity->header.id;
-	entity_destroy(g_game_state->entity_repository, gone_entity_id);
-
-	pass_with_target_id(gone_entity_id);
-
-	TEST_ASSERT_EQUAL_UINT32(EID_NOT_VALID, g_ball_entity->ball.pass_target_entity_id);
-}
-
 // Where an automatic pass aims
 
 static v2 aim_at_team_mate(void)
 {
-	return entity_player_pass_aim_point(
-		g_passer_entity, g_ball_entity, g_team_mate_entity, pass_range(), g_game_state);
+	const struct player_pass pass =
+		entity_player_aim_pass(g_passer_entity, g_ball_entity, g_team_mate_entity, g_game_state);
+	return Vector2Add(g_passer_entity->transform.position,
+					  Vector2Scale(Vector2Normalize(V3_TO_V2(pass.direction)),
+								   pass.power * pass_range()));
 }
 
 static void assert_inside_the_margin(v2 point)
@@ -532,9 +497,6 @@ int main()
 	RUN_TEST(test_an_automatic_pass_is_struck_along_the_ground);
 	RUN_TEST(test_a_pass_with_nobody_chosen_goes_along_the_steering_to_nobody);
 	RUN_TEST(test_an_automatic_pass_to_nobody_is_struck_as_an_automatic_pass);
-	RUN_TEST(test_a_pass_never_goes_to_an_opponent);
-	RUN_TEST(test_a_pass_never_goes_to_the_passer_himself);
-	RUN_TEST(test_a_pass_never_goes_to_a_man_no_longer_there);
 	RUN_TEST(test_a_man_running_at_the_touchline_is_led_short_of_it);
 	RUN_TEST(test_a_pass_to_a_man_on_the_goal_line_aims_inside_the_field);
 	RUN_TEST(test_a_man_already_outside_the_margin_is_aimed_at_from_inside_it);

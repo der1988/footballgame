@@ -180,6 +180,13 @@ enum save_height {
 	SH_COUNT
 };
 
+struct goalie_dive {
+	enum save_direction direction;
+	enum save_height height;
+	f32 speed; // 0-1, a fraction of goalie_dive_max_velocity
+	f32 distance;
+};
+
 extern const char *pitch_side_to_string[PSI_COUNT];
 extern const char *team_side_to_string[TS_COUNT];
 extern const char *save_direction_to_string[SD_COUNT];
