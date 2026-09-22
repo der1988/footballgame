@@ -1333,8 +1333,7 @@ entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
 											 f32 target_distance,
 											 struct game_state *game_state)
 {
-	const v2 scan_direction =
-		Vector2Length(steering) < 0.1f ? centred_stick_direction : steering;
+	const v2 scan_direction = Vector2Length(steering) < 0.1f ? centred_stick_direction : steering;
 	struct entity *target_entity;
 	if (entity_player_find_pass_target(passer_entity,
 									   scan_direction,
@@ -1373,7 +1372,8 @@ struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 		f32 distance = Vector2Length(to_aim);
 		f32 power = Clamp01(distance / max_distance);
 		v3 direction = Vector3Normalize(V2_TO_V3(to_aim, pass_height));
-		f32 speed = math_ext_split_lerp(game_state->constants.ball_pass_force, 0.5f, power * power);
+		f32 speed =
+			math_ext_split_lerp(game_state->constants.ball_pass_force, PASS_MIN_FORCE_RATIO, power);
 
 		fg_time_t travel_time = entity_ball_time_to_cover_distance(
 			ball_entity, Vector3Scale(direction, speed), distance, game_state);

@@ -21,6 +21,8 @@
 #define PASS_AIM_FIELD_MARGIN (2.0f * PIXELS_PER_METER)
 // A human's automatic pass looks for a team mate this many degrees either side of the stick
 #define PASS_SCAN_HALF_ANGLE 30.0f
+// Share of ball_pass_force a short pass gets with no charge; the charge scales up the rest
+#define PASS_MIN_FORCE_RATIO	  0.3f
 // The turn is done, and the skid over, once the run points this close to the heading asked for
 #define DRIBBLE_END_ALIGNMENT 0.7f
 // Steering staying this close to the heading the skid started on is the same request being held,
