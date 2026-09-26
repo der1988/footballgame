@@ -1136,21 +1136,6 @@ void entity_player_gained_possession(struct entity *player_entity, struct game_s
 	entity_ball_set_last_touch(game_state->vars.ball.entity, player_entity->header.id, game_state);
 }
 
-enum player_ball_possession entity_player_ball_possession(struct entity *player_entity,
-														  struct entity *ball_entity,
-														  struct game_state *game_state)
-{
-	if (player_entity->header.id == ball_entity->ball.last_touch_entity_id) {
-		if (ball_entity->ball.last_touch_time == game_state->time) {
-			return PBP_ON_THE_BALL;
-		} else {
-			return PBP_IN_POSSESSION;
-		}
-	} else {
-		return PBP_OFF_THE_BALL;
-	}
-}
-
 b32 entity_player_is_goalie(struct entity *player_entity)
 {
 	return player_entity->goalie.header.enabled;

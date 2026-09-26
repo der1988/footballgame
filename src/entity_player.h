@@ -251,13 +251,6 @@ struct player_ball_reachability_prediction {
 	fg_time_t future_time;
 };
 
-enum player_ball_possession {
-
-	PBP_ON_THE_BALL,
-	PBP_IN_POSSESSION,
-	PBP_OFF_THE_BALL
-};
-
 struct collision_information {
 	b32 is_colliding;
 	v2 direction;
@@ -377,10 +370,6 @@ b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 									 struct game_state *game_state);
 
 void entity_player_gained_possession(struct entity *player_entity, struct game_state *game_state);
-
-enum player_ball_possession entity_player_ball_possession(struct entity *player_entity,
-														  struct entity *ball_entity,
-														  struct game_state *game_state);
 
 struct player_ball_reachability_prediction entity_player_can_reach_future_ball_position(
 	struct entity *seeker_entity,
