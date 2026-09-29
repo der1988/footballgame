@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "asset.h"
+#include "entity_ball.h"
 #include "entity_player.h"
 #include "events_router.h"
 #include "football.h"
@@ -157,6 +158,8 @@ struct game_vars {
 	struct {
 		struct entity *entity;
 		v3 lookahead_positions[BALL_MAX_LOOKAHEADS];
+		// Who had the ball before any system ran this tick
+		struct ball_possession possession_at_tick_start;
 	} ball;
 	b32 is_debug_log_shown;
 };

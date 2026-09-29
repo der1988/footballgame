@@ -397,6 +397,9 @@ static void update(struct game_state *game_state)
 
 	gameplay_update(game_state);
 
+	game_state->vars.ball.possession_at_tick_start =
+		entity_ball_player_in_possession(game_state->vars.ball.entity, game_state);
+
 	system_goalie(game_state);
 	system_player_collisions(game_state);
 	system_team_pressing(game_state);

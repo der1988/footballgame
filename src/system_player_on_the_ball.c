@@ -315,6 +315,17 @@ void system_player_on_the_ball(struct game_state *game_state)
 							   game_state);
 			state_machine->state_data.sliding_tackle.touched_ball = true;
 
+			// It takes the ball off whoever had it at his feet
+			const struct ball_possession *possession =
+				&game_state->vars.ball.possession_at_tick_start;
+			if (possession->type == BPOS_PLAYABLE) {
+				struct entity *carrier_entity =
+					entity_get(game_state->entity_repository, possession->entity_id);
+				if (carrier_entity->player.team_side != player->team_side) {
+					carrier_entity->player.last_tackle_dispossession_time = game_state->time;
+				}
+			}
+
 			break;
 		}
 		case PS_HEADER: {

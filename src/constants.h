@@ -67,6 +67,11 @@
 // (PS_TACKLED_RUN).
 #define TACKLE_KNOCKDOWN_PROBABILITY		 0.05f
 #define SLIDING_TACKLE_KNOCKDOWN_PROBABILITY 0.3f
+// How far past the edge of his control circle the ball can be and still be playable by the player
+// in possession
+#define PLAYING_DISTANCE 7.0f
+// After a tackle plays the ball, the man it took it off can't gain possession for this long
+#define TACKLE_DISPOSSESSION_BALL_LOCK_TIME 0.5f
 
 // Height the ball is dropped from when play restarts
 #define BALL_RESTART_HEIGHT		   30

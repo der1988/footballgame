@@ -547,22 +547,41 @@ b32 entity_ball_is_goalie_hands_barred(struct entity *ball_entity, enum team_sid
 		   (team_side == TS_HOME ? BNPB_HOME_GOALIE : BNPB_AWAY_GOALIE);
 }
 
-entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
-											 struct game_state *game_state)
+void entity_ball_end_possession(struct entity *ball_entity, entity_id_t player_entity_id)
 {
-	// printf("lteid: %d - fpt: %d - ltm: %d - ltt>lkt: %d\n",
-	// 	   ball_entity->ball.last_touch_entity_id != EID_NOT_VALID,
-	// 	   HAS_TIME_PASSED(game_state->time, ball_entity->ball.first_player_possession_time, 0.1f),
-	// 	   !HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f),
-	// 	   ball_entity->ball.last_touch_time > ball_entity->ball.last_loose_time);
-	if (ball_entity->ball.last_touch_entity_id != EID_NOT_VALID &&
-		HAS_TIME_PASSED(game_state->time, ball_entity->ball.first_player_possession_time, 0.1f) &&
-		!HAS_TIME_PASSED(game_state->time, ball_entity->ball.last_touch_time, 1.0f) &&
-		ball_entity->ball.last_touch_time > ball_entity->ball.last_loose_time) {
-		return ball_entity->ball.last_touch_entity_id;
-	} else {
-		return EID_NOT_VALID;
+	if (ball_entity->ball.last_touch_entity_id == player_entity_id) {
+		// No touch time means nobody is in possession
+		ball_entity->ball.last_touch_time = 0;
 	}
+}
+
+struct ball_possession entity_ball_player_in_possession(struct entity *ball_entity,
+														struct game_state *game_state)
+{
+	const struct component_ball *ball = &ball_entity->ball;
+
+	if (ball->state_machine.current_state == BS_GK_HANDS) {
+		return (struct ball_possession){.entity_id = ball->last_touch_entity_id,
+										.type = BPOS_IN_HANDS};
+	}
+
+	if (ball->last_touch_entity_id == EID_NOT_VALID ||
+		!HAS_TIME_PASSED(game_state->time, ball->first_player_possession_time, 0.1f) ||
+		HAS_TIME_PASSED(game_state->time, ball->last_touch_time, 1.0f) ||
+		ball->last_touch_time <= ball->last_loose_time) {
+		return (struct ball_possession){.entity_id = EID_NOT_VALID, .type = BPOS_NONE};
+	}
+
+	const struct entity *player_entity =
+		entity_get(game_state->entity_repository, ball->last_touch_entity_id);
+	const struct component_transform *ball_transform = &ball_entity->transform;
+	const b32 is_playable =
+		ball_transform->virtual_height <= player_entity->player.constants.control_height &&
+		Vector2Distance(player_entity->transform.position, ball_transform->position) <=
+			player_entity->player.constants.control_radius + PLAYING_DISTANCE;
+
+	return (struct ball_possession){.entity_id = ball->last_touch_entity_id,
+									.type = is_playable ? BPOS_PLAYABLE : BPOS_OUT_OF_REACH};
 }
 
 // Team possession is total: whoever touched the ball last still owns it, for the whole

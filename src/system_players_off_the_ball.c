@@ -89,6 +89,12 @@ void system_players_off_the_ball(struct game_state *game_state)
 				// challenger's side that has it now.
 				entity_player_gained_possession(entity, game_state);
 				state_machine->state_data.tackle.touched_ball = true;
+				state_machine->state_data.tackle.ball_touch_time = game_state->time;
+
+				struct entity *victim_entity =
+					entity_get(game_state->entity_repository,
+							   state_machine->state_data.tackle.victim_entity_id);
+				victim_entity->player.last_tackle_dispossession_time = game_state->time;
 			}
 			break;
 		}

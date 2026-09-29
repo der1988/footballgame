@@ -41,14 +41,14 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 										  .target_position = transform->position,
 										  .action = PAAD_NO_ACTION,
 										  .power = 0.0f,
-										  .pass_target_entity_id = EID_NOT_VALID};
+										  .target_entity_id = EID_NOT_VALID};
 
 	b32 ball_in_keeper_hands = ball->state_machine.current_state == BS_GK_HANDS;
 
 	entity_id_t player_on_the_ball_entity_id =
 		entity_ball_player_on_the_ball(ball_entity, game_state);
 	entity_id_t player_in_possession_entity_id =
-		entity_ball_player_in_possession(ball_entity, game_state);
+		entity_ball_player_in_possession(ball_entity, game_state).entity_id;
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
@@ -145,7 +145,7 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 			if (passing) {
 				decision.action = PAAD_PASS;
 				decision.power = 0.1f;
-				decision.pass_target_entity_id = teammate_entity->header.id;
+				decision.target_entity_id = teammate_entity->header.id;
 				decision.steering = Vector2Normalize(Vector2Subtract(
 					teammate_entity->transform.position, player_entity->transform.position));
 			} else {
@@ -186,10 +186,12 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 				player_entity, ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
 
 			if (player_in_possession_entity) {
-				// Close enough to play the ball while the opponent still holds it, so go in for
-				// it. Sending a man to press is asking him to win the ball, so he goes in
-				// whoever sent him - a human holding the press button included.
-				if (player_entity->player.is_colliding_with_ball) {
+				// Close enough to the man holding the ball, so go in on him. Sending a man to
+				// press is asking him to win the ball, so he goes in whoever sent him - a human
+				// holding the press button included.
+				decision.target_entity_id =
+					entity_player_find_tackle_victim(player_entity, game_state);
+				if (decision.target_entity_id != EID_NOT_VALID) {
 					decision.action = PAAD_TACKLE;
 					break;
 				}

@@ -32,7 +32,7 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 		const f32 ball_velocity = Vector3Length(ball_physics_3d->velocity);
 
 		const entity_id_t player_in_possession_entity_id =
-			entity_ball_player_in_possession(ball_entity, game_state);
+			entity_ball_player_in_possession(ball_entity, game_state).entity_id;
 
 		// A ball a team mate played back to him has to be played with his feet
 		const b32 may_handle_ball =

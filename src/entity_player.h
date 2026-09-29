@@ -98,8 +98,13 @@ struct state_machine_player_tackle_data {
 	// Where he was asking to go as he went in, which is where the ball is sent. Taken on the way
 	// in because the challenge answers no steering once it is under way.
 	v2 direction;
+	// The player in possession he went in on, the only one this tackle can hit
+	entity_id_t victim_entity_id;
 	b32 touched_ball;
 	b32 touched_player;
+	// When he played the ball and when he hit the victim, for judging the challenge afterwards
+	fg_time_t ball_touch_time;
+	fg_time_t victim_touch_time;
 };
 
 struct state_machine_player_sliding_tackle_data {
@@ -327,10 +332,8 @@ void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 struct collision_information
 entity_player_is_colliding_with_ball(struct entity *player_entity,
 									 enum player_collider_type collider_type,
-									 v3 ball_position,
-									 v3 ball_velocity,
-									 f32 ball_radius,
-									 f32 max_height);
+									 f32 max_height,
+									 struct game_state *game_state);
 
 // Whether this player is his team's keeper, whatever state he is in: out of goal he plays as
 // PS_NORMAL and still wears the gloves.
@@ -443,6 +446,12 @@ b32 entity_player_find_nearest_facing_opponent(struct entity *player_entity,
 // Sets the colliders that depend on the player's facing or constants. Call for every player once
 // per tick, before any collision check.
 void entity_player_update_colliders(struct entity *player_entity);
+
+// The opponent a standing tackle would go in on right now, or EID_NOT_VALID. A standing tackle is
+// only ever on the player in possession, with the ball within playing distance of him, once the
+// tackler's PCT_TACKLE reaches his PCT_BODY.
+entity_id_t entity_player_find_tackle_victim(struct entity *tackler_entity,
+											 struct game_state *game_state);
 
 struct list_entities entity_player_find_tackled_opponents(struct entity *player_entity,
 														  enum player_collider_type tackle_collider,

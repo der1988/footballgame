@@ -26,7 +26,7 @@ void system_player_physics(struct game_state *game_state)
 	UNUSED(ball_collider);
 
 	const entity_id_t player_in_possession_entity_id =
-		entity_ball_player_in_possession(ball_entity, game_state);
+		entity_ball_player_in_possession(ball_entity, game_state).entity_id;
 
 	FOR_EACH_ENTITY(entity, game_state->entity_repository)
 	{

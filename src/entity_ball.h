@@ -40,6 +40,22 @@ enum ball_play_type {
 extern const char *ball_play_type_string[BPT_COUNT];
 
 // Which goalie may not use his hands on the ball
+enum ball_possession_type {
+	BPOS_NONE,
+	// His, with the ball within playing distance
+	BPOS_PLAYABLE,
+	// His by the timing rules, but knocked on beyond playing distance
+	BPOS_OUT_OF_REACH,
+	// The keeper is holding it
+	BPOS_IN_HANDS,
+};
+
+struct ball_possession {
+	// EID_NOT_VALID for BPOS_NONE
+	entity_id_t entity_id;
+	enum ball_possession_type type;
+};
+
 enum ball_not_pickable_by {
 	BNPB_NOBODY,
 	BNPB_HOME_GOALIE,
@@ -141,8 +157,10 @@ void entity_ball_set_last_touch(struct entity *ball_entity,
 // Whether the goalie of this team may no longer use his hands on the ball: his own team played it
 // with the feet or he released it, and the other team has not touched it nor a team mate headed it.
 b32 entity_ball_is_goalie_hands_barred(struct entity *ball_entity, enum team_side team_side);
-entity_id_t entity_ball_player_in_possession(struct entity *ball_entity,
-											 struct game_state *game_state);
+// Ends his possession, if the ball was last touched by him
+void entity_ball_end_possession(struct entity *ball_entity, entity_id_t player_entity_id);
+struct ball_possession entity_ball_player_in_possession(struct entity *ball_entity,
+														struct game_state *game_state);
 entity_id_t entity_ball_player_on_the_ball(struct entity *ball_entity,
 										   struct game_state *game_state);
 enum team_side entity_ball_team_in_possession(struct entity *ball_entity,

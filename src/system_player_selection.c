@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum ball_possession {
-	BALL_POSSESSION_NONE,
-	BALL_POSSESSION_TEAM,
-	BALL_POSSESSION_OPPO,
+enum team_possession {
+	TEAM_POSSESSION_NONE,
+	TEAM_POSSESSION_OURS,
+	TEAM_POSSESSION_THEIRS,
 };
 
 struct human_info {
@@ -67,7 +67,7 @@ void system_player_selection(struct game_state *game_state)
 	}
 
 	entity_id_t player_in_possession_entity_id =
-		entity_ball_player_in_possession(ball_entity, game_state);
+		entity_ball_player_in_possession(ball_entity, game_state).entity_id;
 	struct entity *player_in_possession_entity =
 		entity_get(game_state->entity_repository, player_in_possession_entity_id);
 
@@ -84,18 +84,18 @@ void system_player_selection(struct game_state *game_state)
 		}
 
 		// Let's determine if this team is in possession of the ball
-		enum ball_possession ball_possession = BALL_POSSESSION_NONE;
+		enum team_possession team_possession = TEAM_POSSESSION_NONE;
 		if (player_in_possession_entity) {
-			ball_possession = player_in_possession_entity->player.team_side == team_side_idx ?
-								  BALL_POSSESSION_TEAM :
-								  BALL_POSSESSION_OPPO;
+			team_possession = player_in_possession_entity->player.team_side == team_side_idx ?
+								  TEAM_POSSESSION_OURS :
+								  TEAM_POSSESSION_THEIRS;
 		}
 
 		b32 is_player_in_possession_controlled_by_human = false;
 		for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 			struct human_player *human_player = &game_state->human_players[i];
 
-			if (human_player->enabled && ball_possession == BALL_POSSESSION_TEAM &&
+			if (human_player->enabled && team_possession == TEAM_POSSESSION_OURS &&
 				human_player->team_side == team_side_idx &&
 				human_player->controlled_player.entity_id != EID_NOT_VALID &&
 				human_player->controlled_player.entity_id == player_in_possession_entity_id) {
@@ -219,7 +219,7 @@ void system_player_selection(struct game_state *game_state)
 			}
 
 			// Following logic makes sense even if player is requiring switch
-			if (ball_possession == BALL_POSSESSION_TEAM) {
+			if (team_possession == TEAM_POSSESSION_OURS) {
 				if (human_player->controlled_player.entity_id ==
 					player_in_possession_entity->header.id) {
 					// Current human player is in possession of the ball.

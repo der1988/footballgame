@@ -5,6 +5,23 @@
 #include "types.h"
 #include <raymath.h>
 
+struct collider {
+	enum {
+		CS_CIRCLE,
+		CS_RECTANGLE
+	} shape;
+	union {
+		struct {
+			f32 radius;
+			v2 offset;
+		} circle;
+		struct {
+			v2 size;
+			v2 offset;
+		} rectangle;
+	} props;
+};
+
 struct sliding_tackle_colliders_config {
 	struct {
 		v2 offset;
@@ -49,6 +66,37 @@ INLINE rect_t collision_calculate_rectangle(v2 pos, v2 size, v2 offset)
 					.y = pos.y - size.y * 0.5f + offset.y * 0.5f,
 					.width = size.x,
 					.height = size.y};
+}
+
+// Whether collider a at a_pos overlaps collider b at b_pos, whatever their shapes
+INLINE b32 collision_check_colliders_overlap(v2 a_pos,
+											 const struct collider *a,
+											 v2 b_pos,
+											 const struct collider *b)
+{
+	if (a->shape == CS_CIRCLE && b->shape == CS_CIRCLE) {
+		return CheckCollisionCircles(Vector2Add(a_pos, a->props.circle.offset),
+									 a->props.circle.radius,
+									 Vector2Add(b_pos, b->props.circle.offset),
+									 b->props.circle.radius);
+	}
+	if (a->shape == CS_RECTANGLE && b->shape == CS_RECTANGLE) {
+		return CheckCollisionRecs(
+			collision_calculate_rectangle(a_pos, a->props.rectangle.size, a->props.rectangle.offset),
+			collision_calculate_rectangle(b_pos, b->props.rectangle.size, b->props.rectangle.offset));
+	}
+	if (a->shape == CS_RECTANGLE) {
+		const struct collider *swap = a;
+		a = b;
+		b = swap;
+		const v2 swap_pos = a_pos;
+		a_pos = b_pos;
+		b_pos = swap_pos;
+	}
+	return CheckCollisionCircleRec(
+		Vector2Add(a_pos, a->props.circle.offset),
+		a->props.circle.radius,
+		collision_calculate_rectangle(b_pos, b->props.rectangle.size, b->props.rectangle.offset));
 }
 
 // This function determines whether a moving circle with a velocity is going to intercept another still circle

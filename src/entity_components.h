@@ -3,6 +3,7 @@
 
 #include "action.h"
 #include "asset_sprite_frame.h"
+#include "collision.h"
 #include "football.h"
 #include "render.h"
 #include "types.h"
@@ -75,23 +76,6 @@ struct component_target {
 	entity_id_t entity_id;
 };
 
-struct collider {
-	enum {
-		CS_CIRCLE,
-		CS_RECTANGLE
-	} shape;
-	union {
-		struct {
-			f32 radius;
-			v2 offset;
-		} circle;
-		struct {
-			v2 size;
-			v2 offset;
-		} rectangle;
-	} props;
-};
-
 struct component_collider {
 	struct component_header header;
 	struct collider *colliders;
@@ -120,6 +104,8 @@ struct component_player {
 	fg_time_t time_spent_in_run_control;
 	f32 current_max_velocity;
 	fg_time_low_prec_t last_kick_time;
+	// When a tackle last played the ball off him
+	fg_time_low_prec_t last_tackle_dispossession_time;
 	fg_time_low_prec_t last_header_time;
 	fg_time_low_prec_t last_frame_update_time;
 	fg_time_low_prec_t last_possession_time;
@@ -152,6 +138,8 @@ struct component_player_controls {
 	b32 header_shot;
 	b32 header_pass;
 	b32 tackle;
+	// The player in possession the tackle goes in on
+	entity_id_t tackle_victim_entity_id;
 	b32 sliding_tackle;
 	b32 stop;
 	// The keeper sets the ball down to carry on with his feet

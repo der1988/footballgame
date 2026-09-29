@@ -110,7 +110,7 @@ void system_player_control_human(struct game_state *game_state)
 				// for it while the opponents have the ball: that is exactly when the charge
 				// lock refuses to charge, so a press is never both a charge and a tackle.
 				// Held, not pressed: the button runs the player at the ball for as long as he
-				// holds it, and the challenge goes in on its own once he reaches it.
+				// holds it, and the challenge goes in on its own once he reaches the carrier.
 				else if (!header_started &&
 						 game_controller_state->current[GAME_CONTROL_TACKLE].digital.down &&
 						 entity_ball_team_in_possession(ball_entity, game_state) !=
@@ -118,6 +118,10 @@ void system_player_control_human(struct game_state *game_state)
 					player_controls->steering = entity_player_steer_pursuit(
 						entity, ball_transform->position, V3_TO_V2(ball_physics_3d->velocity));
 					player_controls->steering_assisted = true;
+					player_controls->tackle_victim_entity_id =
+						entity_player_find_tackle_victim(entity, game_state);
+					player_controls->tackle =
+						player_controls->tackle_victim_entity_id != EID_NOT_VALID;
 				} else if (!action_button_pressed && IS_V2_ZERO(player_controls->steering)) {
 					// This section only triggers if the player is not giving meaningful directional input
 					if (ball->pass_target_entity_id == entity->header.id) {
@@ -150,12 +154,13 @@ void system_player_control_human(struct game_state *game_state)
 			// On the ball
 			else if (entity->player.is_colliding_with_ball) {
 				// Tackle. The ball is in reach but the opponents still hold it, so the button
-				// goes in to win it rather than playing it. Winning it flips possession, which
-				// is what stops the challenge repeating.
-				if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.down &&
-					entity_ball_team_in_possession(ball_entity, game_state) !=
-						entity->player.team_side) {
-					player_controls->tackle = true;
+				// goes in on the carrier rather than playing it. Winning it flips possession,
+				// which is what stops the challenge repeating.
+				if (game_controller_state->current[GAME_CONTROL_TACKLE].digital.down) {
+					player_controls->tackle_victim_entity_id =
+						entity_player_find_tackle_victim(entity, game_state);
+					player_controls->tackle =
+						player_controls->tackle_victim_entity_id != EID_NOT_VALID;
 				}
 				// Stop
 				if (game_controller_state->current[GAME_CONTROL_STOP].digital.down) {

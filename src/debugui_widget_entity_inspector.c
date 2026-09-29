@@ -187,6 +187,21 @@ static void draw_component_player(struct component_player *c)
 					c->state_machine.state_data.normal.dribble.active ?
 				player_dribble_turn_string[c->state_machine.state_data.normal.dribble.turn] :
 				"-"));
+		if (c->state_machine.current_state == PS_TACKLE) {
+			const struct state_machine_player_tackle_data *tackle =
+				&c->state_machine.state_data.tackle;
+			igText(TextFormat("  tackle_victim_id:     %u", tackle->victim_entity_id));
+			// Touch times are shown from the start of the tackle
+			igText(TextFormat("  tackle_ball_touch:    %s",
+							  tackle->touched_ball ?
+								  TextFormat("%.3f", tackle->ball_touch_time - tackle->start_time) :
+								  "-"));
+			igText(
+				TextFormat("  tackle_victim_touch:  %s",
+						   tackle->touched_player ?
+							   TextFormat("%.3f", tackle->victim_touch_time - tackle->start_time) :
+							   "-"));
+		}
 		igText(TextFormat("  control_ball:         %s", c->control_ball ? "yes" : "no"));
 		igText(TextFormat("  team_side:            %s", team_side_to_string[c->team_side]));
 		igText(TextFormat("  formation_pos_idx:    %u", c->team_formation_position_idx));
@@ -200,6 +215,8 @@ static void draw_component_player(struct component_player *c)
 						  c->characteristics.strength,
 						  c->characteristics.weight));
 		igText(TextFormat("  last_kick_time:       %.3f", (double)c->last_kick_time));
+		igText(TextFormat("  last_tackle_dispossession_time: %.3f",
+						  (double)c->last_tackle_dispossession_time));
 		igText(TextFormat("  last_header_time:     %.3f", (double)c->last_header_time));
 		igText(TextFormat("  last_possession_time: %.3f", (double)c->last_possession_time));
 	}

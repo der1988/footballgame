@@ -99,13 +99,14 @@ void system_player_control_ai(struct game_state *game_state)
 				case PAAD_PASS:
 					player_controls->pass = decision.power;
 					player_controls->automatic_pass = true;
-					player_controls->pass_target_entity_id = decision.pass_target_entity_id;
+					player_controls->pass_target_entity_id = decision.target_entity_id;
 					break;
 				case PAAD_LONG_PASS:
 					player_controls->long_pass = decision.power;
 					break;
 				case PAAD_TACKLE:
 					player_controls->tackle = true;
+					player_controls->tackle_victim_entity_id = decision.target_entity_id;
 					break;
 				case PAAD_SLIDING_TACKLE:
 					player_controls->sliding_tackle = true;

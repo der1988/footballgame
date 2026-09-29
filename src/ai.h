@@ -67,7 +67,7 @@ struct player_ai_decision {
 	v2 steering;		// the stick he holds, for PAS_SET_STEERING
 	enum player_ai_action_decision action;
 	f32 power;
-	entity_id_t pass_target_entity_id; // who he passes to, for PAAD_PASS
+	entity_id_t target_entity_id; // who he passes to for PAAD_PASS, who he goes in on for PAAD_TACKLE
 };
 
 struct player_ai_decision ai_player_think(struct entity *entity, struct game_state *game_state);
