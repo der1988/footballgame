@@ -188,6 +188,47 @@ void test_a_slide_playing_a_ball_knocked_on_leaves_the_man_who_had_it_free(void)
 	TEST_ASSERT_EQUAL_FLOAT(0, g_carrier_entity->player.last_tackle_dispossession_time);
 }
 
+// The first tackler's tackle leaves the carrier on his feet, in a tackled run
+static void first_tackler_starts_a_tackled_run(void)
+{
+	entity_player_tackled(g_carrier_entity, g_first_tackler_entity, 0.0f, g_game_state);
+	TEST_ASSERT_EQUAL_INT(PS_TACKLED_RUN, g_carrier_entity->player.state_machine.current_state);
+}
+
+void test_the_man_who_started_the_run_cannot_tackle_the_runner_again(void)
+{
+	first_tackler_starts_a_tackled_run();
+
+	TEST_ASSERT_EQUAL_UINT32(
+		EID_NOT_VALID, entity_player_find_tackle_victim(g_first_tackler_entity, g_game_state));
+	TEST_ASSERT_EQUAL_UINT32(g_carrier_entity->header.id,
+							 entity_player_find_tackle_victim(g_second_tackler_entity,
+															  g_game_state));
+}
+
+void test_a_slide_does_not_hit_the_runner_it_started_again(void)
+{
+	first_tackler_starts_a_tackled_run();
+
+	TEST_ASSERT_EQUAL_INT(
+		0,
+		entity_player_find_tackled_opponents(g_first_tackler_entity, PCT_TACKLE, g_game_state)
+			.count);
+	TEST_ASSERT_EQUAL_INT(
+		1,
+		entity_player_find_tackled_opponents(g_second_tackler_entity, PCT_TACKLE, g_game_state)
+			.count);
+}
+
+void test_a_second_tackle_on_a_runner_knocks_him_down(void)
+{
+	first_tackler_starts_a_tackled_run();
+
+	entity_player_tackled(g_carrier_entity, g_second_tackler_entity, 0.0f, g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(PS_FALL, g_carrier_entity->player.state_machine.current_state);
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "tackle test - start");
@@ -199,6 +240,9 @@ int main()
 	RUN_TEST(test_possession_is_playable_only_with_the_ball_at_his_feet);
 	RUN_TEST(test_a_slide_playing_the_ball_locks_the_man_who_had_it_at_his_feet);
 	RUN_TEST(test_a_slide_playing_a_ball_knocked_on_leaves_the_man_who_had_it_free);
+	RUN_TEST(test_the_man_who_started_the_run_cannot_tackle_the_runner_again);
+	RUN_TEST(test_a_slide_does_not_hit_the_runner_it_started_again);
+	RUN_TEST(test_a_second_tackle_on_a_runner_knocks_him_down);
 
 	GLOG_INFO(LS_TESTS, "tackle test - end");
 

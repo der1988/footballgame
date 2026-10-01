@@ -52,8 +52,12 @@ void system_player_collisions(struct game_state *game_state)
 			}
 
 			struct entity *victim_entity = entity_get(repo, tackle_data->victim_entity_id);
+			// He may have changed state since the tackle started: only a man on his feet or in a
+			// tackled run can be hit
+			const enum state_machine_player_state victim_state =
+				victim_entity->player.state_machine.current_state;
 			if (victim_entity->header.alive &&
-				victim_entity->player.state_machine.current_state == PS_NORMAL &&
+				(victim_state == PS_NORMAL || victim_state == PS_TACKLED_RUN) &&
 				collision_check_colliders_overlap(
 					tackling_player_entity->transform.position,
 					&tackling_player_entity->collider.colliders[PCT_TACKLE],

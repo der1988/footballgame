@@ -151,6 +151,8 @@ struct state_machine_player_tackled_run_data {
 	// Set when the tackled run starts. They don't change until he recovers.
 	v2 direction;
 	f32 speed;
+	// The tackler who started the run. He can't tackle this runner again before the run ends.
+	entity_id_t tackler_entity_id;
 };
 
 union state_machine_player_state_data {
@@ -457,8 +459,13 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 														  enum player_collider_type tackle_collider,
 														  struct game_state *game_state);
 
+// Whether a tackle by the tackler can hit the player: he is on his feet, or in a tackled run that
+// somebody else started.
+b32 entity_player_can_be_tackled_by(struct entity *player_entity, struct entity *tackler_entity);
+
 // Call when a tackle hits the player. With probability knockdown_probability he falls (PS_FALL),
-// otherwise he starts a tackled run (PS_TACKLED_RUN). He must be in PS_NORMAL.
+// otherwise he starts a tackled run (PS_TACKLED_RUN). A player already in a tackled run always
+// falls. He must be in PS_NORMAL or PS_TACKLED_RUN.
 void entity_player_tackled(struct entity *player_entity,
 						   struct entity *tackler_entity,
 						   f32 knockdown_probability,

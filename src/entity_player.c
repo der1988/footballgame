@@ -155,7 +155,7 @@ static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COU
 	[PS_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_SLIDING_TACKLE] = {[PT_RECOVER] = PS_NORMAL},
 	[PS_FALL] = {[PT_RECOVER] = PS_NORMAL},
-	[PS_TACKLED_RUN] = {[PT_RECOVER] = PS_NORMAL},
+	[PS_TACKLED_RUN] = {[PT_RECOVER] = PS_NORMAL, [PT_KNOCKED_DOWN] = PS_FALL},
 };
 
 static const enum state_machine_goalie_state goalie_transitions[GS_COUNT][GT_COUNT] = {
@@ -413,10 +413,11 @@ void entity_player_anim_calculate_running_frame(struct entity *player_entity,
 		if ((game_state->time - player->last_frame_update_time) >
 			(animation->delay * (2.5f - player_speed_ratio * 1.2f))) {
 			player->last_frame_update_time = game_state->time;
-			u16 new_frame_id = (player->last_running_frame_idx + 1) % animation->frames_count;
-			sprite->frame_id = animation->frames[new_frame_id];
-			player->last_running_frame_idx = new_frame_id;
+			player->last_running_frame_idx++;
 		}
+		// Written every tick, so a new direction or a new run_animations shows at once
+		player->last_running_frame_idx %= animation->frames_count;
+		sprite->frame_id = animation->frames[player->last_running_frame_idx];
 		sprite->orientation = sprite_orientation;
 	} else {
 		sprite->frame_id = stand_frames[sprite->orientation];
@@ -492,6 +493,7 @@ static void state_machine_player_on_enter(struct entity *entity,
 		tackled_run_data->speed =
 			fmaxf(Vector2Length(velocity), game_state->constants.player_tackled_run_min_velocity);
 		tackled_run_data->start_time = game_state->time;
+		tackled_run_data->tackler_entity_id = EID_NOT_VALID;
 		break;
 	}
 	case PS_NONE:
@@ -1536,7 +1538,7 @@ entity_id_t entity_player_find_tackle_victim(struct entity *tackler_entity,
 
 	struct entity *carrier_entity = entity_get(game_state->entity_repository, possession.entity_id);
 	if (carrier_entity->player.team_side == tackler_entity->player.team_side ||
-		carrier_entity->player.state_machine.current_state != PS_NORMAL) {
+		!entity_player_can_be_tackled_by(carrier_entity, tackler_entity)) {
 		return EID_NOT_VALID;
 	}
 
@@ -1565,8 +1567,8 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 		 ++opponent_entity_id) {
 		opponent_entity = entity_get(game_state->entity_repository, opponent_entity_id);
 		if (opponent_entity->header.alive && opponent_entity->header.type == ET_PLAYER &&
-			opponent_entity->player.state_machine.current_state == PS_NORMAL &&
-			opponent_entity->player.team_side != player_entity->player.team_side) {
+			opponent_entity->player.team_side != player_entity->player.team_side &&
+			entity_player_can_be_tackled_by(opponent_entity, player_entity)) {
 
 			if (collision_check_colliders_overlap(
 					player_entity->transform.position,
@@ -1583,6 +1585,14 @@ struct list_entities entity_player_find_tackled_opponents(struct entity *player_
 	return tackled_players;
 }
 
+b32 entity_player_can_be_tackled_by(struct entity *player_entity, struct entity *tackler_entity)
+{
+	const struct state_machine_player *state_machine = &player_entity->player.state_machine;
+	return state_machine->current_state == PS_NORMAL ||
+		   (state_machine->current_state == PS_TACKLED_RUN &&
+			state_machine->state_data.tackled_run.tackler_entity_id != tackler_entity->header.id);
+}
+
 void entity_player_tackled(struct entity *player_entity,
 						   struct entity *tackler_entity,
 						   f32 knockdown_probability,
@@ -1590,7 +1600,8 @@ void entity_player_tackled(struct entity *player_entity,
 {
 	struct state_machine_player *state_machine = &player_entity->player.state_machine;
 
-	if (RANDOM_01(100000) < knockdown_probability) {
+	if (state_machine->current_state == PS_TACKLED_RUN ||
+		RANDOM_01(100000) < knockdown_probability) {
 		state_machine_player_fire(state_machine, PT_KNOCKED_DOWN, game_state);
 		GLOGF_INFO_CTX(LS_GAME,
 					   player_entity->header.name,
@@ -1598,6 +1609,8 @@ void entity_player_tackled(struct entity *player_entity,
 					   tackler_entity->header.name);
 	} else {
 		state_machine_player_fire(state_machine, PT_TACKLED, game_state);
+		// on_enter has no tackler to read, so the run is told who started it here
+		state_machine->state_data.tackled_run.tackler_entity_id = tackler_entity->header.id;
 		GLOGF_INFO_CTX(LS_GAME,
 					   player_entity->header.name,
 					   "player tackled by %s",

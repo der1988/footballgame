@@ -417,13 +417,15 @@ void system_player_physics(struct game_state *game_state)
 											  game_state);
 			entity_player_physics_apply_velocity(entity, game_state);
 
-			entity_player_anim_calculate_running_frame(
-				entity,
-				game_state->gfx.player.stand_frames,
-				game_state->gfx.player.run_tackled_animations,
-				tackled_run_state_data->direction,
-				3,
-				game_state);
+			// Played at its own pace from the start of the run, whatever his speed
+			sprite->orientation = sprite_calculate_orientation(tackled_run_state_data->direction);
+			struct asset_animation *animation = asset_animation_get_by_id(
+				game_state->assets.animation_cache,
+				game_state->gfx.player.run_tackled_animations[sprite->orientation]);
+			const u16 frame_idx =
+				(u16)((game_state->time - tackled_run_state_data->start_time) / animation->delay) %
+				animation->frames_count;
+			sprite->frame_id = animation->frames[frame_idx];
 
 			break;
 		}
