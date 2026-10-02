@@ -23,4 +23,7 @@ struct debugui {
 	char vcr_export_filename[VCR_EXPORT_FILENAME_BUFFER_SIZE];
 };
 
+// "-" for a time never set (zero), otherwise the time and how long before game_state->time it was
+const char *debugui_time_string(fg_time_t t, struct game_state *game_state);
+
 #endif

@@ -13,6 +13,8 @@ const char *pitch_side_to_string[PSI_COUNT] = {"north", "south"};
 const char *team_side_to_string[TS_COUNT] = {"home", "away"};
 const char *save_direction_to_string[SD_COUNT] = {"left", "right"};
 const char *save_height_to_string[SH_COUNT] = {"high", "low"};
+const char *team_formation_to_string[TF_COUNT] = {
+	"4-3-3", "4-4-2", "3-5-2", "3-4-3", "5-3-2", "4-3-1-2", "4-2-3-1"};
 
 const char *state_machine_football_state_string[FS_COUNT] = {"none",
 															 "kickoff",

@@ -39,7 +39,6 @@ enum ball_play_type {
 
 extern const char *ball_play_type_string[BPT_COUNT];
 
-// Which goalie may not use his hands on the ball
 enum ball_possession_type {
 	BPOS_NONE,
 	// His, with the ball within playing distance
@@ -48,7 +47,10 @@ enum ball_possession_type {
 	BPOS_OUT_OF_REACH,
 	// The keeper is holding it
 	BPOS_IN_HANDS,
+	BPOS_COUNT
 };
+
+extern const char *ball_possession_type_string[BPOS_COUNT];
 
 struct ball_possession {
 	// EID_NOT_VALID for BPOS_NONE
@@ -56,6 +58,7 @@ struct ball_possession {
 	enum ball_possession_type type;
 };
 
+// Which goalie may not use his hands on the ball
 enum ball_not_pickable_by {
 	BNPB_NOBODY,
 	BNPB_HOME_GOALIE,

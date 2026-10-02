@@ -13,6 +13,8 @@ enum gameplay_mode {
 	GPM_COUNT
 };
 
+extern const char *gameplay_mode_string[GPM_COUNT];
+
 struct sandbox {
 	f32 restart_delay;
 };

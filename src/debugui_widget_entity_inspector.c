@@ -172,7 +172,7 @@ static void draw_component_target(struct component_target *c)
 	}
 }
 
-static void draw_component_player(struct component_player *c)
+static void draw_component_player(struct component_player *c, struct game_state *game_state)
 {
 	if (!c->header.enabled)
 		return;
@@ -214,11 +214,19 @@ static void draw_component_player(struct component_player *c)
 						  c->characteristics.acceleration,
 						  c->characteristics.strength,
 						  c->characteristics.weight));
-		igText(TextFormat("  last_kick_time:       %.3f", (double)c->last_kick_time));
-		igText(TextFormat("  last_tackle_dispossession_time: %.3f",
-						  (double)c->last_tackle_dispossession_time));
-		igText(TextFormat("  last_header_time:     %.3f", (double)c->last_header_time));
-		igText(TextFormat("  last_possession_time: %.3f", (double)c->last_possession_time));
+		igText(TextFormat("  precision_control:    %.3f", c->time_spent_in_precision_control));
+		igText(TextFormat("  run_control:          %.3f", c->time_spent_in_run_control));
+		igText(TextFormat("  last_kick_time:       %s",
+						  debugui_time_string(c->last_kick_time, game_state)));
+		igText(TextFormat("  last_tackle_dispossession_time: %s",
+						  debugui_time_string(c->last_tackle_dispossession_time, game_state)));
+		igText(TextFormat("  last_header_time:     %s",
+						  debugui_time_string(c->last_header_time, game_state)));
+		igText(TextFormat("  last_possession_time: %s",
+						  debugui_time_string(c->last_possession_time, game_state)));
+		igText(TextFormat("  last_body_collision:  %s  impulse: %.2f",
+						  debugui_time_string(c->last_body_collision_time, game_state),
+						  (double)c->last_body_collision_impulse));
 	}
 }
 
@@ -255,7 +263,7 @@ static void draw_component_player_controls(struct component_player_controls *c)
 	}
 }
 
-static void draw_component_ball(struct component_ball *c)
+static void draw_component_ball(struct component_ball *c, struct game_state *game_state)
 {
 	if (!c->header.enabled)
 		return;
@@ -265,23 +273,27 @@ static void draw_component_ball(struct component_ball *c)
 		igText(TextFormat("  prev_state:     %s",
 						  state_machine_ball_state_string[c->state_machine.previous_state]));
 		igText(TextFormat("  is_on_ground:   %s", c->is_on_the_ground ? "yes" : "no"));
-		igText(TextFormat("  last_bounce:    %.3f", (double)c->last_bounce_time));
+		igText(TextFormat("  last_bounce:    %s",
+						  debugui_time_string(c->last_bounce_time, game_state)));
 		if (c->last_touch_entity_id == EID_NOT_VALID) {
 			igText("  last_touch_id:  (invalid)");
 		} else {
-			igText(TextFormat("  last_touch_id:  %u  time: %.3f",
+			igText(TextFormat("  last_touch_id:  %u  time: %s",
 							  c->last_touch_entity_id,
-							  (double)c->last_touch_time));
+							  debugui_time_string(c->last_touch_time, game_state)));
 		}
+		igText(TextFormat("  first_player_possession: %s",
+						  debugui_time_string(c->first_player_possession_time, game_state)));
 		if (c->last_play_entity_id == EID_NOT_VALID) {
 			igText("  last_play_id:   (invalid)");
 		} else {
-			igText(TextFormat("  last_play_id:   %u  time: %.3f  type: %s",
+			igText(TextFormat("  last_play_id:   %u  time: %s  type: %s",
 							  c->last_play_entity_id,
-							  (double)c->last_play_time,
+							  debugui_time_string(c->last_play_time, game_state),
 							  ball_play_type_string[c->last_play_type]));
 		}
-		igText(TextFormat("  last_loose:     %.3f", (double)c->last_loose_time));
+		igText(TextFormat("  last_loose:     %s",
+						  debugui_time_string(c->last_loose_time, game_state)));
 		igText(
 			TextFormat("  not_pickable_by: %s", ball_not_pickable_by_string[c->not_pickable_by]));
 		if (c->pass_target_entity_id == EID_NOT_VALID) {
@@ -292,10 +304,13 @@ static void draw_component_ball(struct component_ball *c)
 		if (c->last_tackle_entity_id == EID_NOT_VALID) {
 			igText("  last_tackle_id: (invalid)");
 		} else {
-			igText(TextFormat("  last_tackle_id: %u  time: %.3f",
+			igText(TextFormat("  last_tackle_id: %u  time: %s",
 							  c->last_tackle_entity_id,
-							  (double)c->last_tackle_time));
+							  debugui_time_string(c->last_tackle_time, game_state)));
 		}
+		igText(TextFormat("  after_touch:    %s  activated_at: %s",
+						  c->after_touch.active ? "yes" : "no",
+						  debugui_time_string(c->after_touch.activated_at, game_state)));
 		for (i32 i = 0; i < FUTURE_POSITION_COUNT; i++) {
 			igText(TextFormat("  future_pos[%d]:  available=%s  dts=%u",
 							  i,
@@ -305,18 +320,19 @@ static void draw_component_ball(struct component_ball *c)
 	}
 }
 
-static void draw_component_goal(struct component_goal *c)
+static void draw_component_goal(struct component_goal *c, struct game_state *game_state)
 {
 	if (!c->header.enabled)
 		return;
 	if (igCollapsingHeader_TreeNodeFlags("Goal", 0)) {
 		igText(TextFormat("  side:          %s", pitch_side_to_string[c->side]));
 		igText(TextFormat("  scored:        %s", c->scored ? "yes" : "no"));
-		igText(TextFormat("  hit_post_time: %.3f", (double)c->hit_post_time));
+		igText(
+			TextFormat("  hit_post_time: %s", debugui_time_string(c->hit_post_time, game_state)));
 	}
 }
 
-static void draw_component_goalie(struct component_goalie *c)
+static void draw_component_goalie(struct component_goalie *c, struct game_state *game_state)
 {
 	if (!c->header.enabled)
 		return;
@@ -340,7 +356,8 @@ static void draw_component_goalie(struct component_goalie *c)
 							  throw_ball->direction.y,
 							  throw_ball->power));
 		}
-		igText(TextFormat("  last_save_time: %.3f", (double)c->last_save_time));
+		igText(
+			TextFormat("  last_save_time: %s", debugui_time_string(c->last_save_time, game_state)));
 	}
 }
 
@@ -428,11 +445,11 @@ void debugui_entity_inspector_draw(debugui_t *handle, struct game_state *game_st
 								is_player ? PCT_COUNT : 0);
 		draw_component_action(&e->action);
 		draw_component_target(&e->target);
-		draw_component_player(&e->player);
+		draw_component_player(&e->player, game_state);
 		draw_component_player_controls(&e->player_controls);
-		draw_component_ball(&e->ball);
-		draw_component_goal(&e->goal);
-		draw_component_goalie(&e->goalie);
+		draw_component_ball(&e->ball, game_state);
+		draw_component_goal(&e->goal, game_state);
+		draw_component_goalie(&e->goalie, game_state);
 	}
 
 	igEnd();

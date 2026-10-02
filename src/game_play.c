@@ -503,6 +503,7 @@ static void draw(struct game_state *game_state)
 		debugui_constants_inspector_draw(game_state->debugui, game_state);
 		debugui_entity_inspector_draw(game_state->debugui, game_state);
 		debugui_debug_flags_draw(game_state->debugui, game_state);
+		debugui_game_state_draw(game_state->debugui, game_state);
 		debugui_vcr_draw(game_state->debugui, game_state);
 
 		rlImGuiEnd();

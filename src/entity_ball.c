@@ -26,6 +26,9 @@ const char *ball_play_type_string[BPT_COUNT] = {
 
 const char *ball_not_pickable_by_string[BNPB_COUNT] = {"nobody", "home_goalie", "away_goalie"};
 
+const char *ball_possession_type_string[BPOS_COUNT] = {
+	"none", "playable", "out_of_reach", "in_hands"};
+
 static const enum state_machine_ball_state ball_transitions[BS_COUNT][BT_COUNT] = {
 	[BS_IN_PLAY] = {[BT_CAUGHT] = BS_GK_HANDS},
 	[BS_GK_HANDS] = {[BT_RELEASED] = BS_IN_PLAY},

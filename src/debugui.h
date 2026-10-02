@@ -18,5 +18,6 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 // point control returns to the game to decide whether to publish EVT_CONSTANTS_CHANGED once.
 b32 debugui_consume_constants_dirty(debugui_t *handle);
 void debugui_debug_flags_draw(debugui_t *handle, struct game_state *game_state);
+void debugui_game_state_draw(debugui_t *handle, struct game_state *game_state);
 
 #endif // !TWEAKUI_H

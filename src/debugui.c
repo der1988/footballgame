@@ -1,6 +1,7 @@
 #include "macro.h"
 #include "debugui_internal.h"
 #include "debugui.h"
+#include "game.h"
 #include "log.h"
 #include <stdio.h>
 
@@ -37,4 +38,12 @@ b32 debugui_consume_constants_dirty(debugui_t *handle)
 	b32 was_dirty = handle->constants_dirty;
 	handle->constants_dirty = false;
 	return was_dirty;
+}
+
+const char *debugui_time_string(fg_time_t t, struct game_state *game_state)
+{
+	if (t == 0) {
+		return "-";
+	}
+	return TextFormat("%.3f (%.2fs ago)", t, game_state->time - t);
 }

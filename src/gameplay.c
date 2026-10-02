@@ -11,6 +11,8 @@
 #include "log.h"
 #include "macro.h"
 
+const char *gameplay_mode_string[GPM_COUNT] = {"match", "sandbox"};
+
 static const struct gameplay_vtable *gameplay_vtables[GPM_COUNT] = {
 	[GPM_MATCH] = &gameplay_match_vtable,
 	[GPM_SANDBOX] = &gameplay_sandbox_vtable,
