@@ -6,8 +6,6 @@
 static struct goal setup_goal(struct entity *entity,
 							  enum pitch_side side,
 							  v2 center,
-							  u16 width,
-							  u16 height,
 							  u16 penalty_box_width,
 							  u16 penalty_box_height);
 
@@ -28,7 +26,7 @@ void football_pitch_setup(struct game_state *game_state)
 
 	game_state->vars.pitch.field = (rect_t){.x = 131, .y = 207, .width = 856, .height = 360 * 3 - 2};
 	game_state->vars.pitch.goal_width = 100;
-	game_state->vars.pitch.goal_height = 32;
+	game_state->vars.pitch.goal_height = game_state->constants.crossbar_height;
 	game_state->vars.pitch.penalty_box_width = 478;
 	game_state->vars.pitch.penalty_box_height = 149;
 	game_state->vars.pitch.midfield_spot =
@@ -48,8 +46,6 @@ void football_pitch_setup(struct game_state *game_state)
 		game_state->vars.pitch.goal[i] = setup_goal(goal_entity,
 													i,
 													goal_center,
-													game_state->vars.pitch.goal_width,
-													game_state->vars.pitch.goal_height,
 													game_state->vars.pitch.penalty_box_width,
 													game_state->vars.pitch.penalty_box_height);
 	}
@@ -58,8 +54,6 @@ void football_pitch_setup(struct game_state *game_state)
 static struct goal setup_goal(struct entity *entity,
 							  enum pitch_side side,
 							  v2 center,
-							  u16 width,
-							  u16 height,
 							  u16 penalty_box_width,
 							  u16 penalty_box_height)
 {
@@ -71,13 +65,7 @@ static struct goal setup_goal(struct entity *entity,
 								.width = penalty_box_width,
 								.height = penalty_box_height},
 		.penalty_spot = {.x = center.x,
-						 .y = center.y + 11 * PIXELS_PER_METER * (side == PSI_NORTH ? 1 : -1)},
-		.goal_quad_points = {
-			{.x = center.x - width * 2, .y = 0, .z = center.y},
-			{.x = center.x - width * 2, .y = height, .z = center.y},
-			{.x = center.x + width * 2, .y = height, .z = center.y},
-			{.x = center.x + width * 2, .y = 0, .z = center.y},
-		}};
+						 .y = center.y + 11 * PIXELS_PER_METER * (side == PSI_NORTH ? 1 : -1)}};
 
 	return goal;
 }

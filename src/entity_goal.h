@@ -16,7 +16,7 @@ enum goal_woodwork {
 };
 
 struct goal_collision {
-	b32 hit;					 // the trajectory met the goal plane inside the frame
+	b32 hit;					 // the ball crossed the goal plane inside the frame
 	v3 point;					 // where it met it — meaningful whenever hit
 	b32 scored;
 	enum goal_woodwork woodwork; // GW_NONE = clean through the mouth

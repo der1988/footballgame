@@ -320,15 +320,13 @@ static void draw_component_ball(struct component_ball *c, struct game_state *gam
 	}
 }
 
-static void draw_component_goal(struct component_goal *c, struct game_state *game_state)
+static void draw_component_goal(struct component_goal *c)
 {
 	if (!c->header.enabled)
 		return;
 	if (igCollapsingHeader_TreeNodeFlags("Goal", 0)) {
-		igText(TextFormat("  side:          %s", pitch_side_to_string[c->side]));
-		igText(TextFormat("  scored:        %s", c->scored ? "yes" : "no"));
-		igText(
-			TextFormat("  hit_post_time: %s", debugui_time_string(c->hit_post_time, game_state)));
+		igText(TextFormat("  side:   %s", pitch_side_to_string[c->side]));
+		igText(TextFormat("  scored: %s", c->scored ? "yes" : "no"));
 	}
 }
 
@@ -448,7 +446,7 @@ void debugui_entity_inspector_draw(debugui_t *handle, struct game_state *game_st
 		draw_component_player(&e->player, game_state);
 		draw_component_player_controls(&e->player_controls);
 		draw_component_ball(&e->ball, game_state);
-		draw_component_goal(&e->goal, game_state);
+		draw_component_goal(&e->goal);
 		draw_component_goalie(&e->goalie, game_state);
 	}
 

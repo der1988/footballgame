@@ -24,6 +24,7 @@ make test_caches
 make test_actions
 make test_entity_repo
 make test_events
+make test_goal
 
 # Clean build artifacts
 make clean

@@ -13,11 +13,6 @@
 
 static const char *goal_woodwork_name[] = {"none", "left post", "right post", "crossbar"};
 
-static struct goal_collision goal_trajectory_impact(rect_t goal_rectangle,
-													f32 ball_radius,
-													v3 ball_position,
-													v3 ball_velocity,
-													const v3 *goal_quad_points);
 static v3 goal_deflection_velocity(v3 velocity, v3 axis, f32 normalised_hit_point);
 
 struct entity *entity_goal_create(struct goal_config config, struct game_state *game_state)
@@ -99,30 +94,28 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 	DECLARE_ENTITY_COMPONENT(goal_entity, goal);
 	DECLARE_BALL_ENTITY_COMPONENTS(ball_entity);
 
-	UNUSED(ball);
-
 	const f32 ball_radius = ball_collider->colliders[0].props.circle.radius;
 	const rect_t goal_rectangle = entity_goal_rectangle(goal_entity);
 	const enum pitch_side side = goal->side;
-	const struct goal *pitch_goal = &game_state->vars.pitch.goal[side];
+	const f32 line = game_state->vars.pitch.goal[side].center.y;
 
-	// The ball has to be inside the frame and past the line, still travelling towards the net.
-	b32 over_the_line = side == PSI_NORTH ?
-							(ball_transform->position.y < pitch_goal->center.y &&
-							 ball_physics_3d->velocity.z < 0) :
-							(ball_transform->position.y > pitch_goal->center.y &&
-							 ball_physics_3d->velocity.z > 0);
-	if (!over_the_line ||
-		!CheckCollisionCircleRec(ball_transform->position, ball_radius, goal_rectangle)) {
+	// The ball has to cross the goal plane towards the net during the last step. The previous
+	// position may lie on the plane, the current one must be past it, so a ball stopping on the
+	// line is counted once, on the step that takes it over.
+	const v3 previous = ball->previous_position;
+	const v3 current = V2_TO_V3(ball_transform->position, ball_transform->virtual_height);
+	b32 crossed = side == PSI_NORTH ? previous.z >= line && current.z < line :
+									  previous.z <= line && current.z > line;
+	if (!crossed) {
 		return (struct goal_collision){.hit = false};
 	}
 
-	struct goal_collision result =
-		goal_trajectory_impact(goal_rectangle,
-							   ball_radius,
-							   V2_TO_V3(ball_transform->position, ball_transform->virtual_height),
-							   ball_physics_3d->velocity,
-							   pitch_goal->goal_quad_points);
+	struct goal_collision result = {.woodwork = GW_NONE};
+	result.point = Vector3Lerp(previous, current, (previous.z - line) / (previous.z - current.z));
+	result.point.z = line;
+	result.hit = result.point.x > (goal_rectangle.x - ball_radius) &&
+				 result.point.x < (goal_rectangle.x + goal_rectangle.width + ball_radius) &&
+				 result.point.y < (goal_rectangle.height + ball_radius);
 	if (!result.hit) {
 		return result;
 	}
@@ -131,8 +124,6 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 	const f32 mouth_right =
 		goal_rectangle.x + goal_rectangle.width - GOAL_POST_WIDTH - ball_radius;
 	const f32 mouth_top = goal_rectangle.height - GOAL_POST_WIDTH - ball_radius;
-	const b32 cooldown_elapsed =
-		HAS_TIME_PASSED(game_state->time, goal->hit_post_time, GOAL_HIT_POST_COOLDOWN);
 
 	// The rotation axis is Y for the posts (the ball is deflected left or right) and X for the
 	// crossbar (up or down). The hit point is normalised between -1 and +1 across the member,
@@ -140,7 +131,7 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 	f32 normalised_hit_point = 0;
 	v3 axis = {0};
 
-	if (cooldown_elapsed && result.point.x < mouth_left) {
+	if (result.point.x < mouth_left) {
 		//                  | |
 		//    LEFT POST ->  | |*  <--- BALL
 		//                  | |
@@ -151,7 +142,7 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 				  -1,
 				  1) *
 			(side == PSI_NORTH ? 1 : -1);
-	} else if (cooldown_elapsed && result.point.x > mouth_right) {
+	} else if (result.point.x > mouth_right) {
 		//              | |
 		//    BALL ->  *| |  <--- RIGHT POST
 		//              | |
@@ -163,7 +154,7 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 									 -1,
 									 1) *
 							   (side == PSI_NORTH ? 1 : -1);
-	} else if (cooldown_elapsed && result.point.y > mouth_top) {
+	} else if (result.point.y > mouth_top) {
 		//               __
 		//     BALL --> /  \
 		// ---------------------------------
@@ -178,8 +169,6 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 			(side == PSI_NORTH ? -1 : 1);
 	}
 
-	// While the cooldown holds, no woodwork is reported at all: a ball still inside the frame
-	// from the previous bounce is judged on the mouth test alone.
 	if (result.woodwork == GW_NONE) {
 		result.scored = result.point.x > mouth_left && result.point.x < mouth_right &&
 						result.point.y < mouth_top;
@@ -207,27 +196,6 @@ struct goal_collision entity_goal_resolve_ball_impact(struct entity *goal_entity
 		Vector3Add(result.point, Vector3Scale(deflected, game_state->dt));
 
 	return result;
-}
-
-// Projects the ball's trajectory back into the field and returns where it met the goal plane.
-static struct goal_collision goal_trajectory_impact(rect_t goal_rectangle,
-												   f32 ball_radius,
-												   v3 ball_position,
-												   v3 ball_velocity,
-												   const v3 *goal_quad_points)
-{
-	ray_t ray = (ray_t){.position = ball_position, .direction = Vector3Negate(ball_velocity)};
-	ray_collision_t collision = GetRayCollisionQuad(ray,
-													goal_quad_points[0],
-													goal_quad_points[1],
-													goal_quad_points[2],
-													goal_quad_points[3]);
-
-	b32 hit = collision.hit && collision.point.x > (goal_rectangle.x - ball_radius) &&
-			  collision.point.x < (goal_rectangle.x + goal_rectangle.width + ball_radius) &&
-			  collision.point.y < (goal_rectangle.height + ball_radius);
-
-	return (struct goal_collision){.hit = hit, .point = collision.point, .woodwork = GW_NONE};
 }
 
 static v3 goal_deflection_velocity(v3 velocity, v3 axis, f32 normalised_hit_point)

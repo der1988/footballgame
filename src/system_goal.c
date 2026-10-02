@@ -31,7 +31,6 @@ void system_goal(struct game_state *game_state)
 		goal->scored = collision.scored;
 
 		if (collision.woodwork != GW_NONE) {
-			goal->hit_post_time = game_state->time;
 			entity_ball_set_position_and_velocity(
 				ball_entity, collision.deflection.position, collision.deflection.velocity);
 			GLOGF_INFO(LS_GAME,

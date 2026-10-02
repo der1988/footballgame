@@ -78,8 +78,7 @@
 #define BALL_IN_NET_DAMPING		   0.8f
 #define BALL_IN_NET_RISING_DAMPING 0.9f
 
-#define GOAL_POST_WIDTH		   2
-#define GOAL_HIT_POST_COOLDOWN 0.05f
+#define GOAL_POST_WIDTH 2
 // How far off a squarely struck post the deflection can be rotated, in degrees.
 #define GOAL_DEFLECTION_ANGLE 120
 

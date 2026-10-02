@@ -174,6 +174,8 @@ struct component_ball {
 	struct future_position future_positions[FUTURE_POSITION_COUNT];
 	fg_time_t last_bounce_time;
 	b32 is_on_the_ground;
+	// Where the ball was before the last physics step: x, height, y
+	v3 previous_position;
 
 	// Touch
 	fg_time_t last_touch_time;
@@ -214,7 +216,6 @@ struct component_ball {
 struct component_goal {
 	struct component_header header;
 	enum pitch_side side;
-	fg_time_t hit_post_time;
 	b32 scored;
 };
 

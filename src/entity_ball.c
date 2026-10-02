@@ -105,6 +105,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	ball->not_pickable_by = BNPB_NOBODY;
 	ball->pass_target_entity_id = EID_NOT_VALID;
 	ball->last_touch_time = 0;
+	ball->previous_position = V2_TO_V3(transform->position, transform->virtual_height);
 
 	gfx_ball_prepare(game_state);
 
@@ -224,6 +225,7 @@ void entity_ball_set_position_and_velocity(struct entity *ball_entity, v3 pos, v
 	struct component_transform *transform = &ball_entity->transform;
 	transform->position = V3_TO_V2(pos);
 	transform->virtual_height = pos.y;
+	ball_entity->ball.previous_position = pos;
 	ball_entity->physics3d.accel = Vector3Zero();
 	ball_entity->physics3d.velocity = velocity;
 

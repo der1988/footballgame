@@ -117,6 +117,7 @@ void system_ball(struct game_state *game_state)
 		b32 on_the_ground;
 		b32 bounced;
 		f32 ball_radius = collider->colliders[0].props.circle.radius;
+		ball->previous_position = position;
 		physics_ball_simulation(&position,
 								&velocity,
 								accel,
