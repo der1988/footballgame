@@ -321,31 +321,15 @@ void test_a_pass_with_nobody_chosen_goes_along_the_steering_to_nobody(void)
 	TEST_ASSERT_FLOAT_WITHIN(0.001f, 1.0f, Vector2DotProduct(ball_direction(), UP_THE_PITCH));
 }
 
-// An automatic pass that finds nobody keeps the automatic pass strength rather than a manual one's
-void test_an_automatic_pass_to_nobody_is_struck_as_an_automatic_pass(void)
-{
-	remove_team_mates();
-	passer_on_the_ball();
-	g_passer_entity->player_controls.steering = UP_THE_PITCH;
-	g_passer_entity->player_controls.pass = 0.5f;
-	g_passer_entity->player_controls.automatic_pass = true;
-	g_passer_entity->player_controls.pass_target_entity_id = EID_NOT_VALID;
-
-	system_player_on_the_ball(g_game_state);
-
-	const f32 expected_accel =
-		math_ext_split_lerp(g_game_state->constants.ball_pass_force, 0.5f, 0.5f * 0.5f) /
-		g_game_state->dt;
-	TEST_ASSERT_FLOAT_WITHIN(
-		expected_accel * 0.001f, expected_accel, Vector3Length(g_ball_entity->physics3d.accel));
-}
-
 // Where an automatic pass aims
 
 static v2 aim_at_team_mate(void)
 {
-	const struct player_pass pass =
-		entity_player_aim_pass(g_passer_entity, g_ball_entity, g_team_mate_entity, g_game_state);
+	const struct player_pass pass = entity_player_aim_pass(g_passer_entity,
+														   g_ball_entity,
+														   g_team_mate_entity,
+														   g_game_state->constants.ball_pass_height,
+														   g_game_state);
 	return Vector2Add(g_passer_entity->transform.position,
 					  Vector2Scale(Vector2Normalize(V3_TO_V2(pass.direction)),
 								   pass.power * pass_range()));
@@ -496,7 +480,6 @@ int main()
 	RUN_TEST(test_the_pass_goes_to_the_man_in_the_controls);
 	RUN_TEST(test_an_automatic_pass_is_struck_along_the_ground);
 	RUN_TEST(test_a_pass_with_nobody_chosen_goes_along_the_steering_to_nobody);
-	RUN_TEST(test_an_automatic_pass_to_nobody_is_struck_as_an_automatic_pass);
 	RUN_TEST(test_a_man_running_at_the_touchline_is_led_short_of_it);
 	RUN_TEST(test_a_pass_to_a_man_on_the_goal_line_aims_inside_the_field);
 	RUN_TEST(test_a_man_already_outside_the_margin_is_aimed_at_from_inside_it);

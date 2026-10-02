@@ -414,6 +414,7 @@ struct player_pass {
 struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 										  struct entity *ball_entity,
 										  struct entity *target_entity,
+										  f32 pass_height,
 										  struct game_state *game_state);
 
 // Where a charged shot ends up going, before the ball is actually struck.

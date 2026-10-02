@@ -969,10 +969,10 @@ void entity_player_goalie_on_the_ball(struct entity *goalie_entity, struct game_
 			struct entity *target_entity =
 				entity_get(game_state->entity_repository, player_controls->pass_target_entity_id);
 			if (target_entity) {
-				struct player_pass pass =
-					entity_player_aim_pass(goalie_entity, ball_entity, target_entity, game_state);
+				struct player_pass pass = entity_player_aim_pass(
+					goalie_entity, ball_entity, target_entity, 0, game_state);
 				throw_direction = V3_TO_V2(pass.direction);
-				throw_power = pass.power * pass.power;
+				throw_power = pass.power;
 				ball->pass_target_entity_id = target_entity->header.id;
 			}
 
@@ -991,7 +991,6 @@ void entity_player_goalie_on_the_ball(struct entity *goalie_entity, struct game_
 								   goalie_entity_id,
 								   V2_TO_V3(throw_direction, 0),
 								   throw_power,
-								   player_controls->automatic_pass,
 								   game_state);
 
 			state_machine_goalie_fire(&goalie->state_machine, GT_THROW, game_state);
@@ -1314,6 +1313,7 @@ entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
 struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 										  struct entity *ball_entity,
 										  struct entity *target_entity,
+										  f32 pass_height,
 										  struct game_state *game_state)
 {
 	const f32 max_distance = game_state->constants.ball_pass_auto_max_distance;
@@ -1325,7 +1325,6 @@ struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 	const f32 max_x = field.x + field.width - PASS_AIM_FIELD_MARGIN;
 	const f32 min_y = field.y + PASS_AIM_FIELD_MARGIN;
 	const f32 max_y = field.y + field.height - PASS_AIM_FIELD_MARGIN;
-	const f32 pass_height = game_state->constants.ball_pass_height;
 	const f32 lead_amount = game_state->constants.ball_pass_auto_lead_amount;
 
 	// Aim point and ball travel time depend on each other: leading further makes the pass

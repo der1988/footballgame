@@ -130,7 +130,6 @@ struct component_player_controls {
 	f32 shot;
 	f32 chip_shot;
 	f32 pass;
-	b32 automatic_pass;
 	// The team mate a pass, throw or header goes to. EID_NOT_VALID sends it along the steering.
 	entity_id_t pass_target_entity_id;
 	f32 long_pass;

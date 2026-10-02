@@ -184,7 +184,6 @@ void system_player_control_human(struct game_state *game_state)
 					case GAME_CONTROL_AUTOMATIC_PASS: {
 						f32 power = PASS_POWER(time_holding_button);
 						player_controls->pass = power;
-						player_controls->automatic_pass = true;
 						player_controls->pass_target_entity_id = entity_player_choose_pass_target(
 							entity,
 							player_controls->steering,
@@ -236,7 +235,6 @@ void system_player_control_human(struct game_state *game_state)
 						game_state->vars.teams[entity->player.team_side].play_context.pitch_side;
 					const v2 up_the_pitch = {.y = pitch_side == PSI_NORTH ? 1.0f : -1.0f};
 					player_controls->pass = power;
-					player_controls->automatic_pass = true;
 					player_controls->pass_target_entity_id = entity_player_choose_pass_target(
 						entity,
 						player_controls->steering,

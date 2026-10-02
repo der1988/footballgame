@@ -98,7 +98,6 @@ void system_player_control_ai(struct game_state *game_state)
 					break;
 				case PAAD_PASS:
 					player_controls->pass = decision.power;
-					player_controls->automatic_pass = true;
 					player_controls->pass_target_entity_id = decision.target_entity_id;
 					break;
 				case PAAD_LONG_PASS:
@@ -132,7 +131,6 @@ void system_player_control_ai(struct game_state *game_state)
 				break;
 			case GAA_THROW:
 				player_controls->pass = decision.action_data.throw_ball.power;
-				player_controls->automatic_pass = true;
 				player_controls->pass_target_entity_id =
 					decision.action_data.throw_ball.target_entity_id;
 				break;

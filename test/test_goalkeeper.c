@@ -203,7 +203,7 @@ void test_a_pass_played_by_a_team_mate_bars_his_hands(void)
 {
 	ball_touched_by(g_team_mate_entity);
 	entity_ball_short_pass(
-		g_ball_entity, g_team_mate_entity->header.id, (v3){.z = 1}, 0.5f, false, g_game_state);
+		g_ball_entity, g_team_mate_entity->header.id, (v3){.z = 1}, 0.5f, g_game_state);
 
 	TEST_ASSERT_FALSE(may_handle());
 }

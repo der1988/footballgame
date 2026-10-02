@@ -376,7 +376,6 @@ void entity_ball_short_pass(struct entity *ball_entity,
 							entity_id_t kicker_entity_id,
 							v3 direction,
 							f32 power,
-							b32 auto_pass,
 							struct game_state *game_state)
 {
 	struct component_physics3d *physics3d = &ball_entity->physics3d;
