@@ -135,15 +135,18 @@ v shot height should depend on starting height of the ball
 v fix ball bounces on the back of the goalkeeper when hitting the post (at least make it random)
 v use pass when you don't have the ball to chase the ball?
 v implement game manager that governs the gameplay (what happens if the ball goes outside the pitch? etc)
+v ball deviation has to happen just once per collision
+v fix AI controlled players steering
+v move target selection for automated pass in controls
 - press player should not be selected as human controlled until it gets the ball
 - implement bounce animation + stunned state for goalie when shot is very fast
 - make the game platform agnostic
-- ball deviation has to happen just once per collision
 - header jump height should be proportional to player velocity
 - goalkeeper should go out when facing player alone to reduce the size of the available goal
 - fix bug where gk dives when the ball hits a post
 - we don't need a b32 for each game control, we just need a bit
-- fix AI controlled players steering
 - implement new goalkeeper features
-- move target selection for automated pass in controls
 - gk jump on ball when it's near
+- avoid a pressed button to take effect too long after the press
+- supercancel
+- shot feint
