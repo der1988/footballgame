@@ -99,13 +99,13 @@ void test_animation_cache()
 	TEST_ASSERT_NOT_NULL(animation);
 	TEST_ASSERT_EQUAL_INT(0, strcmp(animation->name, "ball_left"));
 	TEST_ASSERT_EQUAL_UINT(4, animation->frames_count);
-	TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.05f, animation->delay);
+	TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.025f, animation->delay);
 
 	animation = asset_animation_get_by_id(handle, animation->id);
 	TEST_ASSERT_NOT_NULL(animation);
 	TEST_ASSERT_EQUAL_INT(0, strcmp(animation->name, "ball_left"));
 	TEST_ASSERT_EQUAL_UINT(4, animation->frames_count);
-	TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.05f, animation->delay);
+	TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.025f, animation->delay);
 
 	asset_animation_cache_destroy(handle);
 	asset_sprite_frame_cache_destroy(handle_sprite_cache);
