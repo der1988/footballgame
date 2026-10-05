@@ -54,7 +54,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	transform->position = config.position;
 	transform->rotation = 0;
 	transform->virtual_height = 100;
-	transform->scale = (v2){.x = 0.625, .y = 0.625};
+	transform->scale = (v2){.x = 1, .y = 1};
 
 	// Initialise 3d physics
 	struct component_physics3d *physics3d = &entity->physics3d;
