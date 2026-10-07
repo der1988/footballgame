@@ -55,6 +55,8 @@ void debugui_debug_flags_draw(debugui_t *handle, struct game_state *game_state)
 					   (bool *)&game_state->debug_flags.show_player_collider[PCT_GOALIE]);
 			igCheckbox("Show Player Dive Collider",
 					   (bool *)&game_state->debug_flags.show_player_collider[PCT_DIVE]);
+			igCheckbox("Show Player Smother Collider",
+					   (bool *)&game_state->debug_flags.show_player_collider[PCT_SMOTHER]);
 			igEndTabItem();
 		}
 

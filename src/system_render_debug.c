@@ -63,6 +63,7 @@ void system_render_debug(struct game_state *game_state)
 					[PCT_PLAYER] = RED,
 					[PCT_GOALIE] = VIOLET,
 					[PCT_DIVE] = PINK,
+					[PCT_SMOTHER] = GOLD,
 					[PCT_TACKLE_SENSOR] = YELLOW,
 					[PCT_TACKLE] = ORANGE,
 					[PCT_SLIDING_TACKLE_1] = BLUE,

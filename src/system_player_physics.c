@@ -640,6 +640,43 @@ void system_player_physics(struct game_state *game_state)
 
 				break;
 			}
+			case GS_SMOTHER: {
+				struct state_machine_goalie_smother_data *smother_state_data =
+					&goalie->state_machine.state_data.smother;
+
+				struct asset_animation *animation = asset_animation_get_by_id(
+					game_state->assets.animation_cache,
+					game_state->gfx.goalie
+						.smother_animations[sprite->orientation][smother_state_data->ball_held]);
+				// He is pushed towards the ball for as long as the animation plays, then lies on its
+				// last frame until he gets up
+				const fg_time_t animation_end_time =
+					smother_state_data->start_time + animation->delay * animation->frames_count;
+				const u16 frame_idx = MIN(
+					(u16)((game_state->time - smother_state_data->start_time) / animation->delay),
+					animation->frames_count - 1);
+				sprite->frame_id = animation->frames[frame_idx];
+
+				v2 force_to_apply = Vector2Zero();
+				if (game_state->time < animation_end_time) {
+					force_to_apply = Vector2Scale(smother_state_data->direction,
+												  game_state->constants.goalie_smother_force);
+				} else if (!physics_set_at_rest_if_needed(physics, 5)) {
+					force_to_apply = physics_drag_force(
+						physics->velocity, game_state->constants.goalie_smother_friction_force);
+				}
+				entity_player_physics_apply_force(entity, force_to_apply, game_state);
+				entity_player_physics_apply_velocity(entity, game_state);
+
+				if (HAS_TIME_PASSED(game_state->time,
+									animation_end_time,
+									game_state->constants.goalie_smother_recover_time)) {
+					state_machine_goalie_fire(&goalie->state_machine,
+											  smother_state_data->ball_held ? GT_CATCH : GT_RECOVER,
+											  game_state);
+				}
+				break;
+			}
 			case GS_THROW: {
 				// The ball has already gone: this is the follow-through, held long enough to read.
 				struct asset_animation *animation = asset_animation_get_by_id(
@@ -675,6 +712,12 @@ void system_player_physics(struct game_state *game_state)
 																		   transform->position),
 														   5,
 														   game_state);
+
+				if (player_controls->smother) {
+					entity_player_goalie_smother_start(
+						entity, player_controls->smother_direction, game_state);
+					break;
+				}
 
 				if (player_controls->dive) {
 					entity_player_goalie_dive_start(entity, player_controls->dive_data, game_state);

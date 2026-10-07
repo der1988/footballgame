@@ -42,6 +42,7 @@ enum goalie_ai_action {
 	GAA_PUT_DOWN, // set it down and play on with his feet
 	GAA_JUMP,	  // go up for a high ball he can reach where he stands
 	GAA_DIVE,	  // dive for a ball going past him
+	GAA_SMOTHER,  // throw himself on a ball on the ground
 };
 
 struct goalie_ai_decision {
@@ -58,6 +59,9 @@ struct goalie_ai_decision {
 			f32 power; // what a human's charge would have been
 		} kick;
 		struct goalie_dive dive;
+		struct {
+			v2 direction;
+		} smother;
 	} action_data;
 };
 

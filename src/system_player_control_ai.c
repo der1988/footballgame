@@ -147,6 +147,10 @@ void system_player_control_ai(struct game_state *game_state)
 				player_controls->dive = true;
 				player_controls->dive_data = decision.action_data.dive;
 				break;
+			case GAA_SMOTHER:
+				player_controls->smother = true;
+				player_controls->smother_direction = decision.action_data.smother.direction;
+				break;
 			}
 			break;
 		}

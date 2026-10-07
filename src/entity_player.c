@@ -69,6 +69,7 @@ const char *player_dribble_turn_string[PDT_COUNT] = {"FtoB_right",
 const char *player_collider_type_to_string[PCT_COUNT] = {"player",
 														 "goalie",
 														 "dive",
+														 "smother",
 														 "tackle_sensor",
 														 "tackle",
 														 "sliding_tackle_1",
@@ -124,7 +125,7 @@ void entity_player_on_constants_changed(enum event_type type, void *context)
 }
 
 const char *state_machine_goalie_state_string[GS_COUNT] = {
-	"none", "protect_goal", "dive", "hold_ball", "jump", "throw"};
+	"none", "protect_goal", "dive", "hold_ball", "jump", "throw", "smother"};
 
 const char *state_machine_player_trigger_string[PT_COUNT] = {"none",
 															 "head",
@@ -138,7 +139,7 @@ const char *state_machine_player_trigger_string[PT_COUNT] = {"none",
 															 "pick_up"};
 
 const char *state_machine_goalie_trigger_string[GT_COUNT] = {
-	"none", "dive", "jump", "catch", "recover", "release", "throw"};
+	"none", "dive", "jump", "catch", "recover", "release", "throw", "smother"};
 
 // A keeper holds PS_GOALIE while he is the goalie and PS_NORMAL while he plays with his feet, so
 // those two swap both ways. Everything that can happen to a player happens to him in PS_NORMAL.
@@ -159,11 +160,15 @@ static const enum state_machine_player_state player_transitions[PS_COUNT][PT_COU
 };
 
 static const enum state_machine_goalie_state goalie_transitions[GS_COUNT][GT_COUNT] = {
-	[GS_PROTECT_GOAL] = {[GT_DIVE] = GS_DIVE, [GT_JUMP] = GS_JUMP, [GT_CATCH] = GS_HOLD_BALL},
+	[GS_PROTECT_GOAL] = {[GT_DIVE] = GS_DIVE,
+						 [GT_JUMP] = GS_JUMP,
+						 [GT_CATCH] = GS_HOLD_BALL,
+						 [GT_SMOTHER] = GS_SMOTHER},
 	[GS_DIVE] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
 	[GS_JUMP] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
 	[GS_HOLD_BALL] = {[GT_RELEASE] = GS_PROTECT_GOAL, [GT_THROW] = GS_THROW},
 	[GS_THROW] = {[GT_RELEASE] = GS_PROTECT_GOAL},
+	[GS_SMOTHER] = {[GT_CATCH] = GS_HOLD_BALL, [GT_RECOVER] = GS_PROTECT_GOAL},
 };
 
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(player, struct entity);
@@ -295,6 +300,9 @@ struct entity *entity_player_create(struct player_config config, struct game_sta
 		(v2){.x = 0,
 			 .y = 0 + (collider->colliders[PCT_DIVE].props.rectangle.size.y * 1.0f *
 					   (pitch_side == PSI_NORTH ? -1 : 1))};
+
+	collider->colliders[PCT_SMOTHER].shape = CS_CIRCLE;
+	collider->colliders[PCT_SMOTHER].props.circle.radius = 6;
 
 	collider->colliders[PCT_PLAYER].shape = CS_CIRCLE;
 	collider->colliders[PCT_PLAYER].props.circle.radius = player->constants.control_radius;
@@ -586,6 +594,11 @@ static void state_machine_goalie_on_enter(struct entity *entity,
 		state_machine->state_data.throw_ball.start_time = game_state->time;
 		break;
 	}
+	case GS_SMOTHER: {
+		entity->physics.max_velocity = game_state->constants.goalie_smother_max_velocity;
+		state_machine->state_data.smother.start_time = game_state->time;
+		break;
+	}
 	case GS_COUNT:
 		break;
 	}
@@ -623,6 +636,10 @@ static void state_machine_goalie_on_exit(struct entity *entity,
 		break;
 	}
 	case GS_THROW: {
+		break;
+	}
+	case GS_SMOTHER: {
+		entity->physics.max_velocity = entity->player.constants.run_max_velocity;
 		break;
 	}
 	case GS_COUNT:
@@ -688,6 +705,7 @@ entity_player_is_colliding_with_ball(struct entity *entity,
 	case PCT_PLAYER:
 	case PCT_GOALIE:
 	case PCT_DIVE:
+	case PCT_SMOTHER:
 		break;
 	case PCT_BODY:
 	case PCT_TACKLE_SENSOR:
@@ -772,6 +790,14 @@ b32 entity_player_goalie_is_colliding_with_ball(struct entity *goalie_entity,
 		// and never on who touched it last, so that anything else taking the last touch for a
 		// frame cannot strand him holding a ball he can no longer release.
 		return ball->state_machine.current_state == BS_GK_HANDS;
+	case GS_SMOTHER:
+		return !goalie->state_machine.state_data.smother.ball_held &&
+			   entity_player_is_colliding_with_ball(
+				   goalie_entity,
+				   PCT_SMOTHER,
+				   game_state->constants.goalie_smother_max_ball_height,
+				   game_state)
+				   .is_colliding;
 	case GS_THROW:
 	case GS_NONE:
 	case GS_COUNT:
@@ -1017,6 +1043,16 @@ void entity_player_goalie_on_the_ball(struct entity *goalie_entity, struct game_
 		// Human or AI, he leaves GS_HOLD_BALL only through the controls above
 		break;
 	}
+	case GS_SMOTHER: {
+		struct state_machine_goalie_smother_data *smother_state_data =
+			&goalie->state_machine.state_data.smother;
+
+		// Once he has gone for it he takes it, whatever has happened to the ball since
+		entity_ball_held_by_goalie(ball_entity, goalie_entity_id, game_state);
+		smother_state_data->ball_held = true;
+		goalie->last_save_time = game_state->time;
+		break;
+	}
 	case GS_THROW:
 	case GS_NONE:
 	case GS_COUNT:
@@ -1033,6 +1069,21 @@ void entity_player_goalie_dive_start(struct entity *goalie_entity,
 	goalie_entity->goalie.state_machine.state_data.dive.dive = dive;
 	goalie_entity->physics.max_velocity =
 		dive.speed * game_state->constants.goalie_dive_max_velocity;
+}
+
+void entity_player_goalie_smother_start(struct entity *goalie_entity,
+										v2 direction,
+										struct game_state *game_state)
+{
+	struct collider *smother_collider = &goalie_entity->collider.colliders[PCT_SMOTHER];
+
+	state_machine_goalie_fire(&goalie_entity->goalie.state_machine, GT_SMOTHER, game_state);
+	// Set after the transition because on_enter resets the state data
+	goalie_entity->goalie.state_machine.state_data.smother.direction = direction;
+	goalie_entity->sprite.orientation = sprite_calculate_orientation(direction);
+	// His hands lead, so the collider sits ahead of him
+	smother_collider->props.circle.offset =
+		Vector2Scale(direction, smother_collider->props.circle.radius);
 }
 
 b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
@@ -1266,6 +1317,7 @@ b32 entity_player_find_pass_target(struct entity *player_on_the_ball_entity,
 			player_on_the_ball_entity->transform.position,
 			candidate_entity->transform.position,
 			OPPONENT_TEAM_SIDE(candidate_entity->player.team_side),
+			PASS_INTERCEPTION_RADIUS,
 			game_state);
 
 		// The man nearest to target_distance along his own line from the passer ranks highest
@@ -1670,6 +1722,7 @@ b32 entity_player_find_nearest(v2 position,
 b32 entity_player_is_trajectory_clear(v2 passer_position,
 									  v2 target_position,
 									  enum team_side opposing_team,
+									  f32 interception_radius,
 									  struct game_state *game_state)
 {
 	v2 pass_start = passer_position;
@@ -1699,9 +1752,6 @@ b32 entity_player_is_trajectory_clear(v2 passer_position,
 		v2 projected_point =
 			Vector2Add(pass_start, Vector2Scale(pass_direction, projection_length));
 		f32 perp_distance = Vector2Distance(opponent->transform.position, projected_point);
-
-		// Define interception radius (adjust as needed)
-		f32 interception_radius = 20.0f;
 
 		if (perp_distance < interception_radius) {
 			return false; // Pass trajectory is blocked

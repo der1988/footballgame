@@ -65,6 +65,38 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 													 &nearest_opponent_to_the_ball,
 													 game_state);
 
+		// A ball on the ground within a lunge of him that an opponent has, or is about to get to
+		const f32 ball_distance =
+			Vector2Distance(ball_transform->position, goalie_entity->transform.position);
+		const struct entity *player_in_possession_entity =
+			entity_get(game_state->entity_repository, player_in_possession_entity_id);
+		const b32 is_ball_contested =
+			player_in_possession_entity_id == EID_NOT_VALID ?
+				found && nearest_opponent_to_the_ball.distance <
+							 game_state->constants.goalie_smother_opponent_radius :
+				player_in_possession_entity->player.team_side != player->team_side;
+		if (may_handle_ball && is_ball_contested &&
+			ball_distance < game_state->constants.goalie_smother_range &&
+			ball_transform->virtual_height < game_state->constants.goalie_smother_max_ball_height &&
+			ball_velocity < game_state->constants.goalie_smother_max_ball_velocity &&
+			football_pitch_is_position_inside_penalty_area(
+				ball_transform->position, pitch_side, game_state)) {
+			// He goes for where the ball is about to be
+			const v2 smother_position = V3_TO_V2(game_state->vars.ball.lookahead_positions[0]);
+
+			// Going through an opponent to get there is a penalty
+			if (entity_player_is_trajectory_clear(goalie_entity->transform.position,
+												  smother_position,
+												  OPPONENT_TEAM_SIDE(player->team_side),
+												  game_state->constants.goalie_smother_clear_radius,
+												  game_state)) {
+				decision.action = GAA_SMOTHER;
+				decision.action_data.smother.direction = Vector2Normalize(
+					Vector2Subtract(smother_position, goalie_entity->transform.position));
+				return decision;
+			}
+		}
+
 		b32 protect_goal = false;
 		if ((future_reachable_position->available &&
 			 football_pitch_is_position_inside_penalty_area(
@@ -129,30 +161,32 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 			v2 right_pos =
 				Vector2Add(goal_center, (v2){.x = max_side_movement, .y = 20 * (invert ? 1 : -1)});
 
-			for (u16 i = 0; i < game_state->constants.ball_lookaheads; ++i) {
-				const v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
+			if (player_in_possession_entity_id == EID_NOT_VALID) {
+				for (u16 i = 0; i < game_state->constants.ball_lookaheads; ++i) {
+					const v3 pos_to_check = game_state->vars.ball.lookahead_positions[i];
 
-				v2 prev_pos;
-				v2 new_pos;
-				if (i == 0) {
-					prev_pos = ball_transform->position;
-					new_pos = V3_TO_V2(pos_to_check);
-				} else {
-					prev_pos = V3_TO_V2(game_state->vars.ball.lookahead_positions[i - 1]);
-					new_pos = V3_TO_V2(pos_to_check);
-				}
+					v2 prev_pos;
+					v2 new_pos;
+					if (i == 0) {
+						prev_pos = ball_transform->position;
+						new_pos = V3_TO_V2(pos_to_check);
+					} else {
+						prev_pos = V3_TO_V2(game_state->vars.ball.lookahead_positions[i - 1]);
+						new_pos = V3_TO_V2(pos_to_check);
+					}
 
-				v2 intersection_point;
-				if (collision_is_line_intersecting_line(
-						prev_pos, new_pos, left_pos, right_pos, &intersection_point)) {
-					decision.state = GAS_COVER_LINE;
-					decision.steering = entity_player_steer_arrive_limited(
-						goalie_entity,
-						intersection_point,
-						player->constants.run_max_velocity * 0.5f,
-						game_state);
-					move_on_the_line = true;
-					break;
+					v2 intersection_point;
+					if (collision_is_line_intersecting_line(
+							prev_pos, new_pos, left_pos, right_pos, &intersection_point)) {
+						decision.state = GAS_COVER_LINE;
+						decision.steering = entity_player_steer_arrive_limited(
+							goalie_entity,
+							intersection_point,
+							player->constants.run_max_velocity * 0.5f,
+							game_state);
+						move_on_the_line = true;
+						break;
+					}
 				}
 			}
 
@@ -241,6 +275,7 @@ struct goalie_ai_decision ai_goalie_think(struct entity *goalie_entity,
 	}
 	case GS_DIVE:
 	case GS_JUMP:
+	case GS_SMOTHER:
 	case GS_THROW:
 	case GS_NONE:
 	case GS_COUNT:

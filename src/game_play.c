@@ -168,6 +168,15 @@ struct game_state *game_play_init(struct game_config game_config,
 		.goalie_dive_recover_time = 0.75f,
 		// Average max reach for a gk is 3.2m
 		.goalie_max_reachable_height = 35.4f,
+		.goalie_smother_range = 2.5f * PIXELS_PER_METER,
+		.goalie_smother_max_ball_height = 8.0f,
+		.goalie_smother_max_ball_velocity = 15 * PIXELS_PER_METER,
+		.goalie_smother_opponent_radius = 3.0f * PIXELS_PER_METER,
+		.goalie_smother_clear_radius = 8.0f,
+		.goalie_smother_force = 60000,
+		.goalie_smother_friction_force = 50000,
+		.goalie_smother_max_velocity = 7 * PIXELS_PER_METER,
+		.goalie_smother_recover_time = 0.6f,
 
 		.kick_charge_reset_time = 1.5f};
 

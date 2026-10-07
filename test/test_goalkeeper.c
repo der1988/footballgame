@@ -820,6 +820,19 @@ void test_a_ball_about_to_cross_his_line_has_him_cover_it(void)
 	TEST_ASSERT_EQUAL_INT(GAS_COVER_LINE, keeper_thinks().state);
 }
 
+void test_a_dribbler_heading_across_his_line_leaves_him_on_the_arc(void)
+{
+	keeper_in_goal();
+	const v2 goal_center = g_game_state->vars.pitch.goal[PSI_NORTH].center;
+	const v2 ball_position = Vector2Add(goal_center, (v2){.x = 60, .y = 100});
+	ball_at(ball_position, 0, Vector3Zero());
+	g_opponent_entity->transform.position = ball_position;
+	ball_controlled_by(g_opponent_entity);
+	ball_lookaheads_at(Vector2Add(goal_center, (v2){.x = 20, .y = -10}), 0);
+
+	TEST_ASSERT_EQUAL_INT(GAS_STAND, keeper_thinks().state);
+}
+
 // Once he has let go of the ball, the ball's previous state stays BS_GK_HANDS until the next catch.
 // A shot at him after that is still his to catch, not one he let go of himself.
 void test_a_shot_after_he_has_let_go_of_the_ball_once_is_caught(void)
@@ -918,6 +931,201 @@ void test_the_dive_control_takes_him_into_the_dive_it_describes(void)
 							g_goalie_entity->physics.max_velocity);
 }
 
+// Throwing himself on the ball
+
+// On the ground, a short lunge up the pitch from him
+static v2 ball_within_a_lunge(void)
+{
+	const v2 ball_position = Vector2Add(g_goalie_entity->transform.position, (v2){.y = 15});
+	ball_at(ball_position, 0, Vector3Zero());
+	ball_can_next_be_reached_at(ball_position, 0, 0);
+	ball_lookaheads_at(ball_position, 0);
+	return ball_position;
+}
+
+void test_an_opponent_dribbling_up_to_him_has_him_throw_himself_on_the_ball(void)
+{
+	keeper_in_goal();
+	g_opponent_entity->transform.position = ball_within_a_lunge();
+	ball_controlled_by(g_opponent_entity);
+
+	const struct goalie_ai_decision decision = keeper_thinks();
+
+	TEST_ASSERT_EQUAL_INT(GAA_SMOTHER, decision.action);
+	TEST_ASSERT_EQUAL_FLOAT(0, decision.action_data.smother.direction.x);
+	TEST_ASSERT_EQUAL_FLOAT(1, decision.action_data.smother.direction.y);
+}
+
+// The ball rolling on at the pace it has, the way system_ball would predict it
+static void ball_moving_from(v2 position, v2 velocity)
+{
+	ball_at(position, 0, (v3){.x = velocity.x, .z = velocity.y});
+	const f32 lookahead_time = g_game_state->dt * g_game_state->constants.ball_lookahead_dts;
+	for (u16 i = 0; i < BALL_MAX_LOOKAHEADS; ++i) {
+		g_game_state->vars.ball.lookahead_positions[i] =
+			V2_TO_V3(Vector2Add(position, Vector2Scale(velocity, (i + 1) * lookahead_time)), 0);
+	}
+}
+
+void test_he_throws_himself_at_where_a_moving_ball_will_be(void)
+{
+	keeper_in_goal();
+	const v2 ball_position = ball_within_a_lunge();
+	ball_moving_from(ball_position, (v2){.x = 3 * PIXELS_PER_METER});
+	// The dribbler runs behind the ball, off the line the keeper takes to it
+	g_opponent_entity->transform.position = Vector2Add(ball_position, (v2){.x = -10});
+	ball_controlled_by(g_opponent_entity);
+
+	const struct goalie_ai_decision decision = keeper_thinks();
+
+	TEST_ASSERT_EQUAL_INT(GAA_SMOTHER, decision.action);
+	TEST_ASSERT_GREATER_THAN_FLOAT(0, decision.action_data.smother.direction.x);
+}
+
+void test_an_opponent_between_him_and_the_ball_keeps_him_on_his_feet(void)
+{
+	keeper_in_goal();
+	const v2 ball_position = ball_within_a_lunge();
+	g_opponent_entity->transform.position =
+		Vector2Lerp(g_goalie_entity->transform.position, ball_position, 0.5f);
+	ball_controlled_by(g_opponent_entity);
+
+	TEST_ASSERT_NOT_EQUAL_INT(GAA_SMOTHER, keeper_thinks().action);
+}
+
+void test_a_loose_ball_an_opponent_is_about_to_reach_has_him_throw_himself_on_it(void)
+{
+	keeper_in_goal();
+	ball_played_by(g_opponent_entity, BPT_SHOT);
+	const v2 ball_position = ball_within_a_lunge();
+	g_opponent_entity->transform.position = Vector2Add(ball_position, (v2){.y = 15});
+
+	TEST_ASSERT_EQUAL_INT(GAA_SMOTHER, keeper_thinks().action);
+}
+
+void test_a_loose_ball_with_nobody_near_it_is_not_one_to_throw_himself_on(void)
+{
+	keeper_in_goal();
+	ball_played_by(g_opponent_entity, BPT_SHOT);
+	ball_within_a_lunge();
+	g_opponent_entity->transform.position = position_up_the_pitch();
+
+	TEST_ASSERT_NOT_EQUAL_INT(GAA_SMOTHER, keeper_thinks().action);
+}
+
+void test_a_team_mate_on_the_ball_next_to_him_is_left_alone(void)
+{
+	keeper_in_goal();
+	g_team_mate_entity->transform.position = ball_within_a_lunge();
+	g_opponent_entity->transform.position = position_up_the_pitch();
+	ball_controlled_by(g_team_mate_entity);
+
+	TEST_ASSERT_NOT_EQUAL_INT(GAA_SMOTHER, keeper_thinks().action);
+}
+
+void test_a_ball_he_may_not_handle_is_not_one_to_throw_himself_on(void)
+{
+	keeper_in_goal();
+	ball_played_by(g_team_mate_entity, BPT_PASS);
+	const v2 ball_position = ball_within_a_lunge();
+	g_opponent_entity->transform.position = Vector2Add(ball_position, (v2){.y = 15});
+
+	TEST_ASSERT_NOT_EQUAL_INT(GAA_SMOTHER, keeper_thinks().action);
+}
+
+void test_the_smother_control_throws_him_along_its_direction(void)
+{
+	keeper_in_goal();
+	const v2 start_position = g_goalie_entity->transform.position;
+	g_goalie_entity->player_controls.smother = true;
+	g_goalie_entity->player_controls.smother_direction = (v2){.y = 1};
+
+	system_player_physics(g_game_state);
+	TEST_ASSERT_EQUAL_INT(GS_SMOTHER, g_goalie_entity->goalie.state_machine.current_state);
+
+	g_goalie_entity->player_controls.smother = false;
+	system_player_physics(g_game_state);
+	TEST_ASSERT_GREATER_THAN_FLOAT(start_position.y, g_goalie_entity->transform.position.y);
+	TEST_ASSERT_EQUAL_FLOAT(start_position.x, g_goalie_entity->transform.position.x);
+}
+
+void test_landing_on_the_ball_puts_it_in_his_hands(void)
+{
+	keeper_in_goal();
+	ball_at(Vector2Add(g_goalie_entity->transform.position, (v2){.y = 8}), 0, Vector3Zero());
+	entity_player_goalie_smother_start(g_goalie_entity, (v2){.y = 1}, g_game_state);
+
+	TEST_ASSERT_TRUE(entity_player_goalie_is_colliding_with_ball(g_goalie_entity, g_game_state));
+	entity_player_goalie_on_the_ball(g_goalie_entity, g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(BS_GK_HANDS, g_ball_entity->ball.state_machine.current_state);
+	TEST_ASSERT_FALSE(entity_player_goalie_is_colliding_with_ball(g_goalie_entity, g_game_state));
+}
+
+void test_an_opponent_he_hits_on_the_way_is_tackled(void)
+{
+	keeper_in_goal();
+	g_opponent_entity->transform.position =
+		Vector2Add(g_goalie_entity->transform.position, (v2){.y = 10});
+	entity_player_goalie_smother_start(g_goalie_entity, (v2){.y = 1}, g_game_state);
+
+	system_player_collisions(g_game_state);
+
+	// Down or stumbling on, as chance has it
+	TEST_ASSERT_NOT_EQUAL_INT(PS_NORMAL, g_opponent_entity->player.state_machine.current_state);
+}
+
+void test_an_opponent_out_of_his_reach_stays_on_his_feet(void)
+{
+	keeper_in_goal();
+	g_opponent_entity->transform.position =
+		Vector2Add(g_goalie_entity->transform.position, (v2){.y = 20});
+	entity_player_goalie_smother_start(g_goalie_entity, (v2){.y = 1}, g_game_state);
+
+	system_player_collisions(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(PS_NORMAL, g_opponent_entity->player.state_machine.current_state);
+}
+
+void test_a_ball_barred_to_his_hands_after_he_has_gone_for_it_is_still_caught(void)
+{
+	keeper_in_goal();
+	ball_at(Vector2Add(g_goalie_entity->transform.position, (v2){.y = 8}), 0, Vector3Zero());
+	entity_player_goalie_smother_start(g_goalie_entity, (v2){.y = 1}, g_game_state);
+	ball_played_by(g_team_mate_entity, BPT_PASS);
+	TEST_ASSERT_FALSE(may_handle());
+
+	entity_player_goalie_on_the_ball(g_goalie_entity, g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(BS_GK_HANDS, g_ball_entity->ball.state_machine.current_state);
+}
+
+void test_he_gets_up_from_the_ball_holding_it(void)
+{
+	keeper_in_goal();
+	entity_player_goalie_smother_start(g_goalie_entity, (v2){.y = 1}, g_game_state);
+	entity_ball_held_by_goalie(g_ball_entity, g_goalie_entity->header.id, g_game_state);
+	g_goalie_entity->goalie.state_machine.state_data.smother.ball_held = true;
+
+	g_game_state->time += 2;
+	system_player_physics(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GS_HOLD_BALL, g_goalie_entity->goalie.state_machine.current_state);
+	TEST_ASSERT_EQUAL_FLOAT(g_goalie_entity->player.constants.run_max_velocity,
+							g_goalie_entity->physics.max_velocity);
+}
+
+void test_missing_the_ball_puts_him_back_on_his_feet_in_goal(void)
+{
+	keeper_in_goal();
+	entity_player_goalie_smother_start(g_goalie_entity, (v2){.y = 1}, g_game_state);
+
+	g_game_state->time += 2;
+	system_player_physics(g_game_state);
+
+	TEST_ASSERT_EQUAL_INT(GS_PROTECT_GOAL, g_goalie_entity->goalie.state_machine.current_state);
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "goalkeeper test - start");
@@ -977,6 +1185,7 @@ int main()
 	RUN_TEST(test_a_slow_loose_ball_in_his_area_has_him_come_for_it);
 	RUN_TEST(test_with_an_opponent_on_the_ball_up_the_pitch_he_stands_in_goal);
 	RUN_TEST(test_a_ball_about_to_cross_his_line_has_him_cover_it);
+	RUN_TEST(test_a_dribbler_heading_across_his_line_leaves_him_on_the_arc);
 	RUN_TEST(test_a_shot_after_he_has_let_go_of_the_ball_once_is_caught);
 	RUN_TEST(test_a_team_mates_pass_that_reaches_him_in_goal_has_him_step_out);
 
@@ -985,6 +1194,21 @@ int main()
 
 	RUN_TEST(test_the_jump_control_takes_him_up);
 	RUN_TEST(test_the_dive_control_takes_him_into_the_dive_it_describes);
+
+	RUN_TEST(test_an_opponent_dribbling_up_to_him_has_him_throw_himself_on_the_ball);
+	RUN_TEST(test_he_throws_himself_at_where_a_moving_ball_will_be);
+	RUN_TEST(test_an_opponent_between_him_and_the_ball_keeps_him_on_his_feet);
+	RUN_TEST(test_a_loose_ball_an_opponent_is_about_to_reach_has_him_throw_himself_on_it);
+	RUN_TEST(test_a_loose_ball_with_nobody_near_it_is_not_one_to_throw_himself_on);
+	RUN_TEST(test_a_team_mate_on_the_ball_next_to_him_is_left_alone);
+	RUN_TEST(test_a_ball_he_may_not_handle_is_not_one_to_throw_himself_on);
+	RUN_TEST(test_the_smother_control_throws_him_along_its_direction);
+	RUN_TEST(test_landing_on_the_ball_puts_it_in_his_hands);
+	RUN_TEST(test_an_opponent_he_hits_on_the_way_is_tackled);
+	RUN_TEST(test_an_opponent_out_of_his_reach_stays_on_his_feet);
+	RUN_TEST(test_a_ball_barred_to_his_hands_after_he_has_gone_for_it_is_still_caught);
+	RUN_TEST(test_he_gets_up_from_the_ball_holding_it);
+	RUN_TEST(test_missing_the_ball_puts_him_back_on_his_feet_in_goal);
 
 	return UNITY_END();
 }

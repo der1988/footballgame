@@ -117,6 +117,21 @@ struct game_constants {
 	f32 goalie_dive_min_ball_velocity;
 	f32 goalie_dive_recover_time;
 	f32 goalie_max_reachable_height;
+	// He throws himself on a ball no further from him than range, no higher than max_ball_height
+	// and no faster than max_ball_velocity
+	f32 goalie_smother_range;
+	f32 goalie_smother_max_ball_height;
+	f32 goalie_smother_max_ball_velocity;
+	// A loose ball with an opponent this close to it is smothered rather than run to
+	f32 goalie_smother_opponent_radius;
+	// An opponent this close to the line of his lunge is in the way: going through him is a foul
+	f32 goalie_smother_clear_radius;
+	// Force pushes him towards the ball while the animation plays, friction slows him on the
+	// ground once it is over, and he lies there for recover_time
+	f32 goalie_smother_force;
+	f32 goalie_smother_friction_force;
+	f32 goalie_smother_max_velocity;
+	f32 goalie_smother_recover_time;
 
 	f32 kick_charge_reset_time;
 };
@@ -182,7 +197,7 @@ struct game_gfx {
 		asset_animation_id_t run_ball_animations[SO_COUNT];
 		asset_animation_id_t hand_pass_animations[SO_COUNT];
 		asset_sprite_frame_id_t save_frames[PSI_COUNT][ST_COUNT];
-		asset_sprite_frame_id_t dash_frames[PSI_COUNT][SD_COUNT][ST_COUNT];
+		asset_animation_id_t smother_animations[SO_COUNT][ST_COUNT];
 		asset_animation_id_t dive_animations_start[PSI_COUNT][SD_COUNT][SH_COUNT];
 		asset_animation_id_t dive_animations_end[PSI_COUNT][SD_COUNT][SH_COUNT][ST_COUNT];
 		asset_animation_id_t jump_animations_start[PSI_COUNT];

@@ -80,6 +80,17 @@ void system_player_collisions(struct game_state *game_state)
 									  SLIDING_TACKLE_KNOCKDOWN_PROBABILITY,
 									  game_state);
 			}
+		} else if (tackler_state_machine->current_state == PS_GOALIE &&
+				   tackling_player_entity->goalie.state_machine.current_state == GS_SMOTHER) {
+			struct list_entities entities = entity_player_find_tackled_opponents(
+				tackling_player_entity, PCT_SMOTHER, game_state);
+			LIST_ITERATE(tackled_player_entity, entities)
+			{
+				entity_player_tackled(tackled_player_entity,
+									  tackling_player_entity,
+									  GOALIE_SMOTHER_KNOCKDOWN_PROBABILITY,
+									  game_state);
+			}
 		}
 	}
 
@@ -331,7 +342,9 @@ void system_player_collisions(struct game_state *game_state)
 		if (!player_entity_a->header.alive || player_entity_a->header.type != ET_PLAYER)
 			continue;
 		if (player_entity_a->player.state_machine.current_state == PS_FALL ||
-			player_entity_a->player.state_machine.current_state == PS_SLIDING_TACKLE)
+			player_entity_a->player.state_machine.current_state == PS_SLIDING_TACKLE ||
+			(player_entity_a->player.state_machine.current_state == PS_GOALIE &&
+			 player_entity_a->goalie.state_machine.current_state == GS_SMOTHER))
 			continue;
 
 		f32 radius_a = player_entity_a->collider.colliders[PCT_BODY].props.circle.radius;
@@ -341,7 +354,9 @@ void system_player_collisions(struct game_state *game_state)
 			if (!player_entity_b->header.alive || player_entity_b->header.type != ET_PLAYER)
 				continue;
 			if (player_entity_b->player.state_machine.current_state == PS_FALL ||
-				player_entity_b->player.state_machine.current_state == PS_SLIDING_TACKLE)
+				player_entity_b->player.state_machine.current_state == PS_SLIDING_TACKLE ||
+				(player_entity_b->player.state_machine.current_state == PS_GOALIE &&
+				 player_entity_b->goalie.state_machine.current_state == GS_SMOTHER))
 				continue;
 
 			f32 radius_b = player_entity_b->collider.colliders[PCT_BODY].props.circle.radius;

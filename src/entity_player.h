@@ -175,6 +175,7 @@ enum state_machine_goalie_state {
 	GS_HOLD_BALL,
 	GS_JUMP,
 	GS_THROW,
+	GS_SMOTHER,
 	GS_COUNT
 };
 
@@ -188,6 +189,7 @@ enum state_machine_goalie_trigger {
 	GT_RECOVER,
 	GT_RELEASE,
 	GT_THROW,
+	GT_SMOTHER,
 	GT_COUNT
 };
 
@@ -226,18 +228,26 @@ struct state_machine_goalie_throw_data {
 	f32 power;
 };
 
+struct state_machine_goalie_smother_data {
+	fg_time_t start_time;
+	v2 direction;
+	b32 ball_held;
+};
+
 union state_machine_goalie_state_data {
 	struct state_machine_default_empty_data protect_goal;
 	struct state_machine_goalie_dive_data dive;
 	struct state_machine_goalie_hold_ball_data hold_ball;
 	struct state_machine_goalie_jump_data jump;
 	struct state_machine_goalie_throw_data throw_ball;
+	struct state_machine_goalie_smother_data smother;
 };
 
 enum player_collider_type {
 	PCT_PLAYER,
 	PCT_GOALIE,
 	PCT_DIVE,
+	PCT_SMOTHER,
 	PCT_TACKLE_SENSOR,
 	PCT_TACKLE,
 	PCT_SLIDING_TACKLE_1,
@@ -369,6 +379,12 @@ void entity_player_goalie_dive_start(struct entity *goalie_entity,
 									 struct goalie_dive dive,
 									 struct game_state *game_state);
 
+// He throws himself along direction on a ball on the ground. Like a sliding tackle, it takes down
+// any opponent it hits on the way.
+void entity_player_goalie_smother_start(struct entity *goalie_entity,
+										v2 direction,
+										struct game_state *game_state);
+
 b32 entity_player_goalie_should_dive(struct entity *goalie_entity,
 									 struct entity *ball_entity,
 									 struct goalie_dive *dive,
@@ -472,9 +488,12 @@ void entity_player_tackled(struct entity *player_entity,
 						   f32 knockdown_probability,
 						   struct game_state *game_state);
 
+// Whether no player of opposing_team stands within interception_radius of the line between the
+// two positions.
 b32 entity_player_is_trajectory_clear(v2 passer_position,
 									  v2 target_position,
 									  enum team_side opposing_team,
+									  f32 interception_radius,
 									  struct game_state *game_state);
 
 // Resolve a player's constants from their characteristics + the global base tuning.

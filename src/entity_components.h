@@ -150,6 +150,9 @@ struct component_player_controls {
 	// The keeper dives, the way dive_data describes
 	b32 dive;
 	struct goalie_dive dive_data;
+	// The keeper throws himself on the ball, along smother_direction
+	b32 smother;
+	v2 smother_direction;
 };
 
 enum future_position_type {

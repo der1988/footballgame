@@ -406,6 +406,67 @@ void debugui_constants_inspector_draw(debugui_t *handle, struct game_state *game
 							  40.0f,
 							  TextFormat("%.2f", game_state->constants.goalie_max_reachable_height),
 							  0);
+			changed |= igSliderFloat("Smother range",
+									 &game_state->constants.goalie_smother_range,
+									 0.0f,
+									 60.0f,
+									 TextFormat("%.2f", game_state->constants.goalie_smother_range),
+									 0);
+			changed |= igSliderFloat(
+				"Smother max ball height",
+				&game_state->constants.goalie_smother_max_ball_height,
+				0.0f,
+				20.0f,
+				TextFormat("%.2f", game_state->constants.goalie_smother_max_ball_height),
+				0);
+			changed |= igSliderFloat(
+				"Smother max ball velocity",
+				&game_state->constants.goalie_smother_max_ball_velocity,
+				0.0f,
+				400.0f,
+				TextFormat("%.2f", game_state->constants.goalie_smother_max_ball_velocity),
+				0);
+			changed |= igSliderFloat(
+				"Smother opponent radius",
+				&game_state->constants.goalie_smother_opponent_radius,
+				0.0f,
+				100.0f,
+				TextFormat("%.2f", game_state->constants.goalie_smother_opponent_radius),
+				0);
+			changed |=
+				igSliderFloat("Smother clear radius",
+							  &game_state->constants.goalie_smother_clear_radius,
+							  0.0f,
+							  30.0f,
+							  TextFormat("%.2f", game_state->constants.goalie_smother_clear_radius),
+							  0);
+			changed |= igSliderFloat("Smother force",
+									 &game_state->constants.goalie_smother_force,
+									 5000.0f,
+									 100000.0f,
+									 TextFormat("%.2f", game_state->constants.goalie_smother_force),
+									 0);
+			changed |= igSliderFloat(
+				"Smother friction force",
+				&game_state->constants.goalie_smother_friction_force,
+				5000.0f,
+				100000.0f,
+				TextFormat("%.2f", game_state->constants.goalie_smother_friction_force),
+				0);
+			changed |=
+				igSliderFloat("Smother max velocity",
+							  &game_state->constants.goalie_smother_max_velocity,
+							  0.0f,
+							  300.0f,
+							  TextFormat("%.2f", game_state->constants.goalie_smother_max_velocity),
+							  0);
+			changed |=
+				igSliderFloat("Smother recover time",
+							  &game_state->constants.goalie_smother_recover_time,
+							  0.1f,
+							  2.0f,
+							  TextFormat("%.2f", game_state->constants.goalie_smother_recover_time),
+							  0);
 			igEndTabItem();
 		}
 

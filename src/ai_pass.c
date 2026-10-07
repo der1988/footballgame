@@ -50,6 +50,7 @@ b32 ai_pass_find_target(struct entity *passer_entity,
 			passer_entity->transform.position,
 			candidate_entity->transform.position,
 			OPPONENT_TEAM_SIDE(candidate_entity->player.team_side),
+			PASS_INTERCEPTION_RADIUS,
 			game_state);
 		if (require_clear_trajectory && !clear_trajectory)
 			continue;

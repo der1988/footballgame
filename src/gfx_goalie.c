@@ -108,23 +108,39 @@ void gfx_goalie_prepare(struct game_state *game_state)
 									   "goalkeeper_back_ball_0")
 			->id;
 
-	// Dash frames
-	goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITHOUT_BALL] =
-		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_save_dash_front_left_0")
-			->id;
-	goalie->dash_frames[PSI_NORTH][SD_LEFT][ST_WITH_BALL] =
-		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_save_dash_front_left_ball_0")
-			->id;
-	goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITHOUT_BALL] =
-		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_save_dash_front_right_0")
-			->id;
-	goalie->dash_frames[PSI_NORTH][SD_RIGHT][ST_WITH_BALL] =
-		asset_sprite_frame_get_by_name(game_state->assets.sprite_frame_cache,
-									   "goalkeeper_save_dash_front_right_ball_0")
-			->id;
+	// Throwing himself on the ball
+	goalie->smother_animations[SO_DOWN][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_front", memory_arena_handle);
+	goalie->smother_animations[SO_DOWN][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_front", memory_arena_handle);
+	goalie->smother_animations[SO_UP][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_back", memory_arena_handle);
+	goalie->smother_animations[SO_UP][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_back", memory_arena_handle);
+	goalie->smother_animations[SO_LEFT][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_left", memory_arena_handle);
+	goalie->smother_animations[SO_LEFT][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_left", memory_arena_handle);
+	goalie->smother_animations[SO_RIGHT][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_right", memory_arena_handle);
+	goalie->smother_animations[SO_RIGHT][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_right", memory_arena_handle);
+	goalie->smother_animations[SO_DOWN_LEFT][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_front_left", memory_arena_handle);
+	goalie->smother_animations[SO_DOWN_LEFT][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_front_left", memory_arena_handle);
+	goalie->smother_animations[SO_DOWN_RIGHT][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_front_right", memory_arena_handle);
+	goalie->smother_animations[SO_DOWN_RIGHT][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_front_right", memory_arena_handle);
+	goalie->smother_animations[SO_UP_LEFT][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_back_left", memory_arena_handle);
+	goalie->smother_animations[SO_UP_LEFT][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_back_left", memory_arena_handle);
+	goalie->smother_animations[SO_UP_RIGHT][ST_WITHOUT_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_back_right", memory_arena_handle);
+	goalie->smother_animations[SO_UP_RIGHT][ST_WITH_BALL] = asset_animation_id_from_name(
+		animation_cache, "goalkeeper", "smother_ball_back_right", memory_arena_handle);
 
 	// Diving animations
 	goalie->dive_animations_start[PSI_NORTH][SD_LEFT][SH_HIGH] = asset_animation_id_from_name(

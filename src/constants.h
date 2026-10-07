@@ -19,6 +19,8 @@
 // An automatic pass aims at least this far inside the lines, so a ball that rolls on past the aim
 // point does not go straight out
 #define PASS_AIM_FIELD_MARGIN (2.0f * PIXELS_PER_METER)
+// An opponent this close to the line of a pass is in the way of it
+#define PASS_INTERCEPTION_RADIUS 20.0f
 // A human's automatic pass looks for a team mate this many degrees either side of the stick
 #define PASS_SCAN_HALF_ANGLE 30.0f
 // Share of ball_pass_force a short pass gets with no charge; the charge scales up the rest
@@ -67,6 +69,7 @@
 // (PS_TACKLED_RUN).
 #define TACKLE_KNOCKDOWN_PROBABILITY		 0.05f
 #define SLIDING_TACKLE_KNOCKDOWN_PROBABILITY 0.3f
+#define GOALIE_SMOTHER_KNOCKDOWN_PROBABILITY 0.3f
 // How far past the edge of his control circle the ball can be and still be playable by the player
 // in possession
 #define PLAYING_DISTANCE 7.0f

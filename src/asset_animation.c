@@ -15,7 +15,7 @@ struct asset_animation_cache {
 	u32 count;
 };
 
-static u16 const MAX_ANIMATIONS = 100;
+static u16 const MAX_ANIMATIONS = 200;
 static u16 const MAX_FRAMES_PER_ANIMATION = 100;
 
 asset_animation_cache_t *asset_animation_cache_create(memory_arena_handle_t *memory_arena_handle)
