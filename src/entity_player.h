@@ -419,19 +419,23 @@ entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
 											 f32 target_distance,
 											 struct game_state *game_state);
 
-
-// An automatic pass to a team mate: led to where he will be, and struck as hard as the distance
-// needs.
 struct player_pass {
 	v3 direction;
 	f32 power;
 };
 
+// An automatic pass to a team mate: led to where he will be, and struck as hard as the distance
+// needs.
 struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 										  struct entity *ball_entity,
 										  struct entity *target_entity,
 										  f32 pass_height,
 										  struct game_state *game_state);
+
+// A pass to nobody: along the steering, as hard as it was charged. max_distance is how far a
+// full charge is meant to go.
+struct player_pass
+entity_player_aim_manual_pass(v2 steering, f32 charge, f32 pass_height, f32 max_distance);
 
 // Where a charged shot ends up going, before the ball is actually struck.
 struct player_shot {

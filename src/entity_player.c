@@ -188,6 +188,7 @@ struct player_ball_meeting {
 static void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
 static void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
 static b32 is_player_selectable(struct entity *player_entity);
+static f32 pass_lift(f32 pass_height, f32 distance, f32 max_distance);
 static struct player_ball_meeting player_meeting_with_the_ball(struct entity *player_entity,
 															   struct entity *ball_entity,
 															   struct game_state *game_state);
@@ -1362,6 +1363,17 @@ entity_id_t entity_player_choose_pass_target(struct entity *passer_entity,
 	return EID_NOT_VALID;
 }
 
+// How far off the ground a pass of this distance is struck: none when short, more the longer it
+// is, less the better the passer's technique. pass_height is the most it can be, reached at
+// max_distance.
+static f32 pass_lift(f32 pass_height, f32 distance, f32 max_distance)
+{
+	const f32 distance_share =
+		Clamp01((distance - PASS_LIFT_MIN_DISTANCE) / (max_distance - PASS_LIFT_MIN_DISTANCE));
+	const f32 technique_share = PASS_LIFT_FLOOR + (1 - PASS_LIFT_FLOOR) * (1 - PASS_TECHNIQUE);
+	return pass_height * distance_share * technique_share;
+}
+
 struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 										  struct entity *ball_entity,
 										  struct entity *target_entity,
@@ -1386,7 +1398,8 @@ struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 		v2 to_aim = Vector2Subtract(aim_point, passer_position);
 		f32 distance = Vector2Length(to_aim);
 		f32 power = Clamp01(distance / max_distance);
-		v3 direction = Vector3Normalize(V2_TO_V3(to_aim, pass_height));
+		v3 direction = Vector3Normalize(
+			V2_TO_V3(Vector2Normalize(to_aim), pass_lift(pass_height, distance, max_distance)));
 		f32 speed =
 			math_ext_split_lerp(game_state->constants.ball_pass_force, PASS_MIN_FORCE_RATIO, power);
 
@@ -1425,8 +1438,20 @@ struct player_pass entity_player_aim_pass(struct entity *passer_entity,
 	}
 
 	const v2 to_aim = Vector2Subtract(aim_point, passer_position);
-	return (struct player_pass){.direction = Vector3Normalize(V2_TO_V3(to_aim, pass_height)),
-								.power = Clamp01(Vector2Length(to_aim) / max_distance)};
+	const f32 distance = Vector2Length(to_aim);
+	return (struct player_pass){
+		.direction = Vector3Normalize(
+			V2_TO_V3(Vector2Normalize(to_aim), pass_lift(pass_height, distance, max_distance))),
+		.power = Clamp01(distance / max_distance)};
+}
+
+struct player_pass
+entity_player_aim_manual_pass(v2 steering, f32 charge, f32 pass_height, f32 max_distance)
+{
+	return (struct player_pass){
+		.direction = Vector3Normalize(
+			V2_TO_V3(steering, pass_lift(pass_height, charge * max_distance, max_distance))),
+		.power = charge};
 }
 
 // Going over 80% of charge it's going to be bad for the shot

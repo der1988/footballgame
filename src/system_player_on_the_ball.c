@@ -94,26 +94,28 @@ void system_player_on_the_ball(struct game_state *game_state)
 
 				// Pass
 				player->last_kick_time = game_state->time;
-				v3 pass_direction;
-				f32 power = player_controls->pass;
+				struct player_pass pass;
 				struct entity *teammate_entity = entity_get(game_state->entity_repository,
 															player_controls->pass_target_entity_id);
 				if (teammate_entity) {
-					struct player_pass pass =
-						entity_player_aim_pass(player_entity,
-											   ball_entity,
-											   teammate_entity,
-											   game_state->constants.ball_pass_height,
-											   game_state);
-					pass_direction = pass.direction;
-					power = pass.power;
+					pass = entity_player_aim_pass(player_entity,
+												  ball_entity,
+												  teammate_entity,
+												  game_state->constants.ball_pass_height,
+												  game_state);
 					ball->pass_target_entity_id = teammate_entity->header.id;
 				} else {
-					pass_direction = Vector3Normalize(
-						V2_TO_V3(steering, game_state->constants.ball_pass_height));
+					pass = entity_player_aim_manual_pass(
+						steering,
+						player_controls->pass,
+						game_state->constants.ball_pass_height,
+						game_state->constants.ball_pass_auto_max_distance);
 				}
-				entity_ball_short_pass(
-					ball_entity, player_on_the_ball_entity_id, pass_direction, power, game_state);
+				entity_ball_short_pass(ball_entity,
+									   player_on_the_ball_entity_id,
+									   pass.direction,
+									   pass.power,
+									   game_state);
 				kicked_ball = true;
 			} else if (player_controls->long_pass > 0 || player_controls->long_driven_pass > 0) {
 				v2 steering = player_controls->steering;

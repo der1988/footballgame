@@ -12,6 +12,13 @@
 #define INPUT_STICK_DEAD_ZONE		 0.05f
 #define BALL_PASS_MAX_TRAVEL_TIME	 1.5f
 #define PASS_AIM_ITERATIONS			 6
+// A short pass meant to go less far than this is rolled along the ground. Past it the lift grows
+// with the distance, up to ball_pass_height at ball_pass_auto_max_distance.
+#define PASS_LIFT_MIN_DISTANCE (8.0f * PIXELS_PER_METER)
+// TODO: placeholder for the technique of every player, 0 to 1. Make it a player characteristic.
+#define PASS_TECHNIQUE 0.5f
+// Share of the lift that the best technique still can't take off a pass
+#define PASS_LIFT_FLOOR 0.25f
 // Relaxation factor applied after the first iteration. A receiver running back towards the
 // passer makes the undamped iteration oscillate instead of settling: a shorter aim means a
 // shorter travel time, which means less lead, which means a longer aim again.
@@ -80,6 +87,22 @@
 #define BALL_RESTART_HEIGHT		   30
 #define BALL_IN_NET_DAMPING		   0.8f
 #define BALL_IN_NET_RISING_DAMPING 0.9f
+// Distance a rolling ball covers in one cycle of its roll animation
+#define BALL_ROLL_DISTANCE_PER_CYCLE 8.0f
+// How long the roll animation takes to catch up with a change of the ball's velocity, so a
+// ball skids after a kick before it rolls
+#define BALL_SPIN_CATCH_UP_TIME 0.2f
+// Cycles per second. Four frames shown at 60Hz can't show a faster spin than this
+#define BALL_MAX_SPIN 15.0f
+// The ball is drawn rolling up to this height off the ground: dribbling touches lift it a little
+#define BALL_ROLL_MAX_HEIGHT 3.0f
+// A flying ball shows a random frame, changed at an interval picked when it is played: the slow
+// interval for a ball that is barely moving, the fast one at the fast speed and above
+#define BALL_AIR_FRAME_SLOW_INTERVAL 0.12f
+#define BALL_AIR_FRAME_FAST_INTERVAL 0.04f
+#define BALL_AIR_FRAME_FAST_SPEED	 (40.0f * PIXELS_PER_METER)
+// The picked interval is off by up to this share either way, so no two flights look the same
+#define BALL_AIR_FRAME_INTERVAL_JITTER 0.25f
 
 #define GOAL_POST_WIDTH 2
 // How far off a squarely struck post the deflection can be rotated, in degrees.

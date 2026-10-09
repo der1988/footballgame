@@ -202,23 +202,54 @@ void system_ball(struct game_state *game_state)
 		physics3d->accel = Vector3Zero();
 
 		// Calculate frame to display
-		v2 ball_velocity = V3_TO_V2(physics3d->velocity);
-		if (Vector2Length(ball_velocity) > 3) {
-			enum sprite_orientation sprite_orientation =
-				sprite_calculate_orientation(ball_velocity);
-			struct asset_animation *animation =
-				asset_animation_get_by_id(game_state->assets.animation_cache,
-										  game_state->gfx.ball.roll_animations[sprite_orientation]);
-			f32 ball_max_velocity = game_state->constants.ball_max_velocity / 10.0f;
-			f32 delay = (animation->delay *
-						 (5 - 4 * Clamp(Vector2Length(ball_velocity) / ball_max_velocity, 0, 1)));
-			if ((game_state->time - ball->last_frame_update_time) > delay) {
-				ball->last_frame_update_time = game_state->time;
-				u16 new_frame_id = (ball->last_running_frame_idx + 1) % animation->frames_count;
-				sprite->frame_id = animation->frames[new_frame_id];
-				ball->last_running_frame_idx = new_frame_id;
+		asset_animation_cache_t *animation_cache = game_state->assets.animation_cache;
+		if (position.y <= ball_radius + BALL_ROLL_MAX_HEIGHT) {
+			// On the ground, or just off it: the roll frames are played in order, as fast as the
+			// ball covers ground. The speed and direction come from roll_velocity, which trails the
+			// real velocity.
+			ball->animation.roll_velocity =
+				Vector2Lerp(ball->animation.roll_velocity,
+							V3_TO_V2(physics3d->velocity),
+							Clamp01(game_state->dt / BALL_SPIN_CATCH_UP_TIME));
+			f32 roll_speed = Vector2Length(ball->animation.roll_velocity);
+			if (roll_speed > 3) {
+				sprite->orientation = sprite_calculate_orientation(ball->animation.roll_velocity);
 			}
-			sprite->orientation = sprite_orientation;
+			struct asset_animation *animation = asset_animation_get_by_id(
+				animation_cache, game_state->gfx.ball.roll_animations[sprite->orientation]);
+			ball->animation.roll_phase +=
+				fminf(roll_speed / BALL_ROLL_DISTANCE_PER_CYCLE, BALL_MAX_SPIN) * game_state->dt;
+			ball->animation.roll_phase -= floorf(ball->animation.roll_phase);
+			sprite->frame_id =
+				animation->frames[(u16)(ball->animation.roll_phase * animation->frames_count) %
+								  animation->frames_count];
+			ball->animation.air_frame_interval = 0;
+		} else {
+			// In the air: a random frame of any roll animation, changed at an interval that is
+			// picked from the ball's speed when it leaves the ground or is played in the air.
+			if (ball->animation.air_frame_interval == 0 ||
+				ball->last_loose_time > ball->animation.air_frame_interval_pick_time) {
+				f32 interval =
+					Lerp(BALL_AIR_FRAME_SLOW_INTERVAL,
+						 BALL_AIR_FRAME_FAST_INTERVAL,
+						 Clamp01(Vector3Length(physics3d->velocity) / BALL_AIR_FRAME_FAST_SPEED));
+				ball->animation.air_frame_interval =
+					interval *
+					(1 + BALL_AIR_FRAME_INTERVAL_JITTER * GetRandomValue(-100, 100) / 100.0f);
+				ball->animation.air_frame_interval_pick_time = game_state->time;
+			}
+			if ((game_state->time - ball->animation.last_air_frame_time) >
+				ball->animation.air_frame_interval) {
+				asset_sprite_frame_id_t frame_id;
+				do {
+					struct asset_animation *animation = asset_animation_get_by_id(
+						animation_cache,
+						game_state->gfx.ball.roll_animations[GetRandomValue(0, SO_COUNT - 1)]);
+					frame_id = animation->frames[GetRandomValue(0, animation->frames_count - 1)];
+				} while (frame_id == sprite->frame_id);
+				sprite->frame_id = frame_id;
+				ball->animation.last_air_frame_time = game_state->time;
+			}
 		}
 
 		// Handle ball sprite layer
@@ -248,6 +279,7 @@ void system_ball(struct game_state *game_state)
 		// the camera, the lookaheads and the out of bounds checks honest.
 		struct entity *holder_entity =
 			entity_get(game_state->entity_repository, ball->last_touch_entity_id);
+		ball->animation.roll_velocity = Vector2Zero();
 		if (!holder_entity || holder_entity->goalie.state_machine.current_state != GS_HOLD_BALL) {
 			break;
 		}

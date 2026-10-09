@@ -291,11 +291,9 @@ void test_the_pass_goes_to_the_man_in_the_controls(void)
 		0.001f, 1.0f, Vector2DotProduct(ball_direction(), direction_to(g_team_mate_entity)));
 }
 
-// The aim point predicts the ball's travel time for a pass along the ground. Lifting it off the
-// ground makes the pass too strong and lands it somewhere else.
-void test_an_automatic_pass_is_struck_along_the_ground(void)
+static v3 automatic_pass_accel(f32 distance)
 {
-	place_relative_to_passer(g_team_mate_entity, 150, WIDE_ANGLE_DEG);
+	place_relative_to_passer(g_team_mate_entity, distance, WIDE_ANGLE_DEG);
 	passer_on_the_ball();
 	g_passer_entity->player_controls.steering = UP_THE_PITCH;
 	g_passer_entity->player_controls.pass = 0.5f;
@@ -303,8 +301,17 @@ void test_an_automatic_pass_is_struck_along_the_ground(void)
 
 	system_player_on_the_ball(g_game_state);
 
-	const v3 accel = g_ball_entity->physics3d.accel;
-	TEST_ASSERT_LESS_THAN_FLOAT(0.01f, fabsf(accel.y) / Vector3Length(accel));
+	return g_ball_entity->physics3d.accel;
+}
+
+void test_a_short_automatic_pass_is_rolled(void)
+{
+	TEST_ASSERT_EQUAL_FLOAT(0, automatic_pass_accel(PASS_LIFT_MIN_DISTANCE / 2).y);
+}
+
+void test_a_long_automatic_pass_is_lifted(void)
+{
+	TEST_ASSERT_GREATER_THAN_FLOAT(0, automatic_pass_accel(pass_range()).y);
 }
 
 void test_a_pass_with_nobody_chosen_goes_along_the_steering_to_nobody(void)
@@ -478,7 +485,8 @@ int main()
 	RUN_TEST(test_the_ai_search_gives_the_ball_back_once_the_pass_back_time_is_over);
 
 	RUN_TEST(test_the_pass_goes_to_the_man_in_the_controls);
-	RUN_TEST(test_an_automatic_pass_is_struck_along_the_ground);
+	RUN_TEST(test_a_short_automatic_pass_is_rolled);
+	RUN_TEST(test_a_long_automatic_pass_is_lifted);
 	RUN_TEST(test_a_pass_with_nobody_chosen_goes_along_the_steering_to_nobody);
 	RUN_TEST(test_a_man_running_at_the_touchline_is_led_short_of_it);
 	RUN_TEST(test_a_pass_to_a_man_on_the_goal_line_aims_inside_the_field);

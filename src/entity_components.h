@@ -210,9 +210,17 @@ struct component_ball {
 		v2 selected_side;
 	} after_touch;
 
-	// Animation
-	u16 last_running_frame_idx;
-	fg_time_t last_frame_update_time;
+	struct {
+		// Ground velocity the roll animation follows. It trails the real velocity, which also
+		// cancels out the back and forth of a ball a standing player keeps at his feet.
+		v2 roll_velocity;
+		// Where the ball is in its roll animation cycle, 0 to 1
+		f32 roll_phase;
+		// How often a flying ball changes frame; 0 until it is picked for the current flight
+		f32 air_frame_interval;
+		fg_time_t air_frame_interval_pick_time;
+		fg_time_t last_air_frame_time;
+	} animation;
 };
 
 struct component_goal {
