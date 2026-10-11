@@ -63,7 +63,8 @@ struct component_sprite {
 	v2 shadow_offset;
 	v2 shadow_scale;
 	void (*before_draw)(struct entity *, struct game_state *);
-	void (*after_draw)(struct entity *, struct game_state *);
+	// Gets where the sprite was drawn
+	void (*after_draw)(struct entity *, const struct sprite_placement *, struct game_state *);
 };
 
 struct component_action {

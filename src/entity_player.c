@@ -186,7 +186,9 @@ struct player_ball_meeting {
 };
 
 static void player_custom_begin_draw(struct entity *entity, struct game_state *game_state);
-static void player_custom_after_draw(struct entity *entity, struct game_state *game_state);
+static void player_custom_after_draw(struct entity *entity,
+									 const struct sprite_placement *placement,
+									 struct game_state *game_state);
 static b32 is_player_selectable(struct entity *player_entity);
 static f32 pass_lift(f32 pass_height, f32 distance, f32 max_distance);
 static struct player_ball_meeting player_meeting_with_the_ball(struct entity *player_entity,
@@ -2055,12 +2057,52 @@ static void player_custom_begin_draw(struct entity *entity, struct game_state *g
 	u32 location_idx = GetShaderLocation(assets_shader->shader, "palette");
 	SetShaderValueV(assets_shader->shader, location_idx, palette, SHADER_UNIFORM_IVEC4, 12);
 
+	// The shader shows the ball through a player drawn after it
+	struct game_render_context *render_context = &game_state->render_context;
+	if (!render_context->ball.drawn && render_context->player.shader_state != PSS_BALL_NOT_DRAWN) {
+		rect_t no_ball = {0};
+		SetShaderValue(assets_shader->shader,
+					   GetShaderLocation(assets_shader->shader, "hiddenBallDst"),
+					   &no_ball,
+					   SHADER_UNIFORM_VEC4);
+		render_context->player.shader_state = PSS_BALL_NOT_DRAWN;
+	} else if (render_context->ball.drawn &&
+			   render_context->player.shader_state != PSS_BALL_DRAWN) {
+		rect_t ball_frame =
+			asset_sprite_frame_get_by_id(game_state->assets.sprite_frame_cache,
+										 game_state->vars.ball.entity->sprite.frame_id)
+				->frame;
+		v2 hidden_ball_src_origin = {ball_frame.x, ball_frame.y};
+		f32 hidden_ball_alpha = BALL_HIDDEN_ALPHA;
+		Vector4 hidden_ball_outline_color = ColorNormalize(BALL_HIDDEN_OUTLINE_COLOR);
+		SetShaderValue(assets_shader->shader,
+					   GetShaderLocation(assets_shader->shader, "hiddenBallDst"),
+					   &render_context->ball.drawn_rectangle,
+					   SHADER_UNIFORM_VEC4);
+		SetShaderValue(assets_shader->shader,
+					   GetShaderLocation(assets_shader->shader, "hiddenBallSrcOrigin"),
+					   &hidden_ball_src_origin,
+					   SHADER_UNIFORM_VEC2);
+		SetShaderValue(assets_shader->shader,
+					   GetShaderLocation(assets_shader->shader, "hiddenBallAlpha"),
+					   &hidden_ball_alpha,
+					   SHADER_UNIFORM_FLOAT);
+		SetShaderValue(assets_shader->shader,
+					   GetShaderLocation(assets_shader->shader, "hiddenBallOutlineColor"),
+					   &hidden_ball_outline_color,
+					   SHADER_UNIFORM_VEC4);
+		render_context->player.shader_state = PSS_BALL_DRAWN;
+	}
+
 	BeginShaderMode(assets_shader->shader);
 }
 
-static void player_custom_after_draw(struct entity *entity, struct game_state *game_state)
+static void player_custom_after_draw(struct entity *entity,
+									 const struct sprite_placement *placement,
+									 struct game_state *game_state)
 {
 	UNUSED(entity);
+	UNUSED(placement);
 	UNUSED(game_state);
 
 	EndShaderMode();

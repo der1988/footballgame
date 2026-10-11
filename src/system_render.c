@@ -24,7 +24,7 @@ struct sprite_to_draw {
 	v2 shadow_scale;
 	color_t shadow_color;
 	void (*before_draw)(struct entity *, struct game_state *);
-	void (*after_draw)(struct entity *, struct game_state *);
+	void (*after_draw)(struct entity *, const struct sprite_placement *, struct game_state *);
 };
 
 static i32 cmp_sprite_order(const void *s1, const void *s2)
@@ -137,23 +137,25 @@ void system_render(struct game_state *game_state)
 		}
 	}
 
+	game_state->render_context = (struct game_render_context){0};
+
 	// Draw sprites
 	for (usize i = 0; i < total_sprites; ++i) {
 		struct sprite_to_draw *sprite_to_draw = &ordered_sprites_to_draw[i];
+		struct sprite_placement placement = render_sprite_placement(
+			sprite_to_draw->sprite_frame,
+			Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
+			sprite_to_draw->scale,
+			sprite_to_draw->flipX,
+			sprite_to_draw->flipY,
+			sprite_to_draw->pivot_override);
 		if (sprite_to_draw->before_draw) {
 			sprite_to_draw->before_draw(sprite_to_draw->entity, game_state);
 		}
-		render_sprite_draw(sprite_to_draw->sprite_frame,
-						   Vector2Add(sprite_to_draw->position, (v2){.y = sprite_to_draw->height}),
-						   sprite_to_draw->rotation,
-						   sprite_to_draw->scale,
-						   sprite_to_draw->color,
-						   sprite_to_draw->flipX,
-						   sprite_to_draw->flipY,
-						   sprite_to_draw->pivot_override,
-						   sprite_to_draw->texture);
+		render_sprite_draw_placed(
+			&placement, sprite_to_draw->rotation, sprite_to_draw->color, sprite_to_draw->texture);
 		if (sprite_to_draw->after_draw) {
-			sprite_to_draw->after_draw(sprite_to_draw->entity, game_state);
+			sprite_to_draw->after_draw(sprite_to_draw->entity, &placement, game_state);
 		}
 	}
 }

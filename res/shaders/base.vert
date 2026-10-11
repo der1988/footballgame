@@ -12,14 +12,15 @@ uniform mat4 mvp;
 // Output vertex attributes (to fragment shader)
 out vec2 fragTexCoord;
 out vec4 fragColor;
-
-// NOTE: Add here your custom variables
+// Position in the world, before the camera is applied
+out vec2 fragPosition;
 
 void main()
 {
     // Send vertex attributes to fragment shader
     fragTexCoord = vertexTexCoord;
     fragColor = vertexColor;
+    fragPosition = vertexPosition.xy;
 
     // Calculate final vertex position
     gl_Position = mvp*vec4(vertexPosition, 1.0);

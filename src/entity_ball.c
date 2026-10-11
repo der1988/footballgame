@@ -37,6 +37,9 @@ static const enum state_machine_ball_state ball_transitions[BS_COUNT][BT_COUNT] 
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(ball, struct entity);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(ball, struct entity);
 
+static void ball_after_draw(struct entity *entity,
+							const struct sprite_placement *placement,
+							struct game_state *game_state);
 static void set_after_touch(struct component_ball *ball);
 static b32 is_applied_after_touch_same_side(v2 stored_side, v2 selected_side);
 static void reset_after_touch(struct component_ball *ball);
@@ -82,6 +85,7 @@ struct entity *entity_ball_create(struct ball_config config, struct game_state *
 	sprite->shadow_color.a = 100;
 	sprite->shadow_offset = (v2){.x = 0.02, .y = -0.01};
 	sprite->shadow_scale = (v2){.x = 1, .y = 1};
+	sprite->after_draw = &ball_after_draw;
 
 	// Initialise collider
 	struct component_collider *collider = &entity->collider;
@@ -754,4 +758,21 @@ static void bar_goalie_hands_for_team_of(struct component_ball *ball,
 		entity_get(game_state->entity_repository, player_entity_id);
 	const enum team_side team_side = player_entity->player.team_side;
 	ball->not_pickable_by = team_side == TS_HOME ? BNPB_HOME_GOALIE : BNPB_AWAY_GOALIE;
+}
+
+static void ball_after_draw(struct entity *entity,
+							const struct sprite_placement *placement,
+							struct game_state *game_state)
+{
+	// The sprites drawn after the ball read it one texel per pixel, with no rotation and no flip
+	ASSERT(entity->transform.rotation == 0);
+	ASSERT(entity->transform.scale.x == 1 && entity->transform.scale.y == 1);
+	ASSERT(!entity->sprite.flipX && !entity->sprite.flipY);
+
+	game_state->render_context.ball.drawn = true;
+	game_state->render_context.ball.drawn_rectangle =
+		(rect_t){placement->dst.x - placement->origin.x,
+				 placement->dst.y - placement->origin.y,
+				 placement->dst.width,
+				 placement->dst.height};
 }

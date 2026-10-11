@@ -32,7 +32,8 @@ struct assets asset_manager_load_everything(memory_arena_handle_t *memory_arena)
 		animation_cache, sprite_frame_cache, "res/animations/animations.json");
 
 	// Shaders
-	asset_shader_load(shader_cache, "shader_palette", NULL, "res/shaders/palette.frag");
+	asset_shader_load(
+		shader_cache, "shader_palette", "res/shaders/base.vert", "res/shaders/palette.frag");
 
 	return assets;
 }

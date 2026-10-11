@@ -31,7 +31,7 @@
 // A human's automatic pass looks for a team mate this many degrees either side of the stick
 #define PASS_SCAN_HALF_ANGLE 30.0f
 // Share of ball_pass_force a short pass gets with no charge; the charge scales up the rest
-#define PASS_MIN_FORCE_RATIO	  0.3f
+#define PASS_MIN_FORCE_RATIO 0.3f
 // The turn is done, and the skid over, once the run points this close to the heading asked for
 #define DRIBBLE_END_ALIGNMENT 0.7f
 // Steering staying this close to the heading the skid started on is the same request being held,
@@ -103,6 +103,10 @@
 #define BALL_AIR_FRAME_FAST_SPEED	 (40.0f * PIXELS_PER_METER)
 // The picked interval is off by up to this share either way, so no two flights look the same
 #define BALL_AIR_FRAME_INTERVAL_JITTER 0.25f
+// The part of the ball hidden behind a player shows through him at this opacity, 0 to 1, with
+// an outline of BALL_HIDDEN_OUTLINE_COLOR around it
+#define BALL_HIDDEN_ALPHA		  0.5f
+#define BALL_HIDDEN_OUTLINE_COLOR ((Color){20, 20, 20, 100})
 
 #define GOAL_POST_WIDTH 2
 // How far off a squarely struck post the deflection can be rotated, in degrees.

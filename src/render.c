@@ -19,20 +19,14 @@ const char *sprite_layer_to_string(enum sprite_layer layer)
 	}
 }
 
-void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
-						v2 position,
-						f32 rotation,
-						v2 scale,
-						Color color,
-						b32 flipX,
-						b32 flipY,
-						v2 pivot_override,
-						struct asset_texture *assets_texture)
+struct sprite_placement render_sprite_placement(struct asset_sprite_frame *sprite_frame,
+												v2 position,
+												v2 scale,
+												b32 flipX,
+												b32 flipY,
+												v2 pivot_override)
 {
 	Vector2 pivot = Vector2Add(sprite_frame->pivot, pivot_override);
-
-	// Draw texture
-	Rectangle src = sprite_frame->frame;
 
 	Vector2 origin = {sprite_frame->source_size.x * scale.x * pivot.x -
 						  sprite_frame->sprite_source_size.x * scale.x,
@@ -43,6 +37,8 @@ void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 					 position.y,
 					 sprite_frame->sprite_source_size.width * scale.x,
 					 sprite_frame->sprite_source_size.height * scale.y};
+
+	Rectangle src = sprite_frame->frame;
 
 	if (flipX) {
 		src.width *= -1;
@@ -66,7 +62,31 @@ void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
 	dst.x = roundf(dst.x);
 	dst.y = roundf(dst.y);
 
-	DrawTexturePro(assets_texture->texture, src, dst, origin, rotation, color);
+	return (struct sprite_placement){.src = src, .dst = dst, .origin = origin};
+}
+
+void render_sprite_draw(struct asset_sprite_frame *sprite_frame,
+						v2 position,
+						f32 rotation,
+						v2 scale,
+						Color color,
+						b32 flipX,
+						b32 flipY,
+						v2 pivot_override,
+						struct asset_texture *assets_texture)
+{
+	struct sprite_placement placement =
+		render_sprite_placement(sprite_frame, position, scale, flipX, flipY, pivot_override);
+	render_sprite_draw_placed(&placement, rotation, color, assets_texture);
+}
+
+void render_sprite_draw_placed(const struct sprite_placement *placement,
+							   f32 rotation,
+							   Color color,
+							   struct asset_texture *assets_texture)
+{
+	DrawTexturePro(
+		assets_texture->texture, placement->src, placement->dst, placement->origin, rotation, color);
 }
 
 void render_sprite_draw_debug_frame(

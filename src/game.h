@@ -9,6 +9,7 @@
 #include "gameplay.h"
 #include "input.h"
 #include "memory.h"
+#include "render.h"
 #include "types.h"
 #include "layer.h"
 #include "constants.h"
@@ -214,6 +215,28 @@ struct game_gfx {
 };
 
 //	"player", "goalie", "dive", "tackle_1", "tackle_2", "header", "body"};
+
+// What the palette shader has been told about the ball behind the players. It still holds what
+// it was told in the previous pass, so that is unknown when a pass starts.
+enum player_shader_state {
+	PSS_UNKNOWN,
+	PSS_BALL_NOT_DRAWN,
+	PSS_BALL_DRAWN,
+};
+
+// What the sprites of a pass tell the ones drawn after them. Empty when the pass starts.
+struct game_render_context {
+	struct {
+		b32 drawn;
+		// Where it was drawn, once it is
+		rect_t drawn_rectangle;
+	} ball;
+
+	struct {
+		enum player_shader_state shader_state;
+	} player;
+};
+
 struct debug_flags {
 	b32 debug_render;
 	b32 show_bounding_boxes;
@@ -246,6 +269,7 @@ struct game_state {
 	struct game_vars vars;
 	struct gameplay gameplay;
 	struct game_gfx gfx;
+	struct game_render_context render_context;
 	struct human_player human_players[MAX_HUMAN_PLAYERS];
 	memory_arena_handle_t *memory_by_lifetime[MAL_COUNT];
 	struct assets assets;
