@@ -1,0 +1,20 @@
+[
+  {
+    "post": 1,
+    "media": "01-gameplay.mp4",
+    "text": "A little footage from the football game I'm building in C with raylib. Still rough, but seeing the little players chase a ball around a pitch makes all the low-level work feel worth it.\n\n#gamedev #indiedev",
+    "alt": "Work-in-progress pixel-art football gameplay, with red and blue teams moving toward the penalty area."
+  },
+  {
+    "post": 2,
+    "media": "02-goalmouth.png",
+    "text": "So much of a football game happens away from the ball. Positioning, support runs, defenders deciding where to go... I keep watching the whole pitch when testing this little project.\n\nA snapshot of the current build. #gamedev",
+    "alt": "A goalkeeper stands near the goal while red and blue outfield players approach the penalty area. A minimap appears in the upper left."
+  },
+  {
+    "post": 3,
+    "media": "03-rewind.mp4",
+    "text": "The less glamorous side of my football game: a VCR-style debug tool. I can scrub back through recorded game states and inspect what happened.\n\nTiny players, surprisingly useful debugging tools. #gamedev #raylib",
+    "alt": "The football game is paused with a VCR debug panel. Dragging its timeline moves backward and forward through recorded gameplay."
+  }
+]
