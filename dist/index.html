@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101b16">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2324372a'/%3E%3Ctext x='32' y='46' font-size='44' text-anchor='middle'%3E⚽%3C/text%3E%3C/svg%3E">
+  <title>Football Game · Gioca</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#101b16;color:#ecf3e9}*{box-sizing:border-box}body{margin:0}main{max-width:1320px;margin:auto;padding:28px 20px 40px}header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:20px}.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#a1b59e}h1{font-size:clamp(26px,4vw,42px);letter-spacing:-.05em;margin:6px 0}p{line-height:1.6;color:#b8c8b4;margin:6px 0}button{font:inherit;font-weight:650;background:#d5f589;color:#122016;border:0;border-radius:9px;padding:13px 22px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.secondary{background:#24372a;color:#ecf3e9;font-size:13px;padding:10px 15px}.stage{position:relative;aspect-ratio:16/9;background:#080f0b;border:1px solid #354835;border-radius:12px;overflow:hidden}canvas{width:100%;height:100%;display:block;image-rendering:pixelated;outline:none}canvas:focus-visible{outline:3px solid #d5f589;outline-offset:-3px}canvas:fullscreen{object-fit:contain;background:#080f0b;image-rendering:pixelated}.cover{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:20px;background:radial-gradient(ellipse at center,#263e2c,#0b150e)}.cover[hidden]{display:none}.cover h2{font-size:clamp(24px,4vw,42px);letter-spacing:-.04em;margin:0 0 10px}.cover button{margin:18px auto 0}.status{min-height:24px;font-size:13px;color:#c8d8c0;margin-top:12px}.footer{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:12px}.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}.control{background:#19291e;border:1px solid #2b4030;border-radius:9px;padding:15px}.control strong{font-size:14px;display:block;margin-bottom:8px}.control p{font-size:13px}kbd{font:600 13px ui-monospace,monospace;border:1px solid #61755b;border-bottom:3px solid #61755b;border-radius:4px;padding:3px 6px;margin-right:4px;display:inline-block;background:#24372a;color:#edf4e7}.hint{font-size:13px;margin-top:18px}@media(max-width:700px){main{padding:18px 12px}.controls{grid-template-columns:1fr 1fr;gap:8px}header{align-items:flex-start}.footer{align-items:flex-start}.footer p{font-size:12px}}
+  </style>
+</head>
+<body>
+<main>
+  <header><div><div class="eyebrow">In sviluppo · versione tastiera</div><h1>Football Game</h1><p>Un campo, due squadre. Tocca a te.</p></div><button class="secondary" id="fullscreen" disabled>Schermo intero</button></header>
+  <div class="stage">
+    <canvas id="canvas" width="1280" height="720" tabindex="0" aria-label="Partita di calcio. Usa le frecce per muoverti, A per tirare, S per passare, D per crossare e Q per cambiare giocatore." oncontextmenu="event.preventDefault()"></canvas>
+    <div class="cover" id="cover"><h2>Pronto a scendere in campo?</h2><p>Gioca dalla tastiera. Nessun download da installare.</p><button id="start">Avvia partita</button><div class="status" id="status" role="status" aria-live="polite">Il primo caricamento può richiedere qualche secondo.</div></div>
+  </div>
+  <div class="footer"><p id="game-status" role="status">Richiede una tastiera e un browser aggiornato.</p><button class="secondary" id="restart" hidden>Ricomincia</button></div>
+  <div class="controls">
+    <div class="control"><strong>Muoviti</strong><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd><p>Le frecce controllano il giocatore selezionato.</p></div>
+    <div class="control"><strong>Tira / colpisci di testa</strong><kbd>A</kbd><p>Tieni premuto per caricare, rilascia per tirare. Premi su una palla alta per saltare.</p></div>
+    <div class="control"><strong>Passa / contrasta</strong><kbd>S</kbd><p>Passaggio automatico in possesso; contrasto quando difendi.</p></div>
+    <div class="control"><strong>Crossa / scivola</strong><kbd>D</kbd><p>Passaggio alto in possesso; scivolata quando difendi.</p></div>
+  </div>
+  <p class="hint"><kbd>Q</kbd> Cambia giocatore · <kbd>E</kbd> Rallenta / controlla · <kbd>W</kbd> <kbd>1</kbd> Modificatori di tiro e passaggio. Clicca sul campo per riprendere i controlli.</p>
+</main>
+<script>
+  const canvas=document.getElementById('canvas'), start=document.getElementById('start'), status=document.getElementById('status');
+  const held=new Map();
+  window.Module={canvas,
+    setStatus(message){if(message)status.textContent='Caricamento della partita…';},
+    onRuntimeInitialized(){document.getElementById('cover').hidden=true;document.getElementById('game-status').textContent='In campo · clicca sul campo se i tasti non rispondono.';document.getElementById('fullscreen').disabled=false;document.getElementById('restart').hidden=false;requestAnimationFrame(()=>canvas.focus());},
+    onAbort(){showError('La partita non si è avviata. Ricarica la pagina e riprova.');}
+  };
+  function showError(message){document.getElementById('cover').hidden=false;status.textContent=message;start.disabled=false;start.textContent='Riprova';start.onclick=()=>location.reload();}
+  start.onclick=()=>{if(!document.createElement('canvas').getContext('webgl2')){status.textContent='Serve un browser con WebGL 2 attivo. Prova una versione aggiornata di Chrome, Firefox o Safari.';return;}start.disabled=true;start.textContent='Caricamento…';const script=document.createElement('script');script.src='game.js';script.onerror=()=>showError('Caricamento non riuscito. Controlla la connessione e riprova.');document.body.appendChild(script);};
+  canvas.addEventListener('pointerdown',()=>canvas.focus());
+  window.addEventListener('keydown',e=>{if(document.activeElement===canvas){held.set(e.code,{key:e.key,code:e.code,keyCode:e.keyCode,which:e.which});if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();}},true);
+  window.addEventListener('keyup',e=>held.delete(e.code));
+  window.addEventListener('blur',()=>{for(const key of held.values())window.dispatchEvent(new KeyboardEvent('keyup',{...key,bubbles:true}));held.clear();});
+  document.getElementById('fullscreen').onclick=()=>canvas.requestFullscreen().catch(()=>{document.getElementById('game-status').textContent='Schermo intero non disponibile in questo browser.';});
+  document.getElementById('restart').onclick=()=>location.reload();
+</script>
+</body>
+</html>

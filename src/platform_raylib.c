@@ -51,6 +51,7 @@ platform_gamepad_input_axis_id_t platform_gamepad_axis_mapping[] = {
 
 b32 platform_input_device_keyboard_is_key_down(const enum platform_input_device_keyboard_key key)
 {
+	if (key < 0 || key >= PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_NONE) return false;
 	platform_keyboard_input_id_t raylib_key_id = platform_keyboard_key_mapping[key];
 
 	return IsKeyDown(raylib_key_id);

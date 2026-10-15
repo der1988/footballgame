@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 const char *entity_type_to_string[ET_COUNT] = {
-	"camera", "ball", "player", "goal", "goal_net"};
+	"camera", "ball", "player", "goal", "goal_net", "referee"};
 
 static entity_id_t find_empty_slot(struct entity_repository *entity_repo)
 {

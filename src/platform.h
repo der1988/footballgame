@@ -48,6 +48,7 @@ enum platform_input_device_keyboard_key {
 	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_6,
 	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_7,
 	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_8,
+	PLATFORM_INPUT_DEVICE_KEYBOARD_KEY_NONE,
 };
 
 struct platform_input_device_gamepad_state {

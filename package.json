@@ -1,0 +1,9 @@
+{
+  "name": "footballgame-web",
+  "private": true,
+  "scripts": {
+    "build:web": "bash scripts/build_web.sh",
+    "test:web": "node scripts/test_web.cjs"
+  },
+  "devDependencies": { "playwright": "1.62.1" }
+}

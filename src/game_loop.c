@@ -2,11 +2,18 @@
 #include "memory.h"
 #include "types.h"
 #include "game.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 
 #define TARGET_FRAMERATE 100
 #define FRAME_TIME		 (1.0f / TARGET_FRAMERATE)
 
+#ifdef DISABLE_TIME_MACHINE
+#define SCENE_MEMORY_MBS 16
+#else
 #define SCENE_MEMORY_MBS 1614
+#endif
 
 enum game_scene g_next_scene = GSC_NONE;
 
@@ -15,6 +22,14 @@ static void *handle_scene_creation(struct game_config config,
 								   memory_arena_handle_t *memory_arena);
 
 static void handle_scene_destruction(enum game_scene current_scene, void *handle);
+
+#ifdef __EMSCRIPTEN__
+static void web_frame(void *scene)
+{
+	if (game_play_update(scene)) emscripten_cancel_main_loop();
+	SwapScreenBuffer();
+}
+#endif
 
 void game_loop(struct game_config config,
 			   struct assets assets,
@@ -26,6 +41,12 @@ void game_loop(struct game_config config,
 
 	memory_arena_handle_t *current_scene_memory_arena =
 		memory_arena_create_default("scene", memory_for_current_scene, Megabytes(SCENE_MEMORY_MBS));
+
+#ifdef __EMSCRIPTEN__
+	void *scene = game_play_init(config, assets, current_scene_memory_arena);
+	// Yield to requestAnimationFrame instead of blocking the browser in a while loop.
+	emscripten_set_main_loop_arg(web_frame, scene, 0, 1);
+#else
 
 	enum game_scene current_scene = GSC_NONE;
 	void *current_scene_handle = NULL;
@@ -71,6 +92,7 @@ void game_loop(struct game_config config,
 	handle_scene_destruction(current_scene, current_scene_handle);
 
 	memory_arena_destroy(current_scene_memory_arena);
+#endif
 }
 
 void game_set_next_scene(enum game_scene next_scene) { g_next_scene = next_scene; }

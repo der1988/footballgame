@@ -56,6 +56,7 @@ enum entity_type {
 	ET_PLAYER,
 	ET_GOAL,
 	ET_GOAL_NET,
+	ET_REFEREE,
 	ET_COUNT
 };
 

@@ -1,4 +1,8 @@
 #include "football.h"
+#include "entity.h"
+#include "game.h"
+#include "system.h"
+#include <raymath.h>
 #include "gameplay.h"
 #include "gameplay_match.h"
 #include "gameplay_sandbox.h"
@@ -104,6 +108,84 @@ void test_string_tables_are_complete(void)
 	}
 }
 
+static void setup_referee_scene(struct game_state *game, struct entity_repository *repo,
+							   struct entity entities[3])
+{
+	repo->entities = entities;
+	repo->max_slots = 3;
+	game->entity_repository = repo;
+	game->dt = 1.0 / 60;
+	game->vars.pitch.field = (rect_t){0, 0, 1000, 800};
+	game->vars.ball.entity = &entities[0];
+	entities[0].header.alive = true;
+	entities[0].header.type = ET_BALL;
+	entities[0].transform.position = (v2){800, 300};
+	entities[1].header.alive = true;
+	entities[1].header.type = ET_REFEREE;
+	entities[1].transform.header.enabled = true;
+	entities[1].physics.header.enabled = true;
+	entities[1].physics.mass = 1;
+	entities[1].physics.max_velocity = 125;
+	entities[1].sprite.header.enabled = true;
+	entities[1].transform.position = (v2){200, 500};
+	for (usize i = 0; i < SO_COUNT; ++i) {
+		game->gfx.referee.stand_frames[i] = 100 + i;
+		for (usize j = 0; j < 4; ++j) game->gfx.referee.run_frames[i][j] = 200 + i * 4 + j;
+	}
+}
+
+void test_referee_follows_play_without_moving_the_ball(void)
+{
+	struct game_state game = {0};
+	struct entity_repository repo = {0};
+	struct entity entities[3] = {0};
+	setup_referee_scene(&game, &repo, entities);
+	for (int i = 0; i < 120; ++i) {
+		game.time += game.dt;
+		system_referee(&game);
+		TEST_ASSERT_LESS_OR_EQUAL_FLOAT(125.01f, Vector2Length(entities[1].physics.velocity));
+	}
+	TEST_ASSERT_GREATER_THAN_FLOAT(350, entities[1].transform.position.x);
+	TEST_ASSERT_LESS_THAN_FLOAT(450, entities[1].transform.position.y);
+	TEST_ASSERT_EQUAL_FLOAT(800, entities[0].transform.position.x);
+	TEST_ASSERT_EQUAL_FLOAT(300, entities[0].transform.position.y);
+	TEST_ASSERT_GREATER_OR_EQUAL_UINT32(200, entities[1].sprite.frame_id);
+	TEST_ASSERT_FALSE(entities[1].player.header.enabled);
+}
+
+void test_referee_stays_inside_pitch_when_ball_goes_out(void)
+{
+	struct game_state game = {0};
+	struct entity_repository repo = {0};
+	struct entity entities[3] = {0};
+	setup_referee_scene(&game, &repo, entities);
+	entities[0].transform.position = (v2){-200, -200};
+	for (int i = 0; i < 600; ++i) {
+		game.time += game.dt;
+		system_referee(&game);
+		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(16, entities[1].transform.position.x);
+		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(16, entities[1].transform.position.y);
+	}
+	TEST_ASSERT_LESS_THAN_FLOAT(26, entities[1].transform.position.x);
+	TEST_ASSERT_LESS_THAN_FLOAT(26, entities[1].transform.position.y);
+	TEST_ASSERT_LESS_THAN_UINT32(200, entities[1].sprite.frame_id);
+}
+
+void test_referee_moves_clear_of_a_player_at_his_target(void)
+{
+	struct game_state game = {0};
+	struct entity_repository repo = {0};
+	struct entity entities[3] = {0};
+	setup_referee_scene(&game, &repo, entities);
+	entities[1].transform.position = (v2){720, 365};
+	entities[2].header.alive = true;
+	entities[2].header.type = ET_PLAYER;
+	entities[2].transform.position = entities[1].transform.position;
+	for (int i = 0; i < 30; ++i) system_referee(&game);
+	TEST_ASSERT_LESS_THAN_FLOAT(710, entities[1].transform.position.x);
+	TEST_ASSERT_EQUAL_FLOAT(720, entities[2].transform.position.x);
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "gameplay test - start");
@@ -115,6 +197,9 @@ int main()
 	RUN_TEST(test_no_state_reachable_from_play_is_terminal);
 	RUN_TEST(test_every_trigger_is_mapped_by_some_mode);
 	RUN_TEST(test_string_tables_are_complete);
+	RUN_TEST(test_referee_follows_play_without_moving_the_ball);
+	RUN_TEST(test_referee_stays_inside_pitch_when_ball_goes_out);
+	RUN_TEST(test_referee_moves_clear_of_a_player_at_his_target);
 
 	return UNITY_END();
 }
