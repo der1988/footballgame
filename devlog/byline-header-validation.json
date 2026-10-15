@@ -1,0 +1,48 @@
+{
+  "duration_seconds": 7.5,
+  "fps": 60,
+  "frames": 450,
+  "width": 1280,
+  "height": 720,
+  "bytes": 564417,
+  "capture": "prepared in-engine scene with scripted controls",
+  "cross": {
+    "time": 4.723,
+    "position": [
+      850,
+      207.8
+    ],
+    "byline_y": 207,
+    "distance_to_byline": 0.8
+  },
+  "header": {
+    "time": 5.725,
+    "attacker": [
+      550,
+      310
+    ],
+    "defenders": [
+      [
+        530,
+        310
+      ],
+      [
+        570,
+        310
+      ]
+    ],
+    "distances": [
+      20,
+      20
+    ],
+    "attacker_team": 1,
+    "defender_teams": [
+      0,
+      0
+    ]
+  },
+  "goal": {
+    "time": 6.123,
+    "last_play": "BPT_HEADER"
+  }
+}
