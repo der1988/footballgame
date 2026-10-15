@@ -6,6 +6,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string.h>
+#include <math.h>
 
 #define SLOT(N, R, S, X, D, B, A, AX) { .name=N, .supported_roles={R}, .style_of_play=S, .position={{X,D},{X,B},{AX,A}} }
 
@@ -279,6 +280,46 @@ v2 football_tactics_get_target_position(struct entity *player_entity,
 		} else {
 			target = Vector2Lerp(slot->position[TM_DEFENDING], target, 0.25f * progress);
 			target.x = 0.5f + (target.x - 0.5f) * profile->defensive_width;
+		}
+		const enum player_role role = slot->supported_roles[0];
+		const f32 phase = (f32)game_state->time * 0.8f + player_entity->player.team_formation_position_idx * 2.4f;
+		// Individual checks and runs last several seconds and stay inside the player's lane.
+		const f32 run = sinf(phase);
+		if (in_possession) {
+			if (role == PR_CF || role == PR_WF || role == PR_SS) {
+				target.y += 0.055f * run;
+				target.x += 0.045f * cosf(phase * 0.7f);
+				if (progress > 0.65f && fabsf(ball.x - 0.5f) > 0.25f) {
+					// Attack different lanes when a team mate is in a crossing position.
+					target.x = 0.5f + (target.x - 0.5f) * 0.55f;
+					target.y = 0.88f + 0.045f * run;
+				}
+			} else if (role == PR_SB || role == PR_WB || role == PR_SMF) {
+				const b32 ball_on_our_flank = (ball.x < 0.5f) == (target.x < 0.5f);
+				target.y += ball_on_our_flank && progress > 0.4f ? 0.07f * (0.5f + 0.5f * run) : -0.025f;
+			} else if (role != PR_CB) {
+				// Midfielders show diagonally rather than hiding directly behind the carrier.
+				target.x += 0.04f * cosf(phase);
+				target.y += 0.035f * run;
+			}
+		} else {
+			// Cover the most dangerous opponent in our zone, staying goal-side.
+			struct entity *mark = NULL;
+			f32 nearest = 0.22f;
+			FOR_EACH_ENTITY(opponent, game_state->entity_repository) {
+				if (!opponent->header.alive || opponent->header.type != ET_PLAYER ||
+					opponent->player.team_side == side || entity_player_is_goalie(opponent)) continue;
+				v2 pos = football_pitch_position_abs_to_normalized(game_state->vars.pitch.field, opponent->transform.position);
+				if (team->pitch_side == PSI_SOUTH) pos.y = 1 - pos.y;
+				f32 distance = Vector2Distance(pos, target);
+				if (distance < nearest) { nearest = distance; mark = opponent; }
+			}
+			if (mark) {
+				v2 pos = football_pitch_position_abs_to_normalized(game_state->vars.pitch.field, mark->transform.position);
+				if (team->pitch_side == PSI_SOUTH) pos.y = 1 - pos.y;
+				pos.y -= 0.025f;
+				target = Vector2Lerp(target, pos, role == PR_CB ? 0.65f : 0.35f);
+			}
 		}
 		// Slide across together to close the ball-side lane, without abandoning the far side.
 		target.x += (ball.x - 0.5f)*(in_possession ? 0.10f : 0.20f);

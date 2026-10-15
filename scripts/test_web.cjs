@@ -37,7 +37,7 @@ const server = http.createServer((request, response) => {
     await page.getByRole('button', { name: 'Avvia partita' }).click();
     await page.waitForFunction(() => document.getElementById('cover').hidden, { timeout: 60000 });
     await page.waitForFunction(() => window.Module && Module.calledRun);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2600);
     await page.locator('canvas').click();
     await page.keyboard.down('ArrowUp');
     await page.waitForTimeout(700);
@@ -54,6 +54,8 @@ const server = http.createServer((request, response) => {
     await page.waitForTimeout(400);
     assert(messages.some(text => text.includes('gameplay initialisation complete')), 'Game did not start');
     assert(messages.some(text => text.includes('referee_')), 'Referee did not spawn');
+    assert(messages.some(text => text.includes('RESTART kickoff')), 'Opening kickoff was not prepared');
+    assert(messages.some(text => text.includes('entering state: play')), 'Kickoff did not resume play');
     for (const control of [4, 5, 7]) {
       assert(messages.some(text => new RegExp(`control ${control} released`).test(text)),
         `Keyboard action ${control} did not reach the game input system`);

@@ -11,6 +11,11 @@ static color_t g_player_colors[] = {RED, BLUE};
 
 void system_render_hud_front(struct game_state *game_state)
 {
+	if (game_state->gameplay.restart.prepared) {
+		const char *label = state_machine_football_state_string[game_state->gameplay.state_machine.current_state];
+		DrawText(label, game_state->vars.ball.entity->transform.position.x - 50,
+			game_state->vars.ball.entity->transform.position.y - 65, 18, YELLOW);
+	}
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		if (!game_state->human_players[i].enabled)
 			continue;

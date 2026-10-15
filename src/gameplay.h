@@ -34,6 +34,13 @@ struct gameplay {
 	// once by init and never again.
 	enum gameplay_mode mode;
 	struct gameplay_config config;
+	struct {
+		fg_time_t start_time;
+		v2 spot;
+		enum team_side team;
+		entity_id_t taker;
+		b32 prepared;
+	} restart;
 	struct state_machine_football state_machine;
 	union gameplay_data {
 		struct match match;
@@ -52,6 +59,8 @@ struct gameplay_vtable {
 // All of these operate on game_state->gameplay: there is exactly one, held by
 // value, so passing it alongside game_state would only allow the two to
 // disagree.
+void gameplay_award_foul(struct entity *offender, struct entity *victim, struct game_state *game_state);
+void gameplay_prepare_restart(struct game_state *game_state);
 void gameplay_init(enum gameplay_mode mode, struct game_state *game_state);
 void gameplay_update(struct game_state *game_state);
 void gameplay_fire(enum state_machine_football_trigger trigger, struct game_state *game_state);

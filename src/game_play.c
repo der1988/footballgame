@@ -414,12 +414,18 @@ static void update(struct game_state *game_state)
 	}
 
 	gameplay_update(game_state);
+	if (game_state->gameplay.restart.prepared) {
+		system_camera(game_state);
+		system_referee(game_state);
+		return;
+	}
 
 	game_state->vars.ball.possession_at_tick_start =
 		entity_ball_player_in_possession(game_state->vars.ball.entity, game_state);
 
 	system_goalie(game_state);
 	system_player_collisions(game_state);
+	if (game_state->gameplay.restart.prepared) return;
 	system_team_pressing(game_state);
 	system_player_control_human(game_state);
 	system_player_control_ai(game_state);

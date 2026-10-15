@@ -282,12 +282,102 @@ void test_tactical_identity_changes_height_width_and_pressing(void)
 	TEST_ASSERT_GREATER_THAN_FLOAT(football_tactics_get_profile(TF_3232)->attacking_width, football_tactics_get_profile(TF_343)->attacking_width);
 }
 
+void test_forward_checks_and_runs_without_abandoning_his_lane(void)
+{
+	struct game_state game = {0};
+	struct entity entities[3] = {0};
+	struct entity_repository repo = {.initialised = true, .entities = entities, .max_slots = 3};
+	game.entity_repository = &repo;
+	game.vars.pitch.field = (rect_t){0,0,1000,1000};
+	game.vars.teams[TS_HOME].play_context.formation = TF_442;
+	game.vars.teams[TS_HOME].play_context.pitch_side = PSI_NORTH;
+	game.gameplay.state_machine.current_state = FS_PLAY;
+	entities[0].transform.position = (v2){500,600};
+	entities[0].ball.last_touch_entity_id = 1;
+	entities[1].player.team_side = TS_HOME;
+	entities[1].player.team_formation_position_idx = 8;
+	v2 first = football_tactics_get_target_position(&entities[1], &entities[0], &game);
+	game.time = 3;
+	v2 next = football_tactics_get_target_position(&entities[1], &entities[0], &game);
+	TEST_ASSERT_GREATER_THAN_FLOAT(20, Vector2Distance(first, next));
+	TEST_ASSERT_FLOAT_WITHIN(100, 370, next.x);
+	TEST_ASSERT_GREATER_THAN_FLOAT(700, next.y);
+}
+
+void test_restart_reserves_ball_for_correct_team_and_waits(void)
+{
+	struct game_state game = {0};
+	struct entity entities[5] = {0};
+	struct entity_repository repo = {.initialised = true, .entities = entities, .max_slots = 5};
+	game.entity_repository = &repo;
+	game.vars.ball.entity = &entities[0];
+	game.vars.pitch.field = (rect_t){0,0,1000,1000};
+	game.vars.pitch.midfield_spot = (v2){500,500};
+	game.vars.teams[TS_HOME].play_context = (struct team_play_context){.formation=TF_442, .pitch_side=PSI_NORTH};
+	game.vars.teams[TS_AWAY].play_context = (struct team_play_context){.formation=TF_442, .pitch_side=PSI_SOUTH};
+	entities[0].transform.position = (v2){0,500};
+	entities[0].ball.last_touch_entity_id = 1;
+	for (int i=1;i<5;i++) {
+		entities[i].header.id=i;
+		entities[i].header.alive=true;
+		entities[i].header.type=ET_PLAYER;
+		entities[i].player.team_side=i<3 ? TS_HOME : TS_AWAY;
+		entities[i].player.team_formation_position_idx=i;
+		entities[i].transform.position=(v2){100*i,500};
+	}
+	game.gameplay.state_machine.current_state=FS_THROW_IN;
+	game.time=10;
+	gameplay_prepare_restart(&game);
+	TEST_ASSERT_TRUE(game.gameplay.restart.prepared);
+	TEST_ASSERT_EQUAL_INT(TS_AWAY, game.gameplay.restart.team);
+	TEST_ASSERT_EQUAL_INT(TS_AWAY, entities[game.gameplay.restart.taker].player.team_side);
+	TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(94, Vector2Distance(entities[1].transform.position, game.gameplay.restart.spot));
+	game.time=11.9;
+	gameplay_update(&game);
+	TEST_ASSERT_EQUAL_INT(FS_THROW_IN, game.gameplay.state_machine.current_state);
+	TEST_ASSERT_TRUE(game.gameplay.restart.prepared);
+}
+
+void test_foul_inside_area_awards_penalty_outside_awards_free_kick(void)
+{
+	for (int inside=0; inside<2; ++inside) {
+		struct game_state game = {0};
+		struct entity entities[3] = {0};
+		struct entity_repository repo = {.initialised=true, .entities=entities, .max_slots=3};
+		game.entity_repository=&repo;
+		game.vars.ball.entity=&entities[0];
+		game.vars.pitch.field=(rect_t){0,0,1000,1000};
+		game.vars.pitch.goal[PSI_NORTH].penalty_box=(rect_t){300,0,400,180};
+		game.vars.pitch.goal[PSI_NORTH].penalty_spot=(v2){500,120};
+		game.vars.teams[TS_HOME].play_context=(struct team_play_context){.formation=TF_442,.pitch_side=PSI_NORTH};
+		game.vars.teams[TS_AWAY].play_context=(struct team_play_context){.formation=TF_442,.pitch_side=PSI_SOUTH};
+		entities[0].ball.last_touch_entity_id=2;
+		for(int i=1;i<3;++i) {
+			entities[i].header.id=i;
+			entities[i].header.alive=true;
+			entities[i].header.type=ET_PLAYER;
+			entities[i].player.team_side=i==1 ? TS_HOME : TS_AWAY;
+		}
+		entities[2].transform.position=(v2){500,inside ? 100 : 350};
+		game.gameplay.mode=GPM_MATCH;
+		state_machine_football_init(&game.gameplay.state_machine, &game.gameplay, gameplay_match_vtable.transitions, FS_PLAY, &game);
+		gameplay_award_foul(&entities[1], &entities[2], &game);
+		TEST_ASSERT_EQUAL_INT(inside ? FS_PENALTY_KICK : FS_FREE_KICK, game.gameplay.state_machine.current_state);
+		TEST_ASSERT_EQUAL_INT(TS_AWAY, game.gameplay.restart.team);
+		TEST_ASSERT_TRUE(game.gameplay.restart.prepared);
+		TEST_ASSERT_EQUAL_FLOAT(inside ? 120 : 350, game.gameplay.restart.spot.y);
+	}
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "gameplay test - start");
 
 	UNITY_BEGIN();
 
+	RUN_TEST(test_forward_checks_and_runs_without_abandoning_his_lane);
+	RUN_TEST(test_restart_reserves_ball_for_correct_team_and_waits);
+	RUN_TEST(test_foul_inside_area_awards_penalty_outside_awards_free_kick);
 	RUN_TEST(test_cells_are_in_range);
 	RUN_TEST(test_none_row_is_empty);
 	RUN_TEST(test_no_state_reachable_from_play_is_terminal);

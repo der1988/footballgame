@@ -35,7 +35,7 @@ const char *state_machine_football_trigger_string[FT_COUNT] = {"none",
 															   "ball_out_for_corner",
 															   "ball_out_for_goal_kick",
 															   "celebration_ended",
-															   "play_resumed"};
+															   "play_resumed", "foul", "penalty_awarded"};
 
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(football, struct gameplay);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(football, struct gameplay);
@@ -122,16 +122,19 @@ static void state_machine_football_on_enter(struct gameplay *gameplay,
 							 pitch->penalty_box_height * 0.25f * (side == PSI_NORTH ? 1 : -1)},
 				   game_state);
 	} break;
+	case FS_PENALTY_KICK:
+	case FS_FREE_KICK:
+		place_ball(gameplay->restart.spot, game_state);
+		break;
 	case FS_NONE:
 	case FS_HALF_TIME:
 	case FS_EXTRA_TIME:
 	case FS_PENALTIES:
 	case FS_PLAY:
-	case FS_PENALTY_KICK:
-	case FS_FREE_KICK:
 	case FS_COUNT:
 		break;
 	}
+	if (to == FS_KICKOFF || to == FS_THROW_IN || to == FS_CORNER_KICK || to == FS_GOAL_KICK || to == FS_FREE_KICK || to == FS_PENALTY_KICK) gameplay_prepare_restart(game_state);
 }
 
 static void state_machine_football_on_exit(struct gameplay *gameplay,

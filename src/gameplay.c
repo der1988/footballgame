@@ -11,6 +11,10 @@
 #include "gameplay_sandbox.h"
 #include "log.h"
 #include "macro.h"
+#include <float.h>
+#include <string.h>
+#include "math_ext.h"
+#include <raymath.h>
 
 const char *gameplay_mode_string[GPM_COUNT] = {"match", "sandbox"};
 
@@ -178,7 +182,7 @@ void gameplay_init(enum gameplay_mode mode, struct game_state *game_state)
 
 	// Last: init runs on_enter, which needs the entities setup has just spawned.
 	state_machine_football_init(
-		&gameplay->state_machine, gameplay, vtable->transitions, FS_PLAY, game_state);
+		&gameplay->state_machine, gameplay, vtable->transitions, FS_KICKOFF, game_state);
 
 	GLOGF_INFO(LS_GAME, "gameplay initialised in %s mode", vtable->name);
 }
@@ -211,17 +215,115 @@ void gameplay_update(struct game_state *game_state)
 	case FS_THROW_IN:
 	case FS_CORNER_KICK:
 	case FS_GOAL_KICK:
-		// Nothing to wait for yet; on_enter has already placed the ball.
-		gameplay_fire(FT_PLAY_RESUMED, game_state);
+	case FS_FREE_KICK:
+	case FS_PENALTY_KICK:
+		if (gameplay->restart.prepared && game_state->time - gameplay->restart.start_time >= 2.0) {
+			struct entity *ball = game_state->vars.ball.entity;
+			const enum pitch_side own = game_state->vars.teams[gameplay->restart.team].play_context.pitch_side;
+			v2 target = game_state->vars.pitch.goal[own == PSI_NORTH ? PSI_SOUTH : PSI_NORTH].center;
+			if (state_machine->current_state == FS_CORNER_KICK) target.y += own == PSI_NORTH ? -70 : 70;
+			if (state_machine->current_state == FS_KICKOFF || state_machine->current_state == FS_THROW_IN)
+				target = Vector2Add(gameplay->restart.spot, (v2){gameplay->restart.spot.x < game_state->vars.pitch.midfield_spot.x ? 65 : -65, own == PSI_NORTH ? 60 : -60});
+			v2 direction = Vector2Normalize(Vector2Subtract(target, gameplay->restart.spot));
+			const b32 shot = state_machine->current_state == FS_PENALTY_KICK ||
+				(state_machine->current_state == FS_FREE_KICK && Vector2Distance(target, gameplay->restart.spot) < 280);
+			entity_ball_set_last_touch(ball, gameplay->restart.taker, game_state);
+			if (shot) entity_ball_shoot(ball, gameplay->restart.taker, direction, 0.15f, 0.7f, false, game_state);
+			else if (state_machine->current_state == FS_CORNER_KICK || state_machine->current_state == FS_GOAL_KICK)
+				entity_ball_long_pass(ball, gameplay->restart.taker, direction, state_machine->current_state == FS_CORNER_KICK ? 0.5f : 0.75f, false, game_state);
+			else entity_ball_short_pass(ball, gameplay->restart.taker, V2_TO_V3(direction, 0), 0.35f, game_state);
+			gameplay->restart.prepared = false;
+			gameplay_fire(FT_PLAY_RESUMED, game_state);
+		}
 		break;
 	case FS_NONE:
 	case FS_HALF_TIME:
 	case FS_EXTRA_TIME:
 	case FS_PENALTIES:
 	case FS_PLAY:
-	case FS_PENALTY_KICK:
-	case FS_FREE_KICK:
 	case FS_COUNT:
 		break;
 	}
+}
+
+void gameplay_award_foul(struct entity *offender, struct entity *victim, struct game_state *game_state)
+{
+	if (game_state->gameplay.state_machine.current_state != FS_PLAY ||
+		offender->player.team_side == victim->player.team_side) return;
+	struct gameplay *gameplay = &game_state->gameplay;
+	const enum pitch_side defending = game_state->vars.teams[offender->player.team_side].play_context.pitch_side;
+	const b32 penalty = CheckCollisionPointRec(victim->transform.position, game_state->vars.pitch.goal[defending].penalty_box);
+	gameplay->restart.team = victim->player.team_side;
+	gameplay->restart.spot = penalty ? game_state->vars.pitch.goal[defending].penalty_spot : victim->transform.position;
+	gameplay_fire(penalty ? FT_PENALTY_AWARDED : FT_FOUL, game_state);
+}
+
+void gameplay_prepare_restart(struct game_state *game_state)
+{
+	struct gameplay *gameplay = &game_state->gameplay;
+	struct entity *ball = game_state->vars.ball.entity;
+	const enum state_machine_football_state state = gameplay->state_machine.current_state;
+	const enum team_side last = entity_ball_team_in_possession(ball, game_state);
+	if (state == FS_THROW_IN || state == FS_CORNER_KICK || state == FS_KICKOFF)
+		gameplay->restart.team = last == TS_HOME ? TS_AWAY : TS_HOME;
+	if (state == FS_KICKOFF && ball->ball.last_touch_entity_id == EID_NOT_VALID) gameplay->restart.team = TS_HOME;
+	if (state == FS_GOAL_KICK) {
+		const enum pitch_side side = ball->transform.position.y < game_state->vars.pitch.midfield_spot.y ? PSI_NORTH : PSI_SOUTH;
+		gameplay->restart.team = game_state->vars.teams[TS_HOME].play_context.pitch_side == side ? TS_HOME : TS_AWAY;
+	}
+	gameplay->restart.spot = ball->transform.position;
+	gameplay->restart.start_time = game_state->time;
+	gameplay->restart.taker = EID_NOT_VALID;
+	f32 nearest = FLT_MAX;
+	{
+	FOR_EACH_ENTITY(player, game_state->entity_repository) {
+		if (!player->header.alive || player->header.type != ET_PLAYER || player->player.team_side != gameplay->restart.team) continue;
+		if (entity_player_is_goalie(player) != (state == FS_GOAL_KICK)) continue;
+		f32 distance = Vector2Distance(player->transform.position, gameplay->restart.spot);
+		if (distance < nearest) { nearest = distance; gameplay->restart.taker = player->header.id; }
+	}
+	}
+	if (gameplay->restart.taker == EID_NOT_VALID) return;
+	const enum pitch_side own = game_state->vars.teams[gameplay->restart.team].play_context.pitch_side;
+	const f32 forward = own == PSI_NORTH ? 1 : -1;
+	const v2 goal = game_state->vars.pitch.goal[own == PSI_NORTH ? PSI_SOUTH : PSI_NORTH].center;
+	u32 wall = 0;
+	FOR_EACH_ENTITY(player, game_state->entity_repository) {
+		if (!player->header.alive || player->header.type != ET_PLAYER) continue;
+		v2 pos = football_tactics_get_target_position(player, ball, game_state);
+		const b32 attacking = player->player.team_side == gameplay->restart.team;
+		if (state == FS_KICKOFF && !entity_player_is_goalie(player)) {
+			const f32 middle = game_state->vars.pitch.midfield_spot.y;
+			const f32 direction = game_state->vars.teams[player->player.team_side].play_context.pitch_side == PSI_NORTH ? 1 : -1;
+			if ((pos.y - middle) * direction > -35) pos.y = middle - direction * 45;
+		}
+		if (state == FS_CORNER_KICK && !entity_player_is_goalie(player)) {
+			const u32 idx = player->player.team_formation_position_idx;
+			if (idx >= 5) pos = (v2){goal.x + ((int)(idx % 3) - 1) * 45 + (attacking ? -8 : 8), goal.y - forward * (65 + (idx % 2) * 45)};
+		}
+		if (state == FS_FREE_KICK && !attacking && !entity_player_is_goalie(player) && wall < 3) {
+			v2 toward_goal = Vector2Normalize(Vector2Subtract(goal, gameplay->restart.spot));
+			pos = Vector2Add(gameplay->restart.spot, Vector2Scale(toward_goal, 90));
+			pos.x += ((int)wall++ - 1) * 20;
+		}
+		if (state == FS_PENALTY_KICK && !entity_player_is_goalie(player)) {
+			pos.y = gameplay->restart.spot.y - forward * 115;
+		}
+		if (player->header.id == gameplay->restart.taker) pos = Vector2Add(gameplay->restart.spot, (v2){0, -forward * 14});
+		else if (!entity_player_is_goalie(player)) {
+			const f32 minimum = state == FS_KICKOFF || !attacking ? 95 : 35;
+			v2 away = Vector2Subtract(pos, gameplay->restart.spot);
+			if (Vector2Length(away) < minimum) {
+				if (Vector2Length(away) < 1) away = (v2){1, 0};
+				pos = Vector2Add(gameplay->restart.spot, Vector2Scale(Vector2Normalize(away), minimum));
+			}
+		}
+		pos.x = Clamp(pos.x, game_state->vars.pitch.field.x + 8, game_state->vars.pitch.field.x + game_state->vars.pitch.field.width - 8);
+		pos.y = Clamp(pos.y, game_state->vars.pitch.field.y + 8, game_state->vars.pitch.field.y + game_state->vars.pitch.field.height - 8);
+		player->transform.position = pos;
+		player->physics.velocity = Vector2Zero();
+		RESET_COMPONENT(&player->player_controls);
+	}
+	gameplay->restart.prepared = true;
+	GLOGF_INFO(LS_GAME, "RESTART %s team=%s", state_machine_football_state_string[state], team_side_to_string[gameplay->restart.team]);
 }

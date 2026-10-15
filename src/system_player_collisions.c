@@ -4,6 +4,7 @@
 #include "entity_player.h"
 #include "entity.h"
 #include "football.h"
+#include "gameplay.h"
 #include "game.h"
 #include "physics.h"
 #include "input.h"
@@ -63,6 +64,10 @@ void system_player_collisions(struct game_state *game_state)
 					&tackling_player_entity->collider.colliders[PCT_TACKLE],
 					victim_entity->transform.position,
 					&victim_entity->collider.colliders[PCT_TACKLE_SENSOR])) {
+				if (!tackle_data->touched_ball && !tackling_player_entity->player.is_colliding_with_ball) {
+					gameplay_award_foul(tackling_player_entity, victim_entity, game_state);
+					if (game_state->gameplay.restart.prepared) return;
+				}
 				entity_player_tackled(victim_entity,
 									  tackling_player_entity,
 									  TACKLE_KNOCKDOWN_PROBABILITY,
@@ -75,6 +80,12 @@ void system_player_collisions(struct game_state *game_state)
 				tackling_player_entity, PCT_SLIDING_TACKLE_1, game_state);
 			LIST_ITERATE(tackled_player_entity, entities)
 			{
+				if (tackler_state_machine->current_state == PS_SLIDING_TACKLE &&
+					!tackler_state_machine->state_data.sliding_tackle.touched_ball &&
+					!tackling_player_entity->player.is_colliding_with_ball) {
+					gameplay_award_foul(tackling_player_entity, tackled_player_entity, game_state);
+					if (game_state->gameplay.restart.prepared) return;
+				}
 				entity_player_tackled(tackled_player_entity,
 									  tackling_player_entity,
 									  SLIDING_TACKLE_KNOCKDOWN_PROBABILITY,
@@ -86,6 +97,12 @@ void system_player_collisions(struct game_state *game_state)
 				tackling_player_entity, PCT_SMOTHER, game_state);
 			LIST_ITERATE(tackled_player_entity, entities)
 			{
+				if (tackler_state_machine->current_state == PS_SLIDING_TACKLE &&
+					!tackler_state_machine->state_data.sliding_tackle.touched_ball &&
+					!tackling_player_entity->player.is_colliding_with_ball) {
+					gameplay_award_foul(tackling_player_entity, tackled_player_entity, game_state);
+					if (game_state->gameplay.restart.prepared) return;
+				}
 				entity_player_tackled(tackled_player_entity,
 									  tackling_player_entity,
 									  GOALIE_SMOTHER_KNOCKDOWN_PROBABILITY,

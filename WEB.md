@@ -65,3 +65,23 @@ npm run test:web
 To use an already installed Chromium instead of downloading one, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable. The test serves the actual deployment files temporarily and checks engine startup, shader errors, referee creation, keyboard shot/pass/cross input reaching the game, and the disabled replay shortcut.
 
 The current bundle was exercised in Chromium with software WebGL. Safari and Firefox need a separate device check; publication on Vercel is a separate step from the local browser validation.
+
+
+## Movement and restarts
+
+Players keep their formation lanes while making role-dependent supporting movements:
+forwards check and run, wide players advance on the ball side, midfielders offer
+angled support, and defenders track opponents inside their zone. Forwards move
+into separate central lanes when the ball reaches a crossing position.
+
+Kickoffs, throw-ins, corners, goal kicks, direct free kicks and penalties now have
+a two-second preparation phase and an automatic delivery. The restart selects a
+taker on the awarded team and positions the other players, including a three-man
+free-kick wall and players outside the penalty spot at penalties. Challenges that
+hit an opponent without playing the ball award a free kick, or a penalty inside
+the defending team's penalty area.
+
+This is the initial restart implementation: deliveries are automatic and throw-ins
+use the existing passing physics. Dedicated throw-in animations, manual restart
+aiming, indirect free kicks, offside, dropped balls, advantage, cards and penalty
+shootouts are not implemented.

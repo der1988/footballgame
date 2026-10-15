@@ -41,6 +41,8 @@ enum state_machine_football_trigger {
 	FT_BALL_OUT_FOR_GOAL_KICK,
 	FT_CELEBRATION_ENDED,
 	FT_PLAY_RESUMED,
+	FT_FOUL,
+	FT_PENALTY_AWARDED,
 	FT_COUNT
 };
 
