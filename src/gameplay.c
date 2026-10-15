@@ -19,12 +19,13 @@ static const struct gameplay_vtable *gameplay_vtables[GPM_COUNT] = {
 	[GPM_SANDBOX] = &gameplay_sandbox_vtable,
 };
 
-static struct player_characteristics characteristics_for_position(u8 idx)
+static struct player_characteristics characteristics_for_position(enum team_formation formation, u8 idx)
 {
-	if (idx <= 3)
+	enum player_role role = football_tactics_get_team_formation_position(formation, idx)->supported_roles[0];
+	if (role == PR_CB || role == PR_SB || role == PR_WB)
 		return (struct player_characteristics){
 			.speed = 4, .acceleration = 3, .strength = 4, .weight = 4}; // Defenders
-	if (idx <= 6)
+	if (role != PR_CF && role != PR_WF && role != PR_SS)
 		return (struct player_characteristics){
 			.speed = 3, .acceleration = 3, .strength = 3, .weight = 3}; // Midfielders
 	return (struct player_characteristics){
@@ -64,34 +65,41 @@ void gameplay_setup_common(u8 outfield_players_per_team, struct game_state *game
 {
 	game_state->vars.teams[0] =
 		(struct team){(struct team_info){.name = "New Team"},
-					  (struct team_play_context){.pitch_side = PSI_NORTH, .formation = TF_433}};
+					  (struct team_play_context){.pitch_side = PSI_NORTH, .formation = game_state->config.home_formation}};
 
 	game_state->vars.teams[1] =
 		(struct team){(struct team_info){.name = "Muppets"},
-					  (struct team_play_context){.pitch_side = PSI_SOUTH, .formation = TF_433}};
+					  (struct team_play_context){.pitch_side = PSI_SOUTH, .formation = game_state->config.away_formation}};
+
+	const enum team_formation home = game_state->vars.teams[TS_HOME].play_context.formation;
+	const enum team_formation away = game_state->vars.teams[TS_AWAY].play_context.formation;
+	u8 home_count = outfield_players_per_team;
+	u8 away_count = outfield_players_per_team;
+	GLOGF_INFO(LS_GAME, "FORMATIONS home=%s away=%s outfield=%u/%u",
+		team_formation_to_string[home], team_formation_to_string[away], home_count, away_count);
 
 	// Team 1
-	for (usize i = 0; i < outfield_players_per_team; ++i) {
-		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
+	for (usize i = 0; i < home_count; ++i) {
+		v2 pos = football_tactics_get_team_formation_position(home, i)->position[TM_DEFAULT];
 		pos.y = 1 - pos.y;
 		entity_player_create(
 			(struct player_config){.position = football_pitch_position_normalized_to_abs(
 									   game_state->vars.pitch.field, pos),
 								   .team_side = TS_HOME,
 								   .team_formation_position_idx = i,
-								   .characteristics = characteristics_for_position(i)},
+								   .characteristics = characteristics_for_position(home, i)},
 			game_state);
 	}
 
 	// Team 2
-	for (usize i = 0; i < outfield_players_per_team; ++i) {
-		v2 pos = football_tactics_get_team_formation_position(TF_433, i)->position[TM_DEFAULT];
+	for (usize i = 0; i < away_count; ++i) {
+		v2 pos = football_tactics_get_team_formation_position(away, i)->position[TM_DEFAULT];
 		entity_player_create(
 			(struct player_config){.position = football_pitch_position_normalized_to_abs(
 									   game_state->vars.pitch.field, pos),
 								   .team_side = TS_AWAY,
 								   .team_formation_position_idx = i,
-								   .characteristics = characteristics_for_position(i)},
+								   .characteristics = characteristics_for_position(away, i)},
 			game_state);
 	}
 

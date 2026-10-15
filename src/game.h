@@ -35,6 +35,8 @@ struct game_config {
 	u32 screen_width;
 	u32 screen_height;
 	enum gameplay_mode gameplay_mode;
+	enum team_formation home_formation;
+	enum team_formation away_formation;
 };
 
 struct game_constants {

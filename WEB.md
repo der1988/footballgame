@@ -20,6 +20,12 @@ No database, secret, backend, SharedArrayBuffer or cross-origin isolation header
 
 ## Controls
 
+Before starting, choose one of five formations for the red team: **5-4-1**, **5-3-2**, **4-4-2**, **3-4-3**, or **3-2-3-2**. The opponent uses 4-4-2. All five formations field ten outfield players plus the goalkeeper. The 3-2-3-2 replaces the initially requested 3-2-3-1 so both sides have eleven players.
+
+The formation changes starting positions and role-based player archetypes, possession support positions, defensive compactness, attacking width, defensive line height and pressing range. Defensive 5-4-1 and 5-3-2 hold lower lines; 5-3-2 wing-backs advance on the ball. Balanced 4-4-2 supports both flanks with two strikers. Attacking 3-4-3 pushes the wide players forward, while 3-2-3-2 adds two holding midfielders behind three support players and two strikers. Off-ball players shift toward the ball side and drop into their formation when possession changes.
+
+Native builds also accept a formation code as a command-line argument, for example `./build/macos-manual/thegame 532`.
+
 | Key | Action |
 | --- | --- |
 | Arrow keys | Move selected player |
