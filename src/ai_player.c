@@ -179,7 +179,10 @@ struct player_ai_decision ai_player_think(struct entity *player_entity,
 					.play_context.player_in_charge_of_pressing == player_entity->header.id ||
 			(!team_has_humans &&
 			 game_state->vars.teams[player_entity->player.team_side]
-					 .play_context.player_nearest_to_the_ball == player_entity->header.id)) {
+						 .play_context.player_nearest_to_the_ball == player_entity->header.id &&
+			 Vector2Distance(player_entity->transform.position, ball_transform->position) <=
+			 football_tactics_get_profile(game_state->vars.teams[player_entity->player.team_side]
+				 .play_context.formation)->pressing_distance)) {
 			// We are the nearest to the player with the ball, let's seek the ball and potentially tackle it
 			decision.state = PAS_SET_STEERING;
 			decision.steering = entity_player_steer_pursuit(

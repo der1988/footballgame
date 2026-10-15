@@ -14,7 +14,7 @@ const char *team_side_to_string[TS_COUNT] = {"home", "away"};
 const char *save_direction_to_string[SD_COUNT] = {"left", "right"};
 const char *save_height_to_string[SH_COUNT] = {"high", "low"};
 const char *team_formation_to_string[TF_COUNT] = {
-	"4-3-3", "4-4-2", "3-5-2", "3-4-3", "5-3-2", "4-3-1-2", "4-2-3-1"};
+	"4-3-3", "4-4-2", "3-5-2", "3-4-3", "5-3-2", "4-3-1-2", "4-2-3-1", "5-4-1", "3-2-3-2"};
 
 const char *state_machine_football_state_string[FS_COUNT] = {"none",
 															 "kickoff",
@@ -35,7 +35,7 @@ const char *state_machine_football_trigger_string[FT_COUNT] = {"none",
 															   "ball_out_for_corner",
 															   "ball_out_for_goal_kick",
 															   "celebration_ended",
-															   "play_resumed"};
+															   "play_resumed", "foul", "penalty_awarded"};
 
 STATE_MACHINE_FORWARD_DECLARE_FUNCTIONS(football, struct gameplay);
 STATE_MACHINE_IMPLEMENT_FUNCTIONS(football, struct gameplay);
@@ -122,16 +122,19 @@ static void state_machine_football_on_enter(struct gameplay *gameplay,
 							 pitch->penalty_box_height * 0.25f * (side == PSI_NORTH ? 1 : -1)},
 				   game_state);
 	} break;
+	case FS_PENALTY_KICK:
+	case FS_FREE_KICK:
+		place_ball(gameplay->restart.spot, game_state);
+		break;
 	case FS_NONE:
 	case FS_HALF_TIME:
 	case FS_EXTRA_TIME:
 	case FS_PENALTIES:
 	case FS_PLAY:
-	case FS_PENALTY_KICK:
-	case FS_FREE_KICK:
 	case FS_COUNT:
 		break;
 	}
+	if (to == FS_KICKOFF || to == FS_THROW_IN || to == FS_CORNER_KICK || to == FS_GOAL_KICK || to == FS_FREE_KICK || to == FS_PENALTY_KICK) gameplay_prepare_restart(game_state);
 }
 
 static void state_machine_football_on_exit(struct gameplay *gameplay,

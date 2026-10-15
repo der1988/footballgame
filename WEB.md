@@ -20,6 +20,12 @@ No database, secret, backend, SharedArrayBuffer or cross-origin isolation header
 
 ## Controls
 
+Before starting, choose one of five formations for the red team: **5-4-1**, **5-3-2**, **4-4-2**, **3-4-3**, or **3-2-3-2**. The opponent uses 4-4-2. All five formations field ten outfield players plus the goalkeeper. The 3-2-3-2 replaces the initially requested 3-2-3-1 so both sides have eleven players.
+
+The formation changes starting positions and role-based player archetypes, possession support positions, defensive compactness, attacking width, defensive line height and pressing range. Defensive 5-4-1 and 5-3-2 hold lower lines; 5-3-2 wing-backs advance on the ball. Balanced 4-4-2 supports both flanks with two strikers. Attacking 3-4-3 pushes the wide players forward, while 3-2-3-2 adds two holding midfielders behind three support players and two strikers. Off-ball players shift toward the ball side and drop into their formation when possession changes.
+
+Native builds also accept a formation code as a command-line argument, for example `./build/macos-manual/thegame 532`.
+
 | Key | Action |
 | --- | --- |
 | Arrow keys | Move selected player |
@@ -59,3 +65,25 @@ npm run test:web
 To use an already installed Chromium instead of downloading one, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable. The test serves the actual deployment files temporarily and checks engine startup, shader errors, referee creation, keyboard shot/pass/cross input reaching the game, and the disabled replay shortcut.
 
 The current bundle was exercised in Chromium with software WebGL. Safari and Firefox need a separate device check; publication on Vercel is a separate step from the local browser validation.
+
+
+## Movement and restarts
+
+Players keep their formation lanes while making role-dependent supporting movements:
+forwards check and run, wide players advance on the ball side, midfielders offer
+angled support, and defenders track opponents inside their zone. Forwards move
+into separate central lanes when the ball reaches a crossing position.
+
+Kickoffs, throw-ins, corners, goal kicks, direct free kicks and penalties now have
+a preparation phase. Human teams aim with arrows or the controller stick and
+hold/release shoot, pass or long pass to deliver. A direction guide and power bar
+are shown. Power reaches its maximum after 1.2 seconds and waits for release.
+AI teams deliver automatically after two seconds. The restart selects a
+taker on the awarded team and positions the other players, including a three-man
+free-kick wall and players outside the penalty spot at penalties. Challenges that
+hit an opponent without playing the ball award a free kick, or a penalty inside
+the defending team's penalty area.
+
+This is the initial restart implementation: throw-ins
+use the existing passing physics. Dedicated throw-in animations, indirect free kicks, offside, dropped balls, advantage, cards and penalty
+shootouts are not implemented.

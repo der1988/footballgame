@@ -6,6 +6,8 @@
 
 static const enum state_machine_football_state sandbox_transitions[FS_COUNT][FT_COUNT] = {
 	[FS_PLAY] = {[FT_GOAL_SCORED] = FS_GOAL,
+                 [FT_FOUL] = FS_FREE_KICK,
+                 [FT_PENALTY_AWARDED] = FS_PENALTY_KICK,
 				 [FT_BALL_OUT_FOR_THROW_IN] = FS_THROW_IN,
 				 [FT_BALL_OUT_FOR_CORNER] = FS_CORNER_KICK,
 				 [FT_BALL_OUT_FOR_GOAL_KICK] = FS_GOAL_KICK},
@@ -13,6 +15,8 @@ static const enum state_machine_football_state sandbox_transitions[FS_COUNT][FT_
 	[FS_KICKOFF] = {[FT_PLAY_RESUMED] = FS_PLAY},
 	[FS_THROW_IN] = {[FT_PLAY_RESUMED] = FS_PLAY},
 	[FS_CORNER_KICK] = {[FT_PLAY_RESUMED] = FS_PLAY},
+	[FS_FREE_KICK] = {[FT_PLAY_RESUMED] = FS_PLAY},
+	[FS_PENALTY_KICK] = {[FT_PLAY_RESUMED] = FS_PLAY},
 	[FS_GOAL_KICK] = {[FT_PLAY_RESUMED] = FS_PLAY},
 };
 

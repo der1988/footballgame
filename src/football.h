@@ -41,6 +41,8 @@ enum state_machine_football_trigger {
 	FT_BALL_OUT_FOR_GOAL_KICK,
 	FT_CELEBRATION_ENDED,
 	FT_PLAY_RESUMED,
+	FT_FOUL,
+	FT_PENALTY_AWARDED,
 	FT_COUNT
 };
 
@@ -131,6 +133,8 @@ enum team_formation {
 	TF_532,
 	TF_4312,
 	TF_4231,
+	TF_541,
+	TF_3232,
 	TF_COUNT
 };
 
@@ -156,6 +160,15 @@ struct team_formation_position {
 };
 
 extern struct team_formation_position team_formations[TF_COUNT][10];
+
+struct team_tactics_profile {
+	f32 pressing_distance;
+	f32 defensive_width;
+	f32 attacking_width;
+};
+
+enum team_formation football_tactics_formation_from_code(const char *code);
+const struct team_tactics_profile *football_tactics_get_profile(enum team_formation formation);
 
 struct team_info {
 	char *name;

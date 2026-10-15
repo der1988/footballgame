@@ -32,7 +32,9 @@ void system_team_pressing(struct game_state *game_state)
 		return;
 	}
 
-	entity_player_select_press_player(ball_entity, pressing_team, 250.f, game_state);
+	const struct team_tactics_profile *profile = football_tactics_get_profile(
+		game_state->vars.teams[pressing_team].play_context.formation);
+	entity_player_select_press_player(ball_entity, pressing_team, profile->pressing_distance, game_state);
 }
 
 static b32 is_human_asking_to_press(enum team_side team_side, struct game_state *game_state)

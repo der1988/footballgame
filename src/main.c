@@ -1,6 +1,9 @@
 #include "game.h"
 #include "asset_manager.h"
 #include <stdlib.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 
 #ifdef __EMSCRIPTEN__
 #define TOTAL_MEMORY_MBS 64
@@ -8,7 +11,7 @@
 #define TOTAL_MEMORY_MBS 2000
 #endif
 
-int main()
+int main(int argc, char **argv)
 {
 	// Initialization
 	//--------------------------------------------------------------------------------------
@@ -46,6 +49,8 @@ int main()
 		.virtual_screen_width = virtual_screen_width,
 		.virtual_screen_height = virtual_screen_height,
 		.gameplay_mode = GPM_MATCH,
+		.home_formation = argc > 1 ? football_tactics_formation_from_code(argv[1]) : TF_442,
+		.away_formation = TF_442,
 	};
 
 	game_loop(game_config, assets, main_memory_arena);

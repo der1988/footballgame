@@ -11,6 +11,20 @@ static color_t g_player_colors[] = {RED, BLUE};
 
 void system_render_hud_front(struct game_state *game_state)
 {
+	if (game_state->gameplay.restart.prepared) {
+		if (game_state->gameplay.restart.manual) {
+			const v2 spot = game_state->gameplay.restart.spot;
+			const v2 end = Vector2Add(spot, Vector2Scale(game_state->gameplay.restart.aim, 55));
+			DrawLineEx(spot, end, 3, YELLOW);
+			DrawCircleV(end, 4, YELLOW);
+			DrawRectangle(spot.x - 30, spot.y - 45, 60, 7, DARKGRAY);
+			DrawRectangle(spot.x - 30, spot.y - 45, 60 * game_state->gameplay.restart.power, 7, GREEN);
+			DrawText("Aim + hold/release A/S/D", spot.x - 90, spot.y - 85, 12, WHITE);
+		}
+		const char *label = state_machine_football_state_string[game_state->gameplay.state_machine.current_state];
+		DrawText(label, game_state->vars.ball.entity->transform.position.x - 50,
+			game_state->vars.ball.entity->transform.position.y - 65, 18, YELLOW);
+	}
 	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
 		if (!game_state->human_players[i].enabled)
 			continue;
