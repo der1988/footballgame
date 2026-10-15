@@ -205,6 +205,9 @@ struct game_state *game_play_init(struct game_config game_config,
 	game_state->layer_debug = layer_debug_create(game_state);
 	game_state->layer_hud = layer_hud_create(game_state);
 	game_state->vars.is_debug_log_shown = true;
+#ifdef __EMSCRIPTEN__
+	game_state->vars.is_debug_log_shown = false;
+#endif
 
 	game_state->render_texture =
 		LoadRenderTexture((f32)game_state->config.virtual_screen_width + VIRTUAL_SCREEN_BLEED * 2,
@@ -285,7 +288,9 @@ b32 game_play_update(struct game_state *game_state)
 		game_state->accumulator += frame_time;
 		while (game_state->accumulator > 0) {
 			PollInputEvents();
+#ifndef __EMSCRIPTEN__
 			quit |= WindowShouldClose();
+#endif
 
 			input_manager_update(game_state->input_manager, game_state);
 
@@ -320,7 +325,9 @@ b32 game_play_update(struct game_state *game_state)
 	} break;
 	case GM_VCR:
 		PollInputEvents();
+#ifndef __EMSCRIPTEN__
 		quit = WindowShouldClose();
+#endif
 
 		static usize tick = 0;
 		tick++;
@@ -393,11 +400,13 @@ static void update(struct game_state *game_state)
 	layer_debug_reset(game_state->layer_debug);
 
 	// mode selection
+#ifndef DISABLE_TIME_MACHINE
 	if (IsKeyReleased(KEY_F1) || game_state->input_manager->game_controllers[0]
 										 .state.current[GAME_CONTROL_RECORDER_REWIND]
 										 .analogic.value > 0.1f) {
 		game_state->vars.mode = GM_VCR;
 	}
+#endif
 
 	// debug layer
 	if (IsKeyReleased(KEY_C)) {
@@ -423,6 +432,7 @@ static void update(struct game_state *game_state)
 	system_oob_checks(game_state);
 	system_action(game_state);
 	system_camera(game_state);
+	system_referee(game_state);
 #ifndef DISABLE_TIME_MACHINE
 	system_time_machine(game_state);
 #endif

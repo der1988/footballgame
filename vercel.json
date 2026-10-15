@@ -1,0 +1,9 @@
+{
+  "framework": null,
+  "buildCommand": null,
+  "installCommand": "",
+  "outputDirectory": "dist",
+  "headers": [
+    { "source": "/game.wasm", "headers": [{"key": "Content-Type", "value": "application/wasm"}] }
+  ]
+}

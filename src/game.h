@@ -181,6 +181,11 @@ struct game_vars {
 };
 
 struct game_gfx {
+	struct {
+		asset_sprite_frame_id_t stand_frames[SO_COUNT];
+		asset_sprite_frame_id_t run_frames[SO_COUNT][4];
+	} referee;
+
 	struct player {
 		asset_sprite_frame_id_t stand_frames[SO_COUNT];
 		asset_animation_id_t run_animations[SO_COUNT];

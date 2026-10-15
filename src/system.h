@@ -18,6 +18,7 @@ void system_goal(struct game_state *game_state);
 void system_goalie(struct game_state *game_state);
 void system_action(struct game_state *game_state);
 void system_camera(struct game_state *game_state);
+void system_referee(struct game_state *game_state);
 void system_render(struct game_state *game_state);
 void system_render_hud_front(struct game_state *game_state);
 void system_render_hud_back(struct game_state *game_state);

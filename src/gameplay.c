@@ -2,6 +2,7 @@
 #include "entity_ball.h"
 #include "entity_camera.h"
 #include "entity_player.h"
+#include "entity_referee.h"
 #include "events_router.h"
 #include "football.h"
 #include "game.h"
@@ -117,6 +118,7 @@ void gameplay_setup_common(u8 outfield_players_per_team, struct game_state *game
 	camera->camera = CAM_MAIN;
 	camera_target->entity_id = ball_entity->header.id;
 	game_state->vars.camera_entity = camera_entity;
+	entity_referee_create(game_state);
 
 	game_state->camera.zoom = 1;
 	game_state->camera.rotation = 0;
