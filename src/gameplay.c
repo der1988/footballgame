@@ -12,8 +12,10 @@
 #include "log.h"
 #include "macro.h"
 #include <float.h>
+#include <math.h>
 #include <string.h>
 #include "math_ext.h"
+#include "input.h"
 #include <raymath.h>
 
 const char *gameplay_mode_string[GPM_COUNT] = {"match", "sandbox"};
@@ -217,7 +219,7 @@ void gameplay_update(struct game_state *game_state)
 	case FS_GOAL_KICK:
 	case FS_FREE_KICK:
 	case FS_PENALTY_KICK:
-		if (gameplay->restart.prepared && game_state->time - gameplay->restart.start_time >= 2.0) {
+		if (gameplay->restart.prepared && (gameplay->restart.manual ? gameplay_update_restart_input(game_state) : game_state->time - gameplay->restart.start_time >= 2.0)) {
 			struct entity *ball = game_state->vars.ball.entity;
 			const enum pitch_side own = game_state->vars.teams[gameplay->restart.team].play_context.pitch_side;
 			v2 target = game_state->vars.pitch.goal[own == PSI_NORTH ? PSI_SOUTH : PSI_NORTH].center;
@@ -225,13 +227,18 @@ void gameplay_update(struct game_state *game_state)
 			if (state_machine->current_state == FS_KICKOFF || state_machine->current_state == FS_THROW_IN)
 				target = Vector2Add(gameplay->restart.spot, (v2){gameplay->restart.spot.x < game_state->vars.pitch.midfield_spot.x ? 65 : -65, own == PSI_NORTH ? 60 : -60});
 			v2 direction = Vector2Normalize(Vector2Subtract(target, gameplay->restart.spot));
+			if (gameplay->restart.manual) direction = gameplay->restart.aim;
+			const f32 power = gameplay->restart.manual ? gameplay->restart.power : 0.7f;
 			const b32 shot = state_machine->current_state == FS_PENALTY_KICK ||
-				(state_machine->current_state == FS_FREE_KICK && Vector2Distance(target, gameplay->restart.spot) < 280);
+				(gameplay->restart.manual ? gameplay->restart.action == GAME_CONTROL_SHOOT && state_machine->current_state != FS_THROW_IN :
+				(state_machine->current_state == FS_FREE_KICK && Vector2Distance(target, gameplay->restart.spot) < 280));
 			entity_ball_set_last_touch(ball, gameplay->restart.taker, game_state);
-			if (shot) entity_ball_shoot(ball, gameplay->restart.taker, direction, 0.15f, 0.7f, false, game_state);
-			else if (state_machine->current_state == FS_CORNER_KICK || state_machine->current_state == FS_GOAL_KICK)
-				entity_ball_long_pass(ball, gameplay->restart.taker, direction, state_machine->current_state == FS_CORNER_KICK ? 0.5f : 0.75f, false, game_state);
-			else entity_ball_short_pass(ball, gameplay->restart.taker, V2_TO_V3(direction, 0), 0.35f, game_state);
+			if (shot) entity_ball_shoot(ball, gameplay->restart.taker, direction, 0.15f, power, false, game_state);
+			else if (state_machine->current_state != FS_THROW_IN && (gameplay->restart.manual ? gameplay->restart.action == GAME_CONTROL_LONG_PASS : state_machine->current_state == FS_CORNER_KICK || state_machine->current_state == FS_GOAL_KICK))
+				entity_ball_long_pass(ball, gameplay->restart.taker, direction, gameplay->restart.manual ? power : state_machine->current_state == FS_CORNER_KICK ? 0.5f : 0.75f, false, game_state);
+			else entity_ball_short_pass(ball, gameplay->restart.taker, V2_TO_V3(direction, 0), gameplay->restart.manual ? power : 0.35f, game_state);
+			if (gameplay->restart.manual) input_reset(&game_state->input_manager->game_controllers[gameplay->restart.controller_id]);
+			GLOGF_INFO(LS_GAME, "RESTART delivered manual=%d power=%.2f aim=%.2f,%.2f", gameplay->restart.manual, power, direction.x, direction.y);
 			gameplay->restart.prepared = false;
 			gameplay_fire(FT_PLAY_RESUMED, game_state);
 		}
@@ -274,6 +281,17 @@ void gameplay_prepare_restart(struct game_state *game_state)
 	gameplay->restart.spot = ball->transform.position;
 	gameplay->restart.start_time = game_state->time;
 	gameplay->restart.taker = EID_NOT_VALID;
+	gameplay->restart.manual = false;
+	gameplay->restart.charging = false;
+	gameplay->restart.power = 0;
+	gameplay->restart.action = -1;
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i) {
+		struct human_player *human = &game_state->human_players[i];
+		if (human->enabled && human->team_side == gameplay->restart.team && game_state->input_manager) {
+			gameplay->restart.manual = true;
+			gameplay->restart.controller_id = human->game_controller_id;
+		}
+	}
 	f32 nearest = FLT_MAX;
 	{
 	FOR_EACH_ENTITY(player, game_state->entity_repository) {
@@ -287,6 +305,12 @@ void gameplay_prepare_restart(struct game_state *game_state)
 	const enum pitch_side own = game_state->vars.teams[gameplay->restart.team].play_context.pitch_side;
 	const f32 forward = own == PSI_NORTH ? 1 : -1;
 	const v2 goal = game_state->vars.pitch.goal[own == PSI_NORTH ? PSI_SOUTH : PSI_NORTH].center;
+	gameplay->restart.aim = Vector2Normalize(Vector2Subtract(goal, gameplay->restart.spot));
+	if (state == FS_KICKOFF || state == FS_THROW_IN)
+		gameplay->restart.aim = Vector2Normalize((v2){gameplay->restart.spot.x < game_state->vars.pitch.midfield_spot.x ? 65 : -65, forward * 60});
+	for (usize i = 0; i < MAX_HUMAN_PLAYERS; ++i)
+		if (game_state->human_players[i].enabled && game_state->human_players[i].team_side == gameplay->restart.team)
+			game_state->human_players[i].controlled_player.entity_id = gameplay->restart.taker;
 	u32 wall = 0;
 	FOR_EACH_ENTITY(player, game_state->entity_repository) {
 		if (!player->header.alive || player->header.type != ET_PLAYER) continue;
@@ -326,4 +350,35 @@ void gameplay_prepare_restart(struct game_state *game_state)
 	}
 	gameplay->restart.prepared = true;
 	GLOGF_INFO(LS_GAME, "RESTART %s team=%s", state_machine_football_state_string[state], team_side_to_string[gameplay->restart.team]);
+}
+
+// Use the same controller abstraction for keyboard and gamepad. Releasing the
+// selected button delivers the kick; reaching full power never fires it early.
+b32 gameplay_update_restart_input(struct game_state *game_state)
+{
+	struct gameplay *gameplay = &game_state->gameplay;
+	struct game_controller *controller = &game_state->input_manager->game_controllers[gameplay->restart.controller_id];
+	v2 aim = input_movement_vector(controller);
+	const rect_t field = game_state->vars.pitch.field;
+	const v2 spot = gameplay->restart.spot;
+	// Do not allow a restart to be aimed immediately outside the field.
+	if (spot.x <= field.x + 2) aim.x = fmaxf(aim.x, 0);
+	if (spot.x >= field.x + field.width - 2) aim.x = fminf(aim.x, 0);
+	if (spot.y <= field.y + 2) aim.y = fmaxf(aim.y, 0);
+	if (spot.y >= field.y + field.height - 2) aim.y = fminf(aim.y, 0);
+	if (Vector2LengthSqr(aim) > 0.01f) gameplay->restart.aim = Vector2Normalize(aim);
+	const enum game_control actions[] = {GAME_CONTROL_SHOOT, GAME_CONTROL_AUTOMATIC_PASS, GAME_CONTROL_PASS, GAME_CONTROL_LONG_PASS};
+	if (!gameplay->restart.charging) {
+		for (usize i = 0; i < ARRAY_LEN(actions); ++i) {
+			if (controller->state.current[actions[i]].digital.pressed) {
+				gameplay->restart.action = actions[i];
+				gameplay->restart.charge_start = game_state->time;
+				gameplay->restart.charging = true;
+				break;
+			}
+		}
+	}
+	if (!gameplay->restart.charging) return false;
+	gameplay->restart.power = Clamp(0.15f + (game_state->time - gameplay->restart.charge_start) * (0.85f / 1.2f), 0.15f, 1.0f);
+	return controller->state.current[gameplay->restart.action].digital.released;
 }

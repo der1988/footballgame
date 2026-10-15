@@ -75,13 +75,15 @@ angled support, and defenders track opponents inside their zone. Forwards move
 into separate central lanes when the ball reaches a crossing position.
 
 Kickoffs, throw-ins, corners, goal kicks, direct free kicks and penalties now have
-a two-second preparation phase and an automatic delivery. The restart selects a
+a preparation phase. Human teams aim with arrows or the controller stick and
+hold/release shoot, pass or long pass to deliver. A direction guide and power bar
+are shown. Power reaches its maximum after 1.2 seconds and waits for release.
+AI teams deliver automatically after two seconds. The restart selects a
 taker on the awarded team and positions the other players, including a three-man
 free-kick wall and players outside the penalty spot at penalties. Challenges that
 hit an opponent without playing the ball award a free kick, or a penalty inside
 the defending team's penalty area.
 
-This is the initial restart implementation: deliveries are automatic and throw-ins
-use the existing passing physics. Dedicated throw-in animations, manual restart
-aiming, indirect free kicks, offside, dropped balls, advantage, cards and penalty
+This is the initial restart implementation: throw-ins
+use the existing passing physics. Dedicated throw-in animations, indirect free kicks, offside, dropped balls, advantage, cards and penalty
 shootouts are not implemented.

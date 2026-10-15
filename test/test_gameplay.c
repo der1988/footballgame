@@ -2,6 +2,7 @@
 #include "entity.h"
 #include "game.h"
 #include "system.h"
+#include "input.h"
 #include <raymath.h>
 #include "gameplay.h"
 #include "gameplay_match.h"
@@ -369,6 +370,59 @@ void test_foul_inside_area_awards_penalty_outside_awards_free_kick(void)
 	}
 }
 
+void test_manual_restart_waits_for_release_and_caps_power(void)
+{
+	struct game_state game = {0};
+	struct input_manager inputs = {0};
+	game.input_manager = &inputs;
+	game.vars.pitch.field = (rect_t){0,0,1000,1000};
+	game.gameplay.restart.spot = (v2){500,500};
+	game.gameplay.restart.aim = (v2){0,1};
+	game.gameplay.restart.start_time = 0;
+	game.gameplay.restart.manual = true;
+	game.gameplay.restart.prepared = true;
+	game.gameplay.state_machine.current_state = FS_KICKOFF;
+	game.time = 10;
+	gameplay_update(&game);
+	TEST_ASSERT_EQUAL_INT(FS_KICKOFF, game.gameplay.state_machine.current_state);
+	struct game_controller *controller = &inputs.game_controllers[0];
+	controller->type = GAME_CONTROLLER_TYPE_KEYBOARD;
+	controller->state.current[GAME_CONTROL_LONG_PASS].digital.pressed = true;
+	controller->state.current[GAME_CONTROL_LONG_PASS].digital.down = true;
+	TEST_ASSERT_FALSE(gameplay_update_restart_input(&game));
+	TEST_ASSERT_TRUE(game.gameplay.restart.charging);
+	TEST_ASSERT_EQUAL_INT(GAME_CONTROL_LONG_PASS, game.gameplay.restart.action);
+	controller->state.current[GAME_CONTROL_LONG_PASS].digital.pressed = false;
+	game.time = 15;
+	TEST_ASSERT_FALSE(gameplay_update_restart_input(&game));
+	TEST_ASSERT_EQUAL_FLOAT(1, game.gameplay.restart.power);
+	controller->state.current[GAME_CONTROL_LONG_PASS].digital.down = false;
+	controller->state.current[GAME_CONTROL_LONG_PASS].digital.released = true;
+	TEST_ASSERT_TRUE(gameplay_update_restart_input(&game));
+}
+
+void test_manual_restart_keeps_aim_and_blocks_outward_throws(void)
+{
+	struct game_state game = {0};
+	struct input_manager inputs = {0};
+	game.input_manager = &inputs;
+	game.vars.pitch.field = (rect_t){0,0,1000,1000};
+	game.gameplay.restart.spot = (v2){0,500};
+	game.gameplay.restart.aim = (v2){1,0};
+	game.time = 1;
+	inputs.game_controllers[0].type = GAME_CONTROLLER_TYPE_KEYBOARD;
+	inputs.game_controllers[0].state.current[GAME_CONTROL_MOVE_LEFT].analogic.value = 1;
+	TEST_ASSERT_FALSE(gameplay_update_restart_input(&game));
+	TEST_ASSERT_EQUAL_FLOAT(1, game.gameplay.restart.aim.x);
+	inputs.game_controllers[0].state.current[GAME_CONTROL_MOVE_LEFT].analogic.value = 0;
+	inputs.game_controllers[0].state.current[GAME_CONTROL_MOVE_DOWN].analogic.value = 1;
+	gameplay_update_restart_input(&game);
+	TEST_ASSERT_EQUAL_FLOAT(1, game.gameplay.restart.aim.y);
+	inputs.game_controllers[0].state.current[GAME_CONTROL_MOVE_DOWN].analogic.value = 0;
+	gameplay_update_restart_input(&game);
+	TEST_ASSERT_EQUAL_FLOAT(1, game.gameplay.restart.aim.y);
+}
+
 int main()
 {
 	GLOG_INFO(LS_TESTS, "gameplay test - start");
@@ -378,6 +432,8 @@ int main()
 	RUN_TEST(test_forward_checks_and_runs_without_abandoning_his_lane);
 	RUN_TEST(test_restart_reserves_ball_for_correct_team_and_waits);
 	RUN_TEST(test_foul_inside_area_awards_penalty_outside_awards_free_kick);
+	RUN_TEST(test_manual_restart_waits_for_release_and_caps_power);
+	RUN_TEST(test_manual_restart_keeps_aim_and_blocks_outward_throws);
 	RUN_TEST(test_cells_are_in_range);
 	RUN_TEST(test_none_row_is_empty);
 	RUN_TEST(test_no_state_reachable_from_play_is_terminal);
